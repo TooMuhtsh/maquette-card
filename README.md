@@ -1,0 +1,94 @@
+# Maquette
+
+**A living floor plan for Home Assistant.**
+
+Maquette is a Lovelace custom card that shows your home from above, live: lights glowing in their rooms,
+open windows in red, shutters at their real position, every room tinted by its temperature, power flowing
+to the devices that use it. You draw the plan right inside your dashboard with a built-in, CAD-like editor —
+no floor-plan image to prepare, no external tool.
+
+> The card is still published as **`plan-maison-card`** (`type: custom:plan-maison-card`).
+> The user interface is currently in **French**; an English translation is planned.
+
+![Maquette — live floor plan, dark theme](images/plan-pc-sombre.png)
+
+## Features
+
+- **Live plan** — light halos clipped to their room, doors / windows / gates red when open, shutters drawn by
+  position and animated while moving, rooms tinted by temperature with humidity in the label, connected
+  furniture (EV charger, fridge, TV, electrical panel…) showing its power.
+- **Cards on tap** — any piece of furniture, badge or opening can open its own card built from widgets
+  (EV, cover / gate control with confirmation, charts, counters), filled automatically from the device.
+- **Room view** — tap a room to zoom in: automatic buttons (all off, shutters), your own buttons, scenes,
+  devices with toggles and linked automations.
+- **Summary chips, badges and info boxes** — customizable chips above the plan (any entity, alert rules),
+  badges on the plan and boxes of live values.
+- **Side panels** — live tariff (Tempo colours), EV, gauge, 24 h chart tile, thermostat, room climate,
+  day / week / month / year tables from Home Assistant long-term statistics.
+- **Ambience** — optional and discreet by default: day / night from `sun.sun` with light from the sun's real side,
+  real Home Assistant weather on outdoor areas (clouds, rain, snow, hail, fog, lightning, wind), fading traces of
+  what just changed, animated energy flows, people at home or away in their real direction.
+- **Full-plan alerts** — smoke, leak, opening while nobody is home, freezer too warm: pulsing veil, banner,
+  elements circled.
+- **Replay of the day** — the whole plan, panels included, redrawn at any moment of the last 1–72 hours, with a
+  timeline, speeds from ×60 to ×3600 and marks for openings, lights and arrivals.
+- **Built-in editor** (admins only) — walls, fences, openings, rooms and sub-areas, 45 top-view furniture symbols,
+  layers, groups, snapping, multi-selection, undo / redo, Home Assistant area import with their devices,
+  templates, YAML / JSON export and import; saves straight into the dashboard configuration.
+- **Built-in demo** — a simulated apartment where everything works and nothing reaches your home
+  (`demo: true`, or the « Plan de la maison — démo » card and dashboard).
+- **Material Design 3**, light and dark themes, phone and desktop (full page without scrollbars on desktop,
+  bottom sheets and pinch-to-zoom on phones).
+
+## Screenshots
+
+| Ambience | Replay | Editor |
+|---|---|---|
+| ![Day to night, lights turning on](images/jour-nuit.gif) | ![Replay of the evening](images/replay.gif) | ![Dragging a sofa in the editor](images/editeur.gif) |
+
+| Card on tap | Room view | Full-plan alert |
+|---|---|---|
+| ![EV charger card](images/fiche-borne-pc-sombre.png) | ![Living room view](images/piece-pc-sombre.png) | ![Smoke alert](images/alerte.gif) |
+
+| Weather | Energy flows | Phone (light / dark) |
+|---|---|---|
+| ![Rain, snow and storm on the balcony](images/meteo.gif) | ![Energy flowing from the electrical panel](images/energie.gif) | ![Phone, light theme](images/mobile-clair.png) |
+
+## Installation
+
+### HACS (custom repository)
+
+1. HACS → ⋮ → **Custom repositories** → add the repository URL (*link coming soon*), category **Dashboard**.
+2. Install **Plan Maison Card**, then reload your browser.
+
+### Manual
+
+1. Copy `dist/plan-maison-card.js` to `/config/www/plan-maison-card.js`.
+2. Settings → Dashboards → ⋮ → **Resources** → add `/local/plan-maison-card.js` as a **JavaScript module**.
+
+## Getting started
+
+Create a new **Plan de la maison** dashboard (blank) or **Plan de la maison — démo**, or add the card —
+it works best alone in a **panel** view:
+
+```yaml
+type: custom:plan-maison-card
+titre: My home
+```
+
+Then click the ruler icon at the top right of the card and draw, or start from your Home Assistant areas.
+The full configuration reference is in [docs/configuration.md](docs/configuration.md).
+
+## Status
+
+Young project, under active development (0.1.0 on 2026-10-05). Feedback and bug reports are welcome.
+Roadmap: English UI, visual editor in the standard Lovelace card editor, background image (scanned plan) under the drawing.
+
+## Built with Claude Code
+
+Maquette is developed with [Claude Code](https://claude.com/claude-code), Anthropic's AI coding assistant:
+the code is written with Claude Code under the author's direction, and every feature is tested on a real home.
+
+## License
+
+[MIT](LICENSE).
