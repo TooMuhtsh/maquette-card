@@ -122,8 +122,8 @@ title: Ma maison
 ```
 
 Cliquez ensuite sur le bouton d'édition en haut à droite de la carte et dessinez, ou partez de vos pièces
-Home Assistant. Les clés de configuration sont en anglais ; la référence complète est dans
-[docs/configuration.md](docs/configuration.md) (en anglais).
+Home Assistant. Les clés de configuration sont en anglais ; chaque élément et chaque clé sont décrits dans la
+[référence de configuration](docs/reference.md) (en anglais pour l'instant, version française bientôt), aussi disponible sur le [wiki](https://github.com/TooMuhtsh/maquette-card/wiki).
 
 ## Où en est le projet
 

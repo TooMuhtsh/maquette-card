@@ -112,7 +112,7 @@ title: My home
 ```
 
 Then click the ruler icon at the top right of the card and draw, or start from your Home Assistant areas.
-The full configuration reference is in [docs/configuration.md](docs/configuration.md).
+Every element and key is documented in the [configuration reference](docs/reference.md), also on the [wiki](https://github.com/TooMuhtsh/maquette-card/wiki).
 
 ## Status
 
