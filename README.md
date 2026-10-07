@@ -40,6 +40,37 @@ no floor-plan image to prepare, no external tool.
 - **Material Design 3**, light and dark themes, phone and desktop (full page without scrollbars on desktop,
   bottom sheets and pinch-to-zoom on phones).
 
+## Simple to set up: draw your home in the card
+
+No floor-plan image to prepare, no external tool, no YAML to write: everything happens in the built-in editor,
+right on your dashboard (click the ruler icon at the top of the card).
+
+**1. Start from your Home Assistant areas.** On an empty plan, *Start with my rooms* creates one room per area,
+with its devices ready to place. You can also draw a room yourself or import an existing plan.
+
+![Empty plan: start from your areas, draw a room or import a plan](images/editeur-vide-pc-clair.png)
+
+**2. Draw the rooms.** The rectangle tool draws a room with its walls in one move; type the width × height in
+centimetres for an exact size. Shared walls stay shared when you resize a room, and everything snaps to the grid.
+
+**3. Place doors, windows and shutters.** The room panel lists the openings of that area that are not on the plan
+yet: one click, then click the wall where it goes.
+
+**4. Furnish.** Drag one of the 45 top-view symbols from the catalogue (sofas, beds, kitchen, EV charger, car…);
+furniture snaps to the walls and resizes from its corners. Link a piece of furniture to a device and its card is
+filled automatically from that device.
+
+| Catalogue | Drag, snap, resize |
+|---|---|
+| ![Catalogue of top-view furniture with search](images/editeur-catalogue-pc-sombre.png) | ![Dragging a sofa in the editor](images/editeur.gif) |
+
+**5. Save.** The plan is stored in your dashboard configuration like any other card. Undo / redo, groups, layers,
+multi-selection and YAML / JSON export are there when you need them.
+
+![Editing a piece of furniture: size, orientation, connected device](images/editeur-pc-sombre.png)
+
+> Screenshots are taken from the built-in demo apartment; the editor is shown in French for now (English UI coming).
+
 ## Screenshots
 
 | Ambience | Replay | Editor |
