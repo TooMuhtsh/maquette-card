@@ -1,3 +1,5 @@
+🇫🇷 [Version française](reference.fr.md)
+
 # Maquette reference
 
 Every element of a Maquette card and every key it accepts, one section per element, with types, values, defaults, a
