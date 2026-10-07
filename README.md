@@ -7,8 +7,8 @@ open windows in red, shutters at their real position, every room tinted by its t
 to the devices that use it. You draw the plan right inside your dashboard with a built-in, CAD-like editor —
 no floor-plan image to prepare, no external tool.
 
-> The card is still published as **`plan-maison-card`** (`type: custom:plan-maison-card`).
-> The user interface is currently in **French**; an English translation is planned.
+> **The first release (0.1.0) is being finalised: the code will be published in this repository very soon.**
+> Interface in English and French (follows your Home Assistant profile language).
 
 ![Maquette — live floor plan, dark theme](images/plan-pc-sombre.png)
 
@@ -36,7 +36,7 @@ no floor-plan image to prepare, no external tool.
   layers, groups, snapping, multi-selection, undo / redo, Home Assistant area import with their devices,
   templates, YAML / JSON export and import; saves straight into the dashboard configuration.
 - **Built-in demo** — a simulated apartment where everything works and nothing reaches your home
-  (`demo: true`, or the « Plan de la maison — démo » card and dashboard).
+  (`demo: true`, or the « Maquette — demo » card and dashboard).
 - **Material Design 3**, light and dark themes, phone and desktop (full page without scrollbars on desktop,
   bottom sheets and pinch-to-zoom on phones).
 
@@ -69,7 +69,7 @@ multi-selection and YAML / JSON export are there when you need them.
 
 ![Editing a piece of furniture: size, orientation, connected device](images/editeur-pc-sombre.png)
 
-> Screenshots are taken from the built-in demo apartment; the editor is shown in French for now (English UI coming).
+> Screenshots are taken from the built-in demo apartment (French interface; the card also speaks English).
 
 ## Screenshots
 
@@ -89,22 +89,22 @@ multi-selection and YAML / JSON export are there when you need them.
 
 ### HACS (custom repository)
 
-1. HACS → ⋮ → **Custom repositories** → add the repository URL (*link coming soon*), category **Dashboard**.
-2. Install **Plan Maison Card**, then reload your browser.
+1. HACS → ⋮ → **Custom repositories** → add `https://github.com/TooMuhtsh/maquette-card`, category **Dashboard**.
+2. Install **Maquette**, then reload your browser.
 
 ### Manual
 
-1. Copy `dist/plan-maison-card.js` to `/config/www/plan-maison-card.js`.
-2. Settings → Dashboards → ⋮ → **Resources** → add `/local/plan-maison-card.js` as a **JavaScript module**.
+1. Copy `dist/maquette-card.js` to `/config/www/maquette-card.js`.
+2. Settings → Dashboards → ⋮ → **Resources** → add `/local/maquette-card.js` as a **JavaScript module**.
 
 ## Getting started
 
-Create a new **Plan de la maison** dashboard (blank) or **Plan de la maison — démo**, or add the card —
+Create a new **Maquette** dashboard (blank) or **Maquette — demo**, or add the card —
 it works best alone in a **panel** view:
 
 ```yaml
-type: custom:plan-maison-card
-titre: My home
+type: custom:maquette-card
+title: My home
 ```
 
 Then click the ruler icon at the top right of the card and draw, or start from your Home Assistant areas.
@@ -112,8 +112,8 @@ The full configuration reference is in [docs/configuration.md](docs/configuratio
 
 ## Status
 
-Young project, under active development (0.1.0 on 2026-10-05). Feedback and bug reports are welcome.
-Roadmap: English UI, visual editor in the standard Lovelace card editor, background image (scanned plan) under the drawing.
+Young project, under active development (first release 0.1.0 coming soon). Feedback and bug reports are welcome.
+Roadmap: visual editor in the standard Lovelace card editor, background image (scanned plan) under the drawing.
 
 ## Built with Claude Code
 
