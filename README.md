@@ -1,5 +1,7 @@
 # Maquette
 
+🇫🇷 [Version française](README.fr.md)
+
 **A living floor plan for Home Assistant.**
 
 Maquette is a Lovelace custom card that shows your home from above, live: lights glowing in their rooms,
@@ -35,6 +37,8 @@ no floor-plan image to prepare, no external tool.
 - **Built-in editor** (admins only) — walls, fences, openings, rooms and sub-areas, 45 top-view furniture symbols,
   layers, groups, snapping, multi-selection, undo / redo, Home Assistant area import with their devices,
   templates, YAML / JSON export and import; saves straight into the dashboard configuration.
+- **⚙ Settings panel** — every card-wide option in one place (language, display, people, badges, interaction,
+  wall tablet mode, animation level…).
 - **Built-in demo** — a simulated apartment where everything works and nothing reaches your home
   (`demo: true`, or the « Maquette — demo » card and dashboard).
 - **Material Design 3**, light and dark themes, phone and desktop (full page without scrollbars on desktop,
@@ -45,7 +49,7 @@ no floor-plan image to prepare, no external tool.
 No floor-plan image to prepare, no external tool, no YAML to write: everything happens in the built-in editor,
 right on your dashboard (click the ruler icon at the top of the card).
 
-**1. Start from your Home Assistant areas.** On an empty plan, *Start with my rooms* creates one room per area,
+**1. Start from your Home Assistant areas.** On an empty plan, *Start with my areas* creates one room per area,
 with its devices ready to place. You can also draw a room yourself or import an existing plan.
 
 ![Empty plan: start from your areas, draw a room or import a plan](images/editeur-vide-pc-clair.png)
