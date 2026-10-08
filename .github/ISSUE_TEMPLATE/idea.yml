@@ -1,0 +1,44 @@
+name: Idea / Idée
+description: Suggest a feature or an improvement. / Proposer une fonction ou une amélioration.
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        English or French, as you like. To discuss an idea before asking for it, the [Discussions](https://github.com/TooMuhtsh/maquette-card/discussions) are a good place.
+        En français ou en anglais, au choix. Pour en parler avant de la demander, les [Discussions](https://github.com/TooMuhtsh/maquette-card/discussions) sont faites pour ça.
+  - type: textarea
+    id: need
+    attributes:
+      label: What would you like to do? / Que voulez-vous faire ?
+      description: The need first, in your home, rather than a solution. / Le besoin d'abord, chez vous, plutôt qu'une solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: How could Maquette help? / Comment Maquette pourrait aider ?
+      description: What you imagine on the plan or in the editor; a YAML example if it helps. / Ce que vous imaginez sur le plan ou dans l'éditeur ; un exemple YAML si ça aide.
+    validations:
+      required: false
+  - type: textarea
+    id: today
+    attributes:
+      label: How do you do it today? / Comment faites-vous aujourd'hui ?
+      description: Another card, an automation, nothing… / Une autre carte, une automatisation, rien…
+    validations:
+      required: false
+  - type: input
+    id: versions
+    attributes:
+      label: Maquette and Home Assistant versions / Versions de Maquette et de Home Assistant
+      placeholder: "Maquette 0.1.0, HA 2026.10.0"
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or sketches / Captures ou croquis
+      description: Drag and drop images here. / Glissez les images ici.
+    validations:
+      required: false

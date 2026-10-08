@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maquette — demo</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css">
+<style>
+  :root{--primary-color:#03a9f4;--card-background-color:#1c1c1c;--primary-text-color:#e1e1e1;--secondary-text-color:#9b9b9b;--secondary-background-color:#282828;
+    --divider-color:rgba(225,225,225,.12);--error-color:#ef5350;--warning-color:#ff9800;--disabled-text-color:#6f6f6f;--text-primary-color:#fff;color-scheme:dark}
+  :root.clair{--card-background-color:#fff;--primary-text-color:#212121;--secondary-text-color:#727272;--secondary-background-color:#e5e5e5;--divider-color:rgba(0,0,0,.12);
+    --error-color:#db4437;--disabled-text-color:#bdbdbd;color-scheme:light}
+  html,body{margin:0;background:#111;font-family:Roboto,system-ui,sans-serif}
+  :root.clair body{background:#fafafa}
+  main{padding:16px}
+</style>
+<script>{
+  const q = new URLSearchParams(location.search);
+  if (q.has("clair")) document.documentElement.classList.add("clair");
+  // langue de la page (et donc de la carte avant le premier hass) : ?lang=en|fr, sinon celle du navigateur
+  const fr = /^fr/i.test(q.get("lang") || navigator.language || "");
+  document.documentElement.lang = fr ? "fr" : "en";
+  document.title = fr ? "Maquette — démo" : "Maquette — demo";
+}</script>
+<script type="module" src="./mock-ha.js"></script>
+<script type="module" src="../dist/maquette-card.js"></script>
+<script type="module" src="./demo.js"></script>
+</head>
+<body><main><maquette-card></maquette-card></main></body>
+</html>

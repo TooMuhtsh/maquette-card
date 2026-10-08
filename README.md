@@ -2,127 +2,126 @@
 
 🇫🇷 [Version française](README.fr.md)
 
+[![HACS Custom](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz/docs/faq/custom_repositories/)
+[![Release](https://img.shields.io/github/v/release/TooMuhtsh/maquette-card)](https://github.com/TooMuhtsh/maquette-card/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 **A living floor plan for Home Assistant.**
 
-Maquette is a Lovelace custom card that shows your home from above, live: lights glowing in their rooms,
-open windows in red, shutters at their real position, every room tinted by its temperature, power flowing
-to the devices that use it. You draw the plan right inside your dashboard with a built-in, CAD-like editor —
-no floor-plan image to prepare, no external tool.
+Maquette is a Lovelace card that shows your home from above, live: lights glowing in their rooms, open windows in red,
+shutters at their real position, rooms tinted by temperature, power flowing to the devices that use it.
+You draw the plan right in your dashboard with the built-in editor: no floor-plan image, no external tool, no YAML.
 
-> **The first release (0.1.0) is being finalised: the code will be published in this repository very soon.**
-> Interface in English and French (follows your Home Assistant profile language).
-
-![Maquette — live floor plan, dark theme](images/plan-pc-sombre.png)
+![Maquette: the demo apartment, live, dark theme](images/plan-pc-dark.png)
 
 ## Features
 
-- **Live plan** — light halos clipped to their room, doors / windows / gates red when open, shutters drawn by
-  position and animated while moving, rooms tinted by temperature with humidity in the label, connected
-  furniture (EV charger, fridge, TV, electrical panel…) showing its power.
-- **Cards on tap** — any piece of furniture, badge or opening can open its own card built from widgets
-  (EV, cover / gate control with confirmation, charts, counters), filled automatically from the device.
-- **Room view** — tap a room to zoom in: automatic buttons (all off, shutters), your own buttons, scenes,
-  devices with toggles and linked automations.
-- **Summary chips, badges and info boxes** — customizable chips above the plan (any entity, alert rules),
-  badges on the plan and boxes of live values.
-- **Side panels** — live tariff (Tempo colours), EV, gauge, 24 h chart tile, thermostat, room climate,
-  day / week / month / year tables from Home Assistant long-term statistics.
-- **Ambience** — optional and discreet by default: day / night from `sun.sun` with light from the sun's real side,
-  real Home Assistant weather on outdoor areas (clouds, rain, snow, hail, fog, lightning, wind), fading traces of
-  what just changed, animated energy flows, people at home or away in their real direction.
-- **Full-plan alerts** — smoke, leak, opening while nobody is home, freezer too warm: pulsing veil, banner,
-  elements circled.
-- **Replay of the day** — the whole plan, panels included, redrawn at any moment of the last 1–72 hours, with a
-  timeline, speeds from ×60 to ×3600 and marks for openings, lights and arrivals.
-- **Built-in editor** (admins only) — walls, fences, openings, rooms and sub-areas, 45 top-view furniture symbols,
-  layers, groups, snapping, multi-selection, undo / redo, Home Assistant area import with their devices,
-  templates, YAML / JSON export and import; saves straight into the dashboard configuration.
-- **⚙ Settings panel** — every card-wide option in one place (language, display, people, badges, interaction,
-  wall tablet mode, animation level…).
-- **Built-in demo** — a simulated apartment where everything works and nothing reaches your home
-  (`demo: true`, or the « Maquette — demo » card and dashboard).
-- **Material Design 3**, light and dark themes, phone and desktop (full page without scrollbars on desktop,
-  bottom sheets and pinch-to-zoom on phones).
+- **Live plan**: light halos clipped to their room, doors and windows red when open, shutters drawn by position,
+  rooms tinted by temperature, connected furniture (EV charger, fridge, TV…) showing its power.
+- **Built-in editor** (admins only): walls, rooms, openings, 45 top-view furniture symbols, layers, groups, snapping,
+  undo / redo, your Home Assistant areas and their devices in one click. Saves into the dashboard configuration.
+- **Workshops**: *Create an opening*, *Create furniture* (draw your own pieces from shapes) and *Create a widget*,
+  with a live preview, saved to *My templates*.
+- **65 ready-made widgets** (CO₂, leak, lock, EV, tariff, pool pH…) on top of 11 widget types, for the side panels and
+  for the card each element opens on tap. Entity fields are filled from Home Assistant.
+- **Ambience**: day and night from the sun, real weather on outdoor areas, fading traces of what just changed, energy
+  flows, people at home or away in their real direction. Optional and discreet.
+- **Replay the day**: the whole plan, panels included, redrawn at any moment of the last 1–72 hours.
+- **Clean up the plan**: finds gaps, stubs, duplicate walls and openings off their wall, and fixes them in one undoable step.
+- **Security**: sensitive actions (unlock, open a garage, disarm, run a script…) are always confirmed in a dialog that
+  names the real service; an imported plan shows what it can control before it is applied.
+- Room view, summary chips, full-plan alerts, wall tablet mode, ⚙ Settings panel, built-in demo.
+  Material Design 3, light and dark, phone and desktop, English and French.
 
-## Simple to set up: draw your home in the card
+<p>
+  <img src="images/plan-phone-light.png" width="22%" alt="Phone, light theme">
+  <img src="images/plan-phone-dark.png" width="22%" alt="Phone, dark theme">
+  <img src="images/plan-pc-light.png" width="52%" alt="Desktop, light theme">
+</p>
 
-No floor-plan image to prepare, no external tool, no YAML to write: everything happens in the built-in editor,
-right on your dashboard (click the ruler icon at the top of the card).
+## Draw your home in the card
 
-**1. Start from your Home Assistant areas.** On an empty plan, *Start with my areas* creates one room per area,
-with its devices ready to place. You can also draw a room yourself or import an existing plan.
+Click the editor button at the top right of the card.
 
-![Empty plan: start from your areas, draw a room or import a plan](images/editeur-vide-pc-clair.png)
+1. **Start from your areas.** On an empty plan, *Start with my areas* creates one room per Home Assistant area, with
+   its devices ready to place. Or draw a room, or import a plan.
+2. **Draw the rooms.** The rectangle tool (**R**) draws a room and its walls in two clicks, snapped to the grid. Set
+   the exact width and height afterwards in the room panel. Shared walls stay shared when a room is resized.
+3. **Place doors and windows.** The room panel lists the openings of that area not yet on the plan: click one, then
+   click the wall. Sensors are linked from the room.
+4. **Furnish.** Pick a symbol in *Add › Furniture*; it snaps to the walls. Link it to a device and its card fills
+   itself.
+5. **Save.** The plan is stored in the dashboard like any card.
 
-**2. Draw the rooms.** The rectangle tool draws a room with its walls in one move; type the width × height in
-centimetres for an exact size. Shared walls stay shared when you resize a room, and everything snaps to the grid.
+![Drawing two rooms and placing furniture](images/draw-your-home.gif)
 
-**3. Place doors, windows and shutters.** The room panel lists the openings of that area that are not on the plan
-yet: one click, then click the wall where it goes.
+| Empty plan | Furniture and its device | Create furniture |
+|---|---|---|
+| ![Start with my areas, draw a room or import a plan](images/empty-editor-pc-light.png) | ![EV charger linked to its plug and power sensor](images/editor-furniture-pc-dark.png) | ![Furniture workshop with shapes and preview](images/create-furniture-pc-light.png) |
 
-**4. Furnish.** Drag one of the 45 top-view symbols from the catalogue (sofas, beds, kitchen, EV charger, car…);
-furniture snaps to the walls and resizes from its corners. Link a piece of furniture to a device and its card is
-filled automatically from that device.
-
-| Catalogue | Drag, snap, resize |
+| 65 ready-made widgets | Clean up the plan |
 |---|---|
-| ![Catalogue of top-view furniture with search](images/editeur-catalogue-pc-sombre.png) | ![Dragging a sofa in the editor](images/editeur.gif) |
-
-**5. Save.** The plan is stored in your dashboard configuration like any other card. Undo / redo, groups, layers,
-multi-selection and YAML / JSON export are there when you need them.
-
-![Editing a piece of furniture: size, orientation, connected device](images/editeur-pc-sombre.png)
-
-> Screenshots are taken from the built-in demo apartment (French interface; the card also speaks English).
+| ![Add widget: basics and ready-made widgets by category](images/add-widget-pc-light.png) | ![Defects circled, fixes to tick](images/cleanup-pc-dark.png) |
 
 ## Screenshots
 
-| Ambience | Replay | Editor |
+| Day to night | Card on tap | Room view |
 |---|---|---|
-| ![Day to night, lights turning on](images/jour-nuit.gif) | ![Replay of the evening](images/replay.gif) | ![Dragging a sofa in the editor](images/editeur.gif) |
+| ![Sunset, lights turning on](images/day-night.gif) | ![EV charger card](images/card-ev-pc-light.png) | ![Living room view](images/room-view-pc-dark.png) |
 
-| Card on tap | Room view | Full-plan alert |
+| Replay the day | Full-plan alert | Confirmation of a sensitive action |
 |---|---|---|
-| ![EV charger card](images/fiche-borne-pc-sombre.png) | ![Living room view](images/piece-pc-sombre.png) | ![Smoke alert](images/alerte.gif) |
+| ![Replay with its timeline](images/replay-pc-dark.png) | ![Smoke alert](images/alert-pc-dark.png) | ![A button labelled Lights that really unlocks the door](images/confirm-dialog-pc-dark.png) |
 
-| Weather | Energy flows | Phone (light / dark) |
-|---|---|---|
-| ![Rain, snow and storm on the balcony](images/meteo.gif) | ![Energy flowing from the electrical panel](images/energie.gif) | ![Phone, light theme](images/mobile-clair.png) |
+| Check before importing |
+|---|
+| ![Services, removed values and ignored keys of an imported plan](images/import-check-pc-light.png) |
+
+Screenshots come from the built-in demo apartment.
+
+## Requirements
+
+- Home Assistant **2023.9** or later.
+- A recent browser or the companion app: **Chrome / Edge 111+, Safari 16.4+, Firefox 121+**.
+- A Home Assistant **administrator** account to edit the plan. Other users only see and use it.
 
 ## Installation
 
 ### HACS (custom repository)
 
-1. HACS → ⋮ → **Custom repositories** → add `https://github.com/TooMuhtsh/maquette-card`, category **Dashboard**.
-2. Install **Maquette**, then reload your browser.
+[![Open in HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=TooMuhtsh&repository=maquette-card&category=plugin)
+
+1. HACS → ⋮ → **Custom repositories** → add `https://github.com/TooMuhtsh/maquette-card`, type **Dashboard**.
+2. Download **Maquette**, then reload the browser.
 
 ### Manual
 
-1. Copy `dist/maquette-card.js` to `/config/www/maquette-card.js`.
-2. Settings → Dashboards → ⋮ → **Resources** → add `/local/maquette-card.js` as a **JavaScript module**.
+1. Download `maquette-card.js` from the [latest release](https://github.com/TooMuhtsh/maquette-card/releases/latest).
+2. Copy it to `/config/www/maquette-card.js`.
+3. Settings → Dashboards → ⋮ → **Resources** → add `/local/maquette-card.js` as a **JavaScript module**.
 
 ## Getting started
 
-Create a new **Maquette** dashboard (blank) or **Maquette — demo**, or add the card —
-it works best alone in a **panel** view:
+Add the **Maquette** card (best alone in a **Panel** view), or create a **Maquette** dashboard:
 
 ```yaml
 type: custom:maquette-card
 title: My home
 ```
 
-Then click the ruler icon at the top right of the card and draw, or start from your Home Assistant areas.
-Every element and key is documented in the [configuration reference](docs/reference.md), also on the [wiki](https://github.com/TooMuhtsh/maquette-card/wiki).
+Then click the editor button and draw. To look around first, add the **Maquette — demo** card: a simulated
+apartment where everything works and nothing reaches your home.
 
-## Status
+## Documentation
 
-Young project, under active development (first release 0.1.0 coming soon). Feedback and bug reports are welcome.
-Roadmap: visual editor in the standard Lovelace card editor, background image (scanned plan) under the drawing.
+Everything else is in the **[wiki](https://github.com/TooMuhtsh/maquette-card/wiki)**: getting started, editor guide,
+entities, widgets, ambience, recipes, FAQ, [security](https://github.com/TooMuhtsh/maquette-card/wiki/Security) and the
+full [configuration reference](docs/reference.md). Changes are listed in the [CHANGELOG](CHANGELOG.md); to report a
+vulnerability, see [SECURITY.md](SECURITY.md).
 
-## Built with Claude Code
+Feedback, bug reports and translation help are welcome in the [issues](https://github.com/TooMuhtsh/maquette-card/issues).
 
-Maquette is developed with [Claude Code](https://claude.com/claude-code), Anthropic's AI coding assistant:
-the code is written with Claude Code under the author's direction, and every feature is tested on a real home.
+Built with [Claude Code](https://claude.com/claude-code) under the author's direction, and tested on a real home.
 
 ## License
 

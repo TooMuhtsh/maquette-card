@@ -1,0 +1,76 @@
+name: Bug report / Signaler un problème
+description: Something does not work as expected. / Quelque chose ne marche pas comme prévu.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report it! English or French, as you like.
+        Merci de prendre le temps de le signaler ! En français ou en anglais, au choix.
+
+        **Security issue? / Faille de sécurité ?** Do not open a public issue: see [SECURITY.md](https://github.com/TooMuhtsh/maquette-card/blob/main/SECURITY.md).
+        N'ouvrez pas de ticket public : voir [SECURITY.md](https://github.com/TooMuhtsh/maquette-card/blob/main/SECURITY.md).
+  - type: textarea
+    id: description
+    attributes:
+      label: What happens? / Que se passe-t-il ?
+      description: What you did, what you expected, what happened instead. / Ce que vous avez fait, ce que vous attendiez, ce qui s'est passé.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce / Étapes pour reproduire
+      placeholder: |
+        1. Open the editor… / Ouvrir l'éditeur…
+        2. …
+    validations:
+      required: false
+  - type: input
+    id: maquette
+    attributes:
+      label: Maquette version / Version de Maquette
+      description: Shown in the editor's ⚙ Settings, or in the browser console (MAQUETTE x.y.z). / Affichée dans ⚙ Paramètres de l'éditeur, ou dans la console du navigateur.
+      placeholder: "0.1.0"
+    validations:
+      required: true
+  - type: input
+    id: ha
+    attributes:
+      label: Home Assistant version / Version de Home Assistant
+      description: Settings › About. / Paramètres › À propos.
+      placeholder: "2026.10.0"
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and device / Navigateur et appareil
+      placeholder: "Firefox 131 on Windows, HA app on Android 15, Safari on iPad… / Firefox 131 sous Windows, appli HA sous Android 15…"
+    validations:
+      required: true
+  - type: textarea
+    id: yaml
+    attributes:
+      label: Card YAML (anonymised) / YAML de la carte (anonymisé)
+      description: |
+        The smallest plan that shows the problem (editor › file button › YAML). Remove what you do not want to share: names, entity ids, addresses, tokens.
+        Le plus petit plan qui montre le problème (éditeur › bouton fichier › YAML). Retirez ce que vous ne voulez pas partager : noms, identifiants d'entités, adresses, jetons.
+      render: yaml
+    validations:
+      required: false
+  - type: textarea
+    id: logs
+    attributes:
+      label: Browser console errors / Erreurs de la console du navigateur
+      description: F12 › Console, lines mentioning maquette-card. / F12 › Console, lignes qui mentionnent maquette-card.
+      render: text
+    validations:
+      required: false
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Captures d'écran
+      description: Drag and drop images here (hide what is private). / Glissez les images ici (masquez ce qui est privé).
+    validations:
+      required: false

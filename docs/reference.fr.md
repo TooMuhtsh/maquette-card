@@ -10,8 +10,8 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 > Assistant (français ou anglais, voir [`language`](#réglages-généraux)) ; cette page cite donc les libellés français de
 > l'éditeur.
 
-> **Lien avec configuration.md (`docs/configuration.md`, publié avec le code)** (en anglais). Cette page est la *référence* exhaustive : une table
-> de consultation de chaque clé publique et de chaque valeur énumérée. configuration.md (`docs/configuration.md`, publié avec le code) reste le
+> **Lien avec [configuration.md](configuration.md)** (en anglais). Cette page est la *référence* exhaustive : une table
+> de consultation de chaque clé publique et de chaque valeur énumérée. [configuration.md](configuration.md) reste le
 > *guide* détaillé : fonctionnement, manipulations dans l'éditeur et explications plus longues. En cas de désaccord entre
 > les deux, c'est le code qui fait foi ; merci de le signaler.
 
@@ -24,7 +24,7 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - [Murs](#murs)
 - [Limites et clôtures](#limites-et-clôtures)
 - [Ouvertures](#ouvertures)
-- [Bulles d'appareils](#bulles-dappareils)
+- [Pastilles d'appareils](#pastilles-dappareils)
 - [Textes et zones d'informations](#textes-et-zones-dinformations)
 - [Meubles](#meubles)
 - [Meubles connectés](#meubles-connectés)
@@ -33,14 +33,14 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - [Widgets](#widgets) :
   [tariff](#widget-tariff) · [ev](#widget-ev) · [gauge](#widget-gauge) · [tile](#widget-tile) ·
   [entities](#widget-entities) · [periods](#widget-periods) · [divider](#widget-divider) · [cover](#widget-cover) ·
-  [thermostat](#widget-thermostat) · [climate](#widget-climate)
+  [lock](#widget-lock) · [thermostat](#widget-thermostat) · [climate](#widget-climate)
 - [Puces de résumé](#puces-de-résumé)
 - [Calques](#calques)
 - [Groupes](#groupes)
 - [Modèles](#modèles)
 - [Ambiance](#ambiance) :
   [jour et nuit](#jour-et-nuit) · [météo](#météo) · [traces](#traces) · [flux d'énergie](#flux-dénergie) · [personnes](#personnes)
-- [Style des bulles](#style-des-bulles)
+- [Style des pastilles](#style-des-pastilles)
 - [Alertes plein plan](#alertes-plein-plan)
 - [Animations](#animations)
 - [Revoir la journée](#revoir-la-journée)
@@ -50,6 +50,7 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - [Niveau d'animation](#niveau-danimation)
 - [Démo](#démo)
 - [Clés Home Assistant conservées](#clés-home-assistant-conservées)
+- [Sécurité](#sécurité)
 - [Index des clés](#index-des-clés)
 - [Valeurs énumérées](#valeurs-énumérées)
 
@@ -64,20 +65,26 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - **Les booléens** s'écrivent `true` / `false`. Les booléens écrits en texte (`"false"`, `"no"`, `"off"`, `"0"`,
   `"true"`, `"yes"`…) sont lus comme des booléens pour les clés booléennes ; les nombres écrits en texte (`"120"`) sont
   acceptés pour les coordonnées et les nombres.
-- **Valeurs libres.** Les noms, identifiants d'entités, icônes (`mdi:…`), couleurs (`#rrggbb`, un nom de couleur CSS ou
-  `var(--…)`), nombres, coordonnées, `data` de service et états HA sont recopiés tels quels. Seules les **clés** et les
-  **valeurs énumérées** (colonne *Valeurs*, reprise sous [Valeurs énumérées](#valeurs-énumérées)) font partie du schéma.
+- **Valeurs libres.** Les noms, identifiants d'entités, icônes (`mdi:…`), couleurs (`#rgb`…`#rrggbbaa`, `rgb()` /
+  `hsl()` aux valeurs numériques, un nom de couleur CSS ou `var(--…)`), nombres, coordonnées, `data` de service et états HA
+  sont recopiés tels quels. Seules les **clés** et les **valeurs énumérées** (colonne *Valeurs*, reprise sous
+  [Valeurs énumérées](#valeurs-énumérées)) font partie du schéma.
+- **Valeurs contrôlées.** Tout ce qui finit dans le dessin est contrôlé à la lecture de la configuration : coordonnées et
+  nombres doivent être des nombres finis (un point ne garde que son `x` et son `y`), valeurs énumérées connues, couleurs et
+  icônes aux formats ci-dessus. Une valeur invalide est retirée (jamais d'erreur), avec un avertissement unique dans la
+  console du navigateur (`maquette-card : invalid value(s) removed: …`) ; les textes s'affichent toujours comme du texte.
+  Voir [Sécurité](#sécurité).
 - **Clés inconnues.** Une clé absente de cette page, ou une valeur énumérée écrite sous son ancien nom français, est
   ignorée avec un avertissement dans la console du navigateur (`maquette-card : unknown key « … » (ignored)`). Une
   configuration écrite entièrement avec les anciennes clés françaises (`pieces`, `murs`…) est refusée avec un message ;
-  voir le CHANGELOG.
+  voir le [CHANGELOG](../CHANGELOG.md#former-french-keys) (en anglais).
 - **Les clés omises** prennent le défaut indiqué. *—* signifie « absent / non défini ». L'éditeur supprime une clé
   remise à sa valeur par défaut, pour que le YAML enregistré reste minimal.
-- **Clés communes aux éléments.** Les pièces, ouvertures, bulles, textes et meubles acceptent aussi `hidden`, `level` et
+- **Clés communes aux éléments.** Les pièces, ouvertures, pastilles, textes et meubles acceptent aussi `hidden`, `level` et
   `group` (voir [Calques](#calques) et [Groupes](#groupes)).
 - **Les chemins de l'éditeur** reprennent les libellés français de l'interface : *Éditeur : ⚙ Paramètres › Affichage*
-  désigne le bouton ⚙ Paramètres de la barre d'outils de l'éditeur, section *Affichage*. *Ajouter › Meubles* désigne le
-  bouton **Ajouter** (touche `A`), onglet *Meubles*.
+  désigne le bouton ⚙ Paramètres de la barre d'outils de l'éditeur (dans le menu « Plus d'outils » ⋮ sur téléphone), onglet
+  *Affichage* de sa fenêtre. *Ajouter › Meubles* désigne le bouton **Ajouter** (touche `A`), onglet *Meubles*.
 
 ## Racine de la carte
 
@@ -93,7 +100,7 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `walls` | liste | | `[]` | [Murs](#murs) |
 | `fences` | liste | | `[]` | [Limites et clôtures](#limites-et-clôtures) |
 | `openings` | liste | | `[]` | [Ouvertures](#ouvertures) |
-| `badges` | liste | | `[]` | [Bulles d'appareils](#bulles-dappareils) |
+| `badges` | liste | | `[]` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `texts` | liste | | `[]` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `furniture` | liste | | `[]` | [Meubles](#meubles) et [meubles connectés](#meubles-connectés) |
 | `panels` | objet | | — | [Panneaux](#panneaux) de la vue d'ensemble |
@@ -103,7 +110,7 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `ambience` | objet | | — | [Ambiance](#ambiance) |
 | `animations` | objet | | — | [Animations](#animations) par événement |
 | `alerts` | liste | | — | [Alertes plein plan](#alertes-plein-plan) |
-| `badge_style` | objet | | — | [Style des bulles](#style-des-bulles) |
+| `badge_style` | objet | | — | [Style des pastilles](#style-des-pastilles) |
 | `replay` | booléen / objet | | — | [Revoir la journée](#revoir-la-journée) |
 | `showcase` | booléen / objet | | — | [Exemples sous le plan](#exemples-sous-le-plan) |
 | `interaction` | objet | | — | [Interaction](#interaction) |
@@ -166,8 +173,9 @@ legend: false
 ```
 
 Éditeur : ⚙ Paramètres › Général (`title`, `language`, `full_page`, `margin`, `editor`), › Affichage (`show_furniture`,
-`layers.view_button`), › Fonctions (`replay`, `showcase`, `presence`), › Pièces et légende (`room_labels`,
-`temperature_tint`, `legend`).
+`layers.view_button`), › Fonctions (`replay`, `showcase`, `presence` ; *Réglés ailleurs* : liens vers les alertes plein
+plan et les puces du résumé), › Pièces et légende (`room_labels`, `temperature_tint`, `legend`). Les aides sont derrière
+les boutons ⓘ.
 
 ## Pièces et sous-zones
 
@@ -203,10 +211,10 @@ pièce. Avec `sub_area: true`, elle devient une sous-zone : un contour pointill�
 |---|---|---|---|---|
 | `name` | texte | | — | Libellé du bouton |
 | `icon` | icône | | — | Icône du bouton |
-| `action` | texte | `domaine.service` | — | Service appelé (par exemple `scene.turn_on`, `light.turn_off`) |
+| `action` | texte | `domaine.service` | — | Service appelé (par exemple `scene.turn_on`, `light.turn_off`). Un [service sensible](#sécurité) demande toujours une confirmation |
 | `target` | entité / énum | un id d'entité, ou `room` | — | Entité cible ; `room` = toute la pièce (sa pièce HA `area` si elle est liée, sinon les entités de la pièce de ce domaine) |
 | `data` | objet | | `{}` | Données du service, recopiées telles quelles |
-| `confirm` | booléen | | `false` | Confirmation en deux appuis |
+| `confirm` | booléen | | `false` | `true` : un dialogue de confirmation même pour un service sûr. Un service sensible est confirmé dans tous les cas |
 
 ```yaml
 rooms:
@@ -270,6 +278,28 @@ walls:
 Éditeur : barre d'outils *Mur (M)* ; sélectionner un mur pour *En limite* (le transformer en clôture) et *Couper en
 deux*. Masquer ou verrouiller tous les murs dans *Calques*.
 
+### Nettoyer le plan
+
+*Nettoyer le plan* (baguette magique de la barre, *Plus* au téléphone) compare murs et ouvertures au contour des
+pièces, qui fait foi. Le dialogue montre le plan, défauts cerclés (un clic zoome dessus), *Avant* / *Après*, et les
+corrections à cocher avec leur nombre :
+
+| Correction | Par défaut | Effet |
+|---|---|---|
+| Aimanter murs et ouvertures aux pièces | oui | trous et décalages jusqu'à 12 cm, bouts qui dépassent d'un angle |
+| Couper les murs sous les ouvertures | oui | style courant, pas compté comme défaut |
+| Retirer les bouts de mur qui dépassent | oui | moins de 35 cm dans une pièce |
+| Fusionner les murs alignés et les doublons | oui | murs coupés à chaque angle, en double, ou épais en 2 traits (≤ 25 cm, sans arête de pièce entre eux) |
+| Ajouter les murs manquants | non | côté extérieur, d'après le contour, pièce par pièce ; génère aussi les murs d'une pièce intérieure qui n'en a aucun. Jamais sur une pièce `outside: true` |
+| Fermer les passages entre pièces | non | arêtes communes sans mur, pièce par pièce |
+| Aimanter les sommets presque confondus | non | sommets à moins de 6 cm : avec l'arrondi, seule correction qui change la forme des pièces |
+| Arrondir à 5 cm | non | sommets, murs, ouvertures ; proposé seulement si au moins 30 % des cotes sont hors de la grille (plan relevé sur une image) |
+
+*Appliquer* = une seule action annulable (Ctrl+Z ou *Annuler* dans la notification) ; relancé juste après, il ne
+trouve plus rien. Avant, une copie de `rooms`, `walls` et `openings` est gardée dans ce navigateur (les 3 dernières) :
+*Plans d'avant nettoyage* les montre, en restaure une (annulable) ou la copie en YAML pour un autre appareil. Aucune
+nouvelle clé de configuration.
+
 ## Limites et clôtures
 
 Clôtures et limites de propriété : segments plus fins, soulignés d'un contour, au même format que les murs.
@@ -302,12 +332,16 @@ Fenêtres, portes et portails dessinés sur un segment de mur, avec leur contact
 | `outside` | `[dx, dy]` | `[-1, 0]` `[1, 0]` `[0, -1]` `[0, 1]` | `[0, 0]` | Direction de l'extérieur (gauche, droite, haut, bas) : le volet est dessiné de ce côté |
 | `shutter_only` | booléen | | `false` | Ne dessiner que le volet, sans le trait de la fenêtre |
 | `bay` | texte | | — | Nom de baie : les vantaux qui ont la même `bay` forment une seule baie (une fiche, une ligne, comptée une fois) |
+| `leaves` | nombre | `1` `2` | `1` | Nombre de battants dessinés (avec `swing`) |
+| `swing` | énum | `left` `right` `sliding` | — | Dessine les battants : côté des gonds vu de l'intérieur, face à `outside`, ou deux panneaux coulissants. Absent = rien n'est dessiné |
+| `outward` | booléen | | `false` | Les battants s'ouvrent vers l'extérieur (`left` / `right`) |
 | `animation` | énum / objet | voir [Animations](#animations) | `animations.opening` | Animation de cette ouverture quand elle est ouverte |
 | `shutter_animation` | énum / objet | voir [Animations](#animations) | `animations.shutter` | Animation de son volet pendant qu'il bouge |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une `card`, sinon plus d'infos | Effet d'un toucher, voir [Fiches](#fiches) |
-| `protected` | booléen | | `false` | Pas d'interrupteur « éteindre » dans sa fiche |
+| `protected` | booléen | | `false` | Pas d'arrêt depuis le plan : pas d'interrupteur « éteindre » dans sa fiche, interrupteur grisé tant qu'il est allumé dans la vue de la pièce |
+| `confirm` | booléen | | `false` | `true` : son interrupteur allumer / éteindre (fiche, vue de la pièce) demande confirmation, même pour un service sûr (par exemple une porte de garage commandée par un `switch`) |
 | `card` | objet / liste | | — | Sa [fiche](#fiches) |
-| `hidden` | booléen | | `false` | Masquée en vue |
+| `hidden` | booléen | | `false` | Masquée en vue (et absente de la vue de la pièce) |
 | `level` | nombre | | `0` | Ordre dans le calque Ouvertures |
 | `group` | texte | `id` de groupe | — | Groupe de l'éditeur |
 
@@ -332,6 +366,10 @@ openings:
   - type: door
     seg: [500, 100, 500, 190]
     contact: binary_sensor.front_door
+    shutter: cover.front_door_shutter
+    leaves: 1
+    swing: right
+    outward: false
     level: 1
   - type: gate
     seg: [200, -200, 500, -200]
@@ -341,38 +379,46 @@ openings:
     hidden: false
 ```
 
-Éditeur : barre d'outils *Ouverture (O)*, ou *Ajouter › Ouvertures* (*Fenêtre + contact*, *Portail / garage*…) ; la
-sélectionner pour le panneau latéral (*Contact*, *Volet*, *Côté extérieur*, *Baie (vantaux regroupés)*, *Animation
-(ouverte)*, *Animation du volet (en mouvement)*, *Fiche*).
+Éditeur : barre d'outils *Ouverture (O)*, ou *Ajouter › Ouvertures* : préréglages (*Fenêtre + volet + contact*, *Porte +
+volet + contact*, *Porte-fenêtre + volet + contact*, *Baie coulissante*, *Fenêtre oscillo-battante*, *Porte de garage*,
+*Portail*…) et *Créer une ouverture* (type, vantaux, ouverture, capteurs, animation, aperçu ; *Ajouter* puis la tracer, ou
+*Enregistrer dans Mes modèles*). Tracée sur un mur, ses capteurs sont cherchés parmi les entités libres de la pièce bordée
+(`area` de la pièce, sinon l'aire HA de même nom) : une seule est reliée d'office, plusieurs ouvrent une petite liste (cette
+pièce d'abord, *Autre entité…*, *Ignorer*), aucune laisse le champ surligné « à compléter » ; `outside` part à l'opposé de la
+pièce intérieure. La sélectionner pour le panneau latéral (*Type*, *Vantaux*, *Ouverture*, *Contact*, *Volet*, *Côté
+extérieur*, *Baie (vantaux regroupés)*, *Animation (ouverte)*, *Animation du volet (en mouvement)*, *Fiche*, *Modifier dans
+l'atelier* pour appliquer un autre préréglage sans la redessiner) ; le panneau suggère un contact ou un volet libre de la
+même pièce, ou le type qui correspond à la classe du contact.
 
-## Bulles d'appareils
+## Pastilles d'appareils
 
-Une bulle est une icône ronde d'appareil posée sur le plan, colorée quand son entité est active, avec en option une
+Une pastille est une icône ronde d'appareil posée sur le plan, colorée quand son entité est active, avec en option une
 valeur, un halo lumineux, une animation et une fiche.
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `entity` | entité | | — | Entité principale : état, couleur, plus d'infos, allumer / éteindre dans sa fiche |
-| `pos` | `[x, y]` | | obligatoire | Position. Une bulle sans `pos` valide est ignorée |
+| `pos` | `[x, y]` | | obligatoire | Position. Une pastille sans `pos` valide est ignorée |
 | `icon` | icône | | `mdi:circle` | Icône |
 | `name` | texte | | nom de l'entité | Info-bulle, listes, en-tête de la fiche |
-| `color` | couleur | | couleur principale du thème | Couleur quand elle est active |
-| `light_color` | booléen | | déduit de `color` | La couleur est claire : l'icône est dessinée en sombre quand la bulle est active |
+| `color` | couleur | | couleur d'état actif de HA (`--state-active-color`, sinon jaune) | Couleur quand elle est active |
+| `light_color` | booléen | | déduit de `color` | La couleur est claire : l'icône est dessinée en sombre quand la pastille est active |
 | `halo` | nombre (cm) / booléen | | — | Rayon du halo lumineux quand elle est active ; `true` = 130 |
 | `room` | texte | un `name` de pièce | — | Limiter le halo à cette pièce |
-| `alert` | booléen | | `false` | Bulle d'alerte : utilise `animations.alert` (pulsation) quand elle est active |
+| `alert` | booléen | | `false` | Pastille d'alerte : utilise `animations.alert` (pulsation) quand elle est active |
 | `active` | entité | | `entity` | Entité qui définit l'état « actif » |
 | `active_attribute` | attribut | | — | Utiliser cet attribut de l'entité active au lieu de son état |
 | `threshold` | nombre | | — | Active quand la valeur active dépasse ce nombre. Sans lui : active pour `on`, `open`, `opening`, `closing`, `playing`, `heating`, `cooling`, `cleaning`, `detected`, `home` |
-| `value` | entité | | — | Valeur numérique affichée dans la bulle |
+| `value` | entité | | — | Valeur numérique affichée dans la pastille |
 | `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur (prime sur `value`) |
 | `unit` | texte | | unité de l'entité | Unité après la valeur (écrite telle quelle, par exemple `" °C"`) |
-| `decimals` | nombre | 0–6 | `0` | Décimales de `value` |
+| `decimals` | nombre | 0–6 | `0` (`attribute` : 1) | Décimales de `value`, ou d'un `attribute` numérique |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une `card`, sinon plus d'infos | Voir [Fiches](#fiches) |
-| `protected` | booléen | | `false` | Pas d'interrupteur « éteindre » dans sa fiche |
+| `protected` | booléen | | `false` | Pas d'arrêt depuis le plan : pas d'interrupteur « éteindre » dans sa fiche, interrupteur grisé tant qu'il est allumé dans la vue de la pièce |
+| `confirm` | booléen | | `false` | `true` : son interrupteur allumer / éteindre (fiche, vue de la pièce) demande confirmation, même pour un service sûr (par exemple une porte de garage commandée par un `switch`) |
 | `card` | objet / liste | | — | Sa [fiche](#fiches) |
 | `animation` | énum / objet | voir [Animations](#animations) | `animations.light`, `.alert` ou `.badge` | Animation quand elle est active |
-| `hidden` | booléen | | `false` | Masquée en vue (toujours comptée, toujours présente dans la vue de la pièce et les listes) |
+| `hidden` | booléen | | `false` | Masquée en vue et dans la vue de la pièce (toujours comptée dans les puces de résumé) |
 | `level` | nombre | | `0` | Ordre dans le calque Appareils |
 | `group` | texte | `id` de groupe | — | Groupe de l'éditeur |
 
@@ -467,18 +513,19 @@ d'une fiche est un [meuble connecté](#meubles-connectés).
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
-| `type` | énum | voir le catalogue ci-dessous | obligatoire | Symbole. Un type inconnu est dessiné comme un rectangle |
+| `type` | énum | voir le catalogue ci-dessous, ou `custom` | obligatoire | Symbole. Un type inconnu est dessiné comme un rectangle |
+| `shape` | liste | 40 formes au plus | — | `custom` seulement : le dessin, voir ci-dessous |
 | `pos` | `[x, y]` | | `[0, 0]` | Centre |
 | `size` | `[largeur, profondeur]` / nombre | 5–5000 chacune | taille du catalogue | Taille avant rotation ; un nombre seul = un carré |
 | `rotation` | nombre (°) | | `0` | Rotation dans le sens horaire |
 | `mirror` | booléen | | `false` | En miroir (canapé d'angle, baignoire…) |
-| `name` | texte | | nom du type | Info-bulle ; pour `area`, le libellé dessiné sur le plan |
+| `name` | texte | | nom du type | Info-bulle ; pour `area`, l'étiquette dessinée sur le plan |
 | `chairs` | nombre | 0–12 | selon la table | Tables seulement : nombre de chaises |
 | `tint` | booléen | | `true` | Meuble connecté : teinté au repos (`false` = couleur seulement quand il est actif) |
 | `hidden` | booléen | | `false` | Masqué en vue |
 | `level` | nombre | | `0` (`-1` pour `rug` et `area`) | Ordre dans le calque Meubles |
 | `group` | texte | `id` de groupe | — | Groupe de l'éditeur |
-| `entity`, `value`, `active`, `active_attribute`, `threshold`, `attribute`, `unit`, `decimals`, `color`, `tap`, `protected`, `card`, `animation` | | | | Voir [Meubles connectés](#meubles-connectés) |
+| `entity`, `value`, `active`, `active_attribute`, `threshold`, `attribute`, `unit`, `decimals`, `color`, `tap`, `protected`, `confirm`, `card`, `animation` | | | | Voir [Meubles connectés](#meubles-connectés) |
 
 ```yaml
 furniture:
@@ -558,11 +605,50 @@ pas de bouton miroir. La *couleur* est l'accent par défaut des meubles connect�
 Éditeur : *Ajouter › Meubles* (onglets par catégorie, recherche), cliquer pour poser ; le sélectionner pour la taille,
 la rotation (±15°, ±90°), *Miroir*, *Chaises*, *Modèle*.
 
+### Meubles personnalisés
+
+`type: custom` dessine sa forme `shape` : des formes dans l'ordre (la dernière au-dessus), coordonnées en % de `size`
+depuis le coin haut gauche, pour que le meuble puisse changer de taille. Les valeurs invalides sont bornées ou retirées,
+jamais écrites telles quelles dans le dessin. `color` (`#rrggbb`, un nom de couleur ou `var(--…)`, le reste est retiré)
+teinte le meuble ; connecté, son accent et son aspect « actif » s'appliquent toujours.
+
+| Clé de forme | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `kind` | énum | `rect` `rounded_rect` `ellipse` `line` `polygon` | obligatoire | Les genres inconnus sont retirés |
+| `x`, `y` | nombre (%) | −50–150 | `0` | Coin haut gauche (`rect`, `rounded_rect`, `ellipse`) |
+| `w`, `h` | nombre (%) | 0–200 | `100` | Largeur et profondeur (`rect`, `rounded_rect`, `ellipse`) |
+| `radius` | nombre (cm) | 0–500, au plus la moitié du petit côté | `8` | Rayon des coins de `rounded_rect` |
+| `points` | `[[x, y], …]` (%) | 2–24 points (`line`), 3–24 (`polygon`) | obligatoire | `line`, `polygon` |
+| `style` | énum | `filled` `outline` `dashed` | `filled` | Remplissage et trait |
+
+```yaml
+furniture:
+  - type: custom
+    pos: [250, 200]
+    size: [180, 120]
+    name: Banc d'angle
+    color: "#188038"
+    shape:
+      - {kind: polygon, points: [[0, 0], [100, 0], [100, 40], [40, 40], [40, 100], [0, 100]]}
+      - {kind: ellipse, x: 10, y: 10, w: 20, h: 20}
+      - {kind: line, points: [[0, 50], [100, 50]], style: dashed}
+```
+
+Éditeur : *Ajouter › Meubles › Créer un meuble* : partir d'une forme de base (rectangle, rectangle arrondi, rond, forme en
+L) ou de n'importe quel meuble du catalogue (converti en formes), régler nom, taille (cm), catégorie, mots de recherche,
+couleur, formes (en cm) et au besoin une entité, avec un aperçu à l'échelle ; *Ajouter* pour le poser ou *Enregistrer dans
+Mes modèles* (rangé dans sa catégorie, avec *Modifier*). Un meuble posé s'ouvre dans le même atelier depuis son panneau
+(*Modifier la forme*, ou *Personnaliser la forme* pour un meuble du catalogue). Dans l'aperçu, les formes se choisissent,
+se glissent et se redimensionnent directement (8 poignées, Maj : proportions ; sommets des traits et polygones, *+* pour en
+ajouter un, appui long ou Suppr pour le retirer), aimantées à une grille de 5 cm et aux bords et centres (Alt : sans
+aimant) ; flèches 1 cm (Maj : 10 cm), Ctrl+Z / Ctrl+Y annulent dans l'atelier. Les valeurs restent en % de `size`, au
+centième au plus.
+
 ## Meubles connectés
 
 Tout meuble devient connecté avec une `entity`, une `value` ou une `card` : teinte d'accent, aspect « actif », pastille
 de valeur, et zone tactile qui ouvre sa fiche ou sa fenêtre plus d'infos. Mêmes clés et même sens que pour les
-[bulles d'appareils](#bulles-dappareils).
+[pastilles d'appareils](#pastilles-dappareils).
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
@@ -578,6 +664,7 @@ de valeur, et zone tactile qui ouvre sa fiche ou sa fenêtre plus d'infos. Même
 | `tint` | booléen | | `true` | `false` = coloré seulement quand il est actif |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une `card`, `more_info` avec une entité ou une valeur, sinon `none` | Effet d'un toucher |
 | `protected` | booléen | | `false` | Pas d'interrupteur « éteindre » dans sa fiche (réfrigérateur, congélateur…) |
+| `confirm` | booléen | | `false` | `true` : l'interrupteur allumer / éteindre de sa fiche demande confirmation, même pour un service sûr |
 | `card` | objet / liste | | — | Sa [fiche](#fiches) |
 | `animation` | énum / objet | voir [Animations](#animations) | `animations.furniture` | Animation quand il est actif ; `shape: outline` suit son contour |
 
@@ -609,25 +696,31 @@ furniture:
 ```
 
 Éditeur : sélectionner le meuble › *Connecté* (entité, valeur, effet du toucher, protégé, *Réglages avancés*) ;
-*Remplir depuis l'appareil* propose une fiche ; *Fusionner avec « … »* absorbe une bulle de la même entité située à
+*Remplir depuis l'appareil* propose une fiche ; *Fusionner avec « … »* absorbe une pastille de la même entité située à
 moins de 1,5 m.
 
 ## Fiches
 
-Une fiche est la fenêtre qui s'ouvre quand on touche une ouverture, une bulle ou un meuble connecté : un en-tête (icône,
-nom, état, interrupteur allumer / éteindre) et une pile de [widgets](#widgets).
+Une fiche est la fenêtre qui s'ouvre quand on touche une ouverture, une pastille ou un meuble connecté : un en-tête (icône,
+nom, état, interrupteur allumer / éteindre, bouton ⓘ *Plus d'infos*, ✕ pour fermer) et une pile de [widgets](#widgets).
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `card` | objet / liste | | — | La fiche ; une simple liste est lue comme ses `widgets` |
 | `card.title` | texte | | nom de l'élément | Titre de la fiche |
 | `card.widgets` | liste | [widgets](#widgets) | `[]` | Widgets, dans l'ordre (mêmes types et mêmes clés que dans les panneaux) |
+| `card.more_info` | entité / chemin / URL / `false` | | entité principale | Effet du bouton ⓘ *Plus d'infos* de l'en-tête : une entité ouvre sa fenêtre plus d'infos de HA, un chemin de tableau de bord (`/lovelace/energie`, pas `//…`) y mène, une URL (`http://…` ou `https://…`) s'ouvre dans un nouvel onglet, `false` (ou `none`) masque le bouton. Tout autre lien (`javascript:`, `data:`…) est retiré |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une fiche | `card` ouvre la fiche, `more_info` la fenêtre plus d'infos de HA pour l'entité principale, `none` ne fait rien |
 | `protected` | booléen | | `false` | Ne jamais afficher l'interrupteur « éteindre » (un bouton « Rallumer » seulement quand l'élément est éteint) |
+| `confirm` | booléen | | `false` | L'interrupteur allumer / éteindre demande confirmation, même pour un service sûr (les widgets de la fiche ont leur propre `confirm`) |
 
-L'interrupteur allumer / éteindre n'apparaît que pour les entités `switch`, `light`, `fan` et `input_boolean`. Dans une
-fiche, les lignes affichent des valeurs (pas d'interrupteurs) ; les seuls services appelés sont le `turn_on` /
-`turn_off` de l'élément lui-même et les boutons des widgets [cover](#widget-cover) et [thermostat](#widget-thermostat).
+L'interrupteur allumer / éteindre n'apparaît que pour les entités `switch`, `light`, `fan`, `input_boolean` et
+`humidifier`. Dans une fiche, les lignes affichent des valeurs (ni interrupteur, ni bouton *Activer*). Les services qu'une
+fiche peut appeler sont : le `turn_on` / `turn_off` de l'élément lui-même (l'interrupteur ; jamais `turn_off` s'il est
+`protected`), et les boutons de ses widgets [cover](#widget-cover) (ouvrir / arrêter / fermer une cover ou une vanne),
+[lock](#widget-lock) (verrouiller / déverrouiller / ouvrir) et [thermostat](#widget-thermostat)
+(`climate.set_temperature`). Les services sensibles (déverrouiller, ouvrir une porte de garage…) demandent toujours une
+confirmation, voir [Sécurité](#sécurité).
 
 ```yaml
 badges:
@@ -637,6 +730,7 @@ badges:
     protected: true
     card:
       title: Réfrigérateur
+      more_info: /lovelace/energie   # le bouton ⓘ ouvre le tableau de bord Énergie
       widgets:
         - {type: tile, title: Puissance, entity: sensor.fridge_power, history: 24}
         - {type: entities, entities: [sensor.fridge_temperature, {entity: sensor.fridge_energy, name: Aujourd'hui}]}
@@ -648,8 +742,9 @@ openings:
       - {type: entities, entities: [binary_sensor.back_door, sensor.back_door_battery]}
 ```
 
-Éditeur : sélectionner l'ouverture, la bulle ou le meuble › *Fiche* : *Ajouter un widget*, *Remplir depuis l'appareil*,
-*Fiche en modèle* ; la colonne de droite montre la vraie fiche tant que l'élément est sélectionné.
+Éditeur : sélectionner l'ouverture, la pastille ou le meuble › *Fiche* : *Ajouter un widget*, *Remplir depuis l'appareil*,
+*Fiche en modèle*, *Bouton « Plus d'infos »* (par défaut, une autre entité, une page, masqué) ; la colonne de droite
+montre la vraie fiche tant que l'élément est sélectionné.
 
 ## Panneaux
 
@@ -686,11 +781,12 @@ ci-dessous sont communes, et chaque type ajoute les siennes (une même clé a to
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
-| `type` | énum | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `thermostat` `climate` | obligatoire | Type de widget |
-| `title` | texte | | — | Titre de l'en-tête (`cover`, `thermostat` : nom de l'entité) |
+| `type` | énum | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` | obligatoire | Type de widget |
+| `title` | texte | | — | Titre de l'en-tête (`tile`, `gauge`, `cover`, `lock`, `thermostat` : nom de l'entité par défaut) |
 | `icon` | icône | | selon le type | Icône de l'en-tête |
 | `color` | couleur | | — | Couleur d'accent (`gauge` : couleur de l'arc) |
-| `rows` | liste | | — | Lignes supplémentaires sous `tile`, `gauge`, `tariff`, `ev`, `cover` et `thermostat`, voir ci-dessous |
+| `rows` | liste | | — | Lignes supplémentaires sous `tile`, `gauge`, `tariff`, `ev`, `cover`, `lock` et `thermostat`, voir ci-dessous |
+| `confirm` | booléen | | `false` (`cover`, `lock` : voir leur section) | `true` : chaque service du widget demande confirmation, même sûr : interrupteurs et boutons *Activer* de ses lignes, consigne du thermostat, boutons de cover et de serrure. `false` ne retire jamais la confirmation d'un service sensible |
 
 **Lignes** (`rows[]`, ainsi que `entities[]` du widget [entities](#widget-entities)) : un id d'entité, ou un objet :
 
@@ -726,7 +822,7 @@ lendemain.
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `price` | entité | | — | Capteur de prix (son unité, sinon €/kWh) |
-| `period` | entité | | — | Période en cours ; verte quand elle contient « creuse » / « off-peak », orange sinon |
+| `period` | entité | | — | Période en cours ; verte quand elle contient « creuse » / « off-peak », orange sinon, neutre (contour) si elle est indisponible ou inconnue |
 | `color_today` | entité | | — | Couleur Tempo du jour (`Bleu` / `Blanc` / `Rouge` ou `Blue` / `White` / `Red`) |
 | `color_tomorrow` | entité | | — | Couleur Tempo du lendemain |
 
@@ -749,8 +845,8 @@ Véhicule électrique : anneau de batterie, état de charge, autonomie et sessio
 |---|---|---|---|---|
 | `battery` | entité | | — | Niveau de batterie (%) |
 | `range` | entité | | — | Autonomie |
-| `power` | entité | | — | Puissance de charge (W) |
-| `threshold` | nombre (W) | | `50` | En charge quand `power` dépasse ce seuil |
+| `power` | entité | | — | Puissance de charge, dans l'unité de l'entité (`W`, `kW` ou `MW` ; sans unité = W) ; affichée en W, ou en kW dès 1000 W |
+| `threshold` | nombre (W) | | `50` | En charge quand `power` (ramenée en W) dépasse ce seuil |
 | `plugged` | entité | | — | État de branchement (`on`, `plugged`, `connected`, `true`) |
 | `session_kwh` | entité | | — | Énergie de la session |
 | `session_cost` | entité | | — | Coût de la session |
@@ -772,20 +868,23 @@ panels:
 ### Widget `gauge`
 
 Une valeur sur un arc entre un minimum et un maximum (vert, puis orange à partir de 60 %, rouge à partir de 85 %, sauf
-avec `color`).
+avec `color` ou `severity`).
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `entity` | entité | | — | Valeur |
-| `min` | nombre | | `0` | Début de l'arc |
-| `max` | nombre | | `100` | Fin de l'arc (l'éditeur propose 9000) |
+| `min` | nombre | décimales permises (pH : `6.5`) | `0` | Début de l'arc |
+| `max` | nombre | décimales permises | `100` | Fin de l'arc (l'éditeur propose 9000) |
 | `unit` | texte | | unité de l'entité | Unité |
 | `decimals` | nombre | | 1 (0 à partir de 100) | Décimales |
+| `severity` | objet | `green`, `yellow`, `red` : nombres | — | Couleur de l'arc selon la valeur, comme la carte Jauge de HA : chaque couleur vaut à partir de sa valeur jusqu'à la suivante (ordre libre, une à trois couleurs) |
 
 ```yaml
 panels:
   right:
     - {type: gauge, title: Puissance, entity: sensor.linky_power, min: 0, max: 9000, unit: W, decimals: 0}
+    - {type: gauge, title: CO₂, entity: sensor.living_co2, min: 400, max: 2000, unit: ppm, severity: {green: 0, yellow: 800, red: 1200}}
+    - {type: gauge, title: Batterie maison, entity: sensor.home_battery, unit: "%", severity: {red: 0, yellow: 20, green: 50}}
 ```
 
 ### Widget `tile`
@@ -807,8 +906,11 @@ panels:
 
 ### Widget `entities`
 
-Une liste d'entités ; les lumières, interrupteurs, ventilateurs et booléens d'entrée ont un interrupteur (valeurs
-seulement dans une fiche).
+Une liste d'entités ; les lumières, interrupteurs, ventilateurs, humidificateurs et booléens d'entrée ont un
+interrupteur, les scènes, scripts et boutons un bouton *Activer* (valeurs seulement dans une fiche) ; un script ou un
+bouton demande confirmation avant de partir (pas une scène, sauf si le widget a `confirm: true`, qui confirme aussi ses
+interrupteurs) ; un capteur binaire de problème (fuite, fumée, gaz, CO…) à
+`on` s'affiche en rouge.
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
@@ -841,7 +943,7 @@ Un tableau jour / semaine / mois / année, tiré des statistiques à long terme 
 | `name` | texte | | — | En-tête de la colonne |
 | `unit` | texte | | — | Unité sous l'en-tête |
 | `stat` | entité | | — | Capteur cumulatif : variation sur le jour / la semaine / le mois / l'année calendaire, d'après les statistiques de HA |
-| `factor` | nombre | | `1` | Multiplicateur appliqué à `stat` (par exemple `0.001` pour passer de Wh à kWh) |
+| `factor` | nombre | | `1` | Multiplicateur appliqué aux valeurs, avec `stat` comme avec les quatre entités (par exemple `0.001` pour passer de Wh à kWh) |
 | `decimals` | nombre | | `2` | Décimales |
 | `day`, `week`, `month`, `year` | entité | | — | Sans `stat` : une entité par période |
 | `source` | énum | `stat` `entities` | — | Écrit par l'éditeur pour retenir laquelle des deux sources la colonne utilise |
@@ -881,16 +983,16 @@ panels:
 
 ### Widget `cover`
 
-Commande d'un `cover` (volet, store, portail, garage ou porte motorisée) : état, barre de position, *Ouvrir* / *Stop* /
-*Fermer*.
+Commande d'un `cover` (volet, store, portail, garage ou porte motorisée) ou d'une `valve` (vanne d'arrêt, arrosage) :
+état, barre de position, *Ouvrir* / *Stop* / *Fermer*.
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
-| `entity` | entité | un `cover.*` | — | Le volet ; les autres domaines sont écartés |
-| `confirm` | booléen | | `true` pour les classes d'appareil `garage`, `gate`, `door` ; sinon `false` | Confirmation en deux appuis (second appui dans les 4 s) |
+| `entity` | entité | un `cover.*` ou `valve.*` | — | Le volet ou la vanne ; les autres domaines sont écartés |
+| `confirm` | booléen | | `true` pour les classes d'appareil `garage`, `gate`, `door` et pour les vannes ; sinon `false` | Dialogue de confirmation avant chaque bouton. L'ouverture est toujours confirmée pour une vanne et pour une cover qui n'est pas un volet, store, rideau, auvent ou fenêtre (`false` ne la retire pas) |
 
-Seuls `cover.open_cover`, `cover.stop_cover` et `cover.close_cover` de cette entité sont appelés ; *Stop* est masqué
-quand le volet ne le prend pas en charge.
+Seuls `cover.open_cover`, `cover.stop_cover` et `cover.close_cover` (ou `valve.open_valve`, `valve.stop_valve`,
+`valve.close_valve`) de cette entité sont appelés ; *Stop* est masqué quand l'entité ne le prend pas en charge.
 
 ```yaml
 panels:
@@ -902,6 +1004,26 @@ panels:
       rows: [{entity: binary_sensor.gate_closed}]
 ```
 
+### Widget `lock`
+
+Une serrure (`lock`) : état (en rouge si déverrouillée ou bloquée) et l'action utile — *Déverrouiller* si elle est
+verrouillée, *Verrouiller* sinon, les deux si l'état est incertain (bloquée, en mouvement, inconnu) — et *Ouvrir* si la
+serrure sait ouvrir la porte.
+
+| Clé | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `entity` | entité | un `lock.*` | — | La serrure ; les autres domaines sont écartés |
+| `confirm` | booléen | | déverrouiller et ouvrir seulement | `true` : *Verrouiller* est confirmé aussi. *Déverrouiller* et *Ouvrir* sont toujours confirmés (`false` ne le retire pas) |
+
+Seuls `lock.lock`, `lock.unlock` et `lock.open` de cette entité sont appelés (aucun code n'est envoyé : une serrure qui
+en demande un se commande depuis sa fenêtre « plus d'infos »). Rien ne se passe depuis l'aperçu de l'éditeur.
+
+```yaml
+panels:
+  left:
+    - {type: lock, title: Porte d'entrée, entity: lock.front_door}
+```
+
 ### Widget `thermostat`
 
 Une entité `climate` : température mesurée, consigne avec −/+ (pas et limites de l'appareil), action en cours, mode.
@@ -909,6 +1031,7 @@ Une entité `climate` : température mesurée, consigne avec −/+ (pas et limit
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `entity` | entité | un `climate.*` | — | Thermostat |
+| `confirm` | booléen | | `false` | `true` : chaque −/+ demande confirmation (`climate.set_temperature`) |
 
 ```yaml
 panels:
@@ -1005,11 +1128,11 @@ summary:
     alert_state: "unavailable"
     hide_if: "unknown"
     show: away
-    presence: person.alex
+    presence: person.sam
 ```
 
 Éditeur : cliquer sur une puce au-dessus du plan pour la modifier ; *+ Puce* (*Ajouter une puce au résumé*) en ajoute
-une ; faire glisser une puce à côté, en dessous ou sous les autres. Aussi dans ⚙ Paramètres › Raccourcis › *Puces de
+une ; faire glisser une puce à côté, en dessous ou sous les autres. Aussi dans ⚙ Paramètres › Fonctions › *Puces du
 résumé*. Masquées par défaut en [mode tablette](#tablette-murale).
 
 ## Calques
@@ -1027,7 +1150,7 @@ groupe superposé est toujours au-dessus du dessin.
 | `hidden` (sur un élément) | booléen | | `false` | Cet élément est masqué en vue |
 | `level` (sur un élément) | nombre | | `0` | Ordre dans son calque, plus grand = au-dessus (`rug`, `area` : `-1`) |
 
-`area_labels` contient les libellés des espaces nommés et des sous-zones ; `badges` les bulles d'appareils ;
+`area_labels` contient les étiquettes des espaces nommés et des sous-zones ; `badges` les pastilles d'appareils ;
 `room_labels` les étiquettes des pièces.
 
 ```yaml
@@ -1039,7 +1162,7 @@ layers:
   view_button: true
 ```
 
-Éditeur : barre d'outils *Calques* (glisser ou ↑ / ↓ pour réordonner, œil, cadenas, *Réinitialiser l'ordre*) ; par
+Éditeur : barre d'outils *Calques* (glisser ou ↑ / ↓ pour réordonner, œil, cadenas, *Réinitialiser l'ordre*, *Éléments du plan*) ; par
 élément : *Masquer en vue*, *Premier plan* / *Arrière-plan* ; `view_button` aussi dans ⚙ Paramètres › Affichage.
 
 ## Groupes
@@ -1050,7 +1173,7 @@ Les groupes lient des éléments pour qu'ils se sélectionnent et se déplacent 
 |---|---|---|---|---|
 | `groups[].id` | texte | | — | Identifiant du groupe, utilisé par `group` |
 | `groups[].name` | texte | | — | Nom du groupe dans l'éditeur |
-| `group` (sur un élément) | texte | un `id` de groupe | — | Appartenance d'une pièce, d'une ouverture, d'une bulle, d'un texte ou d'un meuble |
+| `group` (sur un élément) | texte | un `id` de groupe | — | Appartenance d'une pièce, d'une ouverture, d'une pastille, d'un texte ou d'un meuble |
 | 5e valeur d'un mur / d'une limite | texte | un `id` de groupe | — | Appartenance d'un mur ou d'une limite |
 
 ```yaml
@@ -1072,13 +1195,17 @@ membre sélectionne le groupe, un second clic l'élément seul.
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `name` | texte | | — | Nom du modèle |
+| `id` | texte | | — | Identifiant court écrit par l'éditeur (modèles de widget) |
 | `kind` | énum | `badge` `opening` `furniture` `widget` | — | Nature de `item` |
 | `icon` | icône | | — | Icône dans le catalogue |
 | `description` | texte | | — | Sous-titre dans le catalogue |
-| `type` | énum | types de meubles | — | Modèles `furniture` : le type de meuble |
-| `domain` | texte | un domaine d'entité | — | Modèles `badge` : domaine proposé au moment de choisir l'entité |
-| `item` | objet | | — | L'élément : une bulle, une ouverture, un meuble ou un widget, avec les clés de cet élément (sans position) |
+| `type` | énum | types de meubles, `custom` | — | Modèles `furniture` : le type de meuble |
+| `category` | énum | `living` `dining` `kitchen` `bedroom` `bathroom` `utility` `shapes` `outdoor` | — | Meuble personnalisé : catégorie du catalogue où il est rangé (sinon *Mes modèles*) |
+| `keywords` | texte | | — | Meuble personnalisé : mots de recherche en plus |
+| `domain` | texte | un domaine d'entité | — | Modèles `badge` : domaine proposé au moment de choisir l'entité ; meuble avec `ask: [entity]` : domaine cherché |
+| `item` | objet | | — | L'élément : une pastille, une ouverture, un meuble ou un widget, avec les clés de cet élément (sans position) |
 | `items` | liste | widgets | — | Une fiche entière enregistrée comme modèle : tous ses widgets |
+| `ask` | liste | chemins de clés du widget ; `contact` `shutter` `entity` (ouvertures) ; `entity` (meubles) | — | Champs entité à choisir à chaque usage : laissés vides et surlignés « à compléter » pour un widget (`entity`, `rows`, `columns.0.stat`…) ; cherchés dans la pièce où l'on pose une ouverture ou un meuble |
 
 Sans « Garder les entités », les clés d'entité sont omises et redemandées à chaque utilisation ; `value: $entite`
 représente l'entité choisie.
@@ -1099,6 +1226,20 @@ templates:
     kind: opening
     icon: mdi:window-closed-variant
     item: {type: window, shutter_only: false}
+  - name: Porte du jardin
+    id: p7c2m9de
+    kind: opening
+    icon: mdi:door
+    ask: [contact, shutter]
+    item: {type: door, leaves: 2, swing: left}
+  - name: Banc d'angle
+    id: b4n8q1zt
+    kind: furniture
+    type: custom
+    category: living
+    keywords: banc assise
+    description: 180 × 120 cm
+    item: {type: custom, size: [180, 120], color: "#188038", shape: [{kind: rect, x: 0, y: 0, w: 100, h: 100}]}
   - name: Fiche voiture
     kind: widget
     icon: mdi:card-text-outline
@@ -1106,14 +1247,22 @@ templates:
     items:
       - {type: ev, title: Voiture, battery: sensor.ev_battery}
       - {type: divider}
+  - name: CO₂ de la pièce
+    id: k3f9x2qa
+    kind: widget
+    icon: mdi:molecule-co2
+    description: Jauge
+    ask: [entity]
+    item: {type: gauge, title: CO₂ de la pièce, min: 400, max: 2000, unit: ppm, severity: {green: 0, yellow: 800, red: 1200}}
 ```
 
-Éditeur : sélectionner un élément › *Modèle* (*Enregistrer comme modèle*) ; une fiche › *Fiche en modèle* ; réutiliser
-depuis *Ajouter › Mes modèles*.
+Éditeur : sélectionner un élément › *Modèle* (*Enregistrer comme modèle*) ; une fiche › *Fiche en modèle* ; *Ajouter un
+widget › Créer un widget*, *Ajouter › Créer une ouverture* ou *Créer un meuble* › *Enregistrer dans Mes modèles* ;
+réutiliser depuis *Ajouter › Mes modèles*.
 
 ## Ambiance
 
-Calques facultatifs et discrets, dessinés sous les bulles : teinte de nuit et ensoleillement, météo sur les pièces
+Calques facultatifs et discrets, dessinés sous les pastilles : teinte de nuit et ensoleillement, météo sur les pièces
 extérieures, traces des changements récents, flux d'énergie et personnes. Jamais dessinés pendant l'édition (sauf en
 aperçu, panneau correspondant ouvert) ; rien ne sort de Home Assistant.
 
@@ -1195,7 +1344,7 @@ ambience:
 
 ### Flux d'énergie
 
-Des perles qui circulent du tableau électrique vers chaque meuble ou bulle dont la valeur est une puissance (W, kW),
+Des perles qui circulent du tableau électrique vers chaque meuble ou pastille dont la valeur est une puissance (W, kW),
 plus rapides et plus nombreuses à mesure que la puissance augmente.
 
 | Clé | Type | Valeurs | Défaut | Description |
@@ -1204,7 +1353,7 @@ plus rapides et plus nombreuses à mesure que la puissance augmente.
 | `energy.source` | nombre / énum | un indice de meuble, ou un type de meuble | `electrical_panel` | Meuble d'où partent les flux |
 | `energy.threshold` | nombre (W) | | `5` | Puissance minimale pour dessiner un flux |
 | `energy.color` | couleur | | couleur de la cible, sinon couleur du type, sinon `#fbc02d` | Couleur des flux |
-| `energy.badges` | booléen | | `true` | `false` : pas de flux vers les bulles d'appareils (meubles seulement) |
+| `energy.badges` | booléen | | `true` | `false` : pas de flux vers les pastilles d'appareils (meubles seulement) |
 
 ```yaml
 ambience:
@@ -1224,38 +1373,38 @@ leur direction réelle, avec la distance ou la zone (coordonnées de la maison d
 | `people.entities[].entity` | entité | | — | Une personne |
 | `people.away` | énum | `direction` `zone` `hidden` | `direction` | Absente : sur le bord, dans sa direction, avec la distance ; `zone` : une rangée de puces en bas avec le nom de la zone HA ; `hidden` : non affichée |
 | `people.at_home` | énum | `grouped` `hidden` | `grouped` | À la maison : côte à côte au point `home` ; ou non affichée |
-| `people.avatar` | énum | `picture` `initials` | `picture` | Photo du profil HA (initiales s'il n'y en a pas), ou toujours les initiales |
+| `people.avatar` | énum | `picture` `initials` | `picture` | Photo du profil HA (initiales s'il n'y en a pas, ou si elle n'est pas servie par Home Assistant lui-même), ou toujours les initiales |
 | `people.persons` | objet | `{person.x: {away, at_home, avatar}}` | — | Réglages par personne de `away`, `at_home`, `avatar` (ils priment sur les réglages communs) |
 
 ```yaml
 ambience:
   people:
     home: Séjour
-    entities: [person.alex, {entity: person.camille}]
+    entities: [person.sam, {entity: person.camille}]
     away: direction
     at_home: grouped
     avatar: picture
     persons:
       person.camille: {away: hidden}
-      person.alex: {away: zone, avatar: initials, at_home: grouped}
+      person.sam: {away: zone, avatar: initials, at_home: grouped}
 ```
 
 Éditeur : `away`, `at_home`, `avatar` communs dans ⚙ Paramètres › *Personnes sur le plan* ; par personne et `home` dans
 *Ambiance et animations* › *Personnes* (faire glisser les avatars sur le plan pour fixer `home` en `[x, y]`).
 
-## Style des bulles
+## Style des pastilles
 
-L'aspect des bulles d'appareils sur le plan. Toutes les clés sont facultatives ; les défauts gardent l'aspect d'origine.
+L'aspect des pastilles d'appareils sur le plan. Toutes les clés sont facultatives ; les défauts gardent l'aspect d'origine.
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `badge_style.unavailable` | énum | `dimmed` `dashed` `hidden` | `dimmed` | Appareil indisponible : estompé, contour pointillé, ou non affiché |
 | `badge_style.inactive` | énum | `shown` `active_only` `dimmed` | `shown` | Appareil inactif : affiché, affiché seulement quand il est actif, ou estompé |
 | `badge_style.size` | énum | `small` `normal` `large` | `normal` | 0,8 ×, 1 ×, 1,25 × (même taille à l'écran quel que soit le zoom) |
-| `badge_style.values` | énum | `always` `hover` `never` | `always` | Valeur dans la bulle : toujours, au survol / au focus (toujours sur écran tactile), jamais |
+| `badge_style.values` | énum | `always` `hover` `never` | `always` | Valeur dans la pastille : toujours, au survol / au focus (toujours sur écran tactile), jamais |
 
-Une bulle masquée compte toujours dans les puces de résumé et apparaît toujours dans la vue de la pièce ; une bulle
-concernée par une alerte plein plan reste visible ; dans l'éditeur, toutes les bulles restent visibles.
+Une pastille masquée compte toujours dans les puces de résumé et apparaît toujours dans la vue de la pièce ; une pastille
+concernée par une alerte plein plan reste visible ; dans l'éditeur, toutes les pastilles restent visibles.
 
 ```yaml
 badge_style:
@@ -1265,7 +1414,7 @@ badge_style:
   values: hover
 ```
 
-Éditeur : ⚙ Paramètres › *Bulles d'appareils*.
+Éditeur : ⚙ Paramètres › *Pastilles d'appareils*.
 
 ## Alertes plein plan
 
@@ -1306,20 +1455,20 @@ alerts:
 ```
 
 Éditeur : *Ambiance et animations* › *Alertes plein plan* (*Alerte sur des entités*, *Ouverture, maison vide*) ; aussi
-dans ⚙ Paramètres › Raccourcis.
+dans ⚙ Paramètres › Fonctions › *Alertes plein plan*.
 
 ## Animations
 
-Une animation par événement pour tout le plan (`animations`) ; une ouverture, une bulle ou un meuble connecté la remplace
+Une animation par événement pour tout le plan (`animations`) ; une ouverture, une pastille ou un meuble connecté la remplace
 par sa propre `animation` (`shutter_animation` pour un volet).
 
 | Clé d'événement | S'applique à | Défaut |
 |---|---|---|
 | `animations.opening` | Porte / fenêtre ouverte | `{type: pulse, duration: 1.6}` |
 | `animations.shutter` | Volet en mouvement | `{type: scroll, duration: 0.8}` |
-| `animations.alert` | Bulle avec `alert: true`, quand elle est active | `{type: pulse, duration: 1.2}` |
-| `animations.light` | Bulle `light.*` allumée | `{type: none, duration: 2.4}` |
-| `animations.badge` | Autre bulle active | `{type: none, duration: 2}` |
+| `animations.alert` | Pastille avec `alert: true`, quand elle est active | `{type: pulse, duration: 1.2}` |
+| `animations.light` | Pastille `light.*` allumée | `{type: none, duration: 2.4}` |
+| `animations.badge` | Autre pastille active | `{type: none, duration: 2}` |
 | `animations.furniture` | Meuble connecté actif | `{type: none, duration: 2.4}` |
 
 Une animation est un nom de type (`animation: halo`) ou un objet :
@@ -1394,7 +1543,7 @@ La réaction de la carte au toucher. Sans ces clés, elle se comporte comme avan
 |---|---|---|---|---|
 | `interaction.room_tap` | énum | `room_view` `more_info` `none` | `room_view` | Toucher une pièce : vue de la pièce ; plus d'infos de son entité `tap` (sinon `temperature`) ; rien. Une pièce avec `zoom: false` garde son propre comportement |
 | `interaction.lock_view` | booléen | | `false` | Ni déplacement ni zoom à la molette / au pincement, boutons de zoom masqués ; les touchers fonctionnent toujours |
-| `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : 0–3600, pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
+| `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
 
 ```yaml
 interaction:
@@ -1425,7 +1574,7 @@ interaction:
   reset_after: 60
 ```
 
-Éditeur : ⚙ Paramètres › *Tablette murale* (*Mode tablette*, *Puces de résumé*, *Panneaux latéraux*, *Anti-marquage de
+Éditeur : ⚙ Paramètres › Interaction › *Tablette murale* (*Mode tablette*, *Puces de résumé*, *Panneaux latéraux*, *Anti-marquage de
 l'écran*).
 
 ## Niveau d'animation
@@ -1440,7 +1589,7 @@ Une limite globale aux mouvements. Le réglage système « réduire les animatio
 animation_level: reduced
 ```
 
-Éditeur : ⚙ Paramètres › *Animations* › *Niveau d'animation*.
+Éditeur : ⚙ Paramètres › Interaction › *Animations* › *Niveau d'animation*.
 
 ## Démo
 
@@ -1482,7 +1631,45 @@ card_mod:
 ```
 
 Éditeur : l'éditeur de tableau de bord de HA (onglets *Disposition* et *Visibilité*) ; l'éditeur de Maquette les
-conserve à l'enregistrement.
+conserve à l'enregistrement. Un plan importé n'apporte jamais ces clés : la carte garde les siennes.
+
+## Sécurité
+
+Maquette tourne dans l'interface de Home Assistant avec les droits de l'utilisateur connecté. N'importez des plans et des
+modèles que de personnes de confiance ; la carte vous protège tout de même ainsi.
+
+**Les services sensibles sont toujours confirmés.** Chaque service appelé depuis le plan (boutons des pièces, widgets des
+panneaux et des fiches, interrupteurs, *Activer*) est comparé à une liste de services sûrs. Tout autre service ouvre un
+court dialogue qui nomme l'action réelle, le service (`lock.unlock`) et les entités visées, quel que soit le libellé du
+bouton ; les clés de `data` sont montrées, jamais leurs valeurs (un code reste caché). *Annuler* a le focus ; Échap annule.
+
+| Sûrs (sans dialogue) | Sensibles (toujours confirmés) |
+|---|---|
+| `turn_on`, `turn_off`, `toggle` de `light`, `switch`, `fan`, `input_boolean`, `humidifier`, `media_player`, `climate`, `remote`, `automation` ; marche / arrêt d'un chauffe-eau ; réglages des ventilateurs, humidificateurs, climatiseurs, chauffe-eau et lecteurs (vitesse, mode, température, volume, lecture / pause…) | `lock.unlock`, `lock.open` |
+| `scene.turn_on` ; valeurs d'`input_number`, `number`, `input_select`, `select` | `alarm_control_panel.alarm_disarm`, `alarm_trigger` |
+| `cover.close_cover`, `stop_cover` (et inclinaison) ; `valve.close_valve`, `stop_valve` | ouvrir une cover (`open_cover`, `set_cover_position`, `toggle`, inclinaison) sauf si toutes les cibles sont des volets, stores, rideaux, auvents ou fenêtres (`device_class`) ; portes de garage, portails, portes et covers sans classe sont confirmés |
+| `lock.lock` ; `alarm_control_panel.alarm_arm_*` | `valve.open_valve`, `set_valve_position`, `toggle` |
+| `homeassistant.turn_on` / `turn_off` / `toggle` quand toutes les cibles sont dans un domaine sûr ci-dessus ; `homeassistant.update_entity` | `script.*`, `button.press`, `input_button.press`, `automation.trigger`, `homeassistant.restart` / `stop`, `shell_command`, `rest_command`, `notify`… et **tout service absent de la liste des sûrs** |
+
+**`confirm: true` impose la confirmation**, même pour un service sûr, sur tout ce qui en appelle un : boutons des pièces
+(`actions[].confirm`), pastilles, ouvertures et meubles connectés (leur interrupteur allumer / éteindre, dans leur fiche
+et dans la vue de la pièce) et widgets (interrupteurs et *Activer* de leurs lignes, −/+ du thermostat, boutons de cover et
+de serrure). Cas typique : une porte de garage, un portail ou un chauffage commandé par un `switch`. `confirm: false` ne
+retire jamais la confirmation d'un service sensible. `protected: true` (pastilles, ouvertures, meubles) empêche
+d'éteindre l'appareil depuis le plan.
+
+**Vérification à l'import.** *Exporter / importer › Importer* montre d'abord un récapitulatif et n'applique rien avant
+votre accord : services des boutons des pièces (les sensibles marqués), entités commandées par les widgets (cover, lock,
+thermostat, lignes *Activer*), liens *Plus d'infos*, valeurs retirées car invalides (avec leur chemin, par exemple
+`rooms[0].poly`), éléments sans coordonnées valides et clés de tableau de bord du fichier ignorées. Réimporter le plan sans
+changement l'applique directement. Limites : 2 Mo de texte, 200 000 valeurs, 40 niveaux d'imbrication, 5 000 éléments par
+liste ; le YAML est lu sans ses types étendus ; les clés `__proto__`, `constructor` et `prototype` sont écartées. Les
+brouillons et copies gardés dans le navigateur sont relus de la même façon.
+
+**Ce qui n'est jamais dessiné comme du code.** Les textes, noms et états HA sont échappés ; nombres, valeurs énumérées,
+couleurs, icônes et liens sont contrôlés (voir [Conventions](#conventions)) ; tout le HTML construit par la carte ou
+l'éditeur passe par un filtre qui retire scripts, gestionnaires d'événements (`on…`), liens autres que `#…`, `url()` autres
+que `url(#…)` et images qui ne sont pas servies par Home Assistant. La carte ne fait aucune requête hors de Home Assistant.
 
 ## Index des clés
 
@@ -1493,46 +1680,48 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `above` | [Alertes plein plan](#alertes-plein-plan) |
 | `action` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `actions` | [Pièces et sous-zones](#pièces-et-sous-zones) |
-| `active` | [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
-| `active_attribute` | [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
-| `alert` | [Bulles d'appareils](#bulles-dappareils), [Animations](#animations) |
+| `active` | [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `active_attribute` | [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `alert` | [Pastilles d'appareils](#pastilles-dappareils), [Animations](#animations) |
 | `alert_above` | [Puces de résumé](#puces-de-résumé) |
 | `alert_h` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `alert_state` | [Puces de résumé](#puces-de-résumé) |
 | `alert_t` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `alerts` | [Racine de la carte](#racine-de-la-carte), [Alertes plein plan](#alertes-plein-plan) |
 | `ambience` | [Racine de la carte](#racine-de-la-carte), [Ambiance](#ambiance) |
-| `animation` | [Animations](#animations), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `animation` | [Animations](#animations), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `animation_level` | [Racine de la carte](#racine-de-la-carte), [Niveau d'animation](#niveau-danimation) |
 | `animations` | [Racine de la carte](#racine-de-la-carte), [Animations](#animations) |
 | `area` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `at_home` | [Personnes](#personnes) |
-| `attribute` | [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `attribute` | [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `ask` | [Modèles](#modèles) |
 | `auto_actions` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `automations` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `avatar` | [Personnes](#personnes) |
 | `average` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `away` | [Personnes](#personnes) |
 | `badge` | [Animations](#animations) |
-| `badge_style` | [Racine de la carte](#racine-de-la-carte), [Style des bulles](#style-des-bulles) |
-| `badges` | [Racine de la carte](#racine-de-la-carte), [Bulles d'appareils](#bulles-dappareils), [Flux d'énergie](#flux-dénergie) |
+| `badge_style` | [Racine de la carte](#racine-de-la-carte), [Style des pastilles](#style-des-pastilles) |
+| `badges` | [Racine de la carte](#racine-de-la-carte), [Pastilles d'appareils](#pastilles-dappareils), [Flux d'énergie](#flux-dénergie) |
 | `battery` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `bay` | [Ouvertures](#ouvertures) |
 | `below` | [Puces de résumé](#puces-de-résumé), [Alertes plein plan](#alertes-plein-plan) |
 | `burn_in` | [Tablette murale](#tablette-murale) |
-| `card` | [Fiches](#fiches), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `card` | [Fiches](#fiches), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `card_mod` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
+| `category` | [Modèles](#modèles) |
 | `chairs` | [Meubles](#meubles) |
-| `color` | [Widgets](#widgets), [Animations](#animations), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés), [Traces](#traces), [Flux d'énergie](#flux-dénergie) |
+| `color` | [Widgets](#widgets), [Animations](#animations), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés), [Traces](#traces), [Flux d'énergie](#flux-dénergie) |
 | `color_today` | [Widgets](#widgets), [Widget `tariff`](#widget-tariff) |
 | `color_tomorrow` | [Widgets](#widgets), [Widget `tariff`](#widget-tariff) |
 | `columns` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
-| `confirm` | [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `cover`](#widget-cover) |
+| `confirm` | [Pièces et sous-zones](#pièces-et-sous-zones), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés), [Fiches](#fiches), [Widgets](#widgets), [Widget `cover`](#widget-cover), [Widget `lock`](#widget-lock), [Widget `thermostat`](#widget-thermostat), [Sécurité](#sécurité) |
 | `contact` | [Ouvertures](#ouvertures) |
 | `data` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `day` | [Widget `periods`](#widget-periods) |
 | `day_night` | [Jour et nuit](#jour-et-nuit), [Ambiance](#ambiance) |
-| `decimals` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `decimals` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
 | `demo` | [Racine de la carte](#racine-de-la-carte), [Démo](#démo) |
 | `description` | [Modèles](#modèles) |
 | `direction` | [Météo](#météo) |
@@ -1543,42 +1732,45 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `enabled` | [Alertes plein plan](#alertes-plein-plan) |
 | `energy` | [Flux d'énergie](#flux-dénergie), [Ambiance](#ambiance) |
 | `entities` | [Widgets](#widgets), [Widget `entities`](#widget-entities), [Personnes](#personnes), [Alertes plein plan](#alertes-plein-plan) |
-| `entity` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `cover`](#widget-cover), [Widget `thermostat`](#widget-thermostat), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés), [Météo](#météo), [Personnes](#personnes), [Alertes plein plan](#alertes-plein-plan) |
+| `entity` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `cover`](#widget-cover), [Widget `lock`](#widget-lock), [Widget `thermostat`](#widget-thermostat), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés), [Météo](#météo), [Personnes](#personnes), [Alertes plein plan](#alertes-plein-plan) |
 | `factor` | [Widget `periods`](#widget-periods) |
 | `fences` | [Racine de la carte](#racine-de-la-carte), [Limites et clôtures](#limites-et-clôtures) |
 | `full_page` | [Réglages généraux](#réglages-généraux) |
 | `furniture` | [Racine de la carte](#racine-de-la-carte), [Meubles](#meubles), [Animations](#animations) |
 | `grid_options` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
-| `group` | [Pièces et sous-zones](#pièces-et-sous-zones), [Groupes](#groupes), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
+| `group` | [Pièces et sous-zones](#pièces-et-sous-zones), [Groupes](#groupes), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
 | `groups` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes) |
+| `h` | [Meubles personnalisés](#meubles-personnalisés) |
 | `h_max` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `h_min` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
-| `halo` | [Bulles d'appareils](#bulles-dappareils) |
-| `hidden` | [Pièces et sous-zones](#pièces-et-sous-zones), [Calques](#calques), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
+| `halo` | [Pastilles d'appareils](#pastilles-dappareils) |
+| `hidden` | [Pièces et sous-zones](#pièces-et-sous-zones), [Calques](#calques), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
 | `hide_if` | [Puces de résumé](#puces-de-résumé) |
 | `history` | [Widgets](#widgets), [Widget `tile`](#widget-tile) |
 | `home` | [Personnes](#personnes) |
 | `hours` | [Revoir la journée](#revoir-la-journée) |
 | `humidity` | [Pièces et sous-zones](#pièces-et-sous-zones), [Réglages généraux](#réglages-généraux) |
 | `humidity_attribute` | [Pièces et sous-zones](#pièces-et-sous-zones) |
-| `icon` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan) |
-| `id` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes) |
-| `inactive` | [Style des bulles](#style-des-bulles) |
+| `icon` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan) |
+| `id` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes), [Modèles](#modèles) |
+| `inactive` | [Style des pastilles](#style-des-pastilles) |
 | `info` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `intensity` | [Animations](#animations), [Ambiance](#ambiance), [Jour et nuit](#jour-et-nuit), [Météo](#météo) |
 | `interaction` | [Racine de la carte](#racine-de-la-carte), [Interaction](#interaction) |
 | `item` | [Modèles](#modèles) |
 | `items` | [Modèles](#modèles) |
-| `kind` | [Modèles](#modèles) |
+| `keywords` | [Modèles](#modèles) |
+| `kind` | [Modèles](#modèles), [Meubles personnalisés](#meubles-personnalisés) |
 | `label` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `language` | [Réglages généraux](#réglages-généraux) |
 | `layers` | [Racine de la carte](#racine-de-la-carte), [Calques](#calques) |
 | `layout_options` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
+| `leaves` | [Ouvertures](#ouvertures) |
 | `left` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux) |
 | `legend` | [Réglages généraux](#réglages-généraux) |
-| `level` | [Pièces et sous-zones](#pièces-et-sous-zones), [Calques](#calques), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Alertes plein plan](#alertes-plein-plan) |
+| `level` | [Pièces et sous-zones](#pièces-et-sous-zones), [Calques](#calques), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Alertes plein plan](#alertes-plein-plan) |
 | `light` | [Animations](#animations) |
-| `light_color` | [Bulles d'appareils](#bulles-dappareils) |
+| `light_color` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `lock_view` | [Interaction](#interaction) |
 | `locked` | [Calques](#calques) |
 | `margin` | [Réglages généraux](#réglages-généraux) |
@@ -1587,13 +1779,15 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `min` | [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Réglages généraux](#réglages-généraux) |
 | `mirror` | [Meubles](#meubles) |
 | `month` | [Widget `periods`](#widget-periods) |
-| `name` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `periods`](#widget-periods), [Ouvertures](#ouvertures), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Groupes](#groupes), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux) |
+| `more_info` | [Fiches](#fiches) |
+| `name` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `periods`](#widget-periods), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Groupes](#groupes), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux) |
 | `new_line` | [Puces de résumé](#puces-de-résumé) |
 | `north` | [Ambiance](#ambiance) |
 | `note` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
 | `opening` | [Animations](#animations) |
 | `openings` | [Racine de la carte](#racine-de-la-carte), [Ouvertures](#ouvertures) |
 | `outside` | [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `climate`](#widget-climate), [Ouvertures](#ouvertures) |
+| `outward` | [Ouvertures](#ouvertures) |
 | `overlay_order` | [Calques](#calques) |
 | `panels` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux), [Racine de la carte](#racine-de-la-carte), [Tablette murale](#tablette-murale) |
 | `people` | [Personnes](#personnes), [Ambiance](#ambiance) |
@@ -1601,17 +1795,19 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `periods` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
 | `persons` | [Personnes](#personnes) |
 | `plugged` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
+| `points` | [Meubles personnalisés](#meubles-personnalisés) |
 | `poly` | [Pièces et sous-zones](#pièces-et-sous-zones) |
-| `pos` | [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Exemples sous le plan](#exemples-sous-le-plan) |
+| `pos` | [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Exemples sous le plan](#exemples-sous-le-plan) |
 | `power` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `presence` | [Puces de résumé](#puces-de-résumé), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux) |
 | `price` | [Widgets](#widgets), [Widget `tariff`](#widget-tariff) |
-| `protected` | [Ouvertures](#ouvertures), [Fiches](#fiches), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `protected` | [Ouvertures](#ouvertures), [Fiches](#fiches), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `radius` | [Meubles personnalisés](#meubles-personnalisés) |
 | `range` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `replay` | [Racine de la carte](#racine-de-la-carte), [Revoir la journée](#revoir-la-journée) |
 | `reset_after` | [Interaction](#interaction) |
 | `right` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux) |
-| `room` | [Bulles d'appareils](#bulles-dappareils) |
+| `room` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `room_labels` | [Réglages généraux](#réglages-généraux) |
 | `room_tap` | [Interaction](#interaction) |
 | `rooms` | [Racine de la carte](#racine-de-la-carte), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `climate`](#widget-climate) |
@@ -1619,15 +1815,16 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `rows` | [Widgets](#widgets) |
 | `seg` | [Ouvertures](#ouvertures) |
 | `session_cost` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
+| `severity` | [Widgets](#widgets), [Widget `gauge`](#widget-gauge) |
 | `session_kwh` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
-| `shape` | [Animations](#animations) |
+| `shape` | [Animations](#animations), [Meubles](#meubles) |
 | `show` | [Puces de résumé](#puces-de-résumé) |
 | `show_furniture` | [Réglages généraux](#réglages-généraux) |
 | `showcase` | [Racine de la carte](#racine-de-la-carte), [Exemples sous le plan](#exemples-sous-le-plan) |
 | `shutter` | [Ouvertures](#ouvertures), [Animations](#animations) |
 | `shutter_animation` | [Animations](#animations), [Ouvertures](#ouvertures) |
 | `shutter_only` | [Ouvertures](#ouvertures) |
-| `size` | [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Style des bulles](#style-des-bulles) |
+| `size` | [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Style des pastilles](#style-des-pastilles) |
 | `source` | [Widget `periods`](#widget-periods), [Flux d'énergie](#flux-dénergie) |
 | `spacing` | [Widgets](#widgets), [Widget `divider`](#widget-divider) |
 | `speed` | [Revoir la journée](#revoir-la-journée) |
@@ -1635,14 +1832,15 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `stable_t` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `stat` | [Widget `periods`](#widget-periods) |
 | `state` | [Alertes plein plan](#alertes-plein-plan) |
-| `style` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
+| `style` | [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles personnalisés](#meubles-personnalisés) |
 | `sub_area` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `summary` | [Racine de la carte](#racine-de-la-carte), [Puces de résumé](#puces-de-résumé), [Tablette murale](#tablette-murale) |
 | `sun` | [Jour et nuit](#jour-et-nuit) |
+| `swing` | [Ouvertures](#ouvertures) |
 | `t_max` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `t_min` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `tablet` | [Racine de la carte](#racine-de-la-carte), [Tablette murale](#tablette-murale) |
-| `tap` | [Pièces et sous-zones](#pièces-et-sous-zones), [Ouvertures](#ouvertures), [Fiches](#fiches), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `tap` | [Pièces et sous-zones](#pièces-et-sous-zones), [Ouvertures](#ouvertures), [Fiches](#fiches), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `target` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `temperature` | [Pièces et sous-zones](#pièces-et-sous-zones), [Réglages généraux](#réglages-généraux) |
 | `temperature_attribute` | [Pièces et sous-zones](#pièces-et-sous-zones) |
@@ -1650,24 +1848,27 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `templates` | [Racine de la carte](#racine-de-la-carte), [Modèles](#modèles) |
 | `text` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `texts` | [Racine de la carte](#racine-de-la-carte), [Textes et zones d'informations](#textes-et-zones-dinformations) |
-| `threshold` | [Widgets](#widgets), [Widget `ev`](#widget-ev), [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés), [Flux d'énergie](#flux-dénergie) |
+| `threshold` | [Widgets](#widgets), [Widget `ev`](#widget-ev), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés), [Flux d'énergie](#flux-dénergie) |
 | `tint` | [Meubles](#meubles) |
 | `title` | [Racine de la carte](#racine-de-la-carte), [Widgets](#widgets), [Widget `divider`](#widget-divider), [Fiches](#fiches) |
 | `traces` | [Traces](#traces), [Ambiance](#ambiance) |
 | `type` | [Racine de la carte](#racine-de-la-carte), [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Ouvertures](#ouvertures), [Animations](#animations), [Meubles](#meubles), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan) |
-| `unavailable` | [Style des bulles](#style-des-bulles) |
-| `unit` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Bulles d'appareils](#bulles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
-| `value` | [Bulles d'appareils](#bulles-dappareils), [Meubles connectés](#meubles-connectés) |
-| `values` | [Style des bulles](#style-des-bulles) |
+| `unavailable` | [Style des pastilles](#style-des-pastilles) |
+| `unit` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `value` | [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
+| `values` | [Style des pastilles](#style-des-pastilles) |
 | `view_button` | [Calques](#calques) |
 | `view_layout` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
 | `visibility` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
+| `w` | [Meubles personnalisés](#meubles-personnalisés) |
 | `walls` | [Racine de la carte](#racine-de-la-carte), [Murs](#murs) |
 | `weather` | [Météo](#météo), [Ambiance](#ambiance) |
 | `week` | [Widget `periods`](#widget-periods) |
 | `when_away` | [Alertes plein plan](#alertes-plein-plan) |
 | `widgets` | [Fiches](#fiches) |
 | `width` | [Exemples sous le plan](#exemples-sous-le-plan) |
+| `x` | [Meubles personnalisés](#meubles-personnalisés) |
+| `y` | [Meubles personnalisés](#meubles-personnalisés) |
 | `year` | [Widget `periods`](#widget-periods) |
 | `zoom` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 
@@ -1682,10 +1883,10 @@ Chaque valeur énumérée, par clé.
 |---|---|
 | `<widget>.columns[].source` | `stat` `entities` |
 | `<widget>.periods[]` | `day` `week` `month` `year` |
-| `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `thermostat` `climate` |
+| `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` |
 | `alerts[].level` | `critical` `warning` `info` |
 | `alerts[].type` | `openings` |
-| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` |
+| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
@@ -1699,14 +1900,18 @@ Chaque valeur énumérée, par clé.
 | `badge_style.unavailable` | `dimmed` `dashed` `hidden` |
 | `badge_style.values` | `always` `hover` `never` |
 | `badges[].tap`<br>`furniture[].tap`<br>`openings[].tap` | `card` `more_info` `none` |
+| `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |
+| `furniture[].shape[].style`<br>`templates[].item.shape[].style` | `filled` `outline` `dashed` |
 | `interaction.room_tap` | `room_view` `more_info` `none` |
 | `layers.drawing_order[]`<br>`layers.hidden[]`<br>`layers.locked[]`<br>`layers.overlay_order[]` | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` `room_labels` `area_labels` `badges` `texts` |
 | `openings[].type` | `window` `door` `gate` |
+| `openings[].swing`<br>`templates[].item.swing` | `left` `right` `sliding` |
 | `rooms[].actions[].target` | `room` |
 | `show_furniture` | `desktop` |
 | `summary[].show` | `away` `home` |
 | `summary[].type` | `openings` `lights` `shutters` `temperature` `entity` |
 | `templates[].kind` | `widget` `furniture` `badge` `opening` |
+| `templates[].category` | `living` `dining` `kitchen` `bedroom` `bathroom` `utility` `shapes` `outdoor` |
 | `texts[].style` | `subtle` |
 
 Non traduites, mais restreintes par la carte :

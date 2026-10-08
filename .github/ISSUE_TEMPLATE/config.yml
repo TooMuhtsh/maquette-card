@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Documentation and help / Documentation et aide (wiki)
+    url: https://github.com/TooMuhtsh/maquette-card/wiki
+    about: Installation, editor guide, recipes, troubleshooting and FAQ. / Installation, guide de l'éditeur, recettes, dépannage et FAQ.
+  - name: Questions and ideas / Questions et idées (Discussions)
+    url: https://github.com/TooMuhtsh/maquette-card/discussions
+    about: Ask how to do something, share your plan, talk about an idea. / Demander comment faire, montrer son plan, parler d'une idée.
+  - name: Security issue / Faille de sécurité
+    url: https://github.com/TooMuhtsh/maquette-card/security/advisories/new
+    about: Report it privately, never in a public issue (see SECURITY.md). / À signaler en privé, jamais dans un ticket public (voir SECURITY.md).
