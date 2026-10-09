@@ -48,14 +48,14 @@ class MaquetteCard extends HTMLElement { // @assemblage
 
   _maj() {
     const c = this._config, R = this.shadowRoot;
-    const ouvertes = [], temps = [], teinte = teinteTemp(c), EP = etiquettesPieces(c);
-    let lumieres = 0, voletsBas = 0;
-    const voletsVus = new Set(); // un volet partagé par deux vantaux ne compte qu'une fois
+    const teinte = teinteTemp(c), EP = etiquettesPieces(c);
+    // résumé : toute la maison (tous les étages, une entité comptée une fois ; classe-maison.js)
+    const RS = this._resumeMaison(), ouvertes = RS.ouvertures.map((x) => x.nom), temps = RS.temperature.map((x) => x.t);
+    const lumieres = RS.lumieres.length, voletsBas = RS.volets.length;
 
     c.pieces.forEach((p, i) => {
       const t = this._num(p.temperature, p.attribut_temperature), h = this._num(p.humidite, p.attribut_humidite);
       if (p.sous_zone) return;
-      if (t != null && !p.dehors) temps.push(t);
       const poly = R.querySelector(`[data-p="${i}"]`);
       if (!p.dehors && poly) {
         const col = teinte && couleurTempEchelle(t, teinte);
@@ -74,7 +74,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
       if (ent) {
         if (!s || ["unavailable", "unknown"].includes(s.state)) cl?.add("inconnu");
         else if (["opening", "closing"].includes(s.state)) cl?.add("bouge");
-        else if (s.state === "on" || s.state === "open") { cl?.add("ouvert"); const n = o.baie || o.nom || this._nom(ent); if (!ouvertes.includes(n)) ouvertes.push(n); }
+        else if (s.state === "on" || s.state === "open") cl?.add("ouvert");
         txt = _t("{nom} : {etat}", { nom: o.nom || this._nom(ent), etat: s ? this._hass.formatEntityState?.(s) ?? s.state : "?" });
       }
       if (o.volet) {
@@ -87,8 +87,6 @@ class MaquetteCard extends HTMLElement { // @assemblage
           v.classList.toggle("bouge", bouge); v.classList.toggle("monte", bouge && sv.state === "opening");
           v.style.opacity = bouge ? Math.max(0.85, 1 - (pos ?? 0) / 100) : pos == null ? 0.15 : Math.max(0, Math.min(1, 1 - pos / 100));
         }
-        if (pos != null && pos < 50 && !voletsVus.has(o.volet)) voletsBas++;
-        voletsVus.add(o.volet);
         if (sv) txt += _t(" · volet {etat}", { etat: pos != null ? pos + globalThis.MaquetteI18n.pct() : sv.state });
       }
       if (g) g.querySelector("title").textContent = txt;
@@ -98,7 +96,6 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const st = stylePastilles(c), ed = !!this._editeur;
     (c.points || []).forEach((p, i) => {
       const b = R.querySelector(`[data-q="${i}"]`), s = this._etat(p.entite), actif = this._actif(p);
-      if ((p.entite || "").startsWith("light.") && actif) lumieres++;
       const h = R.querySelector(`[data-h="${i}"]`);
       if (h) h.setAttribute("opacity", actif ? 1 : 0);
       if (h?.classList.contains("lampe") && actif) {
@@ -191,6 +188,8 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._majFlux();
     this._majPersonnes();
     this._majAlertes();
+    this._majPastillesEtages();
+    this._brancherResume();
     // les pastilles changent de largeur avec leur valeur : les étiquettes recouvertes sont replacées (une fois par image)
     cancelAnimationFrame(this._rafEvite);
     this._rafEvite = requestAnimationFrame(() => this._eviterPastilles());

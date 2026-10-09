@@ -2,13 +2,15 @@
 class MaquetteCard extends HTMLElement { // @assemblage
   // ---------- replay de la journée (`replay: true` ou {heures}) ----------
   // l'historique de toutes les entités suivies est chargé une fois (attributs pour les volets, le soleil, la météo, les personnes),
-  // puis le plan entier (couleurs, ouvertures, volets, lumières, ambiance, personnes, alertes, panneaux) est rendu à l'instant choisi
+  // puis le plan entier (couleurs, ouvertures, volets, lumières, ambiance, personnes, alertes, panneaux) est rendu à l'instant choisi.
+  // Étages : un seul chargement pour toute la maison ; changer d'étage pendant la lecture garde l'heure (l'étage affiché montre ses
+  // états à l'instant t, pastilles d'étage du sélecteur comprises)
   async _replayOuvrir() {
     if (this._rp || this._editeur) return;
     const c = this._config, h = borne(+(c.replay?.heures ?? 24) || 24, 1, 72), fin = Math.ceil(Date.now() / 60000) * 60000, debut = fin - h * 3600e3; // calé sur la minute
     const rp = (this._rp = { debut, fin, t: debut, vitesse: vitesseReplay(c.replay), lecture: false, pret: false, series: {}, cache: new Map() });
     this._barreReplay(_t("Chargement de l'historique…"));
-    const ents = this._suivies.filter((e) => !e.startsWith("zone.") || e === "zone.home" || e === presenceDefaut(c));
+    const ents = this._rpEntites().filter((e) => !e.startsWith("zone.") || e === "zone.home" || e === presenceDefaut(c));
     const avecAttr = ents.filter((e) => /^(cover|sun|weather|person|climate|media_player)\./.test(e)), sans = ents.filter((e) => !avecAttr.includes(e));
     // entités à attributs : réponse complète (sans `minimal_response`, HA ne renverrait les attributs que pour le premier état et
     // écarterait les changements d'attributs seuls : soleil, position d'un volet, personne, vent) ; les autres : états seuls, réponse minimale
@@ -32,6 +34,16 @@ class MaquetteCard extends HTMLElement { // @assemblage
     } catch (err) {
       if (this._rp === rp) this._barreReplay(_t("Historique indisponible : {msg}", { msg: err?.message || err }));
     }
+  }
+  // entités suivies de tous les étages : celles de l'étage affiché (déjà toute la maison pour le plan, le résumé et les alertes),
+  // plus les panneaux propres et les fiches des autres étages, lus étage par étage sur la config dépliée
+  _rpEntites() {
+    const P = this._plein, ids = idsEtages(P), c0 = this._config, s = new Set(this._suivies || []);
+    if (ids.length < 2) return [...s];
+    try {
+      for (const id of ids) if (id !== this._etageAffiche()) { this._config = deplier(P, id); for (const e of this._entites()) s.add(e); }
+    } finally { this._config = c0; }
+    return [...s];
   }
   _rpEtat(e) {
     const rp = this._rp, l = rp.series[e];
@@ -102,16 +114,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
     R.querySelector('[data-z="replay"]')?.classList.add("on");
     const fermer = `<button class="ib" data-rp="direct" title="${_t("Revenir au direct")}" aria-label="${_t("Revenir au direct")}"><ha-icon icon="mdi:close"></ha-icon></button>`;
     if (msg || !rp.pret) { poserHTML(bar, `<ha-icon icon="mdi:history"></ha-icon><span class="rp-msg">${esc(msg || _t("Chargement…"))}</span>${fermer}`); return; }
-    const n = Math.round((rp.fin - rp.debut) / 60000), c = this._config, marques = [];
-    const pos = (t) => (((t - rp.debut) / (rp.fin - rp.debut)) * 100).toFixed(2);
-    const ajoute = (e, test, cls) => { let p = null; for (const x of rp.series[e] || []) { if (x.lu >= rp.debut && test(x.s) && !(p && test(p.s))) marques.push(`<i class="${cls}" style="left:${pos(x.lu)}%"></i>`); p = x; } };
-    for (const o of c.ouvertures || []) for (const e of contactsDe(o).length ? contactsDe(o) : [o.entite].filter(Boolean)) ajoute(e, (v) => v === "on" || v === "open", "m-ouv");
-    for (const p of c.points || []) if ((p.entite || "").startsWith("light.")) ajoute(p.entite, (v) => v === "on", "m-lum");
-    // repères d'arrivée : pas pour une personne cachée à la maison comme dehors (elle n'apparaît jamais sur le plan)
-    const PP = couchePersonnes(c.ambiance);
-    for (const p of this._listePersonnes(c.ambiance)) { const a = affPersonne(PP, p.entite); if (a.dehors !== "cache" || a.chez_soi !== "cache") ajoute(p.entite, (v) => v === "home", "m-pers"); }
+    const n = Math.round((rp.fin - rp.debut) / 60000);
+    rp.etageFrise = this._etageAffiche();
     poserHTML(bar, `<button class="ib" data-rp="lecture" title="${_t("Lecture")}" aria-label="${_t("Lecture")}"><ha-icon icon="mdi:play"></ha-icon></button>
-      <div class="rp-piste"><div class="rp-marques" aria-hidden="true">${marques.join("")}</div><input type="range" min="0" max="${n}" step="1" aria-label="${_t("Moment de la journée")}"></div>
+      <div class="rp-piste"><div class="rp-marques" aria-hidden="true">${this._marquesReplay()}</div><input type="range" min="0" max="${n}" step="1" aria-label="${_t("Moment de la journée")}"></div>
       <span class="rp-heure"></span>
       <select aria-label="${_t("Vitesse")}">${VITESSES_REPLAY.map(([v, t]) => `<option value="${v}" ${v === rp.vitesse ? "selected" : ""}>${t}</option>`).join("")}</select>${fermer}`);
     const r = bar.querySelector("input");
@@ -121,9 +127,40 @@ class MaquetteCard extends HTMLElement { // @assemblage
     bar.querySelector("select").onchange = (ev) => { rp.vitesse = +ev.target.value; };
     this._majBarreReplay();
   }
+  // repères de la frise (ouvertures ouvertes, lumières allumées, arrivées) : ceux de l'étage affiché pleins, ceux des autres étages
+  // estompés (classe `autre`) ; une entité présente sur deux étages (lumière d'escalier) compte pour l'étage affiché.
+  // Sans étages : un seul étage, aucun repère estompé (frise identique).
+  _marquesReplay() {
+    const rp = this._rp, c = this._config, ici = this._etageAffiche(), marques = [], vus = new Set();
+    const pos = (t) => (((t - rp.debut) / (rp.fin - rp.debut)) * 100).toFixed(2);
+    const ajoute = (e, test, cls) => {
+      if (vus.has(`${cls}|${e}`)) return;
+      vus.add(`${cls}|${e}`);
+      let p = null;
+      for (const x of rp.series[e] || []) { if (x.lu >= rp.debut && test(x.s) && !(p && test(p.s))) marques.push(`<i class="${cls}" style="left:${pos(x.lu)}%"></i>`); p = x; }
+    };
+    const E = parEtage(c);
+    for (const et of [...E.filter((x) => x.id === ici), ...E.filter((x) => x.id !== ici)]) {
+      const autre = et.id != null && et.id !== ici ? " autre" : "";
+      for (const o of et.geo.ouvertures) for (const e of contactsDe(o).length ? contactsDe(o) : [o?.entite].filter(Boolean)) ajoute(e, (v) => v === "on" || v === "open", `m-ouv${autre}`);
+      for (const p of et.geo.points) if ((p?.entite || "").startsWith("light.")) ajoute(p.entite, (v) => v === "on", `m-lum${autre}`);
+    }
+    // repères d'arrivée (toute la maison) : pas pour une personne cachée à la maison comme dehors (elle n'apparaît jamais sur le plan)
+    const PP = couchePersonnes(c.ambiance);
+    for (const p of this._listePersonnes(c.ambiance)) { const a = affPersonne(PP, p.entite); if (a.dehors !== "cache" || a.chez_soi !== "cache") ajoute(p.entite, (v) => v === "home", "m-pers"); }
+    return marques.join("");
+  }
+  // étage changé pendant le replay (lecture ou pause) : repères redessinés pour le nouvel étage affiché, l'heure ne bouge pas
+  _majFriseEtage() {
+    const rp = this._rp, m = rp?.pret && this.shadowRoot?.querySelector(".plan>.replay .rp-marques");
+    if (!m || rp.etageFrise === this._etageAffiche()) return;
+    rp.etageFrise = this._etageAffiche();
+    poserHTML(m, this._marquesReplay());
+  }
   _majBarreReplay() {
     const rp = this._rp, bar = this.shadowRoot?.querySelector(".plan>.replay");
     if (!rp?.pret || !bar) return;
+    this._majFriseEtage();
     const r = bar.querySelector("input"), h = bar.querySelector(".rp-heure"), b = bar.querySelector('[data-rp="lecture"]');
     if (r && !rp.tient) r.value = String(Math.round((rp.t - rp.debut) / 60000)); // curseur tenu au doigt : on ne le bouscule pas
     const d = new Date(rp.t), auj = new Date().toDateString() === d.toDateString();
@@ -184,6 +221,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
   _majTraces() {
     const R = this.shadowRoot, c = this._config, tr = !this._editeur && coucheTraces(c.ambiance);
     if (!R) return;
+    if (this._rp) this._majFriseEtage(); // replay : un changement d'étage en pause reconstruit le plan sans passer par la frise
     if (!tr) { R.querySelectorAll(".zone .trace:not(.vit-pt)").forEach((e) => { e.classList.remove("trace"); e.style.removeProperty("--t"); }); return; }
     const l = [];
     (c.ouvertures || []).forEach((o, i) => l.push([R.querySelector(`.zone svg [data-o="${i}"]`), contactsDe(o).length > 1 ? o : entOuv(o) || o.volet]));

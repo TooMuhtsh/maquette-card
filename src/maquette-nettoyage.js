@@ -3,6 +3,7 @@
  *   appliquer(config, options?) → nouvelle config (l'entrée n'est jamais modifiée) ; nettoyer(…) rend aussi les opérations
  *   isoler(config, nom)         → la pièce seule : murs d'après le contour, ouvertures recalées, passages, cloisons
  *   instantane / restaurer      → copie des clés touchées (CLES) avant nettoyage, et retour à cette copie
+ *   escaliers (plan à étages)   → lien `floor` vers un étage absent (retiré), escalier sans escalier de retour (information)
  *   rapprocherNom / cleNom      → noms de pièce rapprochés malgré accents, suffixes (« Chambre · 12,6 m² ») et sigles (« SDB »)
  * Le contour des pièces fait foi : murs et ouvertures sont recalés dessus, jamais l'inverse (seules les options « sommets » et
  * « arrondir » touchent aux pièces). Unités : cm, y vers le bas. Murs [x1, y1, x2, y2, groupe?], ouvertures {seg: [x1, y1, x2, y2]},
@@ -20,13 +21,16 @@ const MaquetteNettoyage = (() => {
   const VOISIN = 6; // distance de part et d'autre d'une arête pour trouver la pièce voisine
   const CLES = ["rooms", "walls", "openings"]; // tout ce que le nettoyage peut toucher
   // options (cases du dialogue) et valeurs par défaut ; les étapes s'appliquent dans l'ordre de ETAPES (une option peut en avoir deux)
-  // « dehors » et « volets » : contrôles des ouvertures (côté dehors des baies, volets reliés à rien), faits seulement avec l'option
+  // « dehors », « volets » et « verrieres » : contrôles des ouvertures (côté dehors des baies, volets reliés à rien, fenêtre intérieure avec
+  // un côté dehors), faits seulement avec l'option
   // `controles` ({ entites: [ids connus] } ; sans liste, une entité n'est jamais dite inexistante)
-  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir", "dehors", "volets"];
-  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false, dehors: false, volets: false });
+  // « escaliers » : plan à étages seulement (config avec `floor`, `floors` et `furniture`, voir etapeEscaliers)
+  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir", "dehors", "volets", "verrieres", "escaliers"];
+  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false, dehors: false, volets: false, verrieres: false, escaliers: true });
   // gravité : « defaut » (à corriger), « style » (façon de dessiner, corrigée sans être comptée comme défaut), « info » (passage ouvert)
   const NIVEAU = { trou: "defaut", decale: "defaut", depasse: "defaut", bout: "defaut", doublon: "defaut", absent: "defaut", sommet: "defaut",
-    sous: "style", aligne: "style", arrondi: "style", passage: "info", sans_dehors: "defaut", volet_vide: "defaut", volet_inconnu: "defaut" };
+    sous: "style", aligne: "style", arrondi: "style", passage: "info", sans_dehors: "defaut", volet_vide: "defaut", volet_inconnu: "defaut", verriere_dehors: "defaut",
+    escalier_sans_cible: "defaut", escalier_sans_retour: "info" };
 
   // ---------- géométrie ----------
   const copie = (o) => (o === undefined ? o : typeof structuredClone === "function" ? structuredClone(o) : JSON.parse(JSON.stringify(o)));
@@ -488,6 +492,22 @@ const MaquetteNettoyage = (() => {
     }
     return ops;
   }
+  // fenêtre ou porte vitrée entre deux pièces intérieures avec un côté dehors (`outside`) : la carte la traite en fenêtre extérieure
+  // seulement ; correction = `outside` retiré (elle devient une verrière). Une terrasse dessinée en pièce : la marquer dehors plutôt
+  function etapeVerrieres(cfg) {
+    const ops = [], ctx = contexte(cfg);
+    for (const o of Array.isArray(cfg.openings) ? cfg.openings : []) {
+      if (!segValide(o) || !o.outside || !(o.type === "window" || (o.type === "door" && o.glazed))) continue;
+      const R = repere([o.seg[0], o.seg[1]], [o.seg[2], o.seg[3]]);
+      if (R.lg < 1) continue;
+      const m = au(R, R.lg / 2), n = [R.uy, -R.ux], cote = (sg) => ctx.interieures.find((P) => dedans([m[0] + n[0] * VOISIN * 2.5 * sg, m[1] + n[1] * VOISIN * 2.5 * sg], P.poly));
+      const P1 = cote(1), P2 = cote(-1);
+      if (!P1 || !P2 || P1 === P2) continue;
+      delete o.outside;
+      ops.push({ type: "verriere_dehors", piece: P1.nom, point: netP(m), segment: o.seg.slice(0, 4), detail: { ouverture: o.name || o.type } });
+    }
+    return ops;
+  }
   // volet relié à rien (ouverture « volet seul » sans entité) ou à une entité inexistante ; correction = lien retiré
   function etapeVolets(cfg, opts) {
     const ops = [], connues = Array.isArray(opts?.controles?.entites) ? new Set(opts.controles.entites) : null, ctx = contexte(cfg);
@@ -505,11 +525,35 @@ const MaquetteNettoyage = (() => {
     return ops;
   }
 
+  // escaliers d'un plan à étages : cfg.floor = étage nettoyé, cfg.floors = [{ id, name, furniture }] (tous les étages ; celui nettoyé
+  // peut n'avoir que son id), cfg.furniture = meubles de l'étage nettoyé ({ type, pos, name, floor }). Sans `floors` : rien.
+  // `floor` vers un étage absent (ou vers le sien) → lien retiré ; escalier relié sans escalier de retour sur l'étage visé → information,
+  // rien n'est changé (applique: false, même option cochée)
+  function etapeEscaliers(cfg) {
+    if (!Array.isArray(cfg.floors) || !Array.isArray(cfg.furniture)) return [];
+    const ops = [], ctx = contexte(cfg), ici = cfg.floor, etages = cfg.floors.filter((e) => e && typeof e.id === "string");
+    cfg.furniture.forEach((m, j) => {
+      if (!m || m.type !== "stairs" || m.floor == null) return;
+      const point = Array.isArray(m.pos) && Number.isFinite(+m.pos[0]) && Number.isFinite(+m.pos[1]) ? netP([+m.pos[0], +m.pos[1]]) : [0, 0];
+      const base = { piece: pieceDe(ctx, point), point, meuble: j }, nom = m.name ?? null;
+      const E = m.floor === ici ? null : etages.find((e) => e.id === m.floor);
+      if (!E) {
+        ops.push({ type: "escalier_sans_cible", ...base, detail: { cible: String(m.floor), nom } });
+        delete m.floor;
+        return;
+      }
+      const retour = (Array.isArray(E.furniture) ? E.furniture : []).some((x) => x?.type === "stairs" && x.floor === ici);
+      if (!retour) ops.push({ type: "escalier_sans_retour", ...base, applique: false, detail: { cible: E.id, vers: E.name ?? E.id, nom } });
+    });
+    return ops;
+  }
+
   // ---------- API ----------
   // [option, étape] dans l'ordre d'application : les murs épais sont ramenés à leur axe avant d'être aimantés
   const ETAPES = [["arrondir", etapeArrondir], ["sommets", etapeSommets], ["fusionner", etapeEpais], ["aimanter", etapeAimanter], ["bouts", etapeBouts],
     ["manquants", (cfg, choix) => etapeManquants(cfg, "manquants", choix)], ["passages", (cfg, choix) => etapeManquants(cfg, "passages", choix)],
-    ["couper", etapeCouper], ["fusionner", etapeFusionner], ["dehors", etapeDehors], ["volets", etapeVolets]];
+    ["couper", etapeCouper], ["fusionner", etapeFusionner], ["dehors", etapeDehors], ["volets", etapeVolets], ["verrieres", etapeVerrieres],
+    ["escaliers", etapeEscaliers]];
   const actif = (v) => v === true || (Array.isArray(v) && v.length > 0);
 
   // nettoyer(config, options) → { config, operations (appliquées), constats (toutes, appliquées ou non, par option) }
@@ -520,12 +564,12 @@ const MaquetteNettoyage = (() => {
     const operations = [], constats = Object.fromEntries(ORDRE.map((k) => [k, []]));
     for (const [nom, etape] of ETAPES) {
       let ops;
-      if ((nom === "dehors" || nom === "volets") && !opts.controles) continue;
+      if ((nom === "dehors" || nom === "volets" || nom === "verrieres") && !opts.controles) continue;
       if (nom === "manquants" || nom === "passages") {
         // constat toujours fait ; seules les pièces choisies sont complétées
         ops = etape(cfg, opts[nom]);
       } else if (actif(opts[nom])) {
-        ops = etape(cfg, opts).map((o) => ({ ...o, applique: true }));
+        ops = etape(cfg, opts).map((o) => ({ applique: true, ...o })); // une information (applique: false) n'est jamais comptée
       } else {
         ops = etape(copie(cfg), opts).map((o) => ({ ...o, applique: false }));
       }
@@ -543,7 +587,7 @@ const MaquetteNettoyage = (() => {
     const defauts = Object.values(constats).flat().map(({ type, niveau, option, piece, pieces, point, segment, detail }) => ({ type, niveau, option, piece, ...(pieces ? { pieces } : {}), point, ...(segment ? { segment } : {}), detail }));
     const corrections = {};
     for (const nom of ORDRE) corrections[nom] = constats[nom].filter((o) => o.type !== "passage" || nom === "passages");
-    const propre = ORDRE.every((nom) => (OPTIONS_DEFAUT[nom] ? corrections[nom].length === 0 : !corrections[nom].some((o) => o.niveau === "defaut")));
+    const propre = ORDRE.every((nom) => (OPTIONS_DEFAUT[nom] ? corrections[nom].every((o) => o.niveau === "info") : !corrections[nom].some((o) => o.niveau === "defaut")));
     return { defauts, corrections, propre, arrondiUtile: arrondiUtile(config) };
   }
   // plan relevé sur une image : au moins 30 % des cotes (sommets, murs, ouvertures) hors grille de 5 cm → proposer l'arrondi

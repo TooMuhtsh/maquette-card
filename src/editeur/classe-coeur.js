@@ -10,7 +10,13 @@ export class EditeurPlan {
   static poserParametre = (d, f, v) => (f.ecrire ? f.ecrire(d, v) : ecrireReglage(d, f, v));
   constructor(carte, reprise = null) {
     this.carte = carte;
-    this.original = clone(carte._config);
+    // étages : reprise après un enregistrement sur l'étage où l'on travaillait ; original = config repliée (comparaisons, conflits)
+    const E = carte.constructor.ETAGES;
+    if (reprise?.etage != null && reprise.etage !== carte._etage && E.ids(carte._plein).includes(reprise.etage)) {
+      carte._etage = reprise.etage;
+      carte._config = E.deplier(carte._plein, reprise.etage);
+    }
+    this.original = E.replier(carte._config);
     this.d = clone(carte._config);
     this.histo = []; this.refaire = [];
     this.sel = null; this.outil = "selection"; this.grille = 5; this.modifie = false;
@@ -104,6 +110,7 @@ export class EditeurPlan {
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
       ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}
       <span class="ed-sep ed-pc"></span>
+      ${ib("etages", "mdi:layers-triple-outline", _t("Gérer les étages"))}
       ${ib("calques", "mdi:layers-outline", _t("Calques"), !!this.vueCalques)}
       ${ib("ambiance", "mdi:weather-partly-cloudy", _t("Ambiance et animations"), !!this.vueAmbiance)}
       <span class="ed-sep ed-pc"></span>
@@ -127,7 +134,7 @@ export class EditeurPlan {
       if (!b || b.disabled) return;
       if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
       else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
-        quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
+        quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), etages: () => this.ouvrirEtages(), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
         parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
     };
     if (garde) this.barre.querySelector(garde)?.focus({ preventScroll: true });
@@ -146,6 +153,7 @@ export class EditeurPlan {
     // Appliquer (enregistrer sans quitter) : dans ce menu sur téléphone, la barre garde ses deux rangées
     this._menu(b, [...(this.modifie ? [{ icone: "mdi:check", libelle: _t("Appliquer : enregistrer sans quitter l'éditeur"), action: () => this.appliquer() }, { sep: true }] : []),
       { icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
+      { icone: "mdi:layers-triple-outline", libelle: _t("Gérer les étages"), action: () => this.ouvrirEtages() },
       { icone: "mdi:layers-outline", libelle: _t("Calques"), action: () => this.panneauCalques(!this.vueCalques) },
       { icone: "mdi:weather-partly-cloudy", libelle: _t("Ambiance et animations"), action: () => this.panneauAmbiance(!this.vueAmbiance) },
       { icone: "mdi:auto-fix", libelle: _t("Nettoyer le plan"), action: () => this.nettoyerPlan() },
@@ -232,16 +240,28 @@ export class EditeurPlan {
   }
 
   // ---------- historique ----------
+  // instantané = config entière, dépliée sur l'étage actif (son id dans `etage_actif`) : annuler ramène aussi sur l'étage modifié
   _instantane() { this.histo.push(JSON.stringify(this.d)); if (this.histo.length > 150) this.histo.shift(); this.refaire = []; }
-  _applique(json) { const d = JSON.parse(json); Object.keys(this.d).forEach((k) => delete this.d[k]); Object.assign(this.d, d); }
+  _applique(json) {
+    const avant = this._etageActif();
+    let d = JSON.parse(json);
+    // plan à étages replié (import) : déplié sur l'étage en cours s'il existe, sinon sur l'étage initial
+    if (Array.isArray(d?.etages) && d.etages.length && !d.etage_actif) d = this._deplie(d, avant);
+    Object.keys(this.d).forEach((k) => delete this.d[k]); Object.assign(this.d, d);
+    // autre étage (annuler, rétablir, import) : sélection et outil remis à zéro
+    if (this._etageActif() !== avant) { this._finGlisse = null; this._remettreAZero(); }
+    this._suivreCarte();
+  }
   // config interne gardée dans ce navigateur (brouillon, copie d'avant nettoyage) : relue comme un plan importé (même normalisation,
   // valeurs invalides retirées), jamais posée telle quelle
   _relire(json) {
     const N = customElements.get("maquette-card").normaliser;
     try { const o = JSON.parse(json); return JSON.stringify(N(o && typeof o === "object" && !Array.isArray(o) ? o : {})); } catch (e) { return JSON.stringify(N({})); }
   }
-  annuler() { if (!this.histo.length) return; this.refaire.push(JSON.stringify(this.d)); this._applique(this.histo.pop()); this._valide(); this._apres(true); }
-  retablir() { if (!this.refaire.length) return; this.histo.push(JSON.stringify(this.d)); this._applique(this.refaire.pop()); this._valide(); this._apres(true); }
+  // annuler / rétablir : l'état quitté est gardé déplié sur l'étage de l'état repris (une modification et son annulation vont par paire,
+  // sur l'étage où elle a été faite, même si l'on a changé d'étage entre-temps)
+  annuler() { if (!this.histo.length) return; const j = this.histo.pop(); this.refaire.push(this._instantaneSur(j)); this._applique(j); this._valide(); this._apres(true); }
+  retablir() { if (!this.refaire.length) return; const j = this.refaire.pop(); this.histo.push(this._instantaneSur(j)); this._applique(j); this._valide(); this._apres(true); }
   _valide() {
     const n = this._listes();
     if (this.sel?.type === "widget") { if (!this._wl(this.sel)?.[this.sel.i]) this.sel = null; return; }
@@ -273,9 +293,13 @@ export class EditeurPlan {
     this.multi = new Set([...this.multi].filter((k) => this._elt(k)));
     if (!this.sel) this.multi.clear(); else if (!this.multi.has(cle(this.sel))) this.multi = new Set([cle(this.sel)]);
     if (this.d.groupes || this._toutesCles().some((k) => this._gr(k))) this._nettoyerGroupes();
-    this.modifie = JSON.stringify(this.d) !== JSON.stringify(this.original);
+    // une seule copie repliée : comparaison avec l'original, carte, brouillon
+    const plein = this._replie();
+    this._apresGestionEtages?.(plein, sansHisto); // noms de pièce en double dans la maison : avertissement
+    this.modifie = this._estModifie(plein);
+    this._suivreCarte(plein);
     this._boite();
-    if (this.modifie) stock.ecrire(this._cle(), JSON.stringify(this.d)); else stock.retirer(this._cle());
+    if (this.modifie) this._ecrireBrouillon(plein); else this._retirerBrouillon();
     // langue de la carte changée (panneau Paramètres, annuler / rétablir) : carte et éditeur passent tout de suite dans la nouvelle langue
     suivreLangue(this.carte, this.d);
     this.carte._construire();
@@ -292,9 +316,11 @@ export class EditeurPlan {
   _proposerBrouillon() {
     let b = null;
     b = stock.lire(this._cle());
-    if (b && b !== JSON.stringify(this.original)) {
-      this.snack(_t("Un brouillon non enregistré existe."), [[_t("Reprendre"), () => { this._instantane(); this._applique(this._relire(b)); this._valide(); this._apres(); }],
-        [_t("Supprimer"), () => { stock.retirer(this._cle()); this.snack(_t("Brouillon supprimé.")); }]], 20000);
+    let different = !!b;
+    try { different = !!b && canon(this._replie(JSON.parse(b))) !== this._canonOriginal(); } catch (e) { /* brouillon illisible : proposé, relu à la reprise */ }
+    if (different) {
+      this.snack(_t("Un brouillon non enregistré existe."), [[_t("Reprendre"), () => { this._instantane(); this._applique(this._brouillonDeplie(b)); this._valide(); this._apres(); }],
+        [_t("Supprimer"), () => { this._retirerBrouillon(); this.snack(_t("Brouillon supprimé.")); }]], 20000);
     }
   }
 

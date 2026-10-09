@@ -1,5 +1,7 @@
 // thème sombre, jour / nuit, lune, lumière, fond des pièces — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class MaquetteCard extends HTMLElement { // @assemblage
+  // fenêtres de toit (calculs purs, voir carte/velux.js) : pour les tests et l'éditeur
+  static VELUX = { tache: tacheVelux, ouvert: ouvertVelux, emprise: empriseVelux, pente: penteVelux, hauteur: hauteurVelux };
   // thème sombre : fond de la carte peu lumineux (sinon, carte transparente : réglage sombre de HA)
   _sombre() {
     const t = getComputedStyle(this.shadowRoot.querySelector("ha-card")).backgroundColor, c = t.match(/[\d.]+/g)?.map(Number), k = t.startsWith("color(") ? 1 : 255;
@@ -10,6 +12,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
   // jour / nuit : teinte bleu nuit selon la hauteur du soleil (plus forte sur les extérieurs), lumière venant du côté du soleil
   // (azimut + `nord`), plus chaude au lever et au coucher ; repère du soleil au bord du plan ; météo redessinée quand elle change
   _majAmbiance() {
+    this._majVelux();
     const R = this.shadowRoot, A = this._config.ambiance, g = R?.querySelector(".zone svg .amb");
     if (!A || !g) return;
     const I = intensiteAmb(A), b = this._box, nord = +A.nord || 0, jn = coucheJour(A);
@@ -46,6 +49,19 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._majLumiere(I, nord);
   }
 
+  // store des fenêtres de toit reliées à un `cover` : hauteur du store dessiné selon current_position (ambiance ou non) ;
+  // un contact (binary_sensor) ne change que l'état du meuble (contour actif), pas le store
+  _majVelux() {
+    const R = this.shadowRoot;
+    (this._config?.meubles || []).forEach((m, i) => {
+      if (m?.type !== "fenetre_toit") return;
+      const st = R?.querySelector(`.zone svg [data-mb="${i}"] .vx-store`);
+      if (!st) return;
+      const k = typeof m.entite === "string" && m.entite.startsWith("cover.") ? 1 - ouvertVelux(m.entite, this._etat(m.entite)) : 0, h = +(+st.dataset.h * k).toFixed(1);
+      if (st.getAttribute("height") !== String(h)) st.setAttribute("height", h);
+    });
+  }
+
   // entité de phase de la lune : celle choisie, sinon celle de l'intégration Moon (sensor.moon_phase, ancien nom sensor.moon)
   _entiteLune(LU) { return LU.phase || ["sensor.moon_phase", "sensor.moon"].find((e) => this._etat(e)) || "sensor.moon_phase"; }
 
@@ -78,8 +94,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const st = contactsDe(o).length ? this._etatOuverture(o)?.state : null;
       return passageLumiere(o, st == null || ETATS_MUETS.includes(st) ? null : st, LU.portes === "fermees", ouv[i] ?? 1);
     });
+    // fenêtres de toit : [meuble, part dégagée par le store] (contact : sans effet sur la lumière)
+    const vel = (c.meubles || []).map((m, i) => [m, m?.type === "fenetre_toit" ? ouvertVelux(m.entite, m.entite ? this._etat(m.entite) : null) : null, i]).filter((x) => x[1] != null);
     const M = LU.mult, K = LU.kelvin, D = LU.diffusion;
-    const cle = [M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
+    const cle = [vel.map(([m, v]) => `${v.toFixed(2)}@${JSON.stringify([m.pos, m.taille, m.rotation, m.miroir, m.pente, m.hauteur])}`).join(";"), M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
       PL ? `${Math.round(PL.az)},${Math.round(PL.haut)}` : "", trans.map((v) => v.toFixed(2)).join(",")].join("|");
     if (cle === this._lumCle) return;
     this._lumCle = cle;
@@ -148,6 +166,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const cCiel = K.ciel ? kRgb(K.ciel) : sombre ? "#fff2da" : "#ffe3a6", cLune = sombre ? "#9fb4ff" : "#7986cb";
     const cSoleil = K.soleil ? kRgb(K.soleil) : dore > 0.5 ? (sombre ? "#ffcc80" : "#ffb74d") : (sombre ? "#fff3b0" : "#ffd54f");
     const cRediff = K.soleil ? kRgb(Math.max(1800, K.soleil - 400)) : dore > 0.5 ? (sombre ? "#ffb870" : "#ffa726") : (sombre ? "#ffe9a8" : "#ffca28");
+    // fenêtre ou porte vitrée entre deux pièces intérieures avec un côté `dehors` : fenêtre extérieure seulement, pas aussi une verrière
+    // (voir ouvertureInterieure)
+    const polys = pieces.map(([p, k]) => [p.poly, k]);
+    const passe = trans.map((t, i) => (t > 0 && vitrageDe(c.ouvertures[i]) && c.ouvertures[i].dehors && ouvertureInterieure(polys, c.ouvertures[i]) ? 0 : t));
     for (const B of baiesFenetres(c.ouvertures, ouv)) {
       if (B.ouvert <= 0.02) continue;
       const k = salle(B);
@@ -180,11 +202,42 @@ class MaquetteCard extends HTMLElement { // @assemblage
         lueur("lum-rediff", k, c0, dir, rl * 0.7, rl * 0.6, cLune, op1(M.rediffusion * k0 * 0.25 * s));
       }
     }
+    // fenêtres de toit : lueur du ciel sous la fenêtre (et part de la lumière de fond), tache de soleil ou de lune projetée au sol,
+    // coupée par la pièce qui contient la fenêtre ; store baissé = tache raccourcie, fermé = rien
+    for (const [m, ov, i] of vel) {
+      if (ov <= 0.02) continue;
+      const emp = empriseVelux(m), mil = [(emp[0][0] + emp[2][0]) / 2, (emp[0][1] + emp[2][1]) / 2];
+      const k = pieces.find(([p]) => dansPoly(mil, p.poly))?.[1] ?? -1;
+      if (k < 0) continue;
+      const L = Math.hypot(emp[1][0] - emp[0][0], emp[1][1] - emp[0][1]) || 1, P = Math.hypot(emp[3][0] - emp[0][0], emp[3][1] - emp[0][1]) || 1;
+      const dir = [(emp[1][0] - emp[0][0]) / L, (emp[1][1] - emp[0][1]) / L], bas = [(emp[0][0] - emp[3][0]) / P, (emp[0][1] - emp[3][1]) / P];
+      if (ciel > 0 && M.ciel > 0) {
+        const k1 = M.ciel * I * ciel * 0.8 * (0.25 + 0.75 * ov);
+        lueur("lum-ciel lum-velux", k, mil, dir, Math.max(80, L * 1.1), Math.max(90, P * 1.2), cCiel, op1(k1 * (sombre ? 0.55 : 0.65)));
+        fonds.set(k, [...(fonds.get(k) || []), [L * P * 1.3 * ov, k1]]);
+      }
+      // lune sans coordonnées : face à la fenêtre (vers le bas de la pente), à 50°
+      const fl = PL ? ((PL.az + nord) * Math.PI) / 180 : 0;
+      const astre = jour ? [sx, sy, e, 900] : nuitL > 0 ? (PL ? (PL.haut > 0.5 ? [Math.sin(fl), -Math.cos(fl), PL.haut, 400] : null) : [bas[0], bas[1], 50, 400]) : null;
+      const t = astre && tacheVelux(m, astre[0], astre[1], astre[2], ov, astre[3]);
+      if (!t) continue;
+      const s = Math.sqrt(borne(t.aire / 30000, 0, 1)), rl = borne(Math.sqrt(t.aire) * 1.4, 120, 450), h0 = h.length;
+      if (jour) {
+        const k0 = I * direct * borne(e / 6, 0.35, 1);
+        if (M.soleil > 0) tache(t, k, cSoleil, op1(M.soleil * k0 * (0.3 + 0.4 * Math.min(1, t.expo))), ".55");
+        lueur("lum-rediff", k, t.centre, dir, rl, rl * 0.85, cRediff, op1(M.rediffusion * k0 * 0.32 * s));
+      } else {
+        const k0 = I * nuitL * (0.2 + 0.4 * phase);
+        tache(t, k, cLune, k0, "0");
+        lueur("lum-rediff", k, t.centre, dir, rl * 0.7, rl * 0.6, cLune, op1(M.rediffusion * k0 * 0.25 * s));
+      }
+      h = h.slice(0, h0) + h.slice(h0).replace('<polygon class="lum-tache', `<polygon data-vx="${i}" class="lum-tache lum-vx`);
+    }
     let fh = "";
     const F = new Map([...fonds].map(([k, l]) => [k, lumiereFond(l.map((x) => x[0]), aireDe(c.pieces[k].poly)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28)]));
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
     // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
-    for (const V of lumiereVoisins(pieces.map(([p, k]) => [p.poly, k]), c.ouvertures, trans, F)) {
+    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
       fh += this._fondPiece(V.vers, V.fond, cCiel, "lum-voisin");
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));

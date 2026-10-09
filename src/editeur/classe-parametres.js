@@ -102,18 +102,18 @@ class EditeurPlan { // @assemblage
     const aide = (f) => (f.aide ? bulleI(_t(f.aide)) : "");
       const k = esc(f.chemin || f.id || ""), lib = esc(_t(f.libelle ?? f.nom ?? "")), v = f.chemin ? valeur(f) : undefined;
       if (f.type === "intertitre") return `<div class="ed-par-inter">${lib}</div>`;
-      if (f.type === "bool") {
-        const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
-        return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
-          ${conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
+      // confirmation demandée (champ `confirmer`) : encart dans la modale, sous le champ
+      const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
+      const htmlConf = conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
             <p id="ed-conf-d">${esc(_t(conf.texte))}</p><div class="ed-actions"><button class="ed-btn texte" data-par-conf="non">${_t("Annuler")}</button>
-            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : ""}</div>`;
-      }
+            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : "";
+      if (f.type === "bool") return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
+          ${htmlConf}</div>`;
       if (f.type === "choix") {
         // valeur inconnue des options (ex. `language: auto`) : affichée comme la valeur par défaut
         const connue = f.options.some(([val]) => memeValeur(val, v)), opts = f.options.map(([val, l, brut], j) => ({ j, on: memeValeur(val, connue ? v : f.defaut), l: brut ? l : _t(l) }));
-        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span></div>`;
-        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select></div>`;
+        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span>${htmlConf}</div>`;
+        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select>${htmlConf}</div>`;
       }
       if (f.type === "nombre") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><div class="ed-unite"><input type="number" id="par-${k}" data-par="${k}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.pas || 1}" value="${esc(v ?? "")}" placeholder="${esc(f.defaut ?? "")}">${f.unite ? `<span aria-hidden="true">${esc(f.unite)}</span>` : ""}</div></div>`;
       if (f.type === "curseur") {
@@ -212,7 +212,7 @@ class EditeurPlan { // @assemblage
       const og = el("ongletPar");
       if (og) return this.ongletParametres(og.dataset.ongletPar);
       const c = el("parConf");
-      if (c) { const f = this._champParametre(this._confParam); this._confParam = null; if (c.dataset.parConf === "oui" && f) return this._ecrireParametre(f, false, true); this._rendreParametres(); return V.querySelector(`[data-par="${f?.chemin}"]`)?.focus(); }
+      if (c) { const f = this._champParametre(this._confParam); this._confParam = null; if (c.dataset.parConf === "oui" && f) return this._ecrireParametre(f, this._confVal, true); this._rendreParametres(); return V.querySelector(`[data-par="${f?.chemin}"]`)?.focus(); }
       if (el("parEffacer")) ev.stopPropagation();
       if (el("parEffacer") || el("parAuto")) return this._clicChamp(ch);
       // raccourci : la modale se ferme, puis le panneau (ou le dialogue) visé s'ouvre
@@ -270,8 +270,9 @@ class EditeurPlan { // @assemblage
   }
   _ecrireParametre(f, v, confirme = false) {
     if (!f) return;
-    if (f.confirmer && !confirme && f.confirmer.quand(v)) {
+    if (f.confirmer && !confirme && f.confirmer.quand(v, this.d)) {
       this._confParam = f.chemin;
+      this._confVal = v; // valeur écrite si la confirmation est acceptée
       this._rendreParametres();
       return this.R.querySelector('.ed-mvoile [data-par-conf="oui"]')?.focus();
     }

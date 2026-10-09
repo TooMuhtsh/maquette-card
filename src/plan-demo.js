@@ -3,6 +3,8 @@
 // consigne…) ne change que la simulation. Le soleil (sun.sun) et les coordonnées de la maison restent ceux de Home Assistant.
 const PlanDemo = (() => {
   const { _t, _tk } = globalThis.MaquetteI18n;
+  // murs d'un étage tracés avec leurs ouvertures (trous : [début, fin, ouverture ou null] le long du mur)
+  const traceur = () => {
   const murs = [], ouvertures = [];
   const mur = (x1, y1, x2, y2, trous = []) => {
     const hz = y1 === y2, fin = hz ? x2 : y2;
@@ -14,6 +16,10 @@ const PlanDemo = (() => {
     }
     if (fin - cur > 0.5) murs.push(hz ? [cur, y1, fin, y1] : [x1, cur, x1, fin]);
   };
+  return { murs, ouvertures, mur };
+  };
+  // rez-de-chaussée : l'appartement de toujours
+  const rdc = traceur(), mur = rdc.mur;
   mur(0, 0, 900, 0, [[90, 410, { type: "fenetre", nom: _tk("Baie du séjour"), contact: "binary_sensor.demo_baie_sejour", volet: "cover.demo_volet_sejour", dehors: [0, -1] }],
     [600, 800, { type: "fenetre", nom: _tk("Fenêtre chambre"), contact: "binary_sensor.demo_fenetre_chambre", volet: "cover.demo_volet_chambre", dehors: [0, -1] }]]);
   mur(900, 0, 900, 700, [[450, 600, { type: "fenetre", nom: _tk("Fenêtre bureau"), contact: "binary_sensor.demo_fenetre_bureau", dehors: [1, 0] }]]);
@@ -23,11 +29,27 @@ const PlanDemo = (() => {
   mur(0, 420, 500, 420, [[290, 410, null]]);
   mur(250, 420, 250, 700, [[520, 600, { type: "porte", dehors: [-1, 0] }]]);
   mur(500, 350, 900, 350);
+  // étage : salle d'eau, palier (arrivée de l'escalier), chambre d'amis, atelier, dans l'emprise du rez-de-chaussée (même cadre)
+  const haut = traceur(), murH = haut.mur;
+  murH(0, 0, 900, 0, [[300, 400, { type: "fenetre", nom: _tk("Fenêtre salle d'eau"), contact: "binary_sensor.demo_fenetre_salle_eau", dehors: [0, -1] }]]);
+  murH(900, 0, 900, 700, [[250, 450, { type: "fenetre", nom: _tk("Fenêtre atelier"), contact: "binary_sensor.demo_fenetre_atelier", dehors: [1, 0] }]]);
+  murH(0, 700, 900, 700, [[150, 330, { type: "fenetre", nom: _tk("Fenêtre chambre d'amis"), contact: "binary_sensor.demo_fenetre_chambre_amis", volet: "cover.demo_volet_chambre_amis", dehors: [0, 1] }]]);
+  murH(0, 0, 0, 700);
+  murH(500, 0, 500, 700, [[260, 340, { type: "porte", dehors: [-1, 0] }]]);
+  murH(0, 200, 500, 200, [[380, 460, { type: "porte", dehors: [0, -1] }]]);
+  murH(0, 420, 500, 420, [[380, 460, { type: "porte", dehors: [0, 1] }]]);
   const R = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
   const D = (n) => `${n.split(".")[0]}.demo_${n.split(".")[1]}`;
+  const geo = ({ murs, ouvertures }) => ({ murs: murs.map((m) => [...m]), ouvertures: ouvertures.map((o) => ({ ...o, ...(o.nom ? { nom: _t(o.nom) } : {}), seg: [...o.seg] })) });
+  // escalier entre les deux niveaux : même place en bas et en haut, chacun mène à l'autre (`floor`) ; comme tous les meubles de
+  // l'étage, il reste dans le cadre du rez-de-chaussée (le plan garde son échelle)
+  const ESCALIER = { type: "escalier", pos: [90, 320], taille: [70, 170] };
 
   const config = () => ({
     titre: _t("Appartement démo"), demo: true, edition: false, replay: true, vitrine: true,
+    // deux niveaux : le rez-de-chaussée s'affiche au chargement, l'ascenseur (sélecteur par défaut) mène à l'étage
+    etage_defaut: "rdc",
+    etages: [{ id: "rdc", nom: _t("Rez-de-chaussée##demo"), court: "0", icone: "mdi:home-floor-0",
     pieces: [
       { nom: _t("Balcon"), dehors: true, zoom: false, poly: R(0, -170, 500, 170), etiquette: [250, -85], temperature: D("sensor.exterieur_temperature") },
       { nom: _t("Séjour"), poly: R(0, 0, 500, 420), etiquette: [300, 250], temperature: D("sensor.sejour_temperature"), humidite: D("sensor.sejour_humidite") },
@@ -36,7 +58,7 @@ const PlanDemo = (() => {
       { nom: _t("Salle de bain"), poly: R(0, 420, 250, 280), etiquette: [125, 640], temperature: D("sensor.sdb_temperature"), humidite: D("sensor.sdb_humidite") },
       { nom: _t("Entrée"), poly: R(250, 420, 250, 280), etiquette: [375, 640] },
     ],
-    murs: murs.map((m) => [...m]), limites: [[0, -170, 500, -170], [0, -170, 0, 0], [500, -170, 500, 0]], ouvertures: ouvertures.map((o) => ({ ...o, ...(o.nom ? { nom: _t(o.nom) } : {}), seg: [...o.seg] })),
+    ...geo(rdc), limites: [[0, -170, 500, -170], [0, -170, 0, 0], [500, -170, 500, 0]],
     points: [
       { entite: D("light.sejour"), pos: [230, 200], icone: "mdi:floor-lamp", couleur: "#f6c445", halo: 170, piece: _t("Séjour") },
       { entite: D("light.cuisine"), pos: [70, 70], icone: "mdi:ceiling-light", couleur: "#f6c445", halo: 120, piece: _t("Séjour") },
@@ -57,8 +79,30 @@ const PlanDemo = (() => {
       { type: "bureau", pos: [790, 610] }, { type: "lit_double", pos: [790, 175], taille: [160, 200], rotation: 270 },
       { type: "chaudiere", pos: [30, 450], rotation: 90, entite: D("climate.thermostat"),
         fiche: { titre: _t("Chauffage"), widgets: [{ type: "thermostat", titre: _t("Thermostat"), entite: D("climate.thermostat") }, { type: "climat", titre: _t("Températures"), duree: 30, moyenne: true }] } },
+      { ...ESCALIER, pos: [...ESCALIER.pos], taille: [...ESCALIER.taille], etage: "etage" },
     ],
     textes: [{ t: _t("Rue"), pos: [450, 760] }],
+    }, { id: "etage", nom: _t("Étage##demo"), court: "1", icone: "mdi:home-floor-1",
+    pieces: [
+      { nom: _t("Salle d'eau##piece"), poly: R(0, 0, 500, 200), etiquette: [250, 120], temperature: D("sensor.salle_eau_temperature"), humidite: D("sensor.salle_eau_humidite") },
+      { nom: _t("Palier"), poly: R(0, 200, 500, 220), etiquette: [290, 310] },
+      { nom: _t("Chambre d'amis"), poly: R(0, 420, 500, 280), etiquette: [340, 560], temperature: D("sensor.chambre_amis_temperature"), humidite: D("sensor.chambre_amis_humidite") },
+      { nom: _t("Atelier"), poly: R(500, 0, 400, 700), etiquette: [680, 350], temperature: D("sensor.atelier_temperature"), humidite: D("sensor.atelier_humidite") },
+    ],
+    ...geo(haut),
+    points: [
+      { entite: D("light.atelier"), pos: [640, 140], icone: "mdi:desk-lamp", couleur: "#f6c445", halo: 150, piece: _t("Atelier") },
+      { entite: D("light.chambre_amis"), pos: [420, 640], icone: "mdi:ceiling-light", couleur: "#f6c445", halo: 130, piece: _t("Chambre d'amis") },
+    ],
+    meubles: [
+      { type: "douche", pos: [60, 60] }, { type: "lavabo", pos: [190, 26] }, { type: "wc", pos: [470, 40], rotation: 270 },
+      { type: "lit_double", pos: [130, 560], rotation: 90 }, { type: "table_nuit", pos: [130, 455] },
+      { type: "bureau", pos: [835, 350], rotation: 270 }, { type: "etagere", pos: [700, 680] }, { type: "plante", pos: [540, 40] },
+      { ...ESCALIER, pos: [...ESCALIER.pos], taille: [...ESCALIER.taille], rotation: 180, etage: "rdc" },
+      // fenêtre de toit au-dessus de l'atelier : tache de soleil qui suit sun.sun, store simulé (fermé = pas de tache)
+      { type: "fenetre_toit", nom: _t("Fenêtre de toit de l'atelier"), pos: [700, 560], taille: [78, 118], pente: 40, hauteur: 200, entite: D("cover.velux_atelier"), animation: "aucune" },
+    ],
+    }],
     panneaux: {
       gauche: [
         { type: "jauge", titre: _t("Puissance appelée"), entite: D("sensor.puissance_apparente"), min: 0, max: 6000, unite: "VA", decimales: 0 },
@@ -114,6 +158,18 @@ const PlanDemo = (() => {
       // équipements pour les widgets prêts à l'emploi : CO₂, luminosité, serrure, fuite d'eau
       pose("sensor.sejour_co2", 870, u("ppm", "carbon_dioxide", _tk("CO₂ du séjour"))); pose("sensor.bureau_luminosite", 320, u("lx", "illuminance", _tk("Luminosité du bureau")));
       pose("lock.entree", "locked", { friendly_name: _tk("Serrure de l'entrée"), supported_features: 1 }); pose("binary_sensor.fuite_sdb", "off", { friendly_name: _tk("Fuite salle de bain"), device_class: "moisture" });
+      // étage : lampe de l'atelier allumée, plafonnier de la chambre d'amis éteint, volet ouvert ; la fenêtre de la salle d'eau est
+      // ouverte tant que Sam est là (aération après la douche) : la pastille de l'étage le signale depuis le rez-de-chaussée
+      pose("light.atelier", "on", { friendly_name: _tk("Lampe de l'atelier"), color_mode: "color_temp", color_temp_kelvin: 4000, brightness: 210 });
+      pose("light.chambre_amis", "off", { friendly_name: _tk("Plafonnier chambre d'amis"), color_mode: "color_temp", color_temp_kelvin: 2700, brightness: 200 });
+      pose("binary_sensor.fenetre_salle_eau", "on", { friendly_name: _tk("Fenêtre salle d'eau"), device_class: "window" });
+      pose("binary_sensor.fenetre_atelier", "off", { friendly_name: _tk("Fenêtre atelier"), device_class: "window" });
+      pose("binary_sensor.fenetre_chambre_amis", "off", { friendly_name: _tk("Fenêtre chambre d'amis"), device_class: "window" });
+      pose("cover.velux_atelier", "open", { friendly_name: _tk("Store de la fenêtre de toit"), current_position: 100, device_class: "blind", supported_features: 15 });
+      pose("cover.volet_chambre_amis", "open", { friendly_name: _tk("Volet chambre d'amis"), current_position: 100, device_class: "shutter", supported_features: 15 });
+      for (const [p, t, h] of [["salle_eau", 22.6, 74], ["chambre_amis", 19.1, 50], ["atelier", 20.7, 45]]) {
+        pose(`sensor.${p}_temperature`, t, u("°C", "temperature")); pose(`sensor.${p}_humidite`, h, u("%", "humidity"));
+      }
       this.etats = e; this.k = 0; this.abonnes = new Set(); this.tm = 0;
       // noms affichés dans la langue de l'interface (les prénoms restent tels quels) ; renommer() après un changement de langue
       this.fr = Object.fromEntries(Object.entries(e).filter(([id, v]) => v.attributes.friendly_name && !id.includes("person.")).map(([id, v]) => [id, v.attributes.friendly_name]));
@@ -134,7 +190,12 @@ const PlanDemo = (() => {
       if (k % 23 === 5) this.poser("binary_sensor.porte_entree", "on"); else if (k % 23 === 8) this.poser("binary_sensor.porte_entree", "off");
       if (k % 15 === 0) this.poser("light.cuisine", this.etats[D("light.cuisine")].state === "on" ? "off" : "on");
       if (k % 30 === 0) { const m = METEOS[(k / 30) % METEOS.length]; this.poser("weather.maison", m, { cloud_coverage: { sunny: 5, partlycloudy: 45 }[m] ?? 90 }); }
-      if (k % 40 === 20) { const dehors = this.etats[D("person.sam")].state === "home"; this.poser("person.sam", dehors ? "not_home" : "home"); }
+      // Sam ferme la fenêtre de la salle d'eau en partant et la rouvre au retour : pastille de l'étage quand il est là, pas d'alerte
+      // « maison vide » permanente pendant son absence
+      if (k % 40 === 20) {
+        const dehors = this.etats[D("person.sam")].state === "home";
+        this.poser("binary_sensor.fenetre_salle_eau", dehors ? "off" : "on", null, true); this.poser("person.sam", dehors ? "not_home" : "home");
+      }
       this.poser("zone.maison", String(this.etats[D("person.sam")].state === "home" ? 1 : 0), null, true);
       this.notifier();
     }

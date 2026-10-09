@@ -9,7 +9,7 @@
  */
 import "./maquette-i18n.js"; // dist : ligne retirée par build.mjs, le fichier est placé en tête
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.2.0-beta.1";
+const VERSION = "0.2.0";
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
 const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

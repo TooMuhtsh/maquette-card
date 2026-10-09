@@ -93,8 +93,9 @@ function depuisMoteur(d, c) {
     ouvertures: (d.ouvertures || []).map((o, i) => {
       const n = c.openings[i];
       if (!o || !n) return o;
-      // contrôles des ouvertures : côté dehors posé, lien de volet retiré (volet inexistant, « volet seul » relié à rien)
+      // contrôles des ouvertures : côté dehors posé ou retiré (fenêtre intérieure), lien de volet retiré (volet inexistant, « volet seul » relié à rien)
       const r = { ...o, ...(meme(o.seg, n.seg) ? {} : { seg: n.seg }), ...(!o.dehors && n.outside ? { dehors: n.outside } : {}) };
+      if (o.dehors && !n.outside) delete r.dehors;
       if (o.volet && !n.shutter) delete r.volet;
       if (o.volet_seul && !n.shutter_only) delete r.volet_seul;
       return meme(r, o) ? o : r;
@@ -110,7 +111,8 @@ const OPTIONS_NET = [["aimanter", _tk("Aimanter murs et ouvertures aux pièces")
   ["sommets", _tk("Aimanter les sommets presque confondus"), _tk("Jusqu'à 6 cm : change la forme des pièces.")],
   ["arrondir", _tk("Arrondir à 5 cm"), _tk("Sommets, murs et ouvertures : plan relevé sur une image.")],
   ["dehors", _tk("Poser le côté dehors des fenêtres"), _tk("Fenêtres et portes vitrées sans côté dehors : pas de lumière du jour.")],
-  ["volets", _tk("Retirer les volets reliés à rien"), _tk("Volet sans entité, ou entité qui n'existe pas.")]];
+  ["volets", _tk("Retirer les volets reliés à rien"), _tk("Volet sans entité, ou entité qui n'existe pas.")],
+  ["verrieres", _tk("Retirer le côté dehors des fenêtres intérieures"), _tk("Entre deux pièces : sans lui, la lumière passe comme par une verrière. Terrasse : la marquer dehors.")]];
 const PAR_PIECE = new Set(["manquants", "passages"]);
 const NOM_OUV_NET = { door: _tk("Porte"), window: _tk("Fenêtre"), gate: _tk("Portail") };
 const nomOuvNet = (o) => (NOM_OUV_NET[o] ? _t(NOM_OUV_NET[o]) : o || _t("Fenêtre"));
@@ -130,6 +132,7 @@ function texteNet(x) {
     case "sommet": return _t("Sommets écartés de {n} cm", { n });
     case "sans_dehors": return _t("« {nom} » sans côté dehors", { nom: nomOuvNet(x.detail.ouverture) });
     case "volet_vide": return _t("Volet de « {nom} » relié à rien", { nom: nomOuvNet(x.detail.ouverture) });
+    case "verriere_dehors": return _t("« {nom} » entre deux pièces, avec un côté dehors", { nom: nomOuvNet(x.detail.ouverture) });
     case "volet_inconnu": return _t("Volet de « {nom} » : {e} n'existe pas", { nom: nomOuvNet(x.detail.ouverture), e: x.detail.entite });
     default: return _t("Cote hors grille de 5 cm");
   }
@@ -195,3 +198,15 @@ function pointPour(hass, e, pos) {
   return p;
 }
 
+// toute la maison (config interne, repliée ou dépliée) : listes de tous les étages mises bout à bout, panneaux propres aux étages
+// (import : récapitulatif de sécurité et comptes) ; sans étages, les listes du plan
+function maisonEntiere(ETAGES, c) {
+  const niv = ETAGES.parEtage(c), tout = (k) => niv.flatMap((n) => n.geo[k] || []);
+  return { pieces: tout("pieces"), ouvertures: tout("ouvertures"), points: tout("points"), meubles: tout("meubles"), panneaux: niv.filter((n) => n.panneaux).map((n) => ({ panneaux: n.panneaux })) };
+}
+// version enregistrée (format anglais) : pièces, appareils, widgets de toute la maison
+function resumeVersion(c) {
+  const niv = Array.isArray(c?.floors) && c.floors.length ? c.floors.filter((f) => f && typeof f === "object") : [c || {}], n = (l) => (Array.isArray(l) ? l.length : 0);
+  const w = (p) => (p && typeof p === "object" ? Object.values(p).reduce((s, l) => s + n(l), 0) : 0);
+  return { pieces: niv.reduce((s, f) => s + n(f.rooms), 0), appareils: niv.reduce((s, f) => s + n(f.badges), 0), widgets: w(c?.panels) + (niv[0] === c ? 0 : niv.reduce((s, f) => s + w(f.panels), 0)) };
+}

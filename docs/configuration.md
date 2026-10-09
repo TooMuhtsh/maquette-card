@@ -317,6 +317,83 @@ Rugs and named areas are drawn below the other furniture (`level: -1` by default
 when the room is moved or resized in the editor. To keep furniture from being selected while drawing, lock the Furniture
 layer (padlock in the Layers panel, see Layers).
 
+## Floors (`floors`)
+
+A house with several levels: give each level its own drawing. Everything else (summary, alerts, ambience, layers,
+replay…) stays common to the house. Without `floors`, nothing changes. Keys, values and rules: see the
+[reference](reference.md#floors-and-background-image).
+
+```yaml
+type: custom:maquette-card
+default_floor: ground          # floor shown on load (otherwise the last one viewed)
+floors:                        # bottom to top; each floor has its own rooms, walls, openings, furniture…
+  - id: ground
+    name: Ground floor
+    short: "0"                 # text of the elevator button
+    rooms: [{name: Living room, poly: [[0, 0], [500, 0], [500, 420], [0, 420]]}]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: upstairs}   # a tap on the stairs goes to the other floor
+  - id: upstairs
+    name: Upstairs
+    short: "1"
+    rooms: [{name: Bedroom, poly: [[0, 0], [500, 0], [500, 420], [0, 420]]}]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: ground}
+```
+
+![Two floors: the elevator at the top right of the plan](../images/etages-ascenseur.png)
+
+With two floors or more, a small "elevator" sits at the edge of the plan; `floor_selector: tabs` shows tabs above it instead.
+Stairs with `floor` lead to the other floor, already zoomed on the stairs that lead back.
+
+In the editor, switching floors changes nothing by itself and undo (Ctrl+Z) is shared by the whole house.
+The *Floors* button of the toolbar (*More › Manage floors* on phones) adds a floor above the current one (empty, with the outer walls, or as a copy), renames, reorders
+and deletes floors, and turns a plain plan into floors (and back when one floor is left).
+
+![The Floors window of the editor](../images/etages-editeur.png)
+
+Side widgets are common to the house by default; a floor can have its own in ⚙ Settings › Display › Side widgets.
+*Clean up the plan* works on one floor at a time.
+
+### Background image
+
+Put a scanned plan or a photo under the drawing of a floor (or of the plan, without floors):
+
+```yaml
+background:                    # in floors[n], or at the root of a plan without floors
+  image: /local/plans/ground.png
+  pos: [-40, -40]              # top-left corner (cm)
+  width: 620                   # cm; the height keeps the proportions
+  opacity: 0.6
+  show: always                 # default: editor (drawn while editing only, not even loaded in the view)
+```
+
+![A scanned plan under the drawing](../images/etages-fond.png)
+
+- The image must come from **the same site**: a file of `/local/…` or an image uploaded to Home Assistant. Another
+  site, `data:` and `blob:` are refused.
+- In the editor, *Layers › Background image*: *Upload an image* (administrators) sends a PNG, JPEG or WebP file to Home
+  Assistant and sets it at the width of the plan.
+- *Calibrate*: tap two points on the image, type their real distance; the image is scaled to match, the first point stays
+  where it is. *Align with a wall* then asks for the two ends of a wall to scale, move and rotate the image onto them.
+- The image is locked by default (clicks go through to the rooms); unlock it to drag it. Every step can be undone.
+
+> **Privacy.** Everything in `/local` (the `www` folder) and `/api/image/serve` is readable **without signing in** by anyone
+> who can reach your Home Assistant, if it is exposed on the Internet. Do not put there a plan you do not want to make public.
+
+### Roof windows
+
+Furniture of type `skylight`, placed on the floor it lights. `roof_tilt` is the pitch (default 40°, `0` = flat roof),
+`sill_height` the height of its bottom edge (default 200 cm). With `ambience.light`, it casts a sun patch that follows the
+sun; link a blind with `entity: cover.…` and the patch shortens as it closes.
+
+```yaml
+furniture:
+  - {type: skylight, pos: [250, 100], roof_tilt: 35, sill_height: 180, entity: cover.studio_blind}
+```
+
 ## Layers (`layers`)
 
 Every element belongs to a fixed layer, by kind. Layers form two groups, each with its own order; the overlay group
@@ -772,6 +849,7 @@ room outlines, which are the reference. A dialog shows the plan with each defect
 | Round to 5 cm | off | corners, walls and openings; offered only when at least 30 % of the coordinates are off the 5 cm grid (plan traced from an image) |
 | Set the outside side of windows | off | a window or glazed door without `outside` (an indoor room on one side only) gets no daylight; sets `outside` towards the exterior. An interior glass wall between two rooms is left alone |
 | Remove shutters linked to nothing | off | `shutter` pointing to an entity that does not exist, or `shutter_only` without a `shutter`: the link is removed |
+| Remove the outside side of inside windows | off | a window or glazed door between two indoor rooms that also has `outside`: the card counts it once, as an outside window (`outside` wins, so a terrace drawn as a room still works); `outside` is removed and it becomes an interior glass wall. A terrace should rather be marked `outside` |
 
 **Apply** is a single undoable action (Ctrl+Z, or *Undo* in the notification). Running it again right after finds
 nothing more. The result does not depend on how walls were drawn nor on the plan's orientation.

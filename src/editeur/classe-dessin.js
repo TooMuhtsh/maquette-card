@@ -381,31 +381,20 @@ class EditeurPlan { // @assemblage
     return { pos: [arr(x), arr(y)], mur };
   }
 
-  _ongletsMeuble(o) {
-    const perso = o.type === "forme", L = MEUBLES(), def = L[o.type] || { nom: perso ? _t("Meuble personnalisé") : _t("Type inconnu ({t})", { t: o.type }), taille: [60, 60] }, [w, h] = o.taille || def.taille, rot = nbr(o.rotation);
-    const nomDef = L[o.type] ? _t(def.nom) : def.nom; // nom du catalogue (traduit) ; o.nom est celui de l'utilisateur
-    const mode = tactile() ? _t("Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.") : _t("Glisse-le pour le déplacer (il se colle aux murs proches, Alt pour l'en empêcher), tire un coin pour changer sa taille (Maj : proportions gardées).");
-    const anim = o.entite || o.valeur || o.fiche ? this._sectionAnimation(o, "meuble", "animation", _t("Animation (actif)")) : "";
-    return { icone: "mdi:sofa-outline", titre: o.nom || nomDef, resume: nomDef, aide: def.aide ? `${_t(def.aide)}. ${mode}` : mode,
-      actions: `${perso || o.type === "espace" ? "" : ibAct("atelier-meuble", "mdi:shape-outline", _t("Personnaliser la forme (atelier)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : garder ce meuble à ces dimensions dans « Mes modèles »"))}`,
-      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(o.type === "espace" ? _t("Nom affiché") : _t("Nom (infobulle)"), "nom", o.nom, nomDef)}
-      ${perso ? `<button type="button" class="ed-btn tonal ed-plein" data-act="atelier-meuble"><ha-icon icon="mdi:shape-outline"></ha-icon>${_t("Modifier la forme")}</button>`
-        : `<div class="ed-champ"><label>${_t("Type")}</label><select data-k="type">${Object.entries(L).map(([t, x]) => `<option value="${esc(t)}" ${t === o.type ? "selected" : ""}>${esc(_t(x.cat))} · ${esc(_t(x.nom))}</option>`).join("")}${L[o.type] ? "" : `<option selected value="${esc(o.type)}">${esc(o.type)}</option>`}</select></div>`}
-      ${def.rond ? this._champNombre(_t("Diamètre (cm)"), "_diametre", w, 1) : `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "taille.0", w, 1)}${this._champNombre(_t("Profondeur (cm)"), "taille.1", h, 1)}</div>`}
-      ${def.chaises ? this._champNombre(_t("Chaises"), "chaises", o.chaises ?? def.chaises, 1) : ""}
-      <div class="ed-champ"><label>${_t("Orientation")}</label><div class="ed-icones">
-        <button data-act="rot:-15" title="${_t("Tourner de 15° à gauche")}"><ha-icon icon="mdi:rotate-left-variant"></ha-icon></button>
-        <button data-act="rot:-90" title="${_t("Tourner de 90° à gauche")}"><ha-icon icon="mdi:rotate-left"></ha-icon></button>
-        <button data-act="rot:90" title="${_t("Tourner de 90° à droite")}"><ha-icon icon="mdi:rotate-right"></ha-icon></button>
-        <button data-act="rot:15" title="${_t("Tourner de 15° à droite")}"><ha-icon icon="mdi:rotate-right-variant"></ha-icon></button>
-        ${def.rond ? "" : `<button data-act="miroir" class="${o.miroir ? "on" : ""}" title="${_t("Miroir (canapé d'angle gauche / droite…)")}"><ha-icon icon="mdi:flip-horizontal"></ha-icon></button>`}
-        </div></div>
-      <details class="ed-avance"><summary>${_t("Position")}</summary>
-      ${this._champNombre(_t("Angle (°, 0 à 359)"), "_angle", rot, 1)}
-      ${this._champXY(o)}</details>
-      ${this._calqueNiveau(o)}`],
-        ["connecte", _t("Connecté"), "mdi:lightning-bolt-outline", this._sectionConnecte(o, def)],
-        ...(anim ? [["animation", _t("Animation"), "mdi:animation-play-outline", anim]] : [])] };
+  _finirTrace() {
+    const o = this.outil, t = this.trace;
+    this.trace = [];
+    this._info("");
+    if (o === "piece" && t.length >= 3) {
+      const z = this.zoneEnAttente;
+      this.zoneEnAttente = null;
+      this.commit(() => { this.d.pieces.push({ nom: z ? this.hass.areas?.[z]?.name || z : _t("Nouvelle pièce"), poly: t, etiquette: centre(t), ...(z ? { zone: z } : {}) }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
+      this.choisirOutil("selection");
+      if (z) { this.integrer(this.d.pieces.length - 1); return; }
+      setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
+      return;
+    }
+    this.carte._construire();
   }
 
 } // @assemblage

@@ -10,6 +10,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
 
   _clicMeuble(i) {
     const m = this._config.meubles?.[i];
+    if (this._versEtage(m)) return this._prendreEscalier(m);
     if (!estConnecte(m)) return;
     const mode = clicMeuble(m);
     if (mode === "infos") return this._plusInfos(m.entite || m.valeur);
@@ -23,6 +24,43 @@ class MaquetteCard extends HTMLElement { // @assemblage
     if (mode === "fiche") this._ouvrirFiche(genre, i);
     else if (mode === "infos") this._plusInfos(this._enteteFiche(genre, o).infos);
     return true;
+  }
+
+  // ---------- escaliers reliés à un autre étage (`floor`, interne `etage`) ----------
+  // étage visé par un escalier : un autre étage connu du plan, sinon null
+  _cibleEscalier(m) {
+    if (m?.type !== "escalier" || typeof m.etage !== "string") return null;
+    return idsEtages(this._config).includes(m.etage) && m.etage !== this._etageAffiche() ? m.etage : null;
+  }
+  // toucher l'escalier = aller à l'étage visé, sauf si le meuble règle lui-même son toucher (`tap`, ex. `tap: card`)
+  _versEtage(m) { return !this._editeur && !("clic" in (m || {})) && this._cibleEscalier(m) != null; }
+  // à l'arrivée, vue centrée sur l'escalier qui revient à l'étage de départ (le plus proche s'il y en a plusieurs), sinon sur la même position
+  _prendreEscalier(m) {
+    const dep = this._etageAffiche(), cible = this._cibleEscalier(m), pos = [+m.pos[0], +m.pos[1]];
+    const l = (parEtage(this._config).find((e) => e.id === cible)?.geo.meubles || []).filter((x) => x?.type === "escalier" && x.etage === dep && Array.isArray(x.pos));
+    const d2 = (x) => (x.pos[0] - pos[0]) ** 2 + (x.pos[1] - pos[1]) ** 2;
+    const retour = l.reduce((a, x) => (!a || d2(x) < d2(a) ? x : a), null);
+    return this._changerEtage?.(cible, { centrer: retour ? [+retour.pos[0], +retour.pos[1]] : pos });
+  }
+  // une fois par plan construit (premier _maj qui suit) : flèche ↑ / ↓ selon l'ordre de `floors`, symbole touchable,
+  // bouton du calque (clavier, lecteur d'écran, infobulle « Aller à : … ») ; rien pour un escalier sans `floor`
+  _escaliers() {
+    const R = this.shadowRoot, svg = R?.querySelector(".zone svg"), calque = R?.querySelector(".zone .calque");
+    if (!svg || svg === this._escSvg) return;
+    this._escSvg = svg;
+    const c = this._config, L = parEtage(c), rang = (id) => L.findIndex((e) => e.id === id), ici = rang(this._etageAffiche());
+    const { x0, y0, W, H } = this.vue();
+    (c.meubles || []).forEach((m, i) => {
+      const id = this._cibleEscalier(m), g = id != null && svg.querySelector(`[data-mb="${i}"]`);
+      if (!g) return; // escalier sans étage visé, ou calque des meubles masqué
+      const e = L[rang(id)], txt = _t("Aller à : {etage}", { etage: e.nom || e.court });
+      g.querySelector(".esc-sens")?.setAttribute("transform", rang(id) > ici ? "rotate(0)" : "rotate(180)");
+      if (!this._versEtage(m)) return;
+      g.classList.add("connecte"); // le symbole entier se touche (même chemin que les meubles connectés : _clicMeuble)
+      if (!calque || calque.querySelector(`:scope>[data-mbq="${i}"]`)) return;
+      const [x, y] = [+m.pos[0], +m.pos[1]];
+      ajouterHTML(calque, `<button class="mb esc" data-mbq="${i}" data-x="${x}" data-y="${y}" style="left:${((x - x0) / W * 100).toFixed(3)}%;top:${((y - y0) / H * 100).toFixed(3)}%" title="${esc(txt)}" aria-label="${esc(txt)}"><span class="v"></span></button>`);
+    });
   }
 
   _ficheOuvrable(genre, o) { return genre === "meuble" ? estConnecte(o) : clicPorteur(o) === "fiche"; }
@@ -172,6 +210,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
   }
 
   _fiche() {
+    this._escaliers();
     const R = this.shadowRoot, f = R.querySelector(".fiche"), c = this._config;
     const iso = this._iso != null && !this._editeur ? c.pieces[this._iso] : null;
     f.hidden = !iso;

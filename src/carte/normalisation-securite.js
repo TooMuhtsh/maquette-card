@@ -3,17 +3,20 @@
 // ordre par défaut = ordre de dessin d'avant les calques (une config sans `calques` s'affiche à l'identique)
 const CALQUES_SVG = ["pieces", "sous_zones", "halos", "meubles", "limites", "murs", "ouvertures"];
 const CALQUES_HTML = ["etiquettes", "libelles", "appareils", "textes"];
-const NOMS_CALQUES = { pieces: _tk("Pièces"), sous_zones: _tk("Sous-zones"), halos: _tk("Halos de lumière"), meubles: _tk("Meubles"), limites: _tk("Limites"), murs: _tk("Murs"), ouvertures: _tk("Ouvertures"),
+// image de fond (`background`) : sous tout le dessin, dessinée à part (crochet _dessinerFond de _construire) ; acceptée dans les
+// listes de `layers` (ordre, masqués, verrouillés)
+const CALQUE_FOND = "fond", CALQUES_SVG_CONFIG = [CALQUE_FOND, ...CALQUES_SVG];
+const NOMS_CALQUES = { fond: _tk("Image de fond"), pieces: _tk("Pièces"), sous_zones: _tk("Sous-zones"), halos: _tk("Halos de lumière"), meubles: _tk("Meubles"), limites: _tk("Limites"), murs: _tk("Murs"), ouvertures: _tk("Ouvertures"),
   etiquettes: _tk("Étiquettes des pièces"), libelles: _tk("Étiquettes des zones"), appareils: _tk("Appareils"), textes: _tk("Textes") };
-const ICONES_CALQUES = { pieces: "mdi:floor-plan", sous_zones: "mdi:selection-drag", halos: "mdi:lightbulb-on-outline", meubles: "mdi:sofa-outline", limites: "mdi:fence", murs: "mdi:wall",
+const ICONES_CALQUES = { fond: "mdi:image-outline", pieces: "mdi:floor-plan", sous_zones: "mdi:selection-drag", halos: "mdi:lightbulb-on-outline", meubles: "mdi:sofa-outline", limites: "mdi:fence", murs: "mdi:wall",
   ouvertures: "mdi:window-closed-variant", etiquettes: "mdi:label-outline", libelles: "mdi:format-letter-case", appareils: "mdi:circle-slice-8", textes: "mdi:format-text" };
 // ordre effectif : les calques connus de la liste, puis ceux qui manquent dans l'ordre par défaut
 const ordreCalques = (l, def) => [...new Set([...(Array.isArray(l) ? l.filter((x) => def.includes(x)) : []), ...def])];
 // YAML écrit à la main : listes de calques inconnus retirés, valeurs invalides supprimées (jamais d'erreur)
 function normaliserCalques(q) {
   if (!q || typeof q !== "object" || Array.isArray(q)) return null;
-  const n = { ...q }, tous = [...CALQUES_SVG, ...CALQUES_HTML];
-  for (const [k, ok] of [["ordre_svg", CALQUES_SVG], ["ordre_html", CALQUES_HTML], ["masques", tous], ["verrous", tous]]) {
+  const n = { ...q }, tous = [...CALQUES_SVG_CONFIG, ...CALQUES_HTML];
+  for (const [k, ok] of [["ordre_svg", CALQUES_SVG_CONFIG], ["ordre_html", CALQUES_HTML], ["masques", tous], ["verrous", tous]]) {
     if (!(k in n)) continue;
     if (Array.isArray(n[k])) n[k] = [...new Set(n[k].filter((x) => ok.includes(x)))]; else delete n[k];
   }
@@ -44,7 +47,8 @@ const seg = (s) => Array.isArray(s) && s.length >= 4 && s.slice(0, 4).every(num)
 // perd sa 3e valeur) ; un mur ou une limite garde seulement son groupe en 5e valeur (identifiant sûr)
 const ID_SUR = /^[\w.:-]{1,80}$/;
 const nbs = (q, n) => q.slice(0, n).map(Number);
-function normaliserGeometrie(c, rapport) {
+// (pre : chemin interne de la géométrie, [] à la racine, ["etages", n] pour un étage ; le rapport cumule les étages)
+function normaliserGeometrie(c, rapport, pre = []) {
   let ign = 0;
   const retires = [];
   const garde = (l, ok, fix) => { if (!Array.isArray(l)) return l; const r = []; l.forEach((o, j) => { if (ok(o)) r.push(fix(o, j)); else ign++; }); return r; };
@@ -64,21 +68,69 @@ function normaliserGeometrie(c, rapport) {
   });
   c.ouvertures = garde(c.ouvertures, (o) => o && typeof o === "object" && seg(o.seg), (o, i) => { if (o.seg.length > 4) retires.push(["ouvertures", i, "seg"]); return { ...o, seg: nbs(o.seg, 4) }; });
   for (const k of ["points", "textes"]) c[k] = garde(c[k], (o) => o && typeof o === "object" && point(o.pos), (o, i) => { if (o.pos.length > 2) retires.push([k, i, "pos"]); return { ...o, pos: nbs(o.pos, 2) }; });
-  if (rapport) { rapport.ignores = ign; if (retires.length) (rapport.retires ||= []).push(...retires.map(cheminPublic)); }
+  if (rapport) { rapport.ignores = (rapport.ignores || 0) + ign; if (retires.length) (rapport.retires ||= []).push(...retires.map((r) => cheminPublic([...pre, ...r]))); }
   return c;
 }
+// géométrie d'un plan (racine d'un plan à un étage, ou un étage) : coordonnées, meubles, fiches, ouvertures, panneaux des pièces, niveaux
+function normaliserGeo(c, rapport, pre = []) {
+  if (!("pieces" in c)) c.pieces = [];
+  if (!Array.isArray(c.pieces)) throw new Error(`maquette-card : « ${cheminPublic([...pre, "pieces"])} » must be a list`);
+  normaliserGeometrie(c, rapport, pre);
+  if ("meubles" in c) c.meubles = normaliserMeubles(c.meubles);
+  for (const k of ["ouvertures", "points"]) if (Array.isArray(c[k])) c[k] = normaliserPorteurs(c[k]);
+  if (Array.isArray(c.ouvertures)) c.ouvertures = normaliserOuvertures(c.ouvertures);
+  c.pieces = c.pieces.map((p) => { const q = p?.panneaux && normaliserPanneaux(p.panneaux); return q && q !== p.panneaux ? { ...p, panneaux: q } : p; });
+  for (const k of ["pieces", "points", "textes", "ouvertures", "meubles"]) if (Array.isArray(c[k])) c[k] = normaliserNiveaux(c[k]);
+  if ("panneaux" in c) c.panneaux = normaliserPanneaux(c.panneaux);
+  return c;
+}
+// ---------- étages (`floors`) : chaque étage porte sa géométrie (et au besoin ses panneaux, son fond) ; tout le reste est commun ----------
+const CLES_GEO = ["pieces", "murs", "limites", "ouvertures", "points", "textes", "meubles", "groupes"];
+// structure des étages (avant la géométrie) : liste, géométrie absente de la racine, éléments objets, identifiants sûrs et uniques,
+// étage par défaut connu ; ret : chemins internes des valeurs retirées ou corrigées
+function normaliserEtages(c, ret) {
+  if (!("etages" in c)) return;
+  if (!Array.isArray(c.etages)) throw new Error("maquette-card : « floors » must be a list of floors");
+  if (!c.etages.length) { delete c.etages; ret.push(["etages"]); return; }
+  const vide = (v) => v == null || (Array.isArray(v) && !v.length);
+  const racine = [...CLES_GEO, "fond"].filter((k) => k in c && !vide(c[k]));
+  if (racine.length) throw new Error(`maquette-card : with « floors », the plan is drawn floor by floor: move ${racine.map((k) => `« ${cheminPublic([k])} »`).join(", ")} into floors[n] (each floor has its own rooms, walls, openings…)`);
+  for (const k of [...CLES_GEO, "fond"]) delete c[k];
+  const l = [];
+  c.etages.forEach((e, i) => { if (objetSimple(e)) l.push(e); else ret.push(["etages", i]); });
+  if (!l.length) { delete c.etages; return; }
+  // identifiants : les valides gardés (le premier d'un doublon), les autres remplacés (floor_<rang>) ou suffixés (_2, _3…)
+  const pris = new Set(), libre = (base) => { let id = base, k = 2; while (pris.has(id)) id = `${base}_${k++}`; return id; };
+  const ok = l.map((e) => { const v = typeof e.id === "string" && ID_SUR.test(e.id) && !pris.has(e.id) ? e.id : null; if (v) pris.add(v); return v; });
+  l.forEach((e, n) => {
+    if (ok[n]) return;
+    const base = typeof e.id === "string" && ID_SUR.test(e.id) ? e.id.slice(0, 74) : `floor_${n + 1}`;
+    e.id = libre(base); pris.add(e.id);
+    ret.push(["etages", n, "id"]);
+  });
+  c.etages = l;
+  if ("etage_defaut" in c && !pris.has(c.etage_defaut)) { delete c.etage_defaut; ret.push(["etage_defaut"]); }
+}
+// `floor` d'un meuble : seulement sur un escalier, vers un autre étage connu (sinon retiré)
+function normaliserEscaliers(g, ids, propre, pre, ret) {
+  (Array.isArray(g.meubles) ? g.meubles : []).forEach((m, j) => {
+    if (!m || !("etage" in m) || (m.type === "escalier" && ids.includes(m.etage) && m.etage !== propre)) return;
+    delete m.etage; ret.push([...pre, "meubles", j, "etage"]);
+  });
+}
 // toute la normalisation de `setConfig` (sans la démo) : aussi utilisée par l'éditeur pour reconnaître la carte stockée
+// plan à étages : rendu replié (`floors`, sans géométrie à la racine) ; une config dépliée (`etage_actif`) est rendue dépliée sur le même étage
 function normaliserConfig(config, rapport) {
+  if (objetSimple(config?.etage_actif)) return deplier(normaliserConfig(replier(config), rapport), config.etage_actif.id);
   config = booleens({ pieces: [], ...config });
-  if (!Array.isArray(config.pieces)) throw new Error("maquette-card : « rooms » must be a list");
-  normaliserGeometrie(config, rapport);
-  if ("meubles" in config) config.meubles = normaliserMeubles(config.meubles);
-  for (const k of ["ouvertures", "points"]) if (Array.isArray(config[k])) config[k] = normaliserPorteurs(config[k]);
-  if (Array.isArray(config.ouvertures)) config.ouvertures = normaliserOuvertures(config.ouvertures);
+  const ret = [];
+  normaliserEtages(config, ret);
+  const ids = idsEtages(config);
+  if (ids.length) config.etages.forEach((e, n) => { normaliserGeo(e, rapport, ["etages", n]); normaliserEscaliers(e, ids, e.id, ["etages", n], ret); });
+  else { normaliserGeo(config, rapport); normaliserEscaliers(config, [], null, [], ret); if ("etage_defaut" in config) { delete config.etage_defaut; ret.push(["etage_defaut"]); } }
+  if (ids.length && "panneaux" in config) config.panneaux = normaliserPanneaux(config.panneaux); // panneaux communs à la maison
+  if (rapport && ret.length) (rapport.retires ||= []).push(...ret.map(cheminPublic));
   if (Array.isArray(config.modeles)) config.modeles = normaliserModeles(config.modeles);
-  if ("panneaux" in config) config.panneaux = normaliserPanneaux(config.panneaux);
-  config.pieces = config.pieces.map((p) => { const q = p?.panneaux && normaliserPanneaux(p.panneaux); return q && q !== p.panneaux ? { ...p, panneaux: q } : p; });
-  for (const k of ["pieces", "points", "textes", "ouvertures", "meubles"]) if (Array.isArray(config[k])) config[k] = normaliserNiveaux(config[k]);
   if ("calques" in config) { const q = normaliserCalques(config.calques); if (q) config.calques = q; else delete config.calques; }
   if ("interaction" in config || "tablette" in config) normaliserInteraction(config);
   // étiquettes des pièces : { nom, temperature, humidite } (des clés qui ne sont pas booléennes ailleurs) : « false » écrit en texte → false
@@ -102,6 +154,9 @@ const ATTR_ANIMES = new Set(["transform", "patternTransform", "gradientTransform
 // texte de style ou valeur d'attribut sans chargement ni code : url() seulement vers « #id » du document
 const cssSur = (t) => !/@import|expression\s*\(|javascript:|vbscript:|-moz-binding|behavior\s*:|\\/i.test(t) && !/url\s*\(\s*(?!["']?#)/i.test(t);
 const memeOrigine = (u) => { try { return new URL(u, location.href).origin === location.origin; } catch (e) { return false; } };
+// image de fond : du même site seulement (fichier de /local/… ou image envoyée à HA), jamais data:, blob:, javascript: ni un autre site
+const URL_FOND = /^\/(?![/\\])[\w\-./%]+\.(?:png|jpe?g|webp|avif|svg)(?:\?[\w=&.-]{0,60})?$/i, URL_FOND_HA = /^\/api\/image\/serve\/[0-9a-f]{32}\/(?:original|\d+x\d+)$/;
+const urlFond = (v) => (typeof v === "string" && v.length <= 300 && (URL_FOND.test(v) || URL_FOND_HA.test(v)) && memeOrigine(v) ? v : undefined);
 function attributSur(balise, nom, v) {
   const n = nom.toLowerCase();
   if (n.startsWith("on") || n === "is" || n === "style" && !cssSur(v)) return false;
@@ -283,11 +338,24 @@ function assainirConfig(c, rapport) {
     return m;
   };
   const anims = Object.fromEntries(Object.keys(EVENEMENTS_ANIM).map((k) => [k, anim]));
+  // image de fond : URL du même site, largeur > 0 obligatoires (sinon le fond entier est retiré), opacité bornée, rotation dans [0, 360)
+  const positif = (v) => (num(v) && +v > 0 ? Math.min(1e6, +v) : undefined);
+  const fond = (v, ch) => {
+    if (!objetSimple(v)) return undefined;
+    fixer(v, { image: urlFond, pos: pt, largeur: positif, hauteur: positif, rotation: (x) => (num(x) ? ((+x % 360) + 360) % 360 : undefined),
+      opacite: (x) => (num(x) ? Math.min(1, Math.max(0, +x)) : undefined), afficher: parmi(["editeur", "toujours"]) }, ch);
+    return v.image && v.largeur ? v : undefined;
+  };
+  const GEO = { pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
+    groupes: liste((g, ch) => (objetSimple(g) && idg(g.id) ? g : undefined)), fond };
+  // un étage : nom, nom court (3 caractères au plus), icône, puis sa géométrie et ses panneaux (mêmes règles qu'à la racine)
+  const R_ETAGE = { nom: (v) => (typeof v === "string" ? v : num(v) ? String(v) : undefined),
+    court: (v) => ((typeof v === "string" && v.trim()) || num(v) ? [...String(v).trim()].slice(0, 3).join("") : undefined), icone: ico, ...GEO, panneaux };
   fixer(c, {
     marge: nbF,
     palette: (v) => (objetSimple(v) ? Object.fromEntries(palette({ palette: v })) : undefined),
-    pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
-    groupes: liste((g, ch) => (objetSimple(g) && idg(g.id) ? g : undefined)),
+    ...GEO, etages: (l, ch) => (Array.isArray(l) ? l.map((e, i) => (objetSimple(e) ? fixer(e, R_ETAGE, [...ch, i]) : e)) : undefined),
+    selecteur_etages: parmi(["ascenseur", "onglets"]), etage_defaut: idg,
     panneaux, modeles: liste(modele), animations: objet(anims),
     resume: (v, ch) => (Array.isArray(v) ? liste(objet({ icone: ico, decimales: nbF, alerte_au_dessus: nbF }))(v, ch) : v),
     alertes: liste(objet({ icone: ico, au_dessus: nbF, au_dessous: nbF, niveau: parmi(Object.keys(NIVEAUX_ALERTE)) })),

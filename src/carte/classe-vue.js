@@ -7,14 +7,34 @@ class MaquetteCard extends HTMLElement { // @assemblage
     return [p.x, p.y];
   }
 
+  // cadre du plan : celui de l'étage affiché, ou l'union de tous les étages (la carte ne change ni d'échelle ni de hauteur d'un étage
+  // à l'autre ; l'image de fond n'y entre pas) — en vue, calculée une fois par config et par largeur affichée
   bornes(sansVitrine = false) {
-    const c = this._config, xs = [], ys = [];
+    const c = this._config, m = c.marge ?? 40;
+    let b;
+    if (idsEtages(c).length > 1) {
+      const P = this.shadowRoot?.querySelector(".plan>.zone")?.clientWidth || this.clientWidth || 800, K = this._bornesEt;
+      if (!this._editeur && K && K.plein === this._plein && K.P === P) b = K.b;
+      else {
+        const l = parEtage(c).map((e) => this._bornesGeo({ ...e.geo, marge: c.marge }, true)).filter(Boolean);
+        b = l.length ? l.reduce((u, q) => { const x0 = Math.min(u.x0, q.x0), y0 = Math.min(u.y0, q.y0); return { x0, y0, W: Math.max(u.x0 + u.W, q.x0 + q.W) - x0, H: Math.max(u.y0 + u.H, q.y0 + q.H) - y0 }; })
+          : this._bornesGeo(c);
+        this._bornesEt = this._editeur ? null : { plein: this._plein, P, b };
+      }
+    } else b = this._bornesGeo(c);
+    if (!c.vitrine || sansVitrine) return b;
+    const v = geoVitrine(c, b), X0 = Math.min(b.x0, v.x - m), Y0 = Math.min(b.y0, v.y - m);
+    return { x0: X0, y0: Y0, W: Math.max(b.x0 + b.W, v.x + v.w + m) - X0, H: Math.max(b.y0 + b.H, v.y + v.H + m) - Y0 };
+  }
+  // cadre d'une géométrie (listes d'un étage, ou la config) ; vide : null si `nulSiVide`, sinon 0..500
+  _bornesGeo(c, nulSiVide = false) {
+    const xs = [], ys = [];
     const ajoute = (x, y) => { xs.push(x); ys.push(y); };
     c.pieces.forEach((p) => p.poly.forEach(([x, y]) => ajoute(x, y)));
     [...(c.murs || []), ...(c.limites || []), ...(c.ouvertures || []).map((o) => o.seg)].forEach(([a, b, d, e]) => { ajoute(a, b); ajoute(d, e); });
     (c.points || []).forEach((p) => ajoute(...p.pos));
     (c.meubles || []).forEach((m) => { const [w, h] = [0, 1].map((j) => nb((m.taille || MEUBLES[m.type]?.taille || [60, 60])[j], 60)), r = Math.hypot(w, h) / 2; ajoute(nb(m.pos?.[0]) - r, nb(m.pos?.[1]) - r); ajoute(nb(m.pos?.[0]) + r, nb(m.pos?.[1]) + r); });
-    if (!xs.length) ajoute(0, 0), ajoute(500, 500);
+    if (!xs.length) { if (nulSiVide) return null; ajoute(0, 0), ajoute(500, 500); }
     const m = c.marge ?? 40;
     let x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m, x1 = Math.max(...xs) + m, y1 = Math.max(...ys) + m;
     // textes figés et zones d'informations (centrés sur leur position, police en px : clamp(10px, 1,2 % de la largeur, 13px)) :
@@ -36,10 +56,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
         }
       }
     }
-    const b = { x0, y0, W: x1 - x0, H: y1 - y0 };
-    if (!c.vitrine || sansVitrine) return b;
-    const v = geoVitrine(c, b), X0 = Math.min(b.x0, v.x - m), Y0 = Math.min(b.y0, v.y - m);
-    return { x0: X0, y0: Y0, W: Math.max(b.x0 + b.W, v.x + v.w + m) - X0, H: Math.max(b.y0 + b.H, v.y + v.H + m) - Y0 };
+    return { x0, y0, W: x1 - x0, H: y1 - y0 };
   }
 
   // calques effectifs : ordre de dessin, masqués (config, afficher_meubles, choix du visiteur en vue) et verrouillés (édition seulement)
@@ -185,6 +202,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     }
     this._lumCle = null;
     this._meteoCle = null; this._fluxCle = null;
+    svg += this._dessinerFond?.(c, { ed, Q, cq }) || ""; // image de fond (calque « fond »), sous tout le dessin
     for (const k of Q.svg) {
       if (k === "halos") svg += amb;
       if (voir(k)) svg += `<g class="cq${k === "meubles" ? " meubles" : ""}${k === "halos" && lampes ? " fondu" : ""}${cq(k)}" data-cq="${k}"${k === "meubles" && !ed ? ` aria-hidden="true"` : ""}>${S[k]}</g>`;
@@ -308,6 +326,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._editeur?.apresConstruction();
     this._mise();
     this._reprise();
+    this._apresConstruireEtages?.();
   }
 
   vue() { return this._vue || this._box; }

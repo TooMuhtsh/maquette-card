@@ -14,32 +14,26 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
 
 ![Maquette: the demo apartment, live, dark theme](images/plan-pc-dark.png)
 
-## 0.2.0 beta
+## New in 0.2.0
 
-The next version is out as a beta, on the `dev` branch. The main change is light: sun and sky coming in through the
-windows (shutters and weather included), the moon at night, and lamp halos that blend their colors. The editor also
-lost its side panel: each element now opens in its own dialog, with a live preview. It runs on my own dashboard, but
-it is still a beta, so please tell me in the [issues](https://github.com/TooMuhtsh/maquette-card/issues) if something
-looks wrong. The details are on the wiki: [What's new in 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-020).
+The big piece is light: sun and sky coming in through the windows (shutters and weather included), the moon at night,
+and lamp halos that blend their colors. A plan can now have several floors, with stairs that take you from one to the
+other, roof windows and a background image to trace over (I tested floors on the demo, my own home is single-storey).
+The editor lost its side panel: each element opens in its own dialog, with a live preview. One habit to change:
+**Save** now leaves the editor, **Apply** (Ctrl+S) saves and keeps editing. The details are on the wiki:
+[What's new in 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-020).
 
-| Daylight | Night |
-|---|---|
-| ![Daylight in the demo apartment: sun patches and sky light behind the windows](images/light-day-pc-dark.png) | ![Night in the demo apartment: moonlight and colored lamp halos](images/light-night-pc-dark.png) |
-
-**Trying the beta with HACS** (Maquette already installed from HACS):
-
-1. Settings → Devices & services → **HACS** → device **Maquette** → entity **Pre-release**. It is disabled by
-   default: enable it, then turn it on.
-2. HACS now offers `v0.2.0-beta.1` as an update for Maquette. Install it and reload the browser.
-
-Without the switch: HACS → Maquette → ⋮ → **Redownload** → *Need a different version?* → `v0.2.0-beta.1`.
-To go back, turn the switch off and redownload `v0.1.0` the same way. Manual install: take `maquette-card.js` from
-the [v0.2.0-beta.1 release](https://github.com/TooMuhtsh/maquette-card/releases/tag/v0.2.0-beta.1).
+| Daylight | Night | Upstairs in the demo |
+|---|---|---|
+| ![Daylight in the demo apartment: sun patches and sky light behind the windows](images/light-day-pc-dark.png) | ![Night in the demo apartment: moonlight and colored lamp halos](images/light-night-pc-dark.png) | ![Upstairs floor of the demo, with the floor selector at the top right](images/floors-upstairs-pc-light.png) |
 
 ## Features
 
 - **Live plan**: light halos clipped to their room, doors and windows red when open, shutters drawn by position,
   rooms tinted by temperature, connected furniture (EV charger, fridge, TV…) showing its power.
+- **Floors**: one plan per floor, a small selector at the top right, stairs that take you to the next floor, summary
+  chips and alerts that cover the whole house, roof windows, and a background image to trace over with 2-point
+  calibration.
 - **Built-in editor** (admins only): walls, rooms, openings, 45 top-view furniture symbols, layers, groups, snapping,
   undo / redo, your Home Assistant areas and their devices in one click, an edit dialog with a live preview for every
   element. Saves into the dashboard configuration.

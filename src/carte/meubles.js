@@ -25,6 +25,13 @@ const couleurSeuils = (seuils, n) => {
 };
 // sommets d'un polygone pour l'attribut points (deux nombres par sommet, rien d'autre)
 const ptsSvg = (poly) => poly.map((q) => `${+q[0]},${+q[1]}`).join(" ");
+// escalier relié à un autre étage (`floor`) : petite pastille avec une flèche, droite à l'écran quel que soit l'angle du meuble ;
+// ↑ par défaut, la carte la tourne (↓) quand l'étage visé est en dessous (ordre de `floors`)
+const flecheEscalier = (w, h, m) => {
+  const r = Math.max(3, Math.min(9, w * 0.14, h * 0.1)), cx = +(w / 4).toFixed(1), cy = +(h / 2 - r - 3).toFixed(1), a = r * 0.55;
+  return `<g class="esc-fleche" transform="translate(${cx} ${cy}) ${m.miroir ? "scale(-1 1) " : ""}rotate(${-nb(m.rotation)})"><circle r="${r}"/>`
+    + `<path class="ligne esc-sens" d="M0 ${a}V${-a}M${-a * 0.7} ${-a * 0.15}L0 ${-a}L${a * 0.7} ${-a * 0.15}"/></g>`;
+};
 const R_ = (x, y, w, h, rx = 3, cl = "") => `<rect${cl ? ` class="${cl}"` : ""} x="${x}" y="${y}" width="${Math.max(0, w)}" height="${Math.max(0, h)}" rx="${rx}"/>`;
 const C_ = (x, y, r, cl = "") => `<circle${cl ? ` class="${cl}"` : ""} cx="${x}" cy="${y}" r="${Math.max(0, r)}"/>`;
 const L_ = (x1, y1, x2, y2, cl = "") => `<path class="ligne${cl ? ` ${cl}` : ""}" d="M${x1} ${y1}L${x2} ${y2}"/>`;
@@ -95,10 +102,18 @@ const MEUBLES = {
   espace: { nom: _tk("Espace nommé"), cat: _tk("Formes et espaces"), niveau: 0, taille: [300, 200], aide: _tk("Coin cuisine, coin bureau… : pointillés et un nom, sans capteur (ce n'est pas une pièce)"), d: (w, h) => R_(-w / 2, -h / 2, w, h, 6, "tirets zone-fond") },
   rect: { nom: _tk("Rectangle libre"), cat: _tk("Formes et espaces"), taille: [100, 60], aide: _tk("N'importe quel meuble ou objet, avec un nom"), d: (w, h) => R_(-w / 2, -h / 2, w, h, 3) },
   cercle: { nom: _tk("Cercle libre"), cat: _tk("Formes et espaces"), taille: [60, 60], rond: true, d: (w, h) => E_(0, 0, w / 2, h / 2) },
-  escalier: { nom: _tk("Escalier"), cat: _tk("Formes et espaces"), taille: [90, 280], mots: "marches", d: (w, h) => {
+  escalier: { nom: _tk("Escalier"), cat: _tk("Formes et espaces"), taille: [90, 280], mots: "marches", d: (w, h, m) => {
     const n = Math.max(3, Math.round(h / 25)); let s = R_(-w / 2, -h / 2, w, h, 1);
     for (let k = 1; k < n; k++) { const y = -h / 2 + (h * k) / n; s += L_(-w / 2, y, w / 2, y); }
-    return s + `<path class="ligne" d="M0 ${h / 2 - 10}V${-h / 2 + 14}M-8 ${-h / 2 + 24}L0 ${-h / 2 + 12}L8 ${-h / 2 + 24}"/>`; } },
+    return s + `<path class="ligne" d="M0 ${h / 2 - 10}V${-h / 2 + 14}M-8 ${-h / 2 + 24}L0 ${-h / 2 + 12}L8 ${-h / 2 + 24}"/>` + (typeof m?.etage === "string" ? flecheEscalier(w, h, m) : ""); } },
+  // fenêtre de toit vue du dessus : dormant, vitrage bleuté, store (enroulé depuis le haut, hauteur suivie par la carte : `current_position`
+  // du `cover`), chevron et trait épais côté bas de la pente (bas du rectangle)
+  fenetre_toit: { nom: _tk("Fenêtre de toit"), cat: _tk("Formes et espaces"), taille: [78, 118], mots: "velux lucarne vasistas toit combles skylight", d: (w, h) => {
+    const f = +Math.max(2, Math.min(8, w * 0.1, h * 0.1)).toFixed(1), gw = Math.max(0, w - 2 * f), gh = Math.max(0, h - 2 * f), a = Math.max(3, Math.min(10, gw * 0.18, gh * 0.18));
+    return R_(-w / 2, -h / 2, w, h, 2) + `<rect class="vx-vitre" x="${-w / 2 + f}" y="${-h / 2 + f}" width="${gw}" height="${gh}" rx="1" style="fill:color-mix(in srgb,#4fc3f7 32%,var(--plan-meuble))"/>`
+      + `<rect class="vx-store" x="${-w / 2 + f}" y="${-h / 2 + f}" width="${gw}" height="0" data-h="${gh}" style="fill:color-mix(in srgb,var(--plan-meuble-trait) 45%,var(--plan-meuble))"/>`
+      + `<path class="ligne vx-sens" d="M${-a} ${+(h / 2 - f - a * 1.6).toFixed(1)}L0 ${+(h / 2 - f - a * 0.6).toFixed(1)}L${a} ${+(h / 2 - f - a * 1.6).toFixed(1)}"/>`
+      + `<path class="ligne vx-bas" d="M${-w / 2} ${h / 2}H${w / 2}" style="stroke-width:2.6px"/>`; } },
   table_nuit: { nom: _tk("Table de nuit"), cat: _tk("Chambre et bureau"), taille: [45, 40], mots: "chevet", d: (w, h) => R_(-w / 2, -h / 2, w, h, 3) + C_(0, 0, Math.min(w, h) * 0.18, "vide") },
   cheminee: { nom: _tk("Cheminée / poêle"), cat: _tk("Séjour"), taille: [100, 50], mots: "poele foyer insert", d: (w, h) => R_(-w / 2, -h / 2, w, h, 2) + `<path class="ligne" d="M${-w * 0.3} ${h / 2}V${-h * 0.1}Q0 ${-h * 0.45} ${w * 0.3} ${-h * 0.1}V${h / 2}"/>` },
   radiateur: { nom: _tk("Radiateur"), cat: _tk("Technique"), taille: [80, 12], mots: "chauffage", d: (w, h) => {

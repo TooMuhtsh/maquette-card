@@ -42,6 +42,7 @@ void ` // @assemblage
 .rp-marques .m-ouv{background:var(--md-error)}
 .rp-marques .m-lum{background:#f6c445;top:8px}
 .rp-marques .m-pers{background:var(--md-primary);bottom:8px}
+.rp-marques .autre{opacity:.25}
 .rp-heure{min-width:4.5em;text-align:center}
 .replay select{border:1px solid var(--md-outline-variant);border-radius:8px;background:var(--md-surface);color:var(--md-on-surface);font:inherit;padding:4px 6px}
 @media (max-width:600px){.replay{left:8px;right:8px;bottom:64px;flex-wrap:wrap}.rp-piste{flex-basis:100%;order:5}.rp-heure{min-width:0;flex:none}

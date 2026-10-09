@@ -39,7 +39,9 @@ class EditeurPlan { // @assemblage
     this.commit(() => { if (v === def(o)) delete o.niveau; else o.niveau = v; });
   }
   panneauCalques(oui) {
+    if (!oui && this.vueCalques && this.vueFond) return this.fermerFond(); // Échap dans « Image de fond » : retour à la liste
     this.vueCalques = oui;
+    if (!oui) this.vueFond = false;
     if (oui && this.vueParametres) this._fermerParametres(); // une seule modale à la fois : ⚙, Ambiance et l'édition d'un élément se ferment
     if (oui && this.vueAmbiance) { this.vueAmbiance = false; this._fermerAmbiance(); this.carte._construire(); }
     if (oui && this.vueEdition) this.fermerEdition();
@@ -52,14 +54,15 @@ class EditeurPlan { // @assemblage
   // Échap y revient) ; masquée pendant l'édition d'un élément, ⚙ ou Ambiance
   _panneauCalques() {
     let V = this.R.querySelector(".ed-mvoile.ed-cq-modale");
-    if (!this.vueCalques) { V?.remove(); return; }
+    if (!this.vueCalques) { V?.remove(); this.vueFond = false; this._panneauFond(); return; }
+    this._panneauFond();
     if (!V) {
       V = this._mvoile("ed-cq-modale");
       V.onpointerdown = (ev) => { this._basVoileCq = ev.target === V; };
       V.addEventListener("click", (ev) => { if (ev.target === V && this._basVoileCq) this.panneauCalques(false); });
       this._clavierModale(V);
     }
-    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance);
+    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance || this.vueFond);
     if (V.hidden) return;
     const actif = this.R.activeElement, ds = V.contains(actif) ? actif.dataset || {} : {};
     const garde = ds.act ? `[data-act="${ds.act}"]` : ds.actChk ? `[data-act-chk="${ds.actChk}"]` : ds.cqGlisse ? `[data-cq-glisse="${ds.cqGlisse}"]` : null;
@@ -82,6 +85,7 @@ class EditeurPlan { // @assemblage
       <div class="ed-mcontenu ed-medit"><section>
       <h4>${_t("Au-dessus du dessin")}</h4><div class="ed-cqs" data-groupe="html">${[...Q.html].reverse().map(ligne).join("")}</div>
       <h4>${_t("Dessin")}</h4><div class="ed-cqs" data-groupe="svg">${[...Q.svg].reverse().map(ligne).join("")}</div>
+      ${this._ligneFond(Q)}
       ${d.afficher_meubles === "pc" ? `<div class="ed-aide">${_t("Meubles : affichés en vue sur grand écran seulement (show_furniture: desktop).")}</div>` : ""}
       <div class="ed-actions"><button class="ed-btn contour" data-act="cq-reinit" ${q.ordre_svg || q.ordre_html ? "" : "disabled"}><ha-icon icon="mdi:restore"></ha-icon>${_t("Réinitialiser l'ordre")}</button></div>
       <label class="ed-inter"><span>${_t("Bouton Calques pour les visiteurs")}${bulleI(_t("Chacun masque ce qu'il veut, sur son navigateur."))}</span><input type="checkbox" data-act-chk="cq-bouton" ${q.bouton_vue ? "checked" : ""}></label>
@@ -127,6 +131,17 @@ class EditeurPlan { // @assemblage
       };
     });
   }
+  // image de fond : toujours sous le dessin (pas de poignée), œil (masquée en vue), cadenas (cliquer à travers), Régler
+  _ligneFond(Q) {
+    const f = this.d.fond, m = Q.masques.has("fond"), v = this.carte._fondVerrouille(), { noms, icones } = this.carte.constructor.CALQUES;
+    const etat = !f ? _t("Aucune image") : f.afficher === "toujours" ? _t("Édition et vue") : _t("Édition seulement");
+    const lv = v ? _t("Déverrouiller") : _t("Cliquer à travers"), lm = m ? _t("Afficher en vue") : _t("Masquer en vue");
+    return `<div class="ed-cqs ed-cqs-fond"><div class="ed-cq${m ? " masque" : ""}" data-cq="fond"><span class="ed-cq-poignee" aria-hidden="true"></span>
+      <ha-icon icon="${icones.fond}"></ha-icon><span class="n">${esc(_t(noms.fond))}<small>${etat}</small></span>
+      ${f ? `<button class="ib${m ? " on" : ""}" data-act="cq-oeil:fond" title="${lm}" aria-label="${lm}" aria-pressed="${m}"><ha-icon icon="mdi:${m ? "eye-off-outline" : "eye-outline"}"></ha-icon></button>
+      <button class="ib${v ? " on" : ""}" data-act="cq-fond-verrou" title="${lv}" aria-label="${lv}" aria-pressed="${v}"><ha-icon icon="mdi:${v ? "lock-outline" : "lock-open-variant-outline"}"></ha-icon></button>` : ""}
+      <button class="ed-btn texte" data-act="cq-fond-regler"><ha-icon icon="mdi:${f ? "tune-variant" : "image-plus-outline"}"></ha-icon>${f ? _t("Régler") : _t("Ajouter")}</button></div></div>`;
+  }
   // éléments du plan par catégorie (repliables) : un clic sélectionne l'élément et ouvre sa modale (Échap : retour aux calques)
   _listesElements() {
     const d = this.d, nomP = (p) => p.nom || this.carte._nom(p.entite), item = (k, ic, nom, sous) => `<button data-choix="${k}"><ha-icon icon="${esc(ic)}"></ha-icon><span>${esc(nom)}<small>${esc(sous)}</small></span>${this._verrouille(k) ? `<ha-icon class="ed-elt-verrou" icon="mdi:lock-outline" title="${_t("Verrouillé")}" aria-label="${_t("Verrouillé")}"></ha-icon>` : ""}</button>`;
@@ -164,6 +179,8 @@ class EditeurPlan { // @assemblage
   _actionCalque(a) {
     const [op, k] = a.split(":"), bascule = (l, x) => { const e = new Set(l || []); if (e.has(x)) e.delete(x); else e.add(x); return [...e]; };
     if (op === "cq-fermer") return this.panneauCalques(false);
+    if (op === "cq-fond-regler") return this.ouvrirFond();
+    if (op === "cq-fond-verrou") { this.fondLibre = this.carte._fondVerrouille(); this.carte._construire(); return this._panneauCalques(); }
     this._majCalques((q) => {
       if (op === "cq-oeil" && k === "meubles" && this.d.afficher_meubles === false) { delete this.d.afficher_meubles; q.masques = (q.masques || []).filter((x) => x !== k); }
       else if (op === "cq-oeil") q.masques = bascule(q.masques, k);
@@ -172,4 +189,12 @@ class EditeurPlan { // @assemblage
       if (op === "cq-bouton") q.bouton_vue = !q.bouton_vue;
     });
   }
+
+  // j = nouvelle place dans la liste affichée (premier plan en haut, donc ordre de dessin inversé)
+  _deplacerCalque(groupe, k, j) {
+    const vue = [...this.carte._calques()[groupe]].reverse().filter((x) => x !== k);
+    vue.splice(j, 0, k);
+    this._majCalques((q) => { q[`ordre_${groupe}`] = vue.reverse(); });
+  }
+
 } // @assemblage

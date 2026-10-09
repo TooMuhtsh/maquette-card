@@ -1,4 +1,4 @@
-/*! Maquette v0.2.0-beta.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.2.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -58,6 +58,8 @@ const MaquetteI18n = (() => {
     "Pièce sans nom": "Unnamed room",
     "Voir où": "Show where",
     "Rien à corriger. Options facultatives :": "Nothing to fix. Optional:",
+    "Escaliers sans retour": "Stairs without a way back",
+    "Information : rien à corriger.": "For information: nothing to fix.",
     "Facultatif": "Optional",
     "Appliquer · {n}": "Apply · {n}",
     "copie d'avant non gardée : stockage du navigateur plein": "copy of the plan before not kept: browser storage full",
@@ -69,6 +71,14 @@ const MaquetteI18n = (() => {
     "Restaurer": "Restore",
     "Plan d'avant copié (YAML : rooms, walls, openings).": "Plan from before copied (YAML: rooms, walls, openings).",
     "Copie refusée par le navigateur.": "Copy refused by the browser.",
+    // ---- nettoyer par étage ----
+    "Nettoyer le plan — {etage}": "Clean up the plan — {etage}",
+    "Retirer les liens d'escalier vers un étage absent": "Remove stair links to a missing floor",
+    "L'escalier ne mène plus nulle part.": "The stairs no longer lead anywhere.",
+    "{nom} : mène à un étage absent ({cible})": "{nom}: leads to a missing floor ({cible})",
+    "{nom} : pas d'escalier de retour sur « {vers} »": "{nom}: no stairs back on “{vers}”",
+    "L'étage « {etage} » n'existe plus : rien n'est restauré.": "The floor “{etage}” no longer exists: nothing restored.",
+    "Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures de leur étage, les autres étages restent tels quels (annulable).": "The last 3, kept in this browser. “Restore” replaces the rooms, walls and openings of their floor, other floors stay as they are (can be undone).",
     // ---- éditeurs de meubles et d'ouvertures ----
     "Fenêtre oscillo-battante": "Tilt and turn window",
     "Contact, un battant": "Contact, one leaf",
@@ -673,6 +683,9 @@ const MaquetteI18n = (() => {
     "« {nom} » sans côté dehors": "“{nom}” has no outside side",
     "Volet de « {nom} » relié à rien": "Shutter of “{nom}” linked to nothing",
     "Volet de « {nom} » : {e} n'existe pas": "Shutter of “{nom}”: {e} does not exist",
+    "Retirer le côté dehors des fenêtres intérieures": "Remove the outside side of inside windows",
+    "Entre deux pièces : sans lui, la lumière passe comme par une verrière. Terrasse : la marquer dehors.": "Between two rooms: without it, light goes through as with an interior glass wall. Terrace: mark it as outside.",
+    "« {nom} » entre deux pièces, avec un côté dehors": "“{nom}” is between two rooms but has an outside side",
     "Lames du volet": "Shutter slats",
     "Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière.": "Tilting: light passes according to the shutter tilt (current_tilt_position). Vented: a closed shutter lets thin streaks of light through.",
     "Pleines (volet de base)": "Solid (basic shutter)",
@@ -1480,6 +1493,140 @@ const MaquetteI18n = (() => {
     "Voiture branchée": "Car plugged in",
     "Volet chambre": "Bedroom shutter",
     "Volet du séjour": "Living room shutter",
+    // ---- démo : étage ----
+    "Atelier": "Studio",
+    "Chambre d'amis": "Guest room",
+    "Étage##demo": "Upstairs",
+    "Fenêtre atelier": "Studio window",
+    "Fenêtre chambre d'amis": "Guest room window",
+    "Fenêtre salle d'eau": "Shower room window",
+    "Lampe de l'atelier": "Studio lamp",
+    "Palier": "Landing",
+    "Plafonnier chambre d'amis": "Guest room ceiling light",
+    "Rez-de-chaussée##demo": "Ground floor",
+    "Salle d'eau##piece": "Shower room",
+    "Volet chambre d'amis": "Guest room shutter",
+  "Image de fond": "Background image",
+  "Étages": "Floors",
+  "Gérer les étages": "Manage floors",
+  "Gérer": "Manage",
+  "Ouvertures ouvertes": "Open windows and doors",
+  "{nom} ({etage})": "{nom} ({etage})",
+  "Aller à : {etage}": "Go to: {etage}",
+  "Mène à": "Leads to",
+  "Sur le plan, toucher l'escalier affiche cet étage.": "On the plan, tapping the stairs shows this floor.",
+    // ---- étages : éditeur (copier / coller entre étages) ----
+    "Copier / coller sur place": "Copy / paste in place",
+    "{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.": "{n} item copied: Ctrl+V pastes it at the same position, on this floor or another.|{n} items copied: Ctrl+V pastes them at the same position, on this floor or another.",
+    "{n} élément collé.|{n} éléments collés.": "{n} item pasted.|{n} items pasted.",
+    // ---- étages : modale « Étages » (ajouter, renommer, réordonner, supprimer) ----
+    "Du haut vers le bas. Renommer ne change pas l'identifiant : les escaliers et l'étage mémorisé restent valides.": "Top to bottom. Renaming keeps the id: stairs and the remembered floor stay valid.",
+    "Rez-de-chaussée": "Ground floor",
+    "Étage {n}": "Floor {n}",
+    "Plan actuel": "Current plan",
+    "Ajouter un étage range le plan actuel dans « {nom} ».": "Adding a floor moves the current plan into “{nom}”.",
+    "Ajouter un étage au-dessus de « {nom} »": "Add a floor above “{nom}”",
+    "Vide": "Empty",
+    "Avec les murs extérieurs": "With the outer walls",
+    "Copie de cet étage": "Copy of this floor",
+    "Court": "Short",
+    "Nom court (ascenseur)": "Short name (elevator)",
+    "Affiché": "Shown",
+    "Afficher cet étage": "Show this floor",
+    "Étage affiché au chargement": "Floor shown on load",
+    "Le dernier affiché (sinon le premier)": "The last one shown (else the first)",
+    "Icône attendue sous la forme mdi:nom-de-l-icone.": "Icon expected as mdi:icon-name.",
+    "Étage « {nom} » ajouté.": "Floor “{nom}” added.",
+    "Étage « {nom} » supprimé.": "Floor “{nom}” deleted.",
+    "{n} escalier n'y mène plus.|{n} escaliers n'y mènent plus.": "{n} staircase no longer leads there.|{n} staircases no longer lead there.",
+    "Supprimer « {nom} » ?": "Delete “{nom}”?",
+    "{p} et {a} seront perdus (annulable).": "{p} and {a} will be lost (can be undone).",
+    "{n} autre élément|{n} autres éléments": "{n} other item|{n} other items",
+    "Cet étage est vide.": "This floor is empty.",
+    // ---- noms de pièce en double dans la maison ----
+    "« {nom} » existe déjà dans la maison : « {prop} » ?": "“{nom}” already exists in the house: “{prop}”?",
+    "{n} noms de pièce existent déjà dans la maison ({noms}) : ajouter le nom de l'étage ?": "{n} room names already exist in the house ({noms}): add the floor name?",
+    "Renommer": "Rename",
+  "Afficher aussi en vue": "Also show in view mode",
+  "Aperçu de l'image de fond": "Background image preview",
+  "Aucune image": "No image",
+  "Chemin de l'image": "Image path",
+  "Chemin refusé : une image du même site seulement (/local/… ou image envoyée), en PNG, JPEG, WebP, AVIF ou SVG.": "Path refused: an image from the same site only (/local/… or an uploaded image), as PNG, JPEG, WebP, AVIF or SVG.",
+  "Compris": "Got it",
+  "Confidentialité : ce qui est dans /local et /api/image/serve est lisible sans connexion si Home Assistant est exposé sur Internet. N'y mets pas un plan que tu ne veux pas rendre public.": "Privacy: files in /local and /api/image/serve can be read without signing in if Home Assistant is exposed to the Internet. Don't put a plan there that you wouldn't make public.",
+  "Envoi de l'image…": "Uploading the image…",
+  "Envoi impossible : Home Assistant ne répond pas.": "Upload failed: Home Assistant is not responding.",
+  "Envoi refusé : réservé aux administrateurs de Home Assistant.": "Upload refused: Home Assistant administrators only.",
+  "Envoi refusé par Home Assistant (erreur {n}).": "Upload refused by Home Assistant (error {n}).",
+  "Envoi réservé aux administrateurs de Home Assistant.": "Uploading is for Home Assistant administrators only.",
+  "Envoyer une image": "Upload an image",
+  "Format refusé : PNG, JPEG ou WebP seulement.": "Format refused: PNG, JPEG or WebP only.",
+  "Image de fond retirée.": "Background image removed.",
+  "Image envoyée et posée sous le plan.": "Image uploaded and placed under the plan.",
+  "Image illisible : le fichier n'est pas une image valide.": "Unreadable image: the file is not a valid image.",
+  "Image trop lourde : 10 Mo au plus. Réduis-la avant de l'envoyer.": "Image too large: 10 MB at most. Shrink it before uploading.",
+  "Image trop lourde pour Home Assistant. Réduis-la avant de l'envoyer.": "Image too large for Home Assistant. Shrink it before uploading.",
+  "Image très grande ({l} × {h} px) : au-delà de 4096 px, l'affichage peut être lent sur une tablette ou un téléphone.": "Very large image ({l} × {h} px): beyond 4096 px, it may be slow to display on a tablet or a phone.",
+  "La hauteur suit (même proportion).": "The height follows (same proportions).",
+  "La largeur doit être plus grande que 0.": "The width must be greater than 0.",
+  "Les clics atteignent les pièces et les murs dessous. Déverrouillée : elle peut être déplacée sur le plan, le temps de l'édition.": "Clicks reach the rooms and walls underneath. Unlocked: it can be moved on the plan, for this editing session.",
+  "Opacité": "Opacity",
+  "Pose un plan scanné ou une photo sous le dessin pour le recopier. Visible pendant l'édition seulement, sauf si tu choisis de l'afficher aussi en vue.": "Put a scanned plan or a photo under the drawing to trace over it. Shown while editing only, unless you choose to show it in view mode too.",
+  "Position X (cm)": "Position X (cm)",
+  "Position Y (cm)": "Position Y (cm)",
+  "Retirer l'image": "Remove the image",
+  "Retour aux calques (Échap)": "Back to layers (Esc)",
+  "Rotation (°)": "Rotation (°)",
+  "Régler": "Adjust",
+  "Réponse inattendue de Home Assistant : image non posée.": "Unexpected answer from Home Assistant: image not placed.",
+  "Sinon, l'image n'apparaît que pendant l'édition (rien n'est chargé en vue).": "Otherwise, the image only appears while editing (nothing is loaded in view mode).",
+  "Sous tout le dessin, à l'échelle du plan (cm)": "Under the whole drawing, at the plan's scale (cm)",
+  "Une image du même site : un fichier de /local/… (dossier www de Home Assistant) ou une image envoyée ici. PNG, JPEG, WebP, AVIF ou SVG.": "An image from the same site: a file in /local/… (Home Assistant's www folder) or an image uploaded here. PNG, JPEG, WebP, AVIF or SVG.",
+  "Verrouillée (on clique à travers)": "Locked (click through it)",
+  "Édition et vue": "Editing and view",
+  "Édition seulement": "Editing only",
+  "Affiche le calque « Image de fond » pour la calibrer.": "Show the “Background image” layer to calibrate it.",
+  "Aligner sur un mur": "Align with a wall",
+  "Annuler le calibrage (Échap)": "Cancel calibration (Esc)",
+  "Calibrer": "Calibrate",
+  "Calibrer l'image de fond": "Calibrate the background image",
+  "Deux points de l'image et leur distance réelle (ou un mur du plan) : l'image est mise à l'échelle.": "Two points on the image and their real distance (or a wall of the plan): the image is scaled to match.",
+  "Distance réelle": "Real distance",
+  "Distance réelle entre les deux points :": "Real distance between the two points:",
+  "Image calibrée : {l} cm de large.": "Image calibrated: {l} cm wide.",
+  "Image pas encore chargée : réessaie dans un instant.": "Image not loaded yet: try again in a moment.",
+  "Mur 1/2": "Wall 1/2",
+  "Mur 2/2": "Wall 2/2",
+  "Même extrémité que la première : touche l'autre bout.": "Same end as the first one: tap the other end.",
+  "Pas d'extrémité de mur ici : touche le bout d'un mur existant (zoome si besoin).": "No wall end here: tap the end of an existing wall (zoom in if needed).",
+  "Points trop proches : touche un point plus loin du premier.": "Points too close: tap a point further from the first one.",
+  "Poser les deux points sur les extrémités d'un mur existant : l'image est aussi déplacée et tournée.": "Put the two points on the ends of an existing wall: the image is also moved and rotated.",
+  "Résultat hors limites (image de plus de 10 km ou de moins de 1 cm) : vérifie les points et la distance.": "Result out of range (image over 10 km or under 1 cm): check the points and the distance.",
+  "Saisis la distance réelle, plus grande que 0.": "Enter the real distance, greater than 0.",
+  "Touche l'extrémité de mur où doit tomber le point 1.": "Tap the wall end where point 1 should land.",
+  "Touche l'extrémité de mur où doit tomber le point 2.": "Tap the wall end where point 2 should land.",
+  "Touche le second point, le plus loin possible du premier.": "Tap the second point, as far as possible from the first.",
+  "Touche un premier point de l'image dont tu connais la distance à un autre (zoome pour viser juste).": "Tap a first point on the image whose distance to another one you know (zoom in to aim precisely).",
+  "Valider": "Confirm",
+    // ---- étages : widgets latéraux communs à la maison ou propres à l'étage (⚙ Paramètres) ----
+    "Widgets latéraux": "Side widgets",
+    "Widgets de cet étage": "Widgets on this floor",
+    "Communs à la maison": "Shared by the house",
+    "Propres à cet étage": "Own to this floor",
+    "Propres : cet étage a ses widgets, partis d'une copie de ceux de la maison ; les autres étages gardent ceux de la maison. Les widgets ajoutés vont là où ils s'affichent.": "Own: this floor has its own widgets, starting from a copy of the house ones; the other floors keep the house widgets. Added widgets go where they are shown.",
+    "Reprendre les widgets de la maison ?": "Use the house widgets again?",
+    "Reprendre ceux de la maison": "Use the house widgets",
+    "Les widgets propres à cet étage seront perdus (Ctrl+Z pour revenir en arrière).": "The widgets own to this floor will be lost (Ctrl+Z to go back).",
+
+  "Fenêtre de toit": "Roof window",
+  "Pente du toit (°)": "Roof pitch (°)",
+  "0 = toit plat, jusqu'à 75°. Le bas du rectangle est le bas de la pente.": "0 = flat roof, up to 75°. The bottom of the rectangle is the bottom of the slope.",
+  "Hauteur du bas (cm)": "Bottom height (cm)",
+  "Hauteur du bas de la fenêtre au-dessus du sol.": "Height of the bottom of the window above the floor.",
+  "Store ou contact": "Blind or contact",
+  "Un store (cover) raccourcit la tache de soleil selon sa position ; un contact affiche seulement l'état ouvert.": "A blind (cover) shortens the sun patch according to its position; a contact only shows the open state.",
+  "Fenêtre de toit de l'atelier": "Workshop roof window",
+  "Store de la fenêtre de toit": "Roof window blind",
     // ---- audit des textes : bulles ⓘ, libellés courts, vocabulaire (pastille, puce, étiquette) ----
     "Étiquettes des zones": "Area labels",
     "Ouvrir : {cible}": "Open: {cible}",
@@ -1664,6 +1811,7 @@ globalThis.MaquetteI18n = MaquetteI18n;
  *   appliquer(config, options?) → nouvelle config (l'entrée n'est jamais modifiée) ; nettoyer(…) rend aussi les opérations
  *   isoler(config, nom)         → la pièce seule : murs d'après le contour, ouvertures recalées, passages, cloisons
  *   instantane / restaurer      → copie des clés touchées (CLES) avant nettoyage, et retour à cette copie
+ *   escaliers (plan à étages)   → lien `floor` vers un étage absent (retiré), escalier sans escalier de retour (information)
  *   rapprocherNom / cleNom      → noms de pièce rapprochés malgré accents, suffixes (« Chambre · 12,6 m² ») et sigles (« SDB »)
  * Le contour des pièces fait foi : murs et ouvertures sont recalés dessus, jamais l'inverse (seules les options « sommets » et
  * « arrondir » touchent aux pièces). Unités : cm, y vers le bas. Murs [x1, y1, x2, y2, groupe?], ouvertures {seg: [x1, y1, x2, y2]},
@@ -1681,13 +1829,16 @@ const MaquetteNettoyage = (() => {
   const VOISIN = 6; // distance de part et d'autre d'une arête pour trouver la pièce voisine
   const CLES = ["rooms", "walls", "openings"]; // tout ce que le nettoyage peut toucher
   // options (cases du dialogue) et valeurs par défaut ; les étapes s'appliquent dans l'ordre de ETAPES (une option peut en avoir deux)
-  // « dehors » et « volets » : contrôles des ouvertures (côté dehors des baies, volets reliés à rien), faits seulement avec l'option
+  // « dehors », « volets » et « verrieres » : contrôles des ouvertures (côté dehors des baies, volets reliés à rien, fenêtre intérieure avec
+  // un côté dehors), faits seulement avec l'option
   // `controles` ({ entites: [ids connus] } ; sans liste, une entité n'est jamais dite inexistante)
-  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir", "dehors", "volets"];
-  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false, dehors: false, volets: false });
+  // « escaliers » : plan à étages seulement (config avec `floor`, `floors` et `furniture`, voir etapeEscaliers)
+  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir", "dehors", "volets", "verrieres", "escaliers"];
+  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false, dehors: false, volets: false, verrieres: false, escaliers: true });
   // gravité : « defaut » (à corriger), « style » (façon de dessiner, corrigée sans être comptée comme défaut), « info » (passage ouvert)
   const NIVEAU = { trou: "defaut", decale: "defaut", depasse: "defaut", bout: "defaut", doublon: "defaut", absent: "defaut", sommet: "defaut",
-    sous: "style", aligne: "style", arrondi: "style", passage: "info", sans_dehors: "defaut", volet_vide: "defaut", volet_inconnu: "defaut" };
+    sous: "style", aligne: "style", arrondi: "style", passage: "info", sans_dehors: "defaut", volet_vide: "defaut", volet_inconnu: "defaut", verriere_dehors: "defaut",
+    escalier_sans_cible: "defaut", escalier_sans_retour: "info" };
 
   // ---------- géométrie ----------
   const copie = (o) => (o === undefined ? o : typeof structuredClone === "function" ? structuredClone(o) : JSON.parse(JSON.stringify(o)));
@@ -2149,6 +2300,22 @@ const MaquetteNettoyage = (() => {
     }
     return ops;
   }
+  // fenêtre ou porte vitrée entre deux pièces intérieures avec un côté dehors (`outside`) : la carte la traite en fenêtre extérieure
+  // seulement ; correction = `outside` retiré (elle devient une verrière). Une terrasse dessinée en pièce : la marquer dehors plutôt
+  function etapeVerrieres(cfg) {
+    const ops = [], ctx = contexte(cfg);
+    for (const o of Array.isArray(cfg.openings) ? cfg.openings : []) {
+      if (!segValide(o) || !o.outside || !(o.type === "window" || (o.type === "door" && o.glazed))) continue;
+      const R = repere([o.seg[0], o.seg[1]], [o.seg[2], o.seg[3]]);
+      if (R.lg < 1) continue;
+      const m = au(R, R.lg / 2), n = [R.uy, -R.ux], cote = (sg) => ctx.interieures.find((P) => dedans([m[0] + n[0] * VOISIN * 2.5 * sg, m[1] + n[1] * VOISIN * 2.5 * sg], P.poly));
+      const P1 = cote(1), P2 = cote(-1);
+      if (!P1 || !P2 || P1 === P2) continue;
+      delete o.outside;
+      ops.push({ type: "verriere_dehors", piece: P1.nom, point: netP(m), segment: o.seg.slice(0, 4), detail: { ouverture: o.name || o.type } });
+    }
+    return ops;
+  }
   // volet relié à rien (ouverture « volet seul » sans entité) ou à une entité inexistante ; correction = lien retiré
   function etapeVolets(cfg, opts) {
     const ops = [], connues = Array.isArray(opts?.controles?.entites) ? new Set(opts.controles.entites) : null, ctx = contexte(cfg);
@@ -2166,11 +2333,35 @@ const MaquetteNettoyage = (() => {
     return ops;
   }
 
+  // escaliers d'un plan à étages : cfg.floor = étage nettoyé, cfg.floors = [{ id, name, furniture }] (tous les étages ; celui nettoyé
+  // peut n'avoir que son id), cfg.furniture = meubles de l'étage nettoyé ({ type, pos, name, floor }). Sans `floors` : rien.
+  // `floor` vers un étage absent (ou vers le sien) → lien retiré ; escalier relié sans escalier de retour sur l'étage visé → information,
+  // rien n'est changé (applique: false, même option cochée)
+  function etapeEscaliers(cfg) {
+    if (!Array.isArray(cfg.floors) || !Array.isArray(cfg.furniture)) return [];
+    const ops = [], ctx = contexte(cfg), ici = cfg.floor, etages = cfg.floors.filter((e) => e && typeof e.id === "string");
+    cfg.furniture.forEach((m, j) => {
+      if (!m || m.type !== "stairs" || m.floor == null) return;
+      const point = Array.isArray(m.pos) && Number.isFinite(+m.pos[0]) && Number.isFinite(+m.pos[1]) ? netP([+m.pos[0], +m.pos[1]]) : [0, 0];
+      const base = { piece: pieceDe(ctx, point), point, meuble: j }, nom = m.name ?? null;
+      const E = m.floor === ici ? null : etages.find((e) => e.id === m.floor);
+      if (!E) {
+        ops.push({ type: "escalier_sans_cible", ...base, detail: { cible: String(m.floor), nom } });
+        delete m.floor;
+        return;
+      }
+      const retour = (Array.isArray(E.furniture) ? E.furniture : []).some((x) => x?.type === "stairs" && x.floor === ici);
+      if (!retour) ops.push({ type: "escalier_sans_retour", ...base, applique: false, detail: { cible: E.id, vers: E.name ?? E.id, nom } });
+    });
+    return ops;
+  }
+
   // ---------- API ----------
   // [option, étape] dans l'ordre d'application : les murs épais sont ramenés à leur axe avant d'être aimantés
   const ETAPES = [["arrondir", etapeArrondir], ["sommets", etapeSommets], ["fusionner", etapeEpais], ["aimanter", etapeAimanter], ["bouts", etapeBouts],
     ["manquants", (cfg, choix) => etapeManquants(cfg, "manquants", choix)], ["passages", (cfg, choix) => etapeManquants(cfg, "passages", choix)],
-    ["couper", etapeCouper], ["fusionner", etapeFusionner], ["dehors", etapeDehors], ["volets", etapeVolets]];
+    ["couper", etapeCouper], ["fusionner", etapeFusionner], ["dehors", etapeDehors], ["volets", etapeVolets], ["verrieres", etapeVerrieres],
+    ["escaliers", etapeEscaliers]];
   const actif = (v) => v === true || (Array.isArray(v) && v.length > 0);
 
   // nettoyer(config, options) → { config, operations (appliquées), constats (toutes, appliquées ou non, par option) }
@@ -2181,12 +2372,12 @@ const MaquetteNettoyage = (() => {
     const operations = [], constats = Object.fromEntries(ORDRE.map((k) => [k, []]));
     for (const [nom, etape] of ETAPES) {
       let ops;
-      if ((nom === "dehors" || nom === "volets") && !opts.controles) continue;
+      if ((nom === "dehors" || nom === "volets" || nom === "verrieres") && !opts.controles) continue;
       if (nom === "manquants" || nom === "passages") {
         // constat toujours fait ; seules les pièces choisies sont complétées
         ops = etape(cfg, opts[nom]);
       } else if (actif(opts[nom])) {
-        ops = etape(cfg, opts).map((o) => ({ ...o, applique: true }));
+        ops = etape(cfg, opts).map((o) => ({ applique: true, ...o })); // une information (applique: false) n'est jamais comptée
       } else {
         ops = etape(copie(cfg), opts).map((o) => ({ ...o, applique: false }));
       }
@@ -2204,7 +2395,7 @@ const MaquetteNettoyage = (() => {
     const defauts = Object.values(constats).flat().map(({ type, niveau, option, piece, pieces, point, segment, detail }) => ({ type, niveau, option, piece, ...(pieces ? { pieces } : {}), point, ...(segment ? { segment } : {}), detail }));
     const corrections = {};
     for (const nom of ORDRE) corrections[nom] = constats[nom].filter((o) => o.type !== "passage" || nom === "passages");
-    const propre = ORDRE.every((nom) => (OPTIONS_DEFAUT[nom] ? corrections[nom].length === 0 : !corrections[nom].some((o) => o.niveau === "defaut")));
+    const propre = ORDRE.every((nom) => (OPTIONS_DEFAUT[nom] ? corrections[nom].every((o) => o.niveau === "info") : !corrections[nom].some((o) => o.niveau === "defaut")));
     return { defauts, corrections, propre, arrondiUtile: arrondiUtile(config) };
   }
   // plan relevé sur une image : au moins 30 % des cotes (sommets, murs, ouvertures) hors grille de 5 cm → proposer l'arrondi
@@ -2310,6 +2501,8 @@ globalThis.MaquetteNettoyage = MaquetteNettoyage;
 // consigne…) ne change que la simulation. Le soleil (sun.sun) et les coordonnées de la maison restent ceux de Home Assistant.
 const PlanDemo = (() => {
   const { _t, _tk } = globalThis.MaquetteI18n;
+  // murs d'un étage tracés avec leurs ouvertures (trous : [début, fin, ouverture ou null] le long du mur)
+  const traceur = () => {
   const murs = [], ouvertures = [];
   const mur = (x1, y1, x2, y2, trous = []) => {
     const hz = y1 === y2, fin = hz ? x2 : y2;
@@ -2321,6 +2514,10 @@ const PlanDemo = (() => {
     }
     if (fin - cur > 0.5) murs.push(hz ? [cur, y1, fin, y1] : [x1, cur, x1, fin]);
   };
+  return { murs, ouvertures, mur };
+  };
+  // rez-de-chaussée : l'appartement de toujours
+  const rdc = traceur(), mur = rdc.mur;
   mur(0, 0, 900, 0, [[90, 410, { type: "fenetre", nom: _tk("Baie du séjour"), contact: "binary_sensor.demo_baie_sejour", volet: "cover.demo_volet_sejour", dehors: [0, -1] }],
     [600, 800, { type: "fenetre", nom: _tk("Fenêtre chambre"), contact: "binary_sensor.demo_fenetre_chambre", volet: "cover.demo_volet_chambre", dehors: [0, -1] }]]);
   mur(900, 0, 900, 700, [[450, 600, { type: "fenetre", nom: _tk("Fenêtre bureau"), contact: "binary_sensor.demo_fenetre_bureau", dehors: [1, 0] }]]);
@@ -2330,11 +2527,27 @@ const PlanDemo = (() => {
   mur(0, 420, 500, 420, [[290, 410, null]]);
   mur(250, 420, 250, 700, [[520, 600, { type: "porte", dehors: [-1, 0] }]]);
   mur(500, 350, 900, 350);
+  // étage : salle d'eau, palier (arrivée de l'escalier), chambre d'amis, atelier, dans l'emprise du rez-de-chaussée (même cadre)
+  const haut = traceur(), murH = haut.mur;
+  murH(0, 0, 900, 0, [[300, 400, { type: "fenetre", nom: _tk("Fenêtre salle d'eau"), contact: "binary_sensor.demo_fenetre_salle_eau", dehors: [0, -1] }]]);
+  murH(900, 0, 900, 700, [[250, 450, { type: "fenetre", nom: _tk("Fenêtre atelier"), contact: "binary_sensor.demo_fenetre_atelier", dehors: [1, 0] }]]);
+  murH(0, 700, 900, 700, [[150, 330, { type: "fenetre", nom: _tk("Fenêtre chambre d'amis"), contact: "binary_sensor.demo_fenetre_chambre_amis", volet: "cover.demo_volet_chambre_amis", dehors: [0, 1] }]]);
+  murH(0, 0, 0, 700);
+  murH(500, 0, 500, 700, [[260, 340, { type: "porte", dehors: [-1, 0] }]]);
+  murH(0, 200, 500, 200, [[380, 460, { type: "porte", dehors: [0, -1] }]]);
+  murH(0, 420, 500, 420, [[380, 460, { type: "porte", dehors: [0, 1] }]]);
   const R = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
   const D = (n) => `${n.split(".")[0]}.demo_${n.split(".")[1]}`;
+  const geo = ({ murs, ouvertures }) => ({ murs: murs.map((m) => [...m]), ouvertures: ouvertures.map((o) => ({ ...o, ...(o.nom ? { nom: _t(o.nom) } : {}), seg: [...o.seg] })) });
+  // escalier entre les deux niveaux : même place en bas et en haut, chacun mène à l'autre (`floor`) ; comme tous les meubles de
+  // l'étage, il reste dans le cadre du rez-de-chaussée (le plan garde son échelle)
+  const ESCALIER = { type: "escalier", pos: [90, 320], taille: [70, 170] };
 
   const config = () => ({
     titre: _t("Appartement démo"), demo: true, edition: false, replay: true, vitrine: true,
+    // deux niveaux : le rez-de-chaussée s'affiche au chargement, l'ascenseur (sélecteur par défaut) mène à l'étage
+    etage_defaut: "rdc",
+    etages: [{ id: "rdc", nom: _t("Rez-de-chaussée##demo"), court: "0", icone: "mdi:home-floor-0",
     pieces: [
       { nom: _t("Balcon"), dehors: true, zoom: false, poly: R(0, -170, 500, 170), etiquette: [250, -85], temperature: D("sensor.exterieur_temperature") },
       { nom: _t("Séjour"), poly: R(0, 0, 500, 420), etiquette: [300, 250], temperature: D("sensor.sejour_temperature"), humidite: D("sensor.sejour_humidite") },
@@ -2343,7 +2556,7 @@ const PlanDemo = (() => {
       { nom: _t("Salle de bain"), poly: R(0, 420, 250, 280), etiquette: [125, 640], temperature: D("sensor.sdb_temperature"), humidite: D("sensor.sdb_humidite") },
       { nom: _t("Entrée"), poly: R(250, 420, 250, 280), etiquette: [375, 640] },
     ],
-    murs: murs.map((m) => [...m]), limites: [[0, -170, 500, -170], [0, -170, 0, 0], [500, -170, 500, 0]], ouvertures: ouvertures.map((o) => ({ ...o, ...(o.nom ? { nom: _t(o.nom) } : {}), seg: [...o.seg] })),
+    ...geo(rdc), limites: [[0, -170, 500, -170], [0, -170, 0, 0], [500, -170, 500, 0]],
     points: [
       { entite: D("light.sejour"), pos: [230, 200], icone: "mdi:floor-lamp", couleur: "#f6c445", halo: 170, piece: _t("Séjour") },
       { entite: D("light.cuisine"), pos: [70, 70], icone: "mdi:ceiling-light", couleur: "#f6c445", halo: 120, piece: _t("Séjour") },
@@ -2364,8 +2577,30 @@ const PlanDemo = (() => {
       { type: "bureau", pos: [790, 610] }, { type: "lit_double", pos: [790, 175], taille: [160, 200], rotation: 270 },
       { type: "chaudiere", pos: [30, 450], rotation: 90, entite: D("climate.thermostat"),
         fiche: { titre: _t("Chauffage"), widgets: [{ type: "thermostat", titre: _t("Thermostat"), entite: D("climate.thermostat") }, { type: "climat", titre: _t("Températures"), duree: 30, moyenne: true }] } },
+      { ...ESCALIER, pos: [...ESCALIER.pos], taille: [...ESCALIER.taille], etage: "etage" },
     ],
     textes: [{ t: _t("Rue"), pos: [450, 760] }],
+    }, { id: "etage", nom: _t("Étage##demo"), court: "1", icone: "mdi:home-floor-1",
+    pieces: [
+      { nom: _t("Salle d'eau##piece"), poly: R(0, 0, 500, 200), etiquette: [250, 120], temperature: D("sensor.salle_eau_temperature"), humidite: D("sensor.salle_eau_humidite") },
+      { nom: _t("Palier"), poly: R(0, 200, 500, 220), etiquette: [290, 310] },
+      { nom: _t("Chambre d'amis"), poly: R(0, 420, 500, 280), etiquette: [340, 560], temperature: D("sensor.chambre_amis_temperature"), humidite: D("sensor.chambre_amis_humidite") },
+      { nom: _t("Atelier"), poly: R(500, 0, 400, 700), etiquette: [680, 350], temperature: D("sensor.atelier_temperature"), humidite: D("sensor.atelier_humidite") },
+    ],
+    ...geo(haut),
+    points: [
+      { entite: D("light.atelier"), pos: [640, 140], icone: "mdi:desk-lamp", couleur: "#f6c445", halo: 150, piece: _t("Atelier") },
+      { entite: D("light.chambre_amis"), pos: [420, 640], icone: "mdi:ceiling-light", couleur: "#f6c445", halo: 130, piece: _t("Chambre d'amis") },
+    ],
+    meubles: [
+      { type: "douche", pos: [60, 60] }, { type: "lavabo", pos: [190, 26] }, { type: "wc", pos: [470, 40], rotation: 270 },
+      { type: "lit_double", pos: [130, 560], rotation: 90 }, { type: "table_nuit", pos: [130, 455] },
+      { type: "bureau", pos: [835, 350], rotation: 270 }, { type: "etagere", pos: [700, 680] }, { type: "plante", pos: [540, 40] },
+      { ...ESCALIER, pos: [...ESCALIER.pos], taille: [...ESCALIER.taille], rotation: 180, etage: "rdc" },
+      // fenêtre de toit au-dessus de l'atelier : tache de soleil qui suit sun.sun, store simulé (fermé = pas de tache)
+      { type: "fenetre_toit", nom: _t("Fenêtre de toit de l'atelier"), pos: [700, 560], taille: [78, 118], pente: 40, hauteur: 200, entite: D("cover.velux_atelier"), animation: "aucune" },
+    ],
+    }],
     panneaux: {
       gauche: [
         { type: "jauge", titre: _t("Puissance appelée"), entite: D("sensor.puissance_apparente"), min: 0, max: 6000, unite: "VA", decimales: 0 },
@@ -2421,6 +2656,18 @@ const PlanDemo = (() => {
       // équipements pour les widgets prêts à l'emploi : CO₂, luminosité, serrure, fuite d'eau
       pose("sensor.sejour_co2", 870, u("ppm", "carbon_dioxide", _tk("CO₂ du séjour"))); pose("sensor.bureau_luminosite", 320, u("lx", "illuminance", _tk("Luminosité du bureau")));
       pose("lock.entree", "locked", { friendly_name: _tk("Serrure de l'entrée"), supported_features: 1 }); pose("binary_sensor.fuite_sdb", "off", { friendly_name: _tk("Fuite salle de bain"), device_class: "moisture" });
+      // étage : lampe de l'atelier allumée, plafonnier de la chambre d'amis éteint, volet ouvert ; la fenêtre de la salle d'eau est
+      // ouverte tant que Sam est là (aération après la douche) : la pastille de l'étage le signale depuis le rez-de-chaussée
+      pose("light.atelier", "on", { friendly_name: _tk("Lampe de l'atelier"), color_mode: "color_temp", color_temp_kelvin: 4000, brightness: 210 });
+      pose("light.chambre_amis", "off", { friendly_name: _tk("Plafonnier chambre d'amis"), color_mode: "color_temp", color_temp_kelvin: 2700, brightness: 200 });
+      pose("binary_sensor.fenetre_salle_eau", "on", { friendly_name: _tk("Fenêtre salle d'eau"), device_class: "window" });
+      pose("binary_sensor.fenetre_atelier", "off", { friendly_name: _tk("Fenêtre atelier"), device_class: "window" });
+      pose("binary_sensor.fenetre_chambre_amis", "off", { friendly_name: _tk("Fenêtre chambre d'amis"), device_class: "window" });
+      pose("cover.velux_atelier", "open", { friendly_name: _tk("Store de la fenêtre de toit"), current_position: 100, device_class: "blind", supported_features: 15 });
+      pose("cover.volet_chambre_amis", "open", { friendly_name: _tk("Volet chambre d'amis"), current_position: 100, device_class: "shutter", supported_features: 15 });
+      for (const [p, t, h] of [["salle_eau", 22.6, 74], ["chambre_amis", 19.1, 50], ["atelier", 20.7, 45]]) {
+        pose(`sensor.${p}_temperature`, t, u("°C", "temperature")); pose(`sensor.${p}_humidite`, h, u("%", "humidity"));
+      }
       this.etats = e; this.k = 0; this.abonnes = new Set(); this.tm = 0;
       // noms affichés dans la langue de l'interface (les prénoms restent tels quels) ; renommer() après un changement de langue
       this.fr = Object.fromEntries(Object.entries(e).filter(([id, v]) => v.attributes.friendly_name && !id.includes("person.")).map(([id, v]) => [id, v.attributes.friendly_name]));
@@ -2441,7 +2688,12 @@ const PlanDemo = (() => {
       if (k % 23 === 5) this.poser("binary_sensor.porte_entree", "on"); else if (k % 23 === 8) this.poser("binary_sensor.porte_entree", "off");
       if (k % 15 === 0) this.poser("light.cuisine", this.etats[D("light.cuisine")].state === "on" ? "off" : "on");
       if (k % 30 === 0) { const m = METEOS[(k / 30) % METEOS.length]; this.poser("weather.maison", m, { cloud_coverage: { sunny: 5, partlycloudy: 45 }[m] ?? 90 }); }
-      if (k % 40 === 20) { const dehors = this.etats[D("person.sam")].state === "home"; this.poser("person.sam", dehors ? "not_home" : "home"); }
+      // Sam ferme la fenêtre de la salle d'eau en partant et la rouvre au retour : pastille de l'étage quand il est là, pas d'alerte
+      // « maison vide » permanente pendant son absence
+      if (k % 40 === 20) {
+        const dehors = this.etats[D("person.sam")].state === "home";
+        this.poser("binary_sensor.fenetre_salle_eau", dehors ? "off" : "on", null, true); this.poser("person.sam", dehors ? "not_home" : "home");
+      }
       this.poser("zone.maison", String(this.etats[D("person.sam")].state === "home" ? 1 : 0), null, true);
       this.notifier();
     }
@@ -2531,7 +2783,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.2.0-beta.1";
+const VERSION = "0.2.0";
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
 const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -2714,6 +2966,36 @@ button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 .zone svg .meuble.connecte.actif.a-clignote{animation:clignote var(--a-d) steps(1) infinite}
 .zone svg .meuble.connecte.actif.a-halo *,.zone svg .meuble.connecte.actif.a-onde.a-contour *{animation:halo-mb var(--a-d) ease-in-out infinite}
 .zone svg .meuble.connecte.actif.a-onde.a-contour *{animation-name:onde-mb;animation-timing-function:ease-out}
+/* sélecteur d'étages : ascenseur (pile en haut à droite du plan, loin du zoom et de la vitrine du bas) ou barre d'onglets MD3 en haut de la carte */
+.etages[hidden]{display:none!important} /* l'emporte sur .ascenseur / .onglets (display:flex) */
+.etages .et-l{display:flex}
+.etages button{position:relative;border:none;cursor:pointer;font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);color:var(--md-on-surface-variant);background:none}
+.etages button:focus-visible{outline:2px solid var(--md-primary);outline-offset:2px}
+.etages ha-icon{--mdc-icon-size:20px}
+.etages.ascenseur{position:absolute;right:16px;top:16px;z-index:3;display:flex;flex-direction:column;align-items:center;gap:4px;padding:4px;border-radius:16px;
+  background:var(--md-surface-container-high);box-shadow:0 1px 3px #0003}
+.etages.ascenseur.serre{right:64px} /* plan trop bas pour l'ascenseur et le zoom empilés : à gauche de la colonne du zoom */
+.etages.ascenseur .et-l{flex-direction:column;gap:4px}
+.etages.ascenseur button{width:40px;height:40px;border-radius:12px;display:grid;place-items:center}
+.etages.ascenseur button:hover{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent)}
+.etages.ascenseur .et-b.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
+.etages.onglets{display:flex;align-items:stretch;gap:4px;margin:0 0 12px;border-bottom:1px solid var(--md-outline-variant);flex:none;overflow-x:auto;scrollbar-width:none}
+.etages.onglets::-webkit-scrollbar{display:none}
+.etages.onglets .et-l{flex:1;gap:0}
+.etages.onglets button{display:flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:0 16px;flex:none;white-space:nowrap}
+.etages.onglets button:hover{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent)}
+.etages.onglets .et-b.on{color:var(--md-primary)}
+.etages.onglets .et-b.on::after{content:"";position:absolute;left:12px;right:12px;bottom:0;height:3px;border-radius:3px 3px 0 0;background:var(--md-primary)}
+.etages.onglets .et-gerer{color:var(--md-primary)}
+/* pastille d'alerte d'un étage (rouge : ouverture, alerte ; ambre : à surveiller), réservée sur chaque bouton */
+.et-pastille{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;box-shadow:0 0 0 2px var(--md-surface-container-high);display:none}
+.et-pastille.rouge{display:block;background:var(--md-error)}
+.et-pastille.ambre{display:block;background:#f9a825}
+.onglets .et-pastille{top:10px;right:6px}
+/* petit plan (téléphone) : ascenseur plus compact */
+@container (max-width:480px){.etages.ascenseur{right:8px;top:8px;padding:2px;gap:2px;border-radius:12px}.etages.ascenseur.serre{right:60px}
+  .etages.ascenseur .et-l{gap:2px}.etages.ascenseur button{width:32px;height:32px;border-radius:10px}.etages.ascenseur .et-pastille{top:3px;right:3px}}
+@media (prefers-reduced-motion:reduce){.etages button{transition:none}}
 /* traces des derniers changements (ambiance) : --t = 1 juste après, 0 à la fin de la durée */
 .ouv.trace .cible{stroke:var(--trace-c,var(--md-primary));stroke-opacity:calc(var(--t,0)*.45)}
 .pt.trace,.mb.trace{box-shadow:0 0 0 calc(2px + 5px*var(--t,0)) color-mix(in srgb,var(--trace-c,var(--md-primary)) calc(var(--t,0)*60%),transparent),0 1px 2px #0003}
@@ -2756,6 +3038,7 @@ button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 .rp-marques .m-ouv{background:var(--md-error)}
 .rp-marques .m-lum{background:#f6c445;top:8px}
 .rp-marques .m-pers{background:var(--md-primary);bottom:8px}
+.rp-marques .autre{opacity:.25}
 .rp-heure{min-width:4.5em;text-align:center}
 .replay select{border:1px solid var(--md-outline-variant);border-radius:8px;background:var(--md-surface);color:var(--md-on-surface);font:inherit;padding:4px 6px}
 @media (max-width:600px){.replay{left:8px;right:8px;bottom:64px;flex-wrap:wrap}.rp-piste{flex-basis:100%;order:5}.rp-heure{min-width:0;flex:none}
@@ -3174,6 +3457,13 @@ const couleurSeuils = (seuils, n) => {
 };
 // sommets d'un polygone pour l'attribut points (deux nombres par sommet, rien d'autre)
 const ptsSvg = (poly) => poly.map((q) => `${+q[0]},${+q[1]}`).join(" ");
+// escalier relié à un autre étage (`floor`) : petite pastille avec une flèche, droite à l'écran quel que soit l'angle du meuble ;
+// ↑ par défaut, la carte la tourne (↓) quand l'étage visé est en dessous (ordre de `floors`)
+const flecheEscalier = (w, h, m) => {
+  const r = Math.max(3, Math.min(9, w * 0.14, h * 0.1)), cx = +(w / 4).toFixed(1), cy = +(h / 2 - r - 3).toFixed(1), a = r * 0.55;
+  return `<g class="esc-fleche" transform="translate(${cx} ${cy}) ${m.miroir ? "scale(-1 1) " : ""}rotate(${-nb(m.rotation)})"><circle r="${r}"/>`
+    + `<path class="ligne esc-sens" d="M0 ${a}V${-a}M${-a * 0.7} ${-a * 0.15}L0 ${-a}L${a * 0.7} ${-a * 0.15}"/></g>`;
+};
 const R_ = (x, y, w, h, rx = 3, cl = "") => `<rect${cl ? ` class="${cl}"` : ""} x="${x}" y="${y}" width="${Math.max(0, w)}" height="${Math.max(0, h)}" rx="${rx}"/>`;
 const C_ = (x, y, r, cl = "") => `<circle${cl ? ` class="${cl}"` : ""} cx="${x}" cy="${y}" r="${Math.max(0, r)}"/>`;
 const L_ = (x1, y1, x2, y2, cl = "") => `<path class="ligne${cl ? ` ${cl}` : ""}" d="M${x1} ${y1}L${x2} ${y2}"/>`;
@@ -3244,10 +3534,18 @@ const MEUBLES = {
   espace: { nom: _tk("Espace nommé"), cat: _tk("Formes et espaces"), niveau: 0, taille: [300, 200], aide: _tk("Coin cuisine, coin bureau… : pointillés et un nom, sans capteur (ce n'est pas une pièce)"), d: (w, h) => R_(-w / 2, -h / 2, w, h, 6, "tirets zone-fond") },
   rect: { nom: _tk("Rectangle libre"), cat: _tk("Formes et espaces"), taille: [100, 60], aide: _tk("N'importe quel meuble ou objet, avec un nom"), d: (w, h) => R_(-w / 2, -h / 2, w, h, 3) },
   cercle: { nom: _tk("Cercle libre"), cat: _tk("Formes et espaces"), taille: [60, 60], rond: true, d: (w, h) => E_(0, 0, w / 2, h / 2) },
-  escalier: { nom: _tk("Escalier"), cat: _tk("Formes et espaces"), taille: [90, 280], mots: "marches", d: (w, h) => {
+  escalier: { nom: _tk("Escalier"), cat: _tk("Formes et espaces"), taille: [90, 280], mots: "marches", d: (w, h, m) => {
     const n = Math.max(3, Math.round(h / 25)); let s = R_(-w / 2, -h / 2, w, h, 1);
     for (let k = 1; k < n; k++) { const y = -h / 2 + (h * k) / n; s += L_(-w / 2, y, w / 2, y); }
-    return s + `<path class="ligne" d="M0 ${h / 2 - 10}V${-h / 2 + 14}M-8 ${-h / 2 + 24}L0 ${-h / 2 + 12}L8 ${-h / 2 + 24}"/>`; } },
+    return s + `<path class="ligne" d="M0 ${h / 2 - 10}V${-h / 2 + 14}M-8 ${-h / 2 + 24}L0 ${-h / 2 + 12}L8 ${-h / 2 + 24}"/>` + (typeof m?.etage === "string" ? flecheEscalier(w, h, m) : ""); } },
+  // fenêtre de toit vue du dessus : dormant, vitrage bleuté, store (enroulé depuis le haut, hauteur suivie par la carte : `current_position`
+  // du `cover`), chevron et trait épais côté bas de la pente (bas du rectangle)
+  fenetre_toit: { nom: _tk("Fenêtre de toit"), cat: _tk("Formes et espaces"), taille: [78, 118], mots: "velux lucarne vasistas toit combles skylight", d: (w, h) => {
+    const f = +Math.max(2, Math.min(8, w * 0.1, h * 0.1)).toFixed(1), gw = Math.max(0, w - 2 * f), gh = Math.max(0, h - 2 * f), a = Math.max(3, Math.min(10, gw * 0.18, gh * 0.18));
+    return R_(-w / 2, -h / 2, w, h, 2) + `<rect class="vx-vitre" x="${-w / 2 + f}" y="${-h / 2 + f}" width="${gw}" height="${gh}" rx="1" style="fill:color-mix(in srgb,#4fc3f7 32%,var(--plan-meuble))"/>`
+      + `<rect class="vx-store" x="${-w / 2 + f}" y="${-h / 2 + f}" width="${gw}" height="0" data-h="${gh}" style="fill:color-mix(in srgb,var(--plan-meuble-trait) 45%,var(--plan-meuble))"/>`
+      + `<path class="ligne vx-sens" d="M${-a} ${+(h / 2 - f - a * 1.6).toFixed(1)}L0 ${+(h / 2 - f - a * 0.6).toFixed(1)}L${a} ${+(h / 2 - f - a * 1.6).toFixed(1)}"/>`
+      + `<path class="ligne vx-bas" d="M${-w / 2} ${h / 2}H${w / 2}" style="stroke-width:2.6px"/>`; } },
   table_nuit: { nom: _tk("Table de nuit"), cat: _tk("Chambre et bureau"), taille: [45, 40], mots: "chevet", d: (w, h) => R_(-w / 2, -h / 2, w, h, 3) + C_(0, 0, Math.min(w, h) * 0.18, "vide") },
   cheminee: { nom: _tk("Cheminée / poêle"), cat: _tk("Séjour"), taille: [100, 50], mots: "poele foyer insert", d: (w, h) => R_(-w / 2, -h / 2, w, h, 2) + `<path class="ligne" d="M${-w * 0.3} ${h / 2}V${-h * 0.1}Q0 ${-h * 0.45} ${w * 0.3} ${-h * 0.1}V${h / 2}"/>` },
   radiateur: { nom: _tk("Radiateur"), cat: _tk("Technique"), taille: [80, 12], mots: "chauffage", d: (w, h) => {
@@ -3288,6 +3586,10 @@ const normaliserMeubles = (liste) => (Array.isArray(liste) ? liste : []).filter(
   }
   if (n.rotation != null) n.rotation = nb(n.rotation);
   if (n.chaises != null) n.chaises = Math.max(0, Math.min(12, Math.round(nb(n.chaises))));
+  // fenêtre de toit : pente du toit 0 à 75° (défaut 40 à l'affichage), hauteur du bas de la fenêtre au-dessus du sol en cm (défaut 200)
+  for (const [k, max] of [["pente", 75], ["hauteur", 1000]]) if (k in n) { if (num(n[k])) n[k] = Math.min(max, Math.max(0, +n[k])); else delete n[k]; }
+  // escalier : `etage` (étage où il mène) est un identifiant, vérifié ensuite avec la liste des étages
+  if ("etage" in n && !(typeof n.etage === "string" && ID_SUR.test(n.etage))) n.etage = null;
   if (n.teinte != null) n.teinte = n.teinte !== false && n.teinte !== "false";
   if (n.type === "forme") n.forme = normaliserForme(n.forme); else delete n.forme;
   // meuble connecté : mêmes clés que les pastilles ; une valeur invalide est retirée, jamais d'erreur
@@ -3661,7 +3963,21 @@ function passageLumiere(o, etat, portesFermees, ouv = 1) {
   const v = vitrageDe(o);
   return (v === "toute" ? 0.7 : v === "haut" ? 0.25 : 0) * ouv;
 }
-// lumière entre pièces : ouverture intérieure = une pièce de chaque côté (à 15 cm du milieu, le long de la perpendiculaire).
+// pièces de part et d'autre d'une ouverture (à 15 cm du milieu, le long de la perpendiculaire) : { p1, p2 } (-1 = aucune pièce de ce
+// côté), avec le segment, sa longueur, son milieu et sa normale ; null = segment invalide. pieces = [[poly, k]] (pièces intérieures)
+function cotesOuverture(pieces, o) {
+  if (!Array.isArray(o?.seg) || o.seg.length < 4) return null;
+  const [a, b, d, f] = o.seg.map(Number), L = Math.hypot(d - a, f - b);
+  if (![a, b, d, f].every(Number.isFinite) || L < 1) return null;
+  const nx = -(f - b) / L, ny = (d - a) / L, m = [(a + d) / 2, (b + f) / 2];
+  const cote = (sg) => pieces.find(([poly]) => dansPoly([m[0] + nx * 15 * sg, m[1] + ny * 15 * sg], poly))?.[1] ?? -1;
+  return { p1: cote(1), p2: cote(-1), L, m, nx, ny };
+}
+// ouverture intérieure : une pièce intérieure différente de chaque côté (verrière, porte intérieure : lumiereVoisins). Une fenêtre ou une
+// porte vitrée entre deux pièces qui a aussi un côté `dehors` ne compte qu'une fois : en fenêtre extérieure, son `dehors` fait foi (une
+// terrasse dessinée en pièce sans `outside` reste dehors) ; le contrôle « fenêtre intérieure avec un côté dehors » de Nettoyer le plan la signale
+const ouvertureInterieure = (pieces, o) => { const c = cotesOuverture(pieces, o); return !!c && c.p1 >= 0 && c.p2 >= 0 && c.p1 !== c.p2; };
+// lumière entre pièces : ouverture intérieure = une pièce de chaque côté (voir cotesOuverture).
 // pieces = [[poly, k]], trans[i] = part qui passe par l'ouverture i, F = Map(k → lumière de fond de la pièce éclairée par le jour).
 // Un seul saut : seules les pièces de F éclairent leurs voisines. fond = lumière de fond de la voisine (plus faible, selon la taille
 // du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine
@@ -3669,13 +3985,9 @@ function lumiereVoisins(pieces, ouvertures, trans, F) {
   const res = [];
   (ouvertures || []).forEach((o, i) => {
     const t = trans[i];
-    if (!(t > 0) || !Array.isArray(o?.seg) || o.seg.length < 4) return;
-    const [a, b, d, f] = o.seg.map(Number), L = Math.hypot(d - a, f - b);
-    if (![a, b, d, f].every(Number.isFinite) || L < 1) return;
-    const nx = -(f - b) / L, ny = (d - a) / L, m = [(a + d) / 2, (b + f) / 2];
-    const cote = (sg) => pieces.find(([poly]) => dansPoly([m[0] + nx * 15 * sg, m[1] + ny * 15 * sg], poly))?.[1] ?? -1;
-    const p1 = cote(1), p2 = cote(-1);
-    if (p1 < 0 || p2 < 0 || p1 === p2) return;
+    const c = t > 0 ? cotesOuverture(pieces, o) : null;
+    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2) return;
+    const { p1, p2, L, m, nx, ny } = c;
     const [bas, haut] = o.type === "porte" ? [0, 210] : vitrageBornes(o, L);
     for (const [de, vers, sg] of [[p1, p2, -1], [p2, p1, 1]]) {
       const Fd = F.get(de) || 0, poly = pieces.find((x) => x[1] === vers)[0];
@@ -3753,6 +4065,52 @@ function couleurLampe(s) {
   } else if (Number.isFinite(+at.color_temp_kelvin) && +at.color_temp_kelvin > 0) rgb = kelvinRgb(at.color_temp_kelvin);
   const br = Number.isFinite(+at.brightness) ? borne(+at.brightness / 255, 0, 1) : 1;
   return { rgb, force: 0.35 + 0.65 * br };
+}
+// ---------- fenêtre de toit (meuble `fenetre_toit`, `skylight` en YAML) ----------
+// Le rectangle du meuble est l'emprise de la fenêtre vue du dessus ; son bas (y = +h/2 dans le repère du meuble, avant rotation) est le
+// bas de la pente, posé à `hauteur` cm du sol (défaut 200) ; le haut monte de h × tan(`pente`) (0 à 75°, défaut 40 ; 0 = toit plat).
+const VELUX_PENTE = 40, VELUX_HAUTEUR = 200;
+const penteVelux = (m) => borne(nbOpt(m?.pente) ?? VELUX_PENTE, 0, 75), hauteurVelux = (m) => borne(nbOpt(m?.hauteur) ?? VELUX_HAUTEUR, 0, 1000);
+// part dégagée par le store ou le volet (0 à 1) : `cover` = current_position (fermé sans position = 0) ; contact, autre ou rien = 1
+function ouvertVelux(entite, etat) {
+  if (typeof entite !== "string" || !entite.startsWith("cover.") || !etat) return 1;
+  const p = parseFloat(etat.attributes?.current_position);
+  return Number.isFinite(p) ? borne(p / 100, 0, 1) : etat.state === "closed" ? 0 : 1;
+}
+// repère d'une fenêtre de toit : centre, demi-tailles, axes du meuble dans le plan (x = le long du bas, y = vers le bas de la pente)
+function repereVelux(m) {
+  const [w, h] = (Array.isArray(m?.taille) ? m.taille : [78, 118]).map((v) => bornerTaille(v, 78)), a = (nb(m?.rotation) * Math.PI) / 180;
+  const sg = m?.miroir ? -1 : 1, c = Math.cos(a), s = Math.sin(a);
+  return { cx: nb(m?.pos?.[0]), cy: nb(m?.pos?.[1]), w, h, ex: [c * sg, s * sg], ey: [-s, c] };
+}
+// tache de l'astre au sol : le vitrage (incliné de `pente` autour du bas, partie dégagée par le store depuis le bas) projeté au sol le long
+// des rayons. (ux, uy) = direction de l'astre dans le plan (vers lui), e = hauteur (°), ouvert = part dégagée (0 à 1), max = recul maximal (cm).
+// Rien si l'astre est sous 0,5°, si le store est fermé, ou si l'astre est derrière le pan de toit ou rasant (incidence de plus de 84°).
+// Retour au format de tacheLumiere : { expo, poly, aire, pres, loin, de, vers, centre }
+function tacheVelux(m, ux, uy, e, ouvert = 1, max = 900) {
+  if (![ux, uy, e, ouvert, max].every(Number.isFinite) || e <= 0.5 || ouvert <= 0.02) return null;
+  const R = repereVelux(m), p = (penteVelux(m) * Math.PI) / 180, z0 = hauteurVelux(m), er = (Math.min(e, 89) * Math.PI) / 180;
+  const ul = Math.hypot(ux, uy) || 1, sx = ux / ul, sy = uy / ul;
+  // incidence : normale du vitrage (vers le bas de la pente, inclinée de p) · direction de l'astre
+  const expo = Math.sin(p) * Math.cos(er) * (sx * R.ey[0] + sy * R.ey[1]) + Math.cos(p) * Math.sin(er);
+  if (expo <= 0.1) return null;
+  const t = Math.tan(er), r = (v) => +v.toFixed(1), k = Math.min(1, ouvert);
+  // sommet du vitrage : (x, y) dans le repère du meuble, z = hauteur au-dessus du sol ; au sol, reculé de z / tan(e) à l'opposé de l'astre
+  const sol = (x, y) => {
+    const z = z0 + (R.h / 2 - y) * Math.tan(p), d = Math.min(max, z / t);
+    return [r(R.cx + R.ex[0] * x + R.ey[0] * y - sx * d), r(R.cy + R.ex[1] * x + R.ey[1] * y - sy * d), d];
+  };
+  const yb = R.h / 2, yh = R.h / 2 - R.h * k, P = [sol(-R.w / 2, yb), sol(R.w / 2, yb), sol(R.w / 2, yh), sol(-R.w / 2, yh)];
+  const poly = P.map(([x, y]) => [x, y]);
+  let aire = 0;
+  poly.forEach((q, i) => { const n = poly[(i + 1) % 4]; aire += q[0] * n[1] - n[0] * q[1]; });
+  const mil = (a, b) => [r((a[0] + b[0]) / 2), r((a[1] + b[1]) / 2)], de = mil(P[0], P[1]), vers = mil(P[2], P[3]);
+  return { expo, poly, aire: Math.abs(aire) / 2, pres: P[0][2], loin: P[2][2], de, vers, centre: mil(de, vers) };
+}
+// emprise vue du dessus (4 coins dans le plan) : pièce qui contient la fenêtre, lueur du ciel
+function empriseVelux(m) {
+  const R = repereVelux(m), c = (x, y) => [R.cx + R.ex[0] * x + R.ey[0] * y, R.cy + R.ex[1] * x + R.ey[1] * y];
+  return [c(-R.w / 2, R.h / 2), c(R.w / 2, R.h / 2), c(R.w / 2, -R.h / 2), c(-R.w / 2, -R.h / 2)];
 }
 // flux d'énergie (`ambiance.energie`) : du tableau électrique vers chaque meuble / pastille dont la valeur est une puissance ;
 // des billes avancent à une vitesse qui suit la puissance (échelle logarithmique), plus nombreuses quand elle est forte
@@ -3941,17 +4299,20 @@ const niveauMeuble = (m) => nb(m.niveau, MEUBLES[m.type]?.niveau === 0 ? -1 : 0)
 // ordre par défaut = ordre de dessin d'avant les calques (une config sans `calques` s'affiche à l'identique)
 const CALQUES_SVG = ["pieces", "sous_zones", "halos", "meubles", "limites", "murs", "ouvertures"];
 const CALQUES_HTML = ["etiquettes", "libelles", "appareils", "textes"];
-const NOMS_CALQUES = { pieces: _tk("Pièces"), sous_zones: _tk("Sous-zones"), halos: _tk("Halos de lumière"), meubles: _tk("Meubles"), limites: _tk("Limites"), murs: _tk("Murs"), ouvertures: _tk("Ouvertures"),
+// image de fond (`background`) : sous tout le dessin, dessinée à part (crochet _dessinerFond de _construire) ; acceptée dans les
+// listes de `layers` (ordre, masqués, verrouillés)
+const CALQUE_FOND = "fond", CALQUES_SVG_CONFIG = [CALQUE_FOND, ...CALQUES_SVG];
+const NOMS_CALQUES = { fond: _tk("Image de fond"), pieces: _tk("Pièces"), sous_zones: _tk("Sous-zones"), halos: _tk("Halos de lumière"), meubles: _tk("Meubles"), limites: _tk("Limites"), murs: _tk("Murs"), ouvertures: _tk("Ouvertures"),
   etiquettes: _tk("Étiquettes des pièces"), libelles: _tk("Étiquettes des zones"), appareils: _tk("Appareils"), textes: _tk("Textes") };
-const ICONES_CALQUES = { pieces: "mdi:floor-plan", sous_zones: "mdi:selection-drag", halos: "mdi:lightbulb-on-outline", meubles: "mdi:sofa-outline", limites: "mdi:fence", murs: "mdi:wall",
+const ICONES_CALQUES = { fond: "mdi:image-outline", pieces: "mdi:floor-plan", sous_zones: "mdi:selection-drag", halos: "mdi:lightbulb-on-outline", meubles: "mdi:sofa-outline", limites: "mdi:fence", murs: "mdi:wall",
   ouvertures: "mdi:window-closed-variant", etiquettes: "mdi:label-outline", libelles: "mdi:format-letter-case", appareils: "mdi:circle-slice-8", textes: "mdi:format-text" };
 // ordre effectif : les calques connus de la liste, puis ceux qui manquent dans l'ordre par défaut
 const ordreCalques = (l, def) => [...new Set([...(Array.isArray(l) ? l.filter((x) => def.includes(x)) : []), ...def])];
 // YAML écrit à la main : listes de calques inconnus retirés, valeurs invalides supprimées (jamais d'erreur)
 function normaliserCalques(q) {
   if (!q || typeof q !== "object" || Array.isArray(q)) return null;
-  const n = { ...q }, tous = [...CALQUES_SVG, ...CALQUES_HTML];
-  for (const [k, ok] of [["ordre_svg", CALQUES_SVG], ["ordre_html", CALQUES_HTML], ["masques", tous], ["verrous", tous]]) {
+  const n = { ...q }, tous = [...CALQUES_SVG_CONFIG, ...CALQUES_HTML];
+  for (const [k, ok] of [["ordre_svg", CALQUES_SVG_CONFIG], ["ordre_html", CALQUES_HTML], ["masques", tous], ["verrous", tous]]) {
     if (!(k in n)) continue;
     if (Array.isArray(n[k])) n[k] = [...new Set(n[k].filter((x) => ok.includes(x)))]; else delete n[k];
   }
@@ -3982,7 +4343,8 @@ const seg = (s) => Array.isArray(s) && s.length >= 4 && s.slice(0, 4).every(num)
 // perd sa 3e valeur) ; un mur ou une limite garde seulement son groupe en 5e valeur (identifiant sûr)
 const ID_SUR = /^[\w.:-]{1,80}$/;
 const nbs = (q, n) => q.slice(0, n).map(Number);
-function normaliserGeometrie(c, rapport) {
+// (pre : chemin interne de la géométrie, [] à la racine, ["etages", n] pour un étage ; le rapport cumule les étages)
+function normaliserGeometrie(c, rapport, pre = []) {
   let ign = 0;
   const retires = [];
   const garde = (l, ok, fix) => { if (!Array.isArray(l)) return l; const r = []; l.forEach((o, j) => { if (ok(o)) r.push(fix(o, j)); else ign++; }); return r; };
@@ -4002,21 +4364,69 @@ function normaliserGeometrie(c, rapport) {
   });
   c.ouvertures = garde(c.ouvertures, (o) => o && typeof o === "object" && seg(o.seg), (o, i) => { if (o.seg.length > 4) retires.push(["ouvertures", i, "seg"]); return { ...o, seg: nbs(o.seg, 4) }; });
   for (const k of ["points", "textes"]) c[k] = garde(c[k], (o) => o && typeof o === "object" && point(o.pos), (o, i) => { if (o.pos.length > 2) retires.push([k, i, "pos"]); return { ...o, pos: nbs(o.pos, 2) }; });
-  if (rapport) { rapport.ignores = ign; if (retires.length) (rapport.retires ||= []).push(...retires.map(cheminPublic)); }
+  if (rapport) { rapport.ignores = (rapport.ignores || 0) + ign; if (retires.length) (rapport.retires ||= []).push(...retires.map((r) => cheminPublic([...pre, ...r]))); }
   return c;
 }
+// géométrie d'un plan (racine d'un plan à un étage, ou un étage) : coordonnées, meubles, fiches, ouvertures, panneaux des pièces, niveaux
+function normaliserGeo(c, rapport, pre = []) {
+  if (!("pieces" in c)) c.pieces = [];
+  if (!Array.isArray(c.pieces)) throw new Error(`maquette-card : « ${cheminPublic([...pre, "pieces"])} » must be a list`);
+  normaliserGeometrie(c, rapport, pre);
+  if ("meubles" in c) c.meubles = normaliserMeubles(c.meubles);
+  for (const k of ["ouvertures", "points"]) if (Array.isArray(c[k])) c[k] = normaliserPorteurs(c[k]);
+  if (Array.isArray(c.ouvertures)) c.ouvertures = normaliserOuvertures(c.ouvertures);
+  c.pieces = c.pieces.map((p) => { const q = p?.panneaux && normaliserPanneaux(p.panneaux); return q && q !== p.panneaux ? { ...p, panneaux: q } : p; });
+  for (const k of ["pieces", "points", "textes", "ouvertures", "meubles"]) if (Array.isArray(c[k])) c[k] = normaliserNiveaux(c[k]);
+  if ("panneaux" in c) c.panneaux = normaliserPanneaux(c.panneaux);
+  return c;
+}
+// ---------- étages (`floors`) : chaque étage porte sa géométrie (et au besoin ses panneaux, son fond) ; tout le reste est commun ----------
+const CLES_GEO = ["pieces", "murs", "limites", "ouvertures", "points", "textes", "meubles", "groupes"];
+// structure des étages (avant la géométrie) : liste, géométrie absente de la racine, éléments objets, identifiants sûrs et uniques,
+// étage par défaut connu ; ret : chemins internes des valeurs retirées ou corrigées
+function normaliserEtages(c, ret) {
+  if (!("etages" in c)) return;
+  if (!Array.isArray(c.etages)) throw new Error("maquette-card : « floors » must be a list of floors");
+  if (!c.etages.length) { delete c.etages; ret.push(["etages"]); return; }
+  const vide = (v) => v == null || (Array.isArray(v) && !v.length);
+  const racine = [...CLES_GEO, "fond"].filter((k) => k in c && !vide(c[k]));
+  if (racine.length) throw new Error(`maquette-card : with « floors », the plan is drawn floor by floor: move ${racine.map((k) => `« ${cheminPublic([k])} »`).join(", ")} into floors[n] (each floor has its own rooms, walls, openings…)`);
+  for (const k of [...CLES_GEO, "fond"]) delete c[k];
+  const l = [];
+  c.etages.forEach((e, i) => { if (objetSimple(e)) l.push(e); else ret.push(["etages", i]); });
+  if (!l.length) { delete c.etages; return; }
+  // identifiants : les valides gardés (le premier d'un doublon), les autres remplacés (floor_<rang>) ou suffixés (_2, _3…)
+  const pris = new Set(), libre = (base) => { let id = base, k = 2; while (pris.has(id)) id = `${base}_${k++}`; return id; };
+  const ok = l.map((e) => { const v = typeof e.id === "string" && ID_SUR.test(e.id) && !pris.has(e.id) ? e.id : null; if (v) pris.add(v); return v; });
+  l.forEach((e, n) => {
+    if (ok[n]) return;
+    const base = typeof e.id === "string" && ID_SUR.test(e.id) ? e.id.slice(0, 74) : `floor_${n + 1}`;
+    e.id = libre(base); pris.add(e.id);
+    ret.push(["etages", n, "id"]);
+  });
+  c.etages = l;
+  if ("etage_defaut" in c && !pris.has(c.etage_defaut)) { delete c.etage_defaut; ret.push(["etage_defaut"]); }
+}
+// `floor` d'un meuble : seulement sur un escalier, vers un autre étage connu (sinon retiré)
+function normaliserEscaliers(g, ids, propre, pre, ret) {
+  (Array.isArray(g.meubles) ? g.meubles : []).forEach((m, j) => {
+    if (!m || !("etage" in m) || (m.type === "escalier" && ids.includes(m.etage) && m.etage !== propre)) return;
+    delete m.etage; ret.push([...pre, "meubles", j, "etage"]);
+  });
+}
 // toute la normalisation de `setConfig` (sans la démo) : aussi utilisée par l'éditeur pour reconnaître la carte stockée
+// plan à étages : rendu replié (`floors`, sans géométrie à la racine) ; une config dépliée (`etage_actif`) est rendue dépliée sur le même étage
 function normaliserConfig(config, rapport) {
+  if (objetSimple(config?.etage_actif)) return deplier(normaliserConfig(replier(config), rapport), config.etage_actif.id);
   config = booleens({ pieces: [], ...config });
-  if (!Array.isArray(config.pieces)) throw new Error("maquette-card : « rooms » must be a list");
-  normaliserGeometrie(config, rapport);
-  if ("meubles" in config) config.meubles = normaliserMeubles(config.meubles);
-  for (const k of ["ouvertures", "points"]) if (Array.isArray(config[k])) config[k] = normaliserPorteurs(config[k]);
-  if (Array.isArray(config.ouvertures)) config.ouvertures = normaliserOuvertures(config.ouvertures);
+  const ret = [];
+  normaliserEtages(config, ret);
+  const ids = idsEtages(config);
+  if (ids.length) config.etages.forEach((e, n) => { normaliserGeo(e, rapport, ["etages", n]); normaliserEscaliers(e, ids, e.id, ["etages", n], ret); });
+  else { normaliserGeo(config, rapport); normaliserEscaliers(config, [], null, [], ret); if ("etage_defaut" in config) { delete config.etage_defaut; ret.push(["etage_defaut"]); } }
+  if (ids.length && "panneaux" in config) config.panneaux = normaliserPanneaux(config.panneaux); // panneaux communs à la maison
+  if (rapport && ret.length) (rapport.retires ||= []).push(...ret.map(cheminPublic));
   if (Array.isArray(config.modeles)) config.modeles = normaliserModeles(config.modeles);
-  if ("panneaux" in config) config.panneaux = normaliserPanneaux(config.panneaux);
-  config.pieces = config.pieces.map((p) => { const q = p?.panneaux && normaliserPanneaux(p.panneaux); return q && q !== p.panneaux ? { ...p, panneaux: q } : p; });
-  for (const k of ["pieces", "points", "textes", "ouvertures", "meubles"]) if (Array.isArray(config[k])) config[k] = normaliserNiveaux(config[k]);
   if ("calques" in config) { const q = normaliserCalques(config.calques); if (q) config.calques = q; else delete config.calques; }
   if ("interaction" in config || "tablette" in config) normaliserInteraction(config);
   // étiquettes des pièces : { nom, temperature, humidite } (des clés qui ne sont pas booléennes ailleurs) : « false » écrit en texte → false
@@ -4040,6 +4450,9 @@ const ATTR_ANIMES = new Set(["transform", "patternTransform", "gradientTransform
 // texte de style ou valeur d'attribut sans chargement ni code : url() seulement vers « #id » du document
 const cssSur = (t) => !/@import|expression\s*\(|javascript:|vbscript:|-moz-binding|behavior\s*:|\\/i.test(t) && !/url\s*\(\s*(?!["']?#)/i.test(t);
 const memeOrigine = (u) => { try { return new URL(u, location.href).origin === location.origin; } catch (e) { return false; } };
+// image de fond : du même site seulement (fichier de /local/… ou image envoyée à HA), jamais data:, blob:, javascript: ni un autre site
+const URL_FOND = /^\/(?![/\\])[\w\-./%]+\.(?:png|jpe?g|webp|avif|svg)(?:\?[\w=&.-]{0,60})?$/i, URL_FOND_HA = /^\/api\/image\/serve\/[0-9a-f]{32}\/(?:original|\d+x\d+)$/;
+const urlFond = (v) => (typeof v === "string" && v.length <= 300 && (URL_FOND.test(v) || URL_FOND_HA.test(v)) && memeOrigine(v) ? v : undefined);
 function attributSur(balise, nom, v) {
   const n = nom.toLowerCase();
   if (n.startsWith("on") || n === "is" || n === "style" && !cssSur(v)) return false;
@@ -4221,11 +4634,24 @@ function assainirConfig(c, rapport) {
     return m;
   };
   const anims = Object.fromEntries(Object.keys(EVENEMENTS_ANIM).map((k) => [k, anim]));
+  // image de fond : URL du même site, largeur > 0 obligatoires (sinon le fond entier est retiré), opacité bornée, rotation dans [0, 360)
+  const positif = (v) => (num(v) && +v > 0 ? Math.min(1e6, +v) : undefined);
+  const fond = (v, ch) => {
+    if (!objetSimple(v)) return undefined;
+    fixer(v, { image: urlFond, pos: pt, largeur: positif, hauteur: positif, rotation: (x) => (num(x) ? ((+x % 360) + 360) % 360 : undefined),
+      opacite: (x) => (num(x) ? Math.min(1, Math.max(0, +x)) : undefined), afficher: parmi(["editeur", "toujours"]) }, ch);
+    return v.image && v.largeur ? v : undefined;
+  };
+  const GEO = { pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
+    groupes: liste((g, ch) => (objetSimple(g) && idg(g.id) ? g : undefined)), fond };
+  // un étage : nom, nom court (3 caractères au plus), icône, puis sa géométrie et ses panneaux (mêmes règles qu'à la racine)
+  const R_ETAGE = { nom: (v) => (typeof v === "string" ? v : num(v) ? String(v) : undefined),
+    court: (v) => ((typeof v === "string" && v.trim()) || num(v) ? [...String(v).trim()].slice(0, 3).join("") : undefined), icone: ico, ...GEO, panneaux };
   fixer(c, {
     marge: nbF,
     palette: (v) => (objetSimple(v) ? Object.fromEntries(palette({ palette: v })) : undefined),
-    pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
-    groupes: liste((g, ch) => (objetSimple(g) && idg(g.id) ? g : undefined)),
+    ...GEO, etages: (l, ch) => (Array.isArray(l) ? l.map((e, i) => (objetSimple(e) ? fixer(e, R_ETAGE, [...ch, i]) : e)) : undefined),
+    selecteur_etages: parmi(["ascenseur", "onglets"]), etage_defaut: idg,
     panneaux, modeles: liste(modele), animations: objet(anims),
     resume: (v, ch) => (Array.isArray(v) ? liste(objet({ icone: ico, decimales: nbF, alerte_au_dessus: nbF }))(v, ch) : v),
     alertes: liste(objet({ icone: ico, au_dessus: nbF, au_dessous: nbF, niveau: parmi(Object.keys(NIVEAUX_ALERTE)) })),
@@ -4288,10 +4714,10 @@ const V_MEUBLES = { canape: "sofa", canape_angle: "corner_sofa", fauteuil: "armc
   lit_simple: "single_bed", lit_double: "double_bed", lit_bebe: "crib", table_nuit: "nightstand", armoire: "wardrobe", commode: "dresser", bureau: "desk",
   douche: "shower", baignoire: "bathtub", lavabo: "washbasin", wc: "toilet", chaudiere: "boiler", ballon: "water_heater", radiateur: "radiator",
   tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool",
-  espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom" };
+  espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom", fenetre_toit: "skylight" };
 // catégories des meubles (catalogue et meubles personnalisés `modeles[].cat`)
 const V_CATS_MEUBLES = { sejour: "living", repas: "dining", cuisine: "kitchen", chambre: "bedroom", salle_eau: "bathroom", technique: "utility", formes: "shapes", exterieur: "outdoor" };
-const V_CALQUES = { pieces: "rooms", sous_zones: "sub_areas", halos: "halos", meubles: "furniture", limites: "fences", murs: "walls", ouvertures: "openings",
+const V_CALQUES = { fond: "background", pieces: "rooms", sous_zones: "sub_areas", halos: "halos", meubles: "furniture", limites: "fences", murs: "walls", ouvertures: "openings",
   etiquettes: "room_labels", libelles: "area_labels", appareils: "badges", textes: "texts" };
 const V_WIDGETS = { tarif: "tariff", ve: "ev", jauge: "gauge", tuile: "tile", entites: "entities", periodes: "periods", separateur: "divider", commande: "cover",
   thermostat: "thermostat", climat: "climate", serrure: "lock" };
@@ -4335,7 +4761,9 @@ const N_TEXTE = nObj({ t: "text", pos: "pos", taille: "size", style: ["style", n
 const N_PRIMITIVE = nObj({ genre: ["kind", nEnum({ rect: "rect", arrondi: "rounded_rect", ellipse: "ellipse", trait: "line", polygone: "polygon" })],
   x: "x", y: "y", l: "w", h: "h", rayon: "radius", points: "points", style: ["style", nEnum({ plein: "filled", vide: "outline", tirets: "dashed" })] });
 const N_MEUBLE = nObj({ type: ["type", nEnum(V_MEUBLES)], pos: "pos", taille: "size", rotation: "rotation", miroir: "mirror", nom: "name", chaises: "chairs", teinte: "tint",
-  forme: ["shape", nListe(N_PRIMITIVE)], ...K_CONNECTE, ...K_ELEMENT });
+  forme: ["shape", nListe(N_PRIMITIVE)], ...K_CONNECTE, ...K_ELEMENT,
+  // escalier : étage où il mène (`floor`) ; fenêtre de toit (`skylight`) : pente du toit et hauteur du bas de la fenêtre
+  etage: "floor", pente: "roof_tilt", hauteur: "sill_height" });
 const N_PUCE = nObj({ type: ["type", nEnum({ ouvertures: "openings", lumieres: "lights", volets: "shutters", temperature: "temperature", entite: "entity" })],
   icone: "icon", entite: "entity", nom: "name", unite: "unit", decimales: "decimals", alerte_au_dessus: "alert_above", alerte_etat: "alert_state",
   masquer_si: "hide_if", afficher: ["show", nEnum({ absent: "away", present: "home" })], presence: "presence", ligne: "new_line", sous: "below" });
@@ -4385,10 +4813,18 @@ const N_MODELE = nObj({ id: "id", demander: ["ask", N_DEMANDER], nom: "name", ge
   cat: ["category", nEnum(V_CATS_MEUBLES)], mots: "keywords" },
 { var: ["genre", { widget: { objet: N_WIDGET }, meuble: { objet: N_MEUBLE, demander: N_DEMANDER_SIMPLE({ entite: "entity", valeur: "value", actif: "active" }) }, point: { objet: N_POINT },
   ouverture: { objet: N_OUVERTURE, demander: N_DEMANDER_SIMPLE({ contact: "contact", volet: "shutter", entite: "entity" }) } }] });
+// géométrie d'un plan : à la racine d'un plan à un étage, sinon dans chaque étage (`floors[n]`), avec les mêmes sous-schémas
+const K_GEOMETRIE = { pieces: ["rooms", nListe(N_PIECE)], murs: "walls", limites: "fences", ouvertures: ["openings", nListe(N_OUVERTURE)], points: ["badges", nListe(N_POINT)],
+  textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))] };
+// image de fond (plan scanné, photo) : coin haut gauche et taille en cm, rotation, opacité, affichée en édition seulement ou toujours
+const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "height", rotation: "rotation", opacite: "opacity",
+  afficher: ["show", nEnum({ editeur: "editor", toujours: "always" })] });
+// un étage (`floors`, du bas vers le haut) : identifiant, nom, nom court, icône, sa géométrie, ses panneaux (facultatifs) et son fond
+const N_ETAGE = nObj({ id: "id", nom: "name", court: "short", icone: "icon", ...K_GEOMETRIE, panneaux: ["panels", N_PANNEAUX], fond: ["background", N_FOND] });
 const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summary", nListe(N_PUCE)], plein_ecran: "full_page", edition: "editor", marge: "margin",
-  pieces: ["rooms", nListe(N_PIECE)], murs: "walls", limites: "fences", ouvertures: ["openings", nListe(N_OUVERTURE)], points: ["badges", nListe(N_POINT)],
-  textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })],
-  calques: ["layers", N_CALQUES], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))], panneaux: ["panels", N_PANNEAUX],
+  ...K_GEOMETRIE, afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })], fond: ["background", N_FOND],
+  etages: ["floors", nListe(N_ETAGE)], etage_defaut: "default_floor", selecteur_etages: ["floor_selector", nEnum({ ascenseur: "elevator", onglets: "tabs" })],
+  calques: ["layers", N_CALQUES], panneaux: ["panels", N_PANNEAUX],
   modeles: ["templates", nListe(N_MODELE)], ambiance: ["ambience", N_AMBIANCE], animations: ["animations", N_ANIMATIONS], alertes: ["alerts", nListe(N_ALERTE)],
   style_pastilles: ["badge_style", N_STYLE_PASTILLES], palette: "palette",
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
@@ -4466,7 +4902,8 @@ function traduire(x, n, versEn, chemin, rap) {
   return x;
 }
 // config interne (clés françaises) → format public (anglais)
-const versAnglais = (cfg, rap) => (cfg && typeof cfg === "object" && !Array.isArray(cfg) ? traduire(cfg, N_RACINE, true, "", rap) : cfg);
+// (config dépliée sur un étage, `etage_actif` : repliée d'abord, cette clé interne n'est jamais exportée)
+const versAnglais = (cfg, rap) => (cfg && typeof cfg === "object" && !Array.isArray(cfg) ? traduire(objetSimple(cfg.etage_actif) ? replier(cfg) : cfg, N_RACINE, true, "", rap) : cfg);
 // format public (anglais) → config interne ; une config entière à l'ancien format (clés françaises) est refusée avec un message clair
 function depuisAnglais(cfg, rap) {
   if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return cfg;
@@ -4477,6 +4914,67 @@ function depuisAnglais(cfg, rap) {
 
 // JSON indépendant de l'ordre des clés (HA et setConfig ne gardent pas toujours le même ordre)
 const canon = (o) => JSON.stringify(o, (k, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map((x) => [x, v[x]])) : v));
+// ---------- étages (`floors`) : la carte garde la config repliée (this._plein) et l'étage affiché déplié à la racine (this._config) ----------
+// Repliée (forme stockée, normalisée) : la géométrie de chaque étage dans `etages[n]`, rien à la racine que le commun à la maison.
+// Dépliée sur un étage : sa géométrie (et ses panneaux s'il a les siens) à la racine, comme un plan à un étage, les autres étages
+// restent dans `etages` ; l'étage déplié n'y garde que son identité (id, nom, court, icône). Une seule clé interne, `etage_actif`
+// ({ id, propres : panneaux de l'étage, panneaux : ceux de la maison mis de côté }), jamais exportée (versAnglais replie d'abord).
+// Sans `etages` : deplier et replier rendent une copie identique.
+const CLES_ETAGE = ["pieces", "murs", "limites", "ouvertures", "points", "textes", "meubles", "groupes", "fond"];
+// identifiants des étages, du bas vers le haut ([] sans étages)
+const idsEtages = (c) => (Array.isArray(c?.etages) ? c.etages.map((e) => e?.id).filter((x) => typeof x === "string") : []);
+// étage affiché au chargement : `default_floor`, sinon le mémorisé s'il existe encore, sinon le premier ; null sans étages
+function etageInitial(c, memo = null) {
+  const l = idsEtages(c);
+  if (!l.length) return null;
+  return l.includes(c.etage_defaut) ? c.etage_defaut : l.includes(memo) ? memo : l[0];
+}
+function deplier(plein, id) {
+  const c = copie(plein);
+  if (!objetSimple(c) || objetSimple(c.etage_actif) || !Array.isArray(c.etages) || !c.etages.length) return c;
+  let i = c.etages.findIndex((e) => e?.id === id);
+  if (i < 0) i = Math.max(0, c.etages.findIndex((e) => e?.id === etageInitial(c)));
+  const e = objetSimple(c.etages[i]) ? c.etages[i] : {}, ident = {}, geo = {}, actif = { id: e.id };
+  for (const [k, v] of Object.entries(e)) (CLES_ETAGE.includes(k) || k === "panneaux" ? geo : ident)[k] = v;
+  for (const k of CLES_ETAGE) delete c[k];
+  if ("panneaux" in geo) {
+    actif.propres = true;
+    if ("panneaux" in c) actif.panneaux = c.panneaux;
+    delete c.panneaux;
+  }
+  c.etages[i] = ident;
+  return Object.assign(c, geo, { etage_actif: actif });
+}
+function replier(deplie) {
+  const c = copie(deplie);
+  if (!objetSimple(c) || !objetSimple(c.etage_actif)) return c;
+  const A = c.etage_actif, geo = {};
+  delete c.etage_actif;
+  for (const k of CLES_ETAGE) if (k in c) { geo[k] = c[k]; delete c[k]; }
+  if (A.propres) {
+    if ("panneaux" in c) geo.panneaux = c.panneaux;
+    delete c.panneaux;
+    if ("panneaux" in A) c.panneaux = A.panneaux;
+  }
+  if (!Array.isArray(c.etages)) c.etages = [];
+  const i = c.etages.findIndex((e) => e?.id === A.id);
+  // étage déplié introuvable (retiré de la liste pendant l'édition) : sa géométrie est remise en dernier plutôt que perdue
+  if (i < 0) c.etages.push({ id: A.id, ...geo }); else c.etages[i] = { ...c.etages[i], ...geo };
+  return c;
+}
+// toute la maison, étage par étage (lecture seule : ne pas modifier) : config repliée ou dépliée ; sans étages, un seul (id null).
+// court : celui de l'étage, sinon son rang depuis 0 ; geo : listes de l'étage ([] si absentes) et fond (ou null) ;
+// panneaux : ceux de l'étage, null s'il prend ceux de la maison
+function parEtage(c) {
+  if (!objetSimple(c)) return [];
+  const A = objetSimple(c.etage_actif) ? c.etage_actif : null, L = Array.isArray(c.etages) && c.etages.length ? c.etages : [null];
+  return L.map((e, i) => {
+    const ici = e === null || (A && e?.id === A.id), s = ici ? c : objetSimple(e) ? e : {}, geo = {};
+    for (const k of CLES_ETAGE) geo[k] = k === "fond" ? (objetSimple(s.fond) ? s.fond : null) : Array.isArray(s[k]) ? s[k] : [];
+    const panneaux = e === null ? null : ici ? (A?.propres ? c.panneaux ?? null : null) : e?.panneaux ?? null;
+    return { id: e?.id ?? null, nom: e?.nom ?? null, court: e?.court ?? String(i), icone: e?.icone ?? null, geo, panneaux };
+  });
+}
 class MaquetteCard extends HTMLElement {
   static PUCES = [{ type: "ouvertures" }, { type: "lumieres" }, { type: "volets" }, { type: "temperature" }];
   static MEUBLES = MEUBLES;
@@ -4486,7 +4984,7 @@ class MaquetteCard extends HTMLElement {
   static normaliserForme = normaliserForme;
   static traitsOuverture = traitsOuverture;
   static LUMIERE = { couche: coucheLumiere, tache: tacheLumiere, baies: baiesFenetres, couleur: couleurLampe, phases: PHASES_LUNE, ciel: LUM_CIEL, kelvin: kelvinRgb,
-    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames };
+    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure };
   static couleurSure = (c) => !!couleurSure(c);
   static couleurEcrite = couleurEcrite;
   static palette = palette;
@@ -4509,6 +5007,8 @@ class MaquetteCard extends HTMLElement {
   static etatCombine = etatCombine;
   static versAnglais = versAnglais;
   static SCHEMA_ANGLAIS = N_RACINE;
+  // étages : config repliée ↔ dépliée sur un étage, toute la maison par étage, identifiants, étage du chargement
+  static ETAGES = { deplier, replier, parEtage, ids: idsEtages, etageInitial, CLES_ETAGE };
   // valeurs par défaut des réglages globaux (panneau ⚙ Paramètres de l'éditeur)
   // outils communs à la carte et à l'éditeur (une seule définition, lue par l'éditeur au chargement)
   static outils = { dansPoly, distBord, entitesZone, esc, fmt, canon, GENRES_FICHE, porteurDe, deCle, BASCULES, NOMS_OUVERTURE, initiales, borne,
@@ -4546,13 +5046,19 @@ class MaquetteCard extends HTMLElement {
     this._retires = ret;
     if (this._editeur) {
       // config rechargée après notre propre enregistrement : on garde l'éditeur ouvert
-      if (canon(config) === canon(this._editeur.original)) return;
+      if (canon(config) === canon(replier(this._editeur.original))) return;
       // modifiée ailleurs pendant l'édition : on garde le travail en cours, le conflit sera proposé à l'enregistrement
       this._editeur.externe = JSON.parse(JSON.stringify(config));
       this._editeur.snack(_t("Ce plan vient d'être modifié ailleurs : à l'enregistrement, tu choisiras de garder ta version ou non."), _t("Exporter le mien"), () => this._editeur.exporter(), 12000);
       return;
     }
-    this._config = JSON.parse(JSON.stringify(config));
+    // étages : _plein = config repliée (normalisée), _config = l'étage affiché déplié à la racine, _etage = son id (null sans étages)
+    // étage du chargement : `default_floor`, sinon le dernier vu sur ce navigateur, sinon le premier ; même plan à étages rechargé
+    // (enregistrement, tableau de bord modifié) : on reste sur l'étage affiché s'il existe encore
+    const reste = idsEtages(this._plein).length > 1 && this._plein.id === config.id && idsEtages(config).includes(this._etage);
+    this._plein = JSON.parse(JSON.stringify(config));
+    this._etage = reste ? this._etage : etageInitial(this._plein, stock.lire(this._cleEtage()));
+    this._config = deplier(this._plein, this._etage);
     this._ok = false;
     if (relangue) this._textesSquelette();
     if (this._hass) this._construire();
@@ -4666,6 +5172,9 @@ class MaquetteCard extends HTMLElement {
     if (!this._ok || !this.isConnected || !(interactionDe(this._config).retour > 0)) return;
     if (this._editeur || this._rp?.lecture) return this._activite();
     this.revenirAuPlan();
+    // étages : retour à `default_floor` (sinon au premier), même vue figée
+    const e = etageInitial(this._plein, null);
+    if (e != null && e !== this._etage) this._changerEtage(e);
   }
   // retour au plan entier : fiche et menu des calques fermés, replay en pause fermé (retour au direct), vue de la pièce fermée, zoom initial
   revenirAuPlan() {
@@ -4767,13 +5276,14 @@ class MaquetteCard extends HTMLElement {
   getCardSize() { return 14; }
   getGridOptions() { return { columns: "full", rows: "auto" }; }
 
+  // entités suivies : celles de TOUTE la maison (résumé, alertes et pastilles d'étage comptent tous les étages) ; sans étages, la config
   _entites() {
-    const c = this._config, l = [];
-    for (const p of c.pieces) l.push(p.temperature, p.humidite);
-    for (const t of c.textes || []) if (Array.isArray(t?.infos)) for (const x of t.infos) l.push(x?.entite);
-    for (const o of c.ouvertures || []) { l.push(...contactsDe(o), o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
-    for (const p of c.points || []) { l.push(p.entite, p.actif, p.valeur); for (const w of p.fiche?.widgets || []) l.push(...entitesWidget(w)); }
-    for (const m of c.meubles || []) { l.push(m.entite, m.actif, m.valeur); for (const w of m.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    const c = this._config, l = [], E = parEtage(c);
+    for (const e of E) for (const p of e.geo.pieces) l.push(p.temperature, p.humidite);
+    for (const e of E) for (const t of e.geo.textes) if (Array.isArray(t?.infos)) for (const x of t.infos) l.push(x?.entite);
+    for (const e of E) for (const o of e.geo.ouvertures) { l.push(...contactsDe(o), o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    for (const e of E) for (const p of e.geo.points) { l.push(p.entite, p.actif, p.valeur); for (const w of p.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    for (const e of E) for (const m of e.geo.meubles) { l.push(m.entite, m.actif, m.valeur); for (const w of m.fiche?.widgets || []) l.push(...entitesWidget(w)); }
     for (const w of [...(c.panneaux?.gauche || []), ...(c.panneaux?.droite || [])]) l.push(...entitesWidget(w));
     for (const q of this._puces()) if (q.afficher === "absent" || q.afficher === "present") l.push(q.presence || presenceDefaut(c)); // puces selon la présence
     for (const p of c.pieces) for (const w of [...(p.panneaux?.gauche || []), ...(p.panneaux?.droite || [])]) l.push(...entitesWidget(w));
@@ -4785,7 +5295,7 @@ class MaquetteCard extends HTMLElement {
     l.push(...this._listePersonnes(A).map((p) => p.entite));
     for (const r of Array.isArray(c.alertes) ? c.alertes : []) if (r && typeof r === "object") {
       l.push(r.entite, ...(Array.isArray(r.entites) ? r.entites : []), r.si_absent ? r.presence || presenceDefaut(c) : null);
-      if (r.type === "ouvertures") for (const o of c.ouvertures || []) l.push(...contactsDe(o), o.entite);
+      if (r.type === "ouvertures") for (const e of E) for (const o of e.geo.ouvertures) l.push(...contactsDe(o), o.entite);
     }
     return [...new Set(l.filter((e) => typeof e === "string" && e.includes(".")))];
   }
@@ -4911,13 +5421,9 @@ class MaquetteCard extends HTMLElement {
     if (this._rp) this._replayFermer();
     this._ouverture = true;
     try {
-      // version HACS : l'éditeur est embarqué dans le même fichier ; version de développement : module à part
-      let EditeurPlan = globalThis.MaquetteEditeur;
-      if (!EditeurPlan) {
-        const url = new URL("maquette-editeur.js" + new URL(import.meta.url).search, import.meta.url);
-        ({ EditeurPlan } = await import(url.href));
-      }
-      if (this.isConnected) new EditeurPlan(this, reprise);
+      // l'éditeur est embarqué dans le même fichier (build.mjs : globalThis.MaquetteEditeur)
+      const EditeurPlan = globalThis.MaquetteEditeur;
+      if (EditeurPlan && this.isConnected) new EditeurPlan(this, reprise);
     } finally { this._ouverture = false; }
   }
 
@@ -4944,14 +5450,34 @@ class MaquetteCard extends HTMLElement {
     return [p.x, p.y];
   }
 
+  // cadre du plan : celui de l'étage affiché, ou l'union de tous les étages (la carte ne change ni d'échelle ni de hauteur d'un étage
+  // à l'autre ; l'image de fond n'y entre pas) — en vue, calculée une fois par config et par largeur affichée
   bornes(sansVitrine = false) {
-    const c = this._config, xs = [], ys = [];
+    const c = this._config, m = c.marge ?? 40;
+    let b;
+    if (idsEtages(c).length > 1) {
+      const P = this.shadowRoot?.querySelector(".plan>.zone")?.clientWidth || this.clientWidth || 800, K = this._bornesEt;
+      if (!this._editeur && K && K.plein === this._plein && K.P === P) b = K.b;
+      else {
+        const l = parEtage(c).map((e) => this._bornesGeo({ ...e.geo, marge: c.marge }, true)).filter(Boolean);
+        b = l.length ? l.reduce((u, q) => { const x0 = Math.min(u.x0, q.x0), y0 = Math.min(u.y0, q.y0); return { x0, y0, W: Math.max(u.x0 + u.W, q.x0 + q.W) - x0, H: Math.max(u.y0 + u.H, q.y0 + q.H) - y0 }; })
+          : this._bornesGeo(c);
+        this._bornesEt = this._editeur ? null : { plein: this._plein, P, b };
+      }
+    } else b = this._bornesGeo(c);
+    if (!c.vitrine || sansVitrine) return b;
+    const v = geoVitrine(c, b), X0 = Math.min(b.x0, v.x - m), Y0 = Math.min(b.y0, v.y - m);
+    return { x0: X0, y0: Y0, W: Math.max(b.x0 + b.W, v.x + v.w + m) - X0, H: Math.max(b.y0 + b.H, v.y + v.H + m) - Y0 };
+  }
+  // cadre d'une géométrie (listes d'un étage, ou la config) ; vide : null si `nulSiVide`, sinon 0..500
+  _bornesGeo(c, nulSiVide = false) {
+    const xs = [], ys = [];
     const ajoute = (x, y) => { xs.push(x); ys.push(y); };
     c.pieces.forEach((p) => p.poly.forEach(([x, y]) => ajoute(x, y)));
     [...(c.murs || []), ...(c.limites || []), ...(c.ouvertures || []).map((o) => o.seg)].forEach(([a, b, d, e]) => { ajoute(a, b); ajoute(d, e); });
     (c.points || []).forEach((p) => ajoute(...p.pos));
     (c.meubles || []).forEach((m) => { const [w, h] = [0, 1].map((j) => nb((m.taille || MEUBLES[m.type]?.taille || [60, 60])[j], 60)), r = Math.hypot(w, h) / 2; ajoute(nb(m.pos?.[0]) - r, nb(m.pos?.[1]) - r); ajoute(nb(m.pos?.[0]) + r, nb(m.pos?.[1]) + r); });
-    if (!xs.length) ajoute(0, 0), ajoute(500, 500);
+    if (!xs.length) { if (nulSiVide) return null; ajoute(0, 0), ajoute(500, 500); }
     const m = c.marge ?? 40;
     let x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m, x1 = Math.max(...xs) + m, y1 = Math.max(...ys) + m;
     // textes figés et zones d'informations (centrés sur leur position, police en px : clamp(10px, 1,2 % de la largeur, 13px)) :
@@ -4973,10 +5499,7 @@ class MaquetteCard extends HTMLElement {
         }
       }
     }
-    const b = { x0, y0, W: x1 - x0, H: y1 - y0 };
-    if (!c.vitrine || sansVitrine) return b;
-    const v = geoVitrine(c, b), X0 = Math.min(b.x0, v.x - m), Y0 = Math.min(b.y0, v.y - m);
-    return { x0: X0, y0: Y0, W: Math.max(b.x0 + b.W, v.x + v.w + m) - X0, H: Math.max(b.y0 + b.H, v.y + v.H + m) - Y0 };
+    return { x0, y0, W: x1 - x0, H: y1 - y0 };
   }
 
   // calques effectifs : ordre de dessin, masqués (config, afficher_meubles, choix du visiteur en vue) et verrouillés (édition seulement)
@@ -5122,6 +5645,7 @@ class MaquetteCard extends HTMLElement {
     }
     this._lumCle = null;
     this._meteoCle = null; this._fluxCle = null;
+    svg += this._dessinerFond?.(c, { ed, Q, cq }) || ""; // image de fond (calque « fond »), sous tout le dessin
     for (const k of Q.svg) {
       if (k === "halos") svg += amb;
       if (voir(k)) svg += `<g class="cq${k === "meubles" ? " meubles" : ""}${k === "halos" && lampes ? " fondu" : ""}${cq(k)}" data-cq="${k}"${k === "meubles" && !ed ? ` aria-hidden="true"` : ""}>${S[k]}</g>`;
@@ -5245,6 +5769,7 @@ class MaquetteCard extends HTMLElement {
     this._editeur?.apresConstruction();
     this._mise();
     this._reprise();
+    this._apresConstruireEtages?.();
   }
 
   vue() { return this._vue || this._box; }
@@ -5394,6 +5919,376 @@ class MaquetteCard extends HTMLElement {
     window.addEventListener("pointermove", mv); window.addEventListener("pointerup", up);
   }
 
+  // ---------- étages : sélecteur (ascenseur au bord du plan, ou barre d'onglets en haut de la carte), changement, mémoire ----------
+  // dernier étage vu, par carte (propre à ce navigateur, jamais dans la config)
+  _cleEtage() { return `maquette-etage:${this._plein?.id || this._config?.id || "plan"}`; }
+  // étage affiché : celui que l'éditeur a déplié s'il est ouvert, sinon this._etage
+  _etageAffiche() { return this._config?.etage_actif?.id ?? this._etage ?? null; }
+
+  // change l'étage affiché (vue seulement ; en édition, l'éditeur s'en charge) : vue de pièce, zoom, fiche et glisser remis à zéro ;
+  // `centrer: [x, y]` (cm) : la vue se centre sur ce point (escalier d'arrivée, élément à montrer). Renvoie true si c'est fait.
+  _changerEtage(id, { centrer } = {}) {
+    if (this._editeur) return this._editeur.changerEtage ? (this._editeur.changerEtage(id), true) : false;
+    if (!this._plein || !idsEtages(this._plein).includes(id)) return false;
+    const R = this.shadowRoot, d = R?.querySelector("dialog.mf");
+    if (d?.open) d.close();
+    if (R) this._menuCalques(false);
+    cancelAnimationFrame(this._anim);
+    this._aBouge = false;
+    R?.querySelector(".zone")?.classList.remove("panne");
+    const autre = id !== this._etage;
+    this._iso = null; this._vue = null;
+    if (autre) { this._etage = id; this._config = deplier(this._plein, id); }
+    stock.ecrire(this._cleEtage(), id); // stockage indisponible : l'étage vaut pour cette page
+    // vue figée (lock_view) : pas de zoom, le pincement et « Toute la maison » sont coupés et n'en sortiraient pas
+    const ok = Array.isArray(centrer) && Number.isFinite(+centrer[0]) && Number.isFinite(+centrer[1]);
+    this._centrerAttente = ok && !this._figee() ? [+centrer[0], +centrer[1]] : null;
+    if (!this._hass) return true; // construit à l'arrivée de hass, centrage compris (_apresConstruireEtages)
+    this._construire();
+    // fondu court (rien sans animation ou si le système demande moins de mouvement)
+    const z = R?.querySelector(".zone");
+    if (autre && z?.animate && !this._sansFondu()) z.animate([{ opacity: 0.25 }, { opacity: 1 }], { duration: 180, easing: "cubic-bezier(.2,0,0,1)" });
+    return true;
+  }
+  _sansFondu() { return this._niveauAnim() === "aucun" || matchMedia("(prefers-reduced-motion: reduce)").matches; }
+
+  // choix dans le sélecteur ou au clavier : l'éditeur ouvert replie d'abord ses données (L4), sinon changement de la vue
+  _choisirEtage(id) {
+    if (id == null || id === this._etageAffiche()) return;
+    if (this._editeur) this._editeur.changerEtage?.(id);
+    else this._changerEtage(id);
+  }
+  // étage voisin dans l'ordre de `floors` (du bas vers le haut) : sens +1 = au-dessus
+  _etageVoisin(sens) {
+    const l = parEtage(this._config).map((e) => e.id), i = l.indexOf(this._etageAffiche());
+    return i < 0 ? null : l[i + sens] ?? null;
+  }
+
+  // crochet de fin de _construire : sélecteur dessiné (ou retiré) selon le nombre d'étages, l'option et l'édition
+  _apresConstruireEtages() {
+    const R = this.shadowRoot, card = R?.querySelector("ha-card");
+    if (!card) return;
+    const ed = !!this._editeur, E = parEtage(this._config).filter((e) => e.id != null);
+    const voir = E.length > 1 || (ed && !!this._editeur?.afficherSelecteur && E.length > 0);
+    const onglets = this._config.selecteur_etages === "onglets";
+    const avant = !!R.querySelector(".etages.onglets:not([hidden])");
+    for (const [cl, ici] of [["ascenseur", !onglets], ["onglets", onglets]]) {
+      let el = R.querySelector(`.etages.${cl}`);
+      if (!voir || !ici) { if (el) el.hidden = true; continue; }
+      if (!el) el = this._creerSelecteur(cl);
+      el.hidden = false;
+      this._dessinerSelecteur(el, E, cl === "onglets");
+    }
+    // la barre d'onglets prend de la hauteur à la carte : pleine page recalculée quand elle apparaît ou disparaît
+    if (avant !== !!R.querySelector(".etages.onglets:not([hidden])")) this._mise();
+    this._suivreAscenseur();
+    this._centrerEnAttente();
+  }
+  // ascenseur en haut à droite du plan, zoom en bas à droite : quand le plan est trop bas pour les deux empilés,
+  // l'ascenseur passe à gauche de la colonne du zoom (classe .serre) ; revu à chaque changement de taille du plan ou du zoom
+  _suivreAscenseur() {
+    const R = this.shadowRoot, a = R.querySelector(".etages.ascenseur:not([hidden])");
+    this._roAsc?.disconnect();
+    if (!a) return;
+    this._roAsc ??= new ResizeObserver(() => this._placerAscenseur());
+    for (const el of [R.querySelector(".plan"), R.querySelector(".zoom")]) if (el) this._roAsc.observe(el);
+    this._placerAscenseur();
+  }
+  _placerAscenseur() {
+    const R = this.shadowRoot, a = R?.querySelector(".etages.ascenseur:not([hidden])"), z = R?.querySelector(".zoom");
+    if (!a) return;
+    a.classList.remove("serre");
+    if (!z || getComputedStyle(z).display === "none") return;
+    const A = a.getBoundingClientRect(), Z = z.getBoundingClientRect();
+    if (Z.height > 0 && A.bottom + 8 > Z.top) a.classList.add("serre");
+  }
+  // centrage demandé par _changerEtage (zoom ×2,5 sur le point), appliqué une fois le plan construit
+  _centrerEnAttente() {
+    const c = this._centrerAttente, B = this._box;
+    this._centrerAttente = null;
+    if (!c || this._editeur || this._figee() || !(B?.W > 0 && B?.H > 0)) return;
+    const W = B.W / 2.5, H = W * B.H / B.W;
+    this._cadrer({ x0: c[0] - W / 2, y0: c[1] - H / 2, W, H });
+  }
+
+  _creerSelecteur(cl) {
+    const R = this.shadowRoot, el = document.createElement("div");
+    el.className = `etages ${cl}`;
+    if (cl === "onglets") R.querySelector(".barre").after(el); else R.querySelector(".plan").append(el);
+    el.addEventListener("click", (ev) => {
+      const ch = ev.composedPath(), b = ch.find((n) => n.dataset?.etage != null), g = ch.find((n) => n.dataset?.etagesGerer != null);
+      if (!b && !g) return;
+      ev.stopPropagation(); // jamais jusqu'aux clics du plan ni de l'éditeur
+      if (g) return this._editeur?.ouvrirEtages?.();
+      this._choisirEtage(b.dataset.etage);
+    });
+    el.addEventListener("keydown", (ev) => {
+      const b = ev.target.closest?.("[data-etage]");
+      if (!b) return;
+      const l = [...el.querySelectorAll("[data-etage]")], i = l.indexOf(b), vert = cl === "ascenseur";
+      const pas = { [vert ? "ArrowUp" : "ArrowLeft"]: -1, [vert ? "ArrowDown" : "ArrowRight"]: 1 }[ev.key];
+      const j = pas ? (i + pas + l.length) % l.length : ev.key === "Home" ? 0 : ev.key === "End" ? l.length - 1 : -1;
+      if (j < 0) return;
+      ev.preventDefault();
+      ev.stopPropagation();
+      const id = l[j].dataset.etage;
+      this._choisirEtage(id);
+      [...el.querySelectorAll("[data-etage]")].find((x) => x.dataset.etage === id)?.focus();
+    });
+    if (!this._clavierEtages) {
+      // PageUp / PageDown sur le plan : étage au-dessus / au-dessous
+      this._clavierEtages = true;
+      R.querySelector(".plan").addEventListener("keydown", (ev) => {
+        if ((ev.key !== "PageUp" && ev.key !== "PageDown") || ev.altKey || ev.ctrlKey || ev.metaKey) return;
+        if (ev.target.closest?.("input,textarea,select,[contenteditable]")) return;
+        if (R.querySelector(".etages:not([hidden])") == null) return;
+        const id = this._etageVoisin(ev.key === "PageUp" ? 1 : -1);
+        ev.preventDefault();
+        if (id != null) this._choisirEtage(id);
+      });
+    }
+    return el;
+  }
+
+  _dessinerSelecteur(el, E, onglets) {
+    const actif = this._etageAffiche(), P = this._pastillesEtages?.() || {}, ed = !!this._editeur;
+    const focus = el.contains(this.shadowRoot.activeElement);
+    // ascenseur : l'étage du haut en haut ; barre : du bas vers le haut, de gauche à droite
+    const l = onglets ? E : [...E].reverse();
+    const bouton = (e) => {
+      const nom = e.nom || e.court, on = e.id === actif, p = P[e.id] === "rouge" || P[e.id] === "ambre" ? ` ${P[e.id]}` : "";
+      return `<button type="button" role="tab" class="et-b${on ? " on" : ""}" data-etage="${esc(e.id)}" aria-selected="${on}" tabindex="${on ? 0 : -1}"
+        ${onglets ? "" : `title="${esc(nom)}" aria-label="${esc(nom)}"`}>${onglets ? `<ha-icon icon="${esc(e.icone || "mdi:layers-outline")}"></ha-icon><span class="et-n">${esc(nom)}</span>`
+        : `<span class="et-c">${esc(e.court)}</span>`}<span class="et-pastille${p}" aria-hidden="true"></span></button>`;
+    };
+    const gerer = ed && typeof this._editeur?.ouvrirEtages === "function"
+      ? `<button type="button" class="et-gerer" data-etages-gerer title="${esc(_t("Gérer les étages"))}" aria-label="${esc(_t("Gérer les étages"))}"><ha-icon icon="mdi:layers-edit"></ha-icon>${onglets ? `<span class="et-n">${_t("Gérer")}</span>` : ""}</button>` : "";
+    poserHTML(el, `<div class="et-l" role="tablist" aria-label="${esc(_t("Étages"))}" aria-orientation="${onglets ? "horizontal" : "vertical"}">${l.map(bouton).join("")}</div>${gerer}`);
+    if (!l.some((e) => e.id === actif)) el.querySelector("[data-etage]")?.setAttribute("tabindex", "0");
+    if (focus) el.querySelector('[tabindex="0"]')?.focus();
+  }
+  // ---------- toute la maison : résumé, alertes et pastilles comptent tous les étages, pas seulement l'affiché ----------
+  // étages de la maison (ETAGES.parEtage), l'affiché d'abord : un élément présent sur deux étages (lumière d'escalier) revient
+  // à l'étage affiché. Sans étages : un seul, id null, avec les listes de la config (résumé et alertes identiques à avant).
+  _maisonEtages() {
+    const E = parEtage(this._config), ici = this._etageAffiche?.() ?? null;
+    return [...E.filter((e) => e.id === ici), ...E.filter((e) => e.id !== ici)];
+  }
+  _plusieursEtages() { return parEtage(this._config).filter((e) => e.id != null).length > 1; }
+
+  // entités portées par les éléments d'un étage (pièces, ouvertures, pastilles, meubles, zones d'infos)
+  _entitesEtage(E) {
+    const G = E.geo, s = new Set();
+    for (const p of G.pieces) s.add(p?.temperature).add(p?.humidite);
+    for (const o of G.ouvertures) { for (const e of contactsDe(o)) s.add(e); s.add(o?.entite).add(o?.volet); }
+    for (const p of [...G.points, ...G.meubles]) s.add(p?.entite).add(p?.actif).add(p?.valeur);
+    for (const t of G.textes) for (const x of Array.isArray(t?.infos) ? t.infos : []) s.add(x?.entite);
+    s.delete(undefined); s.delete(null);
+    return s;
+  }
+  // étage d'une entité qui n'est PAS sur l'étage affiché (null si elle y est, ou si la maison n'a qu'un étage)
+  _etageAilleurs(ent) {
+    if (!this._plusieursEtages()) return null;
+    const ici = this._etageAffiche();
+    for (const E of this._maisonEtages()) if (this._entitesEtage(E).has(ent)) return E.id === ici ? null : E;
+    return null;
+  }
+
+  // résumé de toute la maison : ouvertures ouvertes (un nom par baie et par étage), lumières allumées, volets baissés,
+  // températures intérieures ; chaque élément garde son étage, son genre, son rang dans l'étage et son centre (aller à l'élément).
+  // Une entité déjà comptée sur un autre étage (l'affiché passe d'abord) ne l'est pas deux fois.
+  _resumeMaison() {
+    const r = { ouvertures: [], lumieres: [], volets: [], temperature: [] }, vus = { o: new Set(), l: new Set(), t: new Set() }, voletsVus = new Set();
+    const milieu = (s) => (Array.isArray(s) && s.length >= 4 ? [(nb(s[0]) + nb(s[2])) / 2, (nb(s[1]) + nb(s[3])) / 2] : null);
+    for (const E of this._maisonEtages()) {
+      const G = E.geo, et = E.id, noms = new Set(), ici = { o: [], l: [], t: [] };
+      G.ouvertures.forEach((o, i) => {
+        const ent = entOuv(o), s = ent ? this._etatOuverture(o) : null;
+        if (ent && s && (s.state === "on" || s.state === "open")) {
+          const cles = contactsDe(o).length ? contactsDe(o) : [o.entite], n = o.baie || o.nom || this._nom(ent);
+          ici.o.push(...cles);
+          if (!cles.every((e) => vus.o.has(e)) && !noms.has(n)) { noms.add(n); r.ouvertures.push({ etage: et, genre: "ouverture", i, nom: n, ent, centre: milieu(o.seg) }); }
+        }
+        if (o.volet) {
+          const sv = this._etat(o.volet);
+          let pos = sv ? sv.attributes.current_position : undefined;
+          if (pos == null && sv) pos = sv.state === "closed" ? 0 : 100;
+          if (pos != null && pos < 50 && !voletsVus.has(o.volet)) r.volets.push({ etage: et, genre: "ouverture", i, nom: o.baie || o.nom || this._nom(o.volet), ent: o.volet, val: pos + globalThis.MaquetteI18n.pct(), centre: milieu(o.seg) });
+          voletsVus.add(o.volet);
+        }
+      });
+      G.points.forEach((p, i) => {
+        if (!(p?.entite || "").startsWith("light.") || !this._actif(p)) return;
+        ici.l.push(p.entite);
+        if (!vus.l.has(p.entite)) r.lumieres.push({ etage: et, genre: "point", i, nom: p.nom || this._nom(p.entite), ent: p.entite, centre: Array.isArray(p.pos) ? p.pos.map(nb) : null });
+      });
+      G.pieces.forEach((p, i) => {
+        const t = this._num(p.temperature, p.attribut_temperature);
+        if (p.sous_zone || t == null || p.dehors) return;
+        ici.t.push(p.temperature);
+        if (!vus.t.has(p.temperature)) r.temperature.push({ etage: et, genre: "piece", i, nom: p.nom, ent: p.temperature, t, val: `${fmt(t)} °C`, centre: this._centrePiece(p) });
+      });
+      for (const k of ["o", "l", "t"]) for (const e of ici[k]) vus[k].add(e);
+    }
+    return r;
+  }
+  _centrePiece(p) {
+    if (Array.isArray(p?.etiquette)) return p.etiquette.map(nb);
+    const l = Array.isArray(p?.poly) ? p.poly : [];
+    if (!l.length) return null;
+    const xs = l.map((q) => nb(q[0])), ys = l.map((q) => nb(q[1]));
+    return [(Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...ys) + Math.max(...ys)) / 2];
+  }
+
+  // pastilles des boutons d'étage (sélecteur L1), pour les étages NON affichés : rouge = une alerte active (non masquée) touche
+  // un élément de l'étage ; ambre = une ouverture ouverte ou une pastille `alert` allumée. Rien en édition ni à un seul étage.
+  _pastillesEtages() {
+    const L = this._maisonEtages().filter((e) => e.id != null);
+    if (L.length < 2 || this._editeur) return {};
+    const ici = this._etageAffiche(), S = new Map(L.map((e) => [e.id, this._entitesEtage(e)])), surIci = S.get(ici) || new Set(), out = {};
+    const autres = L.filter((e) => e.id !== ici);
+    for (const a of this._alertesActives().filter((x) => !this._alertesVues?.has(x.sig)))
+      for (const ent of a.on) if (!surIci.has(ent)) for (const e of autres) if (S.get(e.id).has(ent)) out[e.id] = "rouge";
+    for (const x of this._resumeMaison().ouvertures) if (x.etage !== ici && !out[x.etage]) out[x.etage] = "ambre";
+    for (const e of autres) if (!out[e.id] && e.geo.points.some((p) => p?.alerte && !surIci.has(p.entite) && this._actif(p))) out[e.id] = "ambre";
+    return out;
+  }
+  // pastilles tenues à jour à chaque changement d'état (le sélecteur n'est redessiné qu'à la construction)
+  _majPastillesEtages() {
+    const l = this.shadowRoot?.querySelectorAll(".etages [data-etage]");
+    if (!l?.length) return;
+    const P = this._pastillesEtages();
+    l.forEach((b) => { const s = b.querySelector(".et-pastille"), p = P[b.dataset.etage]; if (s) s.className = `et-pastille${p ? ` ${p}` : ""}`; });
+  }
+
+  // ---------- détail d'une puce du résumé (ouvertures, lumières, volets, température) : liste groupée par étage ----------
+  static TITRES_DETAIL = { ouvertures: _tk("Ouvertures ouvertes"), lumieres: _tk("Lumières allumées"), volets: _tk("Volets baissés"), temperature: _tk("Températures") };
+  static ICONES_DETAIL = { ouvertures: "mdi:window-open-variant", lumieres: "mdi:lightbulb-on", volets: "mdi:window-shutter", temperature: "mdi:thermometer" };
+  static CSS_DETAIL = `.det-maison{position:absolute;top:8px;z-index:6;min-width:220px;max-width:min(320px,calc(100% - 16px));max-height:min(360px,70vh);overflow:auto;
+padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var(--md-on-surface);box-shadow:0 2px 6px 2px rgba(0,0,0,.15),0 1px 2px rgba(0,0,0,.3)}
+.det-maison .t{padding:4px 16px 8px;color:var(--md-on-surface-variant);font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);letter-spacing:.5px;text-transform:uppercase}
+.det-maison .g{padding:8px 16px 4px;color:var(--md-primary);font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
+.det-maison button{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:0 16px 0 12px;border:0;background:none;color:inherit;font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);text-align:left;cursor:pointer}
+.det-maison button:hover,.det-maison button:focus-visible{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent);outline:none}
+.det-maison button span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.det-maison button small{color:var(--md-on-surface-variant);font-size:12px}
+.det-maison ha-icon{--mdc-icon-size:20px;color:var(--md-on-surface-variant);flex:none}`;
+
+  // clic sur une puce du résumé (hors édition, puces sans entité) : son détail
+  _brancherResume() {
+    const tete = this.shadowRoot?.querySelector(".tete");
+    if (!tete || tete._maison) return;
+    tete._maison = true;
+    tete.addEventListener("click", (ev) => {
+      if (this._editeur) return;
+      const pu = ev.composedPath().find((n) => n.dataset?.puce != null);
+      if (pu && pu.dataset.e == null) this._detailPuce(+pu.dataset.puce, pu);
+    });
+  }
+  _detailPuce(i, puce) {
+    const R = this.shadowRoot, plan = R.querySelector(".plan"), type = this._puces()[i]?.type;
+    const ouvert = plan.querySelector(":scope>.det-maison");
+    this._fermerDetail();
+    if (ouvert?._puce === i || !MaquetteCard.TITRES_DETAIL[type]) return;
+    const l = this._resumeMaison()[type];
+    if (!l.length) return;
+    if (!R.querySelector("style[data-maison]")) { const st = document.createElement("style"); st.dataset.maison = ""; st.textContent = MaquetteCard.CSS_DETAIL; R.append(st); }
+    const plus = this._plusieursEtages(), E = parEtage(this._config), ic = MaquetteCard.ICONES_DETAIL[type];
+    // groupes dans l'ordre des étages (du bas vers le haut), titre d'étage seulement s'il y en a plusieurs
+    const groupes = plus ? E.map((e) => ({ e, l: l.filter((x) => x.etage === e.id) })).filter((g) => g.l.length) : [{ e: null, l }];
+    const d = document.createElement("div");
+    d.className = "det-maison"; d._puce = i; d._l = l;
+    d.setAttribute("role", "dialog"); d.setAttribute("aria-label", _t(MaquetteCard.TITRES_DETAIL[type]));
+    poserHTML(d, `<div class="t">${esc(_t(MaquetteCard.TITRES_DETAIL[type]))}</div>${groupes.map((g) => (g.e ? `<div class="g">${esc(g.e.nom || g.e.court)}</div>` : "")
+      + g.l.map((x) => `<button type="button" data-aller="${l.indexOf(x)}"><ha-icon icon="${ic}"></ha-icon><span>${esc(x.nom)}</span>${x.val ? `<small>${esc(x.val)}</small>` : ""}</button>`).join("")).join("")}`);
+    d.addEventListener("click", (ev) => {
+      ev.stopPropagation(); // jamais jusqu'aux clics du plan
+      const b = ev.composedPath().find((n) => n.dataset?.aller != null);
+      if (b) this._allerElement(l[+b.dataset.aller]);
+    });
+    d.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); this._fermerDetail(); } });
+    this._horsDetail = (ev) => { if (!ev.composedPath().some((n) => n === d || n === puce)) this._fermerDetail(); };
+    window.addEventListener("pointerdown", this._horsDetail, true);
+    const rp = plan.getBoundingClientRect(), rc = puce.getBoundingClientRect();
+    plan.append(d);
+    d.style.left = `${Math.max(8, Math.min(rc.left - rp.left, rp.width - d.offsetWidth - 8))}px`;
+    d.querySelector("button")?.focus();
+  }
+  _fermerDetail() {
+    this.shadowRoot?.querySelector(".plan>.det-maison")?.remove();
+    if (this._horsDetail) window.removeEventListener("pointerdown", this._horsDetail, true);
+    this._horsDetail = null;
+  }
+  // aller à l'élément : sur un autre étage, l'étage change et la vue se centre dessus ; puis le comportement habituel du toucher
+  // (vue de la pièce, fiche de l'ouverture ou de la pastille, sinon « plus d'infos »)
+  _allerElement(x) {
+    this._fermerDetail();
+    if (!x) return;
+    const piece = x.genre === "piece", vue = piece && interactionDe(this._config).clic === "vue";
+    if (x.etage != null && x.etage !== this._etageAffiche()) this._changerEtage(x.etage, vue ? {} : { centrer: x.centre });
+    if (piece) {
+      const p = this._config.pieces[x.i];
+      if (!p || p.zoom === false) return;
+      if (vue) return this.isoler(x.i);
+      if (interactionDe(this._config).clic === "infos") this._plusInfos(p.clic || p.temperature);
+      return;
+    }
+    if (!this._clicPorteur(x.genre, x.i)) this._plusInfos(x.ent);
+  }
+  // ---------- image de fond (plan scanné, photo) : calque « fond », sous tout le dessin ----------
+  // Dessinée en édition ; en vue seulement avec `show: always` (et le calque non masqué) : sinon rien n'est chargé, replay compris.
+  // L'<image> est créée à part (createElementNS + setAttribute) avec l'URL revalidée, jamais posée par HTML : le filet retire
+  // toute <image> d'un fragment. Le crochet de _construire reçoit ici un <g> vide, rempli juste après la pose du SVG.
+  static urlFond(v) { return urlFond(v) || null; }
+  _dessinerFond(c, { ed, Q }) {
+    const f = c.fond, url = f && urlFond(f.image);
+    this._fondAPoser = null;
+    if (!url || !(+f.largeur > 0) || (!ed && (f.afficher !== "toujours" || Q.masques.has(CALQUE_FOND)))) return "";
+    this._fondAPoser = { f, url };
+    queueMicrotask(() => this._poserFond());
+    const cls = `${Q.masques.has(CALQUE_FOND) ? " c-masque" : ""}${ed && this._fondVerrouille() ? " c-verrou" : ""}`;
+    return `<g class="cq fond${cls}" data-cq="${CALQUE_FOND}" aria-hidden="true"></g>`;
+  }
+  // verrouillé par défaut en édition (on clique à travers, l'image ne bouge pas) ; « déverrouiller » vaut pour la session d'édition
+  _fondVerrouille() {
+    const e = this._editeur;
+    return !e || !e.fondLibre || (this._config?.calques?.verrous || []).includes(CALQUE_FOND);
+  }
+  // largeur, hauteur (cm) et transformation : hauteur absente → ratio naturel de l'image (connu une fois chargée)
+  _geoFond(f, url) {
+    const [x, y] = Array.isArray(f.pos) && f.pos.length === 2 && f.pos.every((v) => Number.isFinite(+v)) ? f.pos.map(Number) : [0, 0];
+    const w = +f.largeur, r = this._fondRatios?.get(url), h = +f.hauteur > 0 ? +f.hauteur : r ? w * r : null, rot = +f.rotation || 0;
+    return { x, y, w, h, rot, tr: rot && h ? `rotate(${rot} ${x + w / 2} ${y + h / 2})` : "" };
+  }
+  _poserFond() {
+    const p = this._fondAPoser, g = p && this.shadowRoot?.querySelector(`.zone svg>g[data-cq="${CALQUE_FOND}"]`);
+    if (!g || g.firstChild) return;
+    const { f, url } = p, im = document.createElementNS("http://www.w3.org/2000/svg", "image"), G = this._geoFond(f, url);
+    const fixer = (G2) => {
+      for (const [k, v] of [["x", G2.x], ["y", G2.y], ["width", G2.w], ["height", G2.h]]) if (v != null) im.setAttribute(k, String(v));
+      if (G2.tr) im.setAttribute("transform", G2.tr); else im.removeAttribute("transform");
+    };
+    fixer(G);
+    im.setAttribute("preserveAspectRatio", "none");
+    im.setAttribute("opacity", String(Number.isFinite(+f.opacite) ? Math.min(1, Math.max(0, +f.opacite)) : 0.5));
+    im.setAttribute("decoding", "async");
+    im.setAttribute("class", "fond-image");
+    im.style.pointerEvents = "none";
+    if (G.h == null) {
+      // ratio naturel : lu une fois (même fichier, déjà en cache), gardé pour les reconstructions suivantes
+      im.addEventListener("load", () => {
+        const i = new Image();
+        i.src = url;
+        i.decode().then(() => {
+          if (!i.naturalWidth || !i.naturalHeight) return;
+          (this._fondRatios ||= new Map()).set(url, i.naturalHeight / i.naturalWidth);
+          if (im.isConnected) fixer(this._geoFond(f, url));
+        }, () => {});
+      }, { once: true });
+    }
+    im.setAttribute("href", url);
+    g.append(im);
+  }
   _plusInfos(e) {
     if (this._sim) return; // démo : pas de fenêtre « plus d'infos » (entités simulées)
     if (!e) return;
@@ -5404,6 +6299,7 @@ class MaquetteCard extends HTMLElement {
 
   _clicMeuble(i) {
     const m = this._config.meubles?.[i];
+    if (this._versEtage(m)) return this._prendreEscalier(m);
     if (!estConnecte(m)) return;
     const mode = clicMeuble(m);
     if (mode === "infos") return this._plusInfos(m.entite || m.valeur);
@@ -5417,6 +6313,43 @@ class MaquetteCard extends HTMLElement {
     if (mode === "fiche") this._ouvrirFiche(genre, i);
     else if (mode === "infos") this._plusInfos(this._enteteFiche(genre, o).infos);
     return true;
+  }
+
+  // ---------- escaliers reliés à un autre étage (`floor`, interne `etage`) ----------
+  // étage visé par un escalier : un autre étage connu du plan, sinon null
+  _cibleEscalier(m) {
+    if (m?.type !== "escalier" || typeof m.etage !== "string") return null;
+    return idsEtages(this._config).includes(m.etage) && m.etage !== this._etageAffiche() ? m.etage : null;
+  }
+  // toucher l'escalier = aller à l'étage visé, sauf si le meuble règle lui-même son toucher (`tap`, ex. `tap: card`)
+  _versEtage(m) { return !this._editeur && !("clic" in (m || {})) && this._cibleEscalier(m) != null; }
+  // à l'arrivée, vue centrée sur l'escalier qui revient à l'étage de départ (le plus proche s'il y en a plusieurs), sinon sur la même position
+  _prendreEscalier(m) {
+    const dep = this._etageAffiche(), cible = this._cibleEscalier(m), pos = [+m.pos[0], +m.pos[1]];
+    const l = (parEtage(this._config).find((e) => e.id === cible)?.geo.meubles || []).filter((x) => x?.type === "escalier" && x.etage === dep && Array.isArray(x.pos));
+    const d2 = (x) => (x.pos[0] - pos[0]) ** 2 + (x.pos[1] - pos[1]) ** 2;
+    const retour = l.reduce((a, x) => (!a || d2(x) < d2(a) ? x : a), null);
+    return this._changerEtage?.(cible, { centrer: retour ? [+retour.pos[0], +retour.pos[1]] : pos });
+  }
+  // une fois par plan construit (premier _maj qui suit) : flèche ↑ / ↓ selon l'ordre de `floors`, symbole touchable,
+  // bouton du calque (clavier, lecteur d'écran, infobulle « Aller à : … ») ; rien pour un escalier sans `floor`
+  _escaliers() {
+    const R = this.shadowRoot, svg = R?.querySelector(".zone svg"), calque = R?.querySelector(".zone .calque");
+    if (!svg || svg === this._escSvg) return;
+    this._escSvg = svg;
+    const c = this._config, L = parEtage(c), rang = (id) => L.findIndex((e) => e.id === id), ici = rang(this._etageAffiche());
+    const { x0, y0, W, H } = this.vue();
+    (c.meubles || []).forEach((m, i) => {
+      const id = this._cibleEscalier(m), g = id != null && svg.querySelector(`[data-mb="${i}"]`);
+      if (!g) return; // escalier sans étage visé, ou calque des meubles masqué
+      const e = L[rang(id)], txt = _t("Aller à : {etage}", { etage: e.nom || e.court });
+      g.querySelector(".esc-sens")?.setAttribute("transform", rang(id) > ici ? "rotate(0)" : "rotate(180)");
+      if (!this._versEtage(m)) return;
+      g.classList.add("connecte"); // le symbole entier se touche (même chemin que les meubles connectés : _clicMeuble)
+      if (!calque || calque.querySelector(`:scope>[data-mbq="${i}"]`)) return;
+      const [x, y] = [+m.pos[0], +m.pos[1]];
+      ajouterHTML(calque, `<button class="mb esc" data-mbq="${i}" data-x="${x}" data-y="${y}" style="left:${((x - x0) / W * 100).toFixed(3)}%;top:${((y - y0) / H * 100).toFixed(3)}%" title="${esc(txt)}" aria-label="${esc(txt)}"><span class="v"></span></button>`);
+    });
   }
 
   _ficheOuvrable(genre, o) { return genre === "meuble" ? estConnecte(o) : clicPorteur(o) === "fiche"; }
@@ -5566,6 +6499,7 @@ class MaquetteCard extends HTMLElement {
   }
 
   _fiche() {
+    this._escaliers();
     const R = this.shadowRoot, f = R.querySelector(".fiche"), c = this._config;
     const iso = this._iso != null && !this._editeur ? c.pieces[this._iso] : null;
     f.hidden = !iso;
@@ -6226,14 +7160,14 @@ class MaquetteCard extends HTMLElement {
 
   _maj() {
     const c = this._config, R = this.shadowRoot;
-    const ouvertes = [], temps = [], teinte = teinteTemp(c), EP = etiquettesPieces(c);
-    let lumieres = 0, voletsBas = 0;
-    const voletsVus = new Set(); // un volet partagé par deux vantaux ne compte qu'une fois
+    const teinte = teinteTemp(c), EP = etiquettesPieces(c);
+    // résumé : toute la maison (tous les étages, une entité comptée une fois ; classe-maison.js)
+    const RS = this._resumeMaison(), ouvertes = RS.ouvertures.map((x) => x.nom), temps = RS.temperature.map((x) => x.t);
+    const lumieres = RS.lumieres.length, voletsBas = RS.volets.length;
 
     c.pieces.forEach((p, i) => {
       const t = this._num(p.temperature, p.attribut_temperature), h = this._num(p.humidite, p.attribut_humidite);
       if (p.sous_zone) return;
-      if (t != null && !p.dehors) temps.push(t);
       const poly = R.querySelector(`[data-p="${i}"]`);
       if (!p.dehors && poly) {
         const col = teinte && couleurTempEchelle(t, teinte);
@@ -6252,7 +7186,7 @@ class MaquetteCard extends HTMLElement {
       if (ent) {
         if (!s || ["unavailable", "unknown"].includes(s.state)) cl?.add("inconnu");
         else if (["opening", "closing"].includes(s.state)) cl?.add("bouge");
-        else if (s.state === "on" || s.state === "open") { cl?.add("ouvert"); const n = o.baie || o.nom || this._nom(ent); if (!ouvertes.includes(n)) ouvertes.push(n); }
+        else if (s.state === "on" || s.state === "open") cl?.add("ouvert");
         txt = _t("{nom} : {etat}", { nom: o.nom || this._nom(ent), etat: s ? this._hass.formatEntityState?.(s) ?? s.state : "?" });
       }
       if (o.volet) {
@@ -6265,8 +7199,6 @@ class MaquetteCard extends HTMLElement {
           v.classList.toggle("bouge", bouge); v.classList.toggle("monte", bouge && sv.state === "opening");
           v.style.opacity = bouge ? Math.max(0.85, 1 - (pos ?? 0) / 100) : pos == null ? 0.15 : Math.max(0, Math.min(1, 1 - pos / 100));
         }
-        if (pos != null && pos < 50 && !voletsVus.has(o.volet)) voletsBas++;
-        voletsVus.add(o.volet);
         if (sv) txt += _t(" · volet {etat}", { etat: pos != null ? pos + globalThis.MaquetteI18n.pct() : sv.state });
       }
       if (g) g.querySelector("title").textContent = txt;
@@ -6276,7 +7208,6 @@ class MaquetteCard extends HTMLElement {
     const st = stylePastilles(c), ed = !!this._editeur;
     (c.points || []).forEach((p, i) => {
       const b = R.querySelector(`[data-q="${i}"]`), s = this._etat(p.entite), actif = this._actif(p);
-      if ((p.entite || "").startsWith("light.") && actif) lumieres++;
       const h = R.querySelector(`[data-h="${i}"]`);
       if (h) h.setAttribute("opacity", actif ? 1 : 0);
       if (h?.classList.contains("lampe") && actif) {
@@ -6369,6 +7300,8 @@ class MaquetteCard extends HTMLElement {
     this._majFlux();
     this._majPersonnes();
     this._majAlertes();
+    this._majPastillesEtages();
+    this._brancherResume();
     // les pastilles changent de largeur avec leur valeur : les étiquettes recouvertes sont replacées (une fois par image)
     cancelAnimationFrame(this._rafEvite);
     this._rafEvite = requestAnimationFrame(() => this._eviterPastilles());
@@ -6511,7 +7444,8 @@ class MaquetteCard extends HTMLElement {
     (Array.isArray(c.alertes) ? c.alertes : []).forEach((r, i) => {
       if (!r || typeof r !== "object" || r.actif === false) return;
       if (r.si_absent && this._quelquun(r.presence) !== false) return;
-      const ents = r.type === "ouvertures" ? (c.ouvertures || []).flatMap((o) => [...contactsDe(o), ...(contactsDe(o).length ? [] : [o.entite])]) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
+      // ouvertures de toute la maison (tous les étages)
+      const ents = r.type === "ouvertures" ? parEtage(c).flatMap((e) => e.geo.ouvertures).flatMap((o) => [...contactsDe(o), ...(contactsDe(o).length ? [] : [o.entite])]) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
       const vide = (v) => v == null || v === "";
       const on = [...new Set(ents.filter((e) => typeof e === "string"))].filter((e) => {
         const s = this._etat(e);
@@ -6542,7 +7476,12 @@ class MaquetteCard extends HTMLElement {
     if (!bd) { bd = document.createElement("div"); bd.setAttribute("role", "alert"); plan.append(bd); }
     v.className = `alerte-voile ${a0.niv}`; bd.className = `bandeau-al ${a0.niv}`;
     plan.style.setProperty("--al-c", COUL[a0.niv]);
-    const nomDe = (e) => { const o = (this._config.ouvertures || []).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e)); return o?.baie || o?.nom || this._nom(e); };
+    // nom de l'élément concerné (ouverture de n'importe quel étage, l'affiché d'abord), suivi de son étage s'il n'est pas affiché
+    const nomDe = (e) => {
+      const o = this._maisonEtages().flatMap((E) => E.geo.ouvertures).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e));
+      const n = o?.baie || o?.nom || this._nom(e), E = this._etageAilleurs(e);
+      return E ? _t("{nom} ({etage})", { nom: n, etage: E.nom || E.court }) : n;
+    };
     const html = `<ha-icon icon="${esc(a0.r.icone || NIVEAUX_ALERTE[a0.niv].icone)}"></ha-icon><span class="t"><b>${esc(a0.r.nom || _t("Alerte"))}</b>
       <small>${esc([...new Set(a0.on.map(nomDe))].join(", "))}${l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : ""}</small></span>
       <button class="ib" data-al="infos" title="${_t("Détails")}" aria-label="${_t("Détails")}"><ha-icon icon="mdi:information-outline"></ha-icon></button>
@@ -6566,13 +7505,15 @@ class MaquetteCard extends HTMLElement {
 
   // ---------- replay de la journée (`replay: true` ou {heures}) ----------
   // l'historique de toutes les entités suivies est chargé une fois (attributs pour les volets, le soleil, la météo, les personnes),
-  // puis le plan entier (couleurs, ouvertures, volets, lumières, ambiance, personnes, alertes, panneaux) est rendu à l'instant choisi
+  // puis le plan entier (couleurs, ouvertures, volets, lumières, ambiance, personnes, alertes, panneaux) est rendu à l'instant choisi.
+  // Étages : un seul chargement pour toute la maison ; changer d'étage pendant la lecture garde l'heure (l'étage affiché montre ses
+  // états à l'instant t, pastilles d'étage du sélecteur comprises)
   async _replayOuvrir() {
     if (this._rp || this._editeur) return;
     const c = this._config, h = borne(+(c.replay?.heures ?? 24) || 24, 1, 72), fin = Math.ceil(Date.now() / 60000) * 60000, debut = fin - h * 3600e3; // calé sur la minute
     const rp = (this._rp = { debut, fin, t: debut, vitesse: vitesseReplay(c.replay), lecture: false, pret: false, series: {}, cache: new Map() });
     this._barreReplay(_t("Chargement de l'historique…"));
-    const ents = this._suivies.filter((e) => !e.startsWith("zone.") || e === "zone.home" || e === presenceDefaut(c));
+    const ents = this._rpEntites().filter((e) => !e.startsWith("zone.") || e === "zone.home" || e === presenceDefaut(c));
     const avecAttr = ents.filter((e) => /^(cover|sun|weather|person|climate|media_player)\./.test(e)), sans = ents.filter((e) => !avecAttr.includes(e));
     // entités à attributs : réponse complète (sans `minimal_response`, HA ne renverrait les attributs que pour le premier état et
     // écarterait les changements d'attributs seuls : soleil, position d'un volet, personne, vent) ; les autres : états seuls, réponse minimale
@@ -6596,6 +7537,16 @@ class MaquetteCard extends HTMLElement {
     } catch (err) {
       if (this._rp === rp) this._barreReplay(_t("Historique indisponible : {msg}", { msg: err?.message || err }));
     }
+  }
+  // entités suivies de tous les étages : celles de l'étage affiché (déjà toute la maison pour le plan, le résumé et les alertes),
+  // plus les panneaux propres et les fiches des autres étages, lus étage par étage sur la config dépliée
+  _rpEntites() {
+    const P = this._plein, ids = idsEtages(P), c0 = this._config, s = new Set(this._suivies || []);
+    if (ids.length < 2) return [...s];
+    try {
+      for (const id of ids) if (id !== this._etageAffiche()) { this._config = deplier(P, id); for (const e of this._entites()) s.add(e); }
+    } finally { this._config = c0; }
+    return [...s];
   }
   _rpEtat(e) {
     const rp = this._rp, l = rp.series[e];
@@ -6666,16 +7617,10 @@ class MaquetteCard extends HTMLElement {
     R.querySelector('[data-z="replay"]')?.classList.add("on");
     const fermer = `<button class="ib" data-rp="direct" title="${_t("Revenir au direct")}" aria-label="${_t("Revenir au direct")}"><ha-icon icon="mdi:close"></ha-icon></button>`;
     if (msg || !rp.pret) { poserHTML(bar, `<ha-icon icon="mdi:history"></ha-icon><span class="rp-msg">${esc(msg || _t("Chargement…"))}</span>${fermer}`); return; }
-    const n = Math.round((rp.fin - rp.debut) / 60000), c = this._config, marques = [];
-    const pos = (t) => (((t - rp.debut) / (rp.fin - rp.debut)) * 100).toFixed(2);
-    const ajoute = (e, test, cls) => { let p = null; for (const x of rp.series[e] || []) { if (x.lu >= rp.debut && test(x.s) && !(p && test(p.s))) marques.push(`<i class="${cls}" style="left:${pos(x.lu)}%"></i>`); p = x; } };
-    for (const o of c.ouvertures || []) for (const e of contactsDe(o).length ? contactsDe(o) : [o.entite].filter(Boolean)) ajoute(e, (v) => v === "on" || v === "open", "m-ouv");
-    for (const p of c.points || []) if ((p.entite || "").startsWith("light.")) ajoute(p.entite, (v) => v === "on", "m-lum");
-    // repères d'arrivée : pas pour une personne cachée à la maison comme dehors (elle n'apparaît jamais sur le plan)
-    const PP = couchePersonnes(c.ambiance);
-    for (const p of this._listePersonnes(c.ambiance)) { const a = affPersonne(PP, p.entite); if (a.dehors !== "cache" || a.chez_soi !== "cache") ajoute(p.entite, (v) => v === "home", "m-pers"); }
+    const n = Math.round((rp.fin - rp.debut) / 60000);
+    rp.etageFrise = this._etageAffiche();
     poserHTML(bar, `<button class="ib" data-rp="lecture" title="${_t("Lecture")}" aria-label="${_t("Lecture")}"><ha-icon icon="mdi:play"></ha-icon></button>
-      <div class="rp-piste"><div class="rp-marques" aria-hidden="true">${marques.join("")}</div><input type="range" min="0" max="${n}" step="1" aria-label="${_t("Moment de la journée")}"></div>
+      <div class="rp-piste"><div class="rp-marques" aria-hidden="true">${this._marquesReplay()}</div><input type="range" min="0" max="${n}" step="1" aria-label="${_t("Moment de la journée")}"></div>
       <span class="rp-heure"></span>
       <select aria-label="${_t("Vitesse")}">${VITESSES_REPLAY.map(([v, t]) => `<option value="${v}" ${v === rp.vitesse ? "selected" : ""}>${t}</option>`).join("")}</select>${fermer}`);
     const r = bar.querySelector("input");
@@ -6685,9 +7630,40 @@ class MaquetteCard extends HTMLElement {
     bar.querySelector("select").onchange = (ev) => { rp.vitesse = +ev.target.value; };
     this._majBarreReplay();
   }
+  // repères de la frise (ouvertures ouvertes, lumières allumées, arrivées) : ceux de l'étage affiché pleins, ceux des autres étages
+  // estompés (classe `autre`) ; une entité présente sur deux étages (lumière d'escalier) compte pour l'étage affiché.
+  // Sans étages : un seul étage, aucun repère estompé (frise identique).
+  _marquesReplay() {
+    const rp = this._rp, c = this._config, ici = this._etageAffiche(), marques = [], vus = new Set();
+    const pos = (t) => (((t - rp.debut) / (rp.fin - rp.debut)) * 100).toFixed(2);
+    const ajoute = (e, test, cls) => {
+      if (vus.has(`${cls}|${e}`)) return;
+      vus.add(`${cls}|${e}`);
+      let p = null;
+      for (const x of rp.series[e] || []) { if (x.lu >= rp.debut && test(x.s) && !(p && test(p.s))) marques.push(`<i class="${cls}" style="left:${pos(x.lu)}%"></i>`); p = x; }
+    };
+    const E = parEtage(c);
+    for (const et of [...E.filter((x) => x.id === ici), ...E.filter((x) => x.id !== ici)]) {
+      const autre = et.id != null && et.id !== ici ? " autre" : "";
+      for (const o of et.geo.ouvertures) for (const e of contactsDe(o).length ? contactsDe(o) : [o?.entite].filter(Boolean)) ajoute(e, (v) => v === "on" || v === "open", `m-ouv${autre}`);
+      for (const p of et.geo.points) if ((p?.entite || "").startsWith("light.")) ajoute(p.entite, (v) => v === "on", `m-lum${autre}`);
+    }
+    // repères d'arrivée (toute la maison) : pas pour une personne cachée à la maison comme dehors (elle n'apparaît jamais sur le plan)
+    const PP = couchePersonnes(c.ambiance);
+    for (const p of this._listePersonnes(c.ambiance)) { const a = affPersonne(PP, p.entite); if (a.dehors !== "cache" || a.chez_soi !== "cache") ajoute(p.entite, (v) => v === "home", "m-pers"); }
+    return marques.join("");
+  }
+  // étage changé pendant le replay (lecture ou pause) : repères redessinés pour le nouvel étage affiché, l'heure ne bouge pas
+  _majFriseEtage() {
+    const rp = this._rp, m = rp?.pret && this.shadowRoot?.querySelector(".plan>.replay .rp-marques");
+    if (!m || rp.etageFrise === this._etageAffiche()) return;
+    rp.etageFrise = this._etageAffiche();
+    poserHTML(m, this._marquesReplay());
+  }
   _majBarreReplay() {
     const rp = this._rp, bar = this.shadowRoot?.querySelector(".plan>.replay");
     if (!rp?.pret || !bar) return;
+    this._majFriseEtage();
     const r = bar.querySelector("input"), h = bar.querySelector(".rp-heure"), b = bar.querySelector('[data-rp="lecture"]');
     if (r && !rp.tient) r.value = String(Math.round((rp.t - rp.debut) / 60000)); // curseur tenu au doigt : on ne le bouscule pas
     const d = new Date(rp.t), auj = new Date().toDateString() === d.toDateString();
@@ -6748,6 +7724,7 @@ class MaquetteCard extends HTMLElement {
   _majTraces() {
     const R = this.shadowRoot, c = this._config, tr = !this._editeur && coucheTraces(c.ambiance);
     if (!R) return;
+    if (this._rp) this._majFriseEtage(); // replay : un changement d'étage en pause reconstruit le plan sans passer par la frise
     if (!tr) { R.querySelectorAll(".zone .trace:not(.vit-pt)").forEach((e) => { e.classList.remove("trace"); e.style.removeProperty("--t"); }); return; }
     const l = [];
     (c.ouvertures || []).forEach((o, i) => l.push([R.querySelector(`.zone svg [data-o="${i}"]`), contactsDe(o).length > 1 ? o : entOuv(o) || o.volet]));
@@ -6765,6 +7742,8 @@ class MaquetteCard extends HTMLElement {
     });
   }
 
+  // fenêtres de toit (calculs purs, voir carte/velux.js) : pour les tests et l'éditeur
+  static VELUX = { tache: tacheVelux, ouvert: ouvertVelux, emprise: empriseVelux, pente: penteVelux, hauteur: hauteurVelux };
   // thème sombre : fond de la carte peu lumineux (sinon, carte transparente : réglage sombre de HA)
   _sombre() {
     const t = getComputedStyle(this.shadowRoot.querySelector("ha-card")).backgroundColor, c = t.match(/[\d.]+/g)?.map(Number), k = t.startsWith("color(") ? 1 : 255;
@@ -6775,6 +7754,7 @@ class MaquetteCard extends HTMLElement {
   // jour / nuit : teinte bleu nuit selon la hauteur du soleil (plus forte sur les extérieurs), lumière venant du côté du soleil
   // (azimut + `nord`), plus chaude au lever et au coucher ; repère du soleil au bord du plan ; météo redessinée quand elle change
   _majAmbiance() {
+    this._majVelux();
     const R = this.shadowRoot, A = this._config.ambiance, g = R?.querySelector(".zone svg .amb");
     if (!A || !g) return;
     const I = intensiteAmb(A), b = this._box, nord = +A.nord || 0, jn = coucheJour(A);
@@ -6811,6 +7791,19 @@ class MaquetteCard extends HTMLElement {
     this._majLumiere(I, nord);
   }
 
+  // store des fenêtres de toit reliées à un `cover` : hauteur du store dessiné selon current_position (ambiance ou non) ;
+  // un contact (binary_sensor) ne change que l'état du meuble (contour actif), pas le store
+  _majVelux() {
+    const R = this.shadowRoot;
+    (this._config?.meubles || []).forEach((m, i) => {
+      if (m?.type !== "fenetre_toit") return;
+      const st = R?.querySelector(`.zone svg [data-mb="${i}"] .vx-store`);
+      if (!st) return;
+      const k = typeof m.entite === "string" && m.entite.startsWith("cover.") ? 1 - ouvertVelux(m.entite, this._etat(m.entite)) : 0, h = +(+st.dataset.h * k).toFixed(1);
+      if (st.getAttribute("height") !== String(h)) st.setAttribute("height", h);
+    });
+  }
+
   // entité de phase de la lune : celle choisie, sinon celle de l'intégration Moon (sensor.moon_phase, ancien nom sensor.moon)
   _entiteLune(LU) { return LU.phase || ["sensor.moon_phase", "sensor.moon"].find((e) => this._etat(e)) || "sensor.moon_phase"; }
 
@@ -6843,8 +7836,10 @@ class MaquetteCard extends HTMLElement {
       const st = contactsDe(o).length ? this._etatOuverture(o)?.state : null;
       return passageLumiere(o, st == null || ETATS_MUETS.includes(st) ? null : st, LU.portes === "fermees", ouv[i] ?? 1);
     });
+    // fenêtres de toit : [meuble, part dégagée par le store] (contact : sans effet sur la lumière)
+    const vel = (c.meubles || []).map((m, i) => [m, m?.type === "fenetre_toit" ? ouvertVelux(m.entite, m.entite ? this._etat(m.entite) : null) : null, i]).filter((x) => x[1] != null);
     const M = LU.mult, K = LU.kelvin, D = LU.diffusion;
-    const cle = [M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
+    const cle = [vel.map(([m, v]) => `${v.toFixed(2)}@${JSON.stringify([m.pos, m.taille, m.rotation, m.miroir, m.pente, m.hauteur])}`).join(";"), M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
       PL ? `${Math.round(PL.az)},${Math.round(PL.haut)}` : "", trans.map((v) => v.toFixed(2)).join(",")].join("|");
     if (cle === this._lumCle) return;
     this._lumCle = cle;
@@ -6913,6 +7908,10 @@ class MaquetteCard extends HTMLElement {
     const cCiel = K.ciel ? kRgb(K.ciel) : sombre ? "#fff2da" : "#ffe3a6", cLune = sombre ? "#9fb4ff" : "#7986cb";
     const cSoleil = K.soleil ? kRgb(K.soleil) : dore > 0.5 ? (sombre ? "#ffcc80" : "#ffb74d") : (sombre ? "#fff3b0" : "#ffd54f");
     const cRediff = K.soleil ? kRgb(Math.max(1800, K.soleil - 400)) : dore > 0.5 ? (sombre ? "#ffb870" : "#ffa726") : (sombre ? "#ffe9a8" : "#ffca28");
+    // fenêtre ou porte vitrée entre deux pièces intérieures avec un côté `dehors` : fenêtre extérieure seulement, pas aussi une verrière
+    // (voir ouvertureInterieure)
+    const polys = pieces.map(([p, k]) => [p.poly, k]);
+    const passe = trans.map((t, i) => (t > 0 && vitrageDe(c.ouvertures[i]) && c.ouvertures[i].dehors && ouvertureInterieure(polys, c.ouvertures[i]) ? 0 : t));
     for (const B of baiesFenetres(c.ouvertures, ouv)) {
       if (B.ouvert <= 0.02) continue;
       const k = salle(B);
@@ -6945,11 +7944,42 @@ class MaquetteCard extends HTMLElement {
         lueur("lum-rediff", k, c0, dir, rl * 0.7, rl * 0.6, cLune, op1(M.rediffusion * k0 * 0.25 * s));
       }
     }
+    // fenêtres de toit : lueur du ciel sous la fenêtre (et part de la lumière de fond), tache de soleil ou de lune projetée au sol,
+    // coupée par la pièce qui contient la fenêtre ; store baissé = tache raccourcie, fermé = rien
+    for (const [m, ov, i] of vel) {
+      if (ov <= 0.02) continue;
+      const emp = empriseVelux(m), mil = [(emp[0][0] + emp[2][0]) / 2, (emp[0][1] + emp[2][1]) / 2];
+      const k = pieces.find(([p]) => dansPoly(mil, p.poly))?.[1] ?? -1;
+      if (k < 0) continue;
+      const L = Math.hypot(emp[1][0] - emp[0][0], emp[1][1] - emp[0][1]) || 1, P = Math.hypot(emp[3][0] - emp[0][0], emp[3][1] - emp[0][1]) || 1;
+      const dir = [(emp[1][0] - emp[0][0]) / L, (emp[1][1] - emp[0][1]) / L], bas = [(emp[0][0] - emp[3][0]) / P, (emp[0][1] - emp[3][1]) / P];
+      if (ciel > 0 && M.ciel > 0) {
+        const k1 = M.ciel * I * ciel * 0.8 * (0.25 + 0.75 * ov);
+        lueur("lum-ciel lum-velux", k, mil, dir, Math.max(80, L * 1.1), Math.max(90, P * 1.2), cCiel, op1(k1 * (sombre ? 0.55 : 0.65)));
+        fonds.set(k, [...(fonds.get(k) || []), [L * P * 1.3 * ov, k1]]);
+      }
+      // lune sans coordonnées : face à la fenêtre (vers le bas de la pente), à 50°
+      const fl = PL ? ((PL.az + nord) * Math.PI) / 180 : 0;
+      const astre = jour ? [sx, sy, e, 900] : nuitL > 0 ? (PL ? (PL.haut > 0.5 ? [Math.sin(fl), -Math.cos(fl), PL.haut, 400] : null) : [bas[0], bas[1], 50, 400]) : null;
+      const t = astre && tacheVelux(m, astre[0], astre[1], astre[2], ov, astre[3]);
+      if (!t) continue;
+      const s = Math.sqrt(borne(t.aire / 30000, 0, 1)), rl = borne(Math.sqrt(t.aire) * 1.4, 120, 450), h0 = h.length;
+      if (jour) {
+        const k0 = I * direct * borne(e / 6, 0.35, 1);
+        if (M.soleil > 0) tache(t, k, cSoleil, op1(M.soleil * k0 * (0.3 + 0.4 * Math.min(1, t.expo))), ".55");
+        lueur("lum-rediff", k, t.centre, dir, rl, rl * 0.85, cRediff, op1(M.rediffusion * k0 * 0.32 * s));
+      } else {
+        const k0 = I * nuitL * (0.2 + 0.4 * phase);
+        tache(t, k, cLune, k0, "0");
+        lueur("lum-rediff", k, t.centre, dir, rl * 0.7, rl * 0.6, cLune, op1(M.rediffusion * k0 * 0.25 * s));
+      }
+      h = h.slice(0, h0) + h.slice(h0).replace('<polygon class="lum-tache', `<polygon data-vx="${i}" class="lum-tache lum-vx`);
+    }
     let fh = "";
     const F = new Map([...fonds].map(([k, l]) => [k, lumiereFond(l.map((x) => x[0]), aireDe(c.pieces[k].poly)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28)]));
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
     // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
-    for (const V of lumiereVoisins(pieces.map(([p, k]) => [p.poly, k]), c.ouvertures, trans, F)) {
+    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
       fh += this._fondPiece(V.vers, V.fond, cCiel, "lum-voisin");
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
@@ -7536,6 +8566,24 @@ const PARAMS_INTERACTION = [
       aide: _tk("Réduit : rien ne bouge en boucle (pulsations, ondes, météo, flux), transitions courtes. Aucune : rien ne bouge.") },
   ] },
 ];
+// widgets latéraux d'un étage (plan à étages, config dépliée : `etage_actif.propres`) : propres = les panneaux à la racine sont ceux de
+// l'étage, ceux de la maison mis de côté dans `etage_actif.panneaux` ; passer à propres part d'une copie des widgets de la maison,
+// revenir aux communs remet ceux de la maison à la racine (ceux de l'étage sont perdus)
+const avecEtages = (d) => !!d.etage_actif && typeof d.etage_actif === "object";
+const avecWidgets = (p) => !!p && typeof p === "object" && ["gauche", "droite"].some((c) => Array.isArray(p[c]) && p[c].length);
+function ecrirePanneauxEtage(d, v) {
+  const A = d.etage_actif;
+  if (!avecEtages(d) || !!A.propres === !!v) return;
+  if (v) {
+    A.propres = true;
+    if ("panneaux" in d) A.panneaux = JSON.parse(JSON.stringify(d.panneaux));
+    else d.panneaux = {};
+    return;
+  }
+  delete A.propres;
+  if ("panneaux" in A) d.panneaux = A.panneaux; else delete d.panneaux;
+  delete A.panneaux;
+}
 // ---------- modale ⚙ Paramètres : réglages globaux de la carte (fonctionnement plutôt que dessin) ----------
 // Liste déclarative, rendue et écrite par EditeurPlan._rendreParametres. Section : { id, titre: clé i18n, icone?: icône de l'onglet,
 //   onglet?: id de la section qui ouvre l'onglet où elle s'ajoute (sous-titre = son titre ; sinon elle a son propre onglet), aide?: clé i18n, champs: [champ] }.
@@ -7568,6 +8616,15 @@ const SECTIONS_PARAMETRES = [
     { type: "intertitre", libelle: _tk("Couleurs nommées") },
     { id: "palette", type: "palette", libelle: _tk("Palette du plan"),
       aide: _tk("Proposées dans tous les champs couleur. Un élément qui utilise un nom suit la palette quand elle change ; une couleur retirée rend aux éléments leur couleur par défaut.") },
+  ] },
+  // plan à étages : widgets latéraux communs à la maison (défaut) ou propres à l'étage affiché ; section absente sans étages
+  { id: "panneaux_etage", titre: _tk("Widgets latéraux"), onglet: "affichage", champs: [
+    { chemin: "etage_actif.propres", type: "choix", libelle: _tk("Widgets de cet étage"), defaut: false, si: avecEtages,
+      options: [[false, _tk("Communs à la maison")], [true, _tk("Propres à cet étage")]],
+      aide: _tk("Propres : cet étage a ses widgets, partis d'une copie de ceux de la maison ; les autres étages gardent ceux de la maison. Les widgets ajoutés vont là où ils s'affichent."),
+      lire: (d) => !!d.etage_actif?.propres, ecrire: ecrirePanneauxEtage,
+      confirmer: { quand: (v, d) => v === false && !!d.etage_actif?.propres && avecWidgets(d.panneaux), titre: _tk("Reprendre les widgets de la maison ?"), bouton: _tk("Reprendre ceux de la maison"),
+        texte: _tk("Les widgets propres à cet étage seront perdus (Ctrl+Z pour revenir en arrière).") } },
   ] },
   { id: "fonctions", titre: _tk("Fonctions"), icone: "mdi:puzzle-outline", champs: [
     { chemin: "replay", type: "bool", libelle: _tk("Revoir la journée"), aide: _tk("Bouton à côté du zoom : la journée rejouée en accéléré."), defaut: false },
@@ -7721,8 +8778,9 @@ function depuisMoteur(d, c) {
     ouvertures: (d.ouvertures || []).map((o, i) => {
       const n = c.openings[i];
       if (!o || !n) return o;
-      // contrôles des ouvertures : côté dehors posé, lien de volet retiré (volet inexistant, « volet seul » relié à rien)
+      // contrôles des ouvertures : côté dehors posé ou retiré (fenêtre intérieure), lien de volet retiré (volet inexistant, « volet seul » relié à rien)
       const r = { ...o, ...(meme(o.seg, n.seg) ? {} : { seg: n.seg }), ...(!o.dehors && n.outside ? { dehors: n.outside } : {}) };
+      if (o.dehors && !n.outside) delete r.dehors;
       if (o.volet && !n.shutter) delete r.volet;
       if (o.volet_seul && !n.shutter_only) delete r.volet_seul;
       return meme(r, o) ? o : r;
@@ -7738,7 +8796,8 @@ const OPTIONS_NET = [["aimanter", _tk("Aimanter murs et ouvertures aux pièces")
   ["sommets", _tk("Aimanter les sommets presque confondus"), _tk("Jusqu'à 6 cm : change la forme des pièces.")],
   ["arrondir", _tk("Arrondir à 5 cm"), _tk("Sommets, murs et ouvertures : plan relevé sur une image.")],
   ["dehors", _tk("Poser le côté dehors des fenêtres"), _tk("Fenêtres et portes vitrées sans côté dehors : pas de lumière du jour.")],
-  ["volets", _tk("Retirer les volets reliés à rien"), _tk("Volet sans entité, ou entité qui n'existe pas.")]];
+  ["volets", _tk("Retirer les volets reliés à rien"), _tk("Volet sans entité, ou entité qui n'existe pas.")],
+  ["verrieres", _tk("Retirer le côté dehors des fenêtres intérieures"), _tk("Entre deux pièces : sans lui, la lumière passe comme par une verrière. Terrasse : la marquer dehors.")]];
 const PAR_PIECE = new Set(["manquants", "passages"]);
 const NOM_OUV_NET = { door: _tk("Porte"), window: _tk("Fenêtre"), gate: _tk("Portail") };
 const nomOuvNet = (o) => (NOM_OUV_NET[o] ? _t(NOM_OUV_NET[o]) : o || _t("Fenêtre"));
@@ -7758,6 +8817,7 @@ function texteNet(x) {
     case "sommet": return _t("Sommets écartés de {n} cm", { n });
     case "sans_dehors": return _t("« {nom} » sans côté dehors", { nom: nomOuvNet(x.detail.ouverture) });
     case "volet_vide": return _t("Volet de « {nom} » relié à rien", { nom: nomOuvNet(x.detail.ouverture) });
+    case "verriere_dehors": return _t("« {nom} » entre deux pièces, avec un côté dehors", { nom: nomOuvNet(x.detail.ouverture) });
     case "volet_inconnu": return _t("Volet de « {nom} » : {e} n'existe pas", { nom: nomOuvNet(x.detail.ouverture), e: x.detail.entite });
     default: return _t("Cote hors grille de 5 cm");
   }
@@ -7823,6 +8883,18 @@ function pointPour(hass, e, pos) {
   return p;
 }
 
+// toute la maison (config interne, repliée ou dépliée) : listes de tous les étages mises bout à bout, panneaux propres aux étages
+// (import : récapitulatif de sécurité et comptes) ; sans étages, les listes du plan
+function maisonEntiere(ETAGES, c) {
+  const niv = ETAGES.parEtage(c), tout = (k) => niv.flatMap((n) => n.geo[k] || []);
+  return { pieces: tout("pieces"), ouvertures: tout("ouvertures"), points: tout("points"), meubles: tout("meubles"), panneaux: niv.filter((n) => n.panneaux).map((n) => ({ panneaux: n.panneaux })) };
+}
+// version enregistrée (format anglais) : pièces, appareils, widgets de toute la maison
+function resumeVersion(c) {
+  const niv = Array.isArray(c?.floors) && c.floors.length ? c.floors.filter((f) => f && typeof f === "object") : [c || {}], n = (l) => (Array.isArray(l) ? l.length : 0);
+  const w = (p) => (p && typeof p === "object" ? Object.values(p).reduce((s, l) => s + n(l), 0) : 0);
+  return { pieces: niv.reduce((s, f) => s + n(f.rooms), 0), appareils: niv.reduce((s, f) => s + n(f.badges), 0), widgets: w(c?.panels) + (niv[0] === c ? 0 : niv.reduce((s, f) => s + w(f.panels), 0)) };
+}
 const CSS = `
 .ed-barre{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;margin:0 0 12px;padding:8px;border-radius:16px;background:var(--md-surface-container-high);flex:none;min-width:0}
 .ed-defile{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
@@ -8157,6 +9229,31 @@ svg .ed-curseur-pt{fill:none;stroke:var(--md-primary);pointer-events:none}
 .ed-pers-l>span>i{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font:600 12px/1 var(--ha-font-family-body,Roboto,sans-serif);font-style:normal;
   background:var(--md-primary);color:var(--text-primary-color,#fff)}
 .ed-pers-l select{height:40px;border:1px solid var(--md-outline);border-radius:4px;padding:0 8px;background:var(--md-surface);color:var(--md-on-surface);font:inherit;min-width:0}
+.ed-dialogue.ed-et-dlg{width:min(760px,100%);height:min(720px,calc(100vh - 32px))}
+.ed-et-corps{flex:1;overflow:auto;padding:0 24px 8px;display:flex;flex-direction:column;gap:16px}
+.ed-et-l{display:flex;flex-direction:column;gap:8px}
+.ed-et{display:flex;align-items:center;gap:12px;padding:8px 8px 8px 16px;border:1px solid var(--md-outline-variant);border-radius:16px;background:var(--md-surface-container-low,var(--md-surface))}
+.ed-et.on{border-color:var(--md-primary);background:color-mix(in srgb,var(--md-primary) 8%,var(--md-surface-container-low,var(--md-surface)))}
+.ed-et-ic{flex:none;color:var(--md-on-surface-variant)}
+.ed-et.on .ed-et-ic{color:var(--md-primary)}
+.ed-et-champs{flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,2fr) 72px minmax(0,1.4fr);gap:8px;align-items:end}
+.ed-et-champs .ed-champ input{width:100%;box-sizing:border-box}
+.ed-et-info{grid-column:1/-1;color:var(--md-on-surface-variant);font-size:12px}
+.ed-et-info b{color:var(--md-primary);font-weight:500}
+.ed-et-seul .ed-et-champs{display:flex;flex-direction:column;align-items:flex-start;gap:4px}
+.ed-et-act{display:flex;flex:none;gap:2px}
+.ed-et-act .ib[disabled]{opacity:.38;cursor:default}
+.ed-et-ajout h3{margin:0 0 8px;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);color:var(--md-on-surface-variant);letter-spacing:.1px}
+.ed-et-choix{display:flex;flex-wrap:wrap;gap:8px}
+.ed-et-defaut{max-width:360px}
+.ed-btn.plein.ed-et-danger{background:var(--md-error,#b3261e);color:var(--md-on-error,#fff)}
+ha-card.ed-etroit .ed-et-corps{padding:0 16px 8px}
+ha-card.ed-etroit .ed-et{flex-wrap:wrap;padding:8px 8px 8px 12px}
+ha-card.ed-etroit .ed-et-champs{grid-template-columns:minmax(0,1fr) 64px;flex-basis:calc(100% - 40px)}
+ha-card.ed-etroit .ed-et-icone{grid-column:1/-1}
+ha-card.ed-etroit .ed-et-act{width:100%;justify-content:flex-end}
+ha-card.ed-etroit .ed-et-choix .ed-btn{flex:1 1 100%;justify-content:flex-start}
+ha-card.ed-etroit .ed-et-defaut{max-width:none}
 /* champs de la modale ⚙ Paramètres */
 .ed-par-sec{display:flex;flex-direction:column;gap:14px}
 .ed-par-sec+.ed-par-sec{border-top:1px solid var(--md-outline-variant);padding-top:14px}
@@ -8434,7 +9531,13 @@ class EditeurPlan {
   static poserParametre = (d, f, v) => (f.ecrire ? f.ecrire(d, v) : ecrireReglage(d, f, v));
   constructor(carte, reprise = null) {
     this.carte = carte;
-    this.original = clone(carte._config);
+    // étages : reprise après un enregistrement sur l'étage où l'on travaillait ; original = config repliée (comparaisons, conflits)
+    const E = carte.constructor.ETAGES;
+    if (reprise?.etage != null && reprise.etage !== carte._etage && E.ids(carte._plein).includes(reprise.etage)) {
+      carte._etage = reprise.etage;
+      carte._config = E.deplier(carte._plein, reprise.etage);
+    }
+    this.original = E.replier(carte._config);
     this.d = clone(carte._config);
     this.histo = []; this.refaire = [];
     this.sel = null; this.outil = "selection"; this.grille = 5; this.modifie = false;
@@ -8528,6 +9631,7 @@ class EditeurPlan {
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
       ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}
       <span class="ed-sep ed-pc"></span>
+      ${ib("etages", "mdi:layers-triple-outline", _t("Gérer les étages"))}
       ${ib("calques", "mdi:layers-outline", _t("Calques"), !!this.vueCalques)}
       ${ib("ambiance", "mdi:weather-partly-cloudy", _t("Ambiance et animations"), !!this.vueAmbiance)}
       <span class="ed-sep ed-pc"></span>
@@ -8551,7 +9655,7 @@ class EditeurPlan {
       if (!b || b.disabled) return;
       if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
       else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
-        quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
+        quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), etages: () => this.ouvrirEtages(), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
         parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
     };
     if (garde) this.barre.querySelector(garde)?.focus({ preventScroll: true });
@@ -8570,6 +9674,7 @@ class EditeurPlan {
     // Appliquer (enregistrer sans quitter) : dans ce menu sur téléphone, la barre garde ses deux rangées
     this._menu(b, [...(this.modifie ? [{ icone: "mdi:check", libelle: _t("Appliquer : enregistrer sans quitter l'éditeur"), action: () => this.appliquer() }, { sep: true }] : []),
       { icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
+      { icone: "mdi:layers-triple-outline", libelle: _t("Gérer les étages"), action: () => this.ouvrirEtages() },
       { icone: "mdi:layers-outline", libelle: _t("Calques"), action: () => this.panneauCalques(!this.vueCalques) },
       { icone: "mdi:weather-partly-cloudy", libelle: _t("Ambiance et animations"), action: () => this.panneauAmbiance(!this.vueAmbiance) },
       { icone: "mdi:auto-fix", libelle: _t("Nettoyer le plan"), action: () => this.nettoyerPlan() },
@@ -8656,16 +9761,28 @@ class EditeurPlan {
   }
 
   // ---------- historique ----------
+  // instantané = config entière, dépliée sur l'étage actif (son id dans `etage_actif`) : annuler ramène aussi sur l'étage modifié
   _instantane() { this.histo.push(JSON.stringify(this.d)); if (this.histo.length > 150) this.histo.shift(); this.refaire = []; }
-  _applique(json) { const d = JSON.parse(json); Object.keys(this.d).forEach((k) => delete this.d[k]); Object.assign(this.d, d); }
+  _applique(json) {
+    const avant = this._etageActif();
+    let d = JSON.parse(json);
+    // plan à étages replié (import) : déplié sur l'étage en cours s'il existe, sinon sur l'étage initial
+    if (Array.isArray(d?.etages) && d.etages.length && !d.etage_actif) d = this._deplie(d, avant);
+    Object.keys(this.d).forEach((k) => delete this.d[k]); Object.assign(this.d, d);
+    // autre étage (annuler, rétablir, import) : sélection et outil remis à zéro
+    if (this._etageActif() !== avant) { this._finGlisse = null; this._remettreAZero(); }
+    this._suivreCarte();
+  }
   // config interne gardée dans ce navigateur (brouillon, copie d'avant nettoyage) : relue comme un plan importé (même normalisation,
   // valeurs invalides retirées), jamais posée telle quelle
   _relire(json) {
     const N = customElements.get("maquette-card").normaliser;
     try { const o = JSON.parse(json); return JSON.stringify(N(o && typeof o === "object" && !Array.isArray(o) ? o : {})); } catch (e) { return JSON.stringify(N({})); }
   }
-  annuler() { if (!this.histo.length) return; this.refaire.push(JSON.stringify(this.d)); this._applique(this.histo.pop()); this._valide(); this._apres(true); }
-  retablir() { if (!this.refaire.length) return; this.histo.push(JSON.stringify(this.d)); this._applique(this.refaire.pop()); this._valide(); this._apres(true); }
+  // annuler / rétablir : l'état quitté est gardé déplié sur l'étage de l'état repris (une modification et son annulation vont par paire,
+  // sur l'étage où elle a été faite, même si l'on a changé d'étage entre-temps)
+  annuler() { if (!this.histo.length) return; const j = this.histo.pop(); this.refaire.push(this._instantaneSur(j)); this._applique(j); this._valide(); this._apres(true); }
+  retablir() { if (!this.refaire.length) return; const j = this.refaire.pop(); this.histo.push(this._instantaneSur(j)); this._applique(j); this._valide(); this._apres(true); }
   _valide() {
     const n = this._listes();
     if (this.sel?.type === "widget") { if (!this._wl(this.sel)?.[this.sel.i]) this.sel = null; return; }
@@ -8697,9 +9814,13 @@ class EditeurPlan {
     this.multi = new Set([...this.multi].filter((k) => this._elt(k)));
     if (!this.sel) this.multi.clear(); else if (!this.multi.has(cle(this.sel))) this.multi = new Set([cle(this.sel)]);
     if (this.d.groupes || this._toutesCles().some((k) => this._gr(k))) this._nettoyerGroupes();
-    this.modifie = JSON.stringify(this.d) !== JSON.stringify(this.original);
+    // une seule copie repliée : comparaison avec l'original, carte, brouillon
+    const plein = this._replie();
+    this._apresGestionEtages?.(plein, sansHisto); // noms de pièce en double dans la maison : avertissement
+    this.modifie = this._estModifie(plein);
+    this._suivreCarte(plein);
     this._boite();
-    if (this.modifie) stock.ecrire(this._cle(), JSON.stringify(this.d)); else stock.retirer(this._cle());
+    if (this.modifie) this._ecrireBrouillon(plein); else this._retirerBrouillon();
     // langue de la carte changée (panneau Paramètres, annuler / rétablir) : carte et éditeur passent tout de suite dans la nouvelle langue
     suivreLangue(this.carte, this.d);
     this.carte._construire();
@@ -8716,9 +9837,11 @@ class EditeurPlan {
   _proposerBrouillon() {
     let b = null;
     b = stock.lire(this._cle());
-    if (b && b !== JSON.stringify(this.original)) {
-      this.snack(_t("Un brouillon non enregistré existe."), [[_t("Reprendre"), () => { this._instantane(); this._applique(this._relire(b)); this._valide(); this._apres(); }],
-        [_t("Supprimer"), () => { stock.retirer(this._cle()); this.snack(_t("Brouillon supprimé.")); }]], 20000);
+    let different = !!b;
+    try { different = !!b && canon(this._replie(JSON.parse(b))) !== this._canonOriginal(); } catch (e) { /* brouillon illisible : proposé, relu à la reprise */ }
+    if (different) {
+      this.snack(_t("Un brouillon non enregistré existe."), [[_t("Reprendre"), () => { this._instantane(); this._applique(this._brouillonDeplie(b)); this._valide(); this._apres(); }],
+        [_t("Supprimer"), () => { this._retirerBrouillon(); this.snack(_t("Brouillon supprimé.")); }]], 20000);
     }
   }
 
@@ -9183,31 +10306,20 @@ class EditeurPlan {
     return { pos: [arr(x), arr(y)], mur };
   }
 
-  _ongletsMeuble(o) {
-    const perso = o.type === "forme", L = MEUBLES(), def = L[o.type] || { nom: perso ? _t("Meuble personnalisé") : _t("Type inconnu ({t})", { t: o.type }), taille: [60, 60] }, [w, h] = o.taille || def.taille, rot = nbr(o.rotation);
-    const nomDef = L[o.type] ? _t(def.nom) : def.nom; // nom du catalogue (traduit) ; o.nom est celui de l'utilisateur
-    const mode = tactile() ? _t("Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.") : _t("Glisse-le pour le déplacer (il se colle aux murs proches, Alt pour l'en empêcher), tire un coin pour changer sa taille (Maj : proportions gardées).");
-    const anim = o.entite || o.valeur || o.fiche ? this._sectionAnimation(o, "meuble", "animation", _t("Animation (actif)")) : "";
-    return { icone: "mdi:sofa-outline", titre: o.nom || nomDef, resume: nomDef, aide: def.aide ? `${_t(def.aide)}. ${mode}` : mode,
-      actions: `${perso || o.type === "espace" ? "" : ibAct("atelier-meuble", "mdi:shape-outline", _t("Personnaliser la forme (atelier)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : garder ce meuble à ces dimensions dans « Mes modèles »"))}`,
-      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(o.type === "espace" ? _t("Nom affiché") : _t("Nom (infobulle)"), "nom", o.nom, nomDef)}
-      ${perso ? `<button type="button" class="ed-btn tonal ed-plein" data-act="atelier-meuble"><ha-icon icon="mdi:shape-outline"></ha-icon>${_t("Modifier la forme")}</button>`
-        : `<div class="ed-champ"><label>${_t("Type")}</label><select data-k="type">${Object.entries(L).map(([t, x]) => `<option value="${esc(t)}" ${t === o.type ? "selected" : ""}>${esc(_t(x.cat))} · ${esc(_t(x.nom))}</option>`).join("")}${L[o.type] ? "" : `<option selected value="${esc(o.type)}">${esc(o.type)}</option>`}</select></div>`}
-      ${def.rond ? this._champNombre(_t("Diamètre (cm)"), "_diametre", w, 1) : `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "taille.0", w, 1)}${this._champNombre(_t("Profondeur (cm)"), "taille.1", h, 1)}</div>`}
-      ${def.chaises ? this._champNombre(_t("Chaises"), "chaises", o.chaises ?? def.chaises, 1) : ""}
-      <div class="ed-champ"><label>${_t("Orientation")}</label><div class="ed-icones">
-        <button data-act="rot:-15" title="${_t("Tourner de 15° à gauche")}"><ha-icon icon="mdi:rotate-left-variant"></ha-icon></button>
-        <button data-act="rot:-90" title="${_t("Tourner de 90° à gauche")}"><ha-icon icon="mdi:rotate-left"></ha-icon></button>
-        <button data-act="rot:90" title="${_t("Tourner de 90° à droite")}"><ha-icon icon="mdi:rotate-right"></ha-icon></button>
-        <button data-act="rot:15" title="${_t("Tourner de 15° à droite")}"><ha-icon icon="mdi:rotate-right-variant"></ha-icon></button>
-        ${def.rond ? "" : `<button data-act="miroir" class="${o.miroir ? "on" : ""}" title="${_t("Miroir (canapé d'angle gauche / droite…)")}"><ha-icon icon="mdi:flip-horizontal"></ha-icon></button>`}
-        </div></div>
-      <details class="ed-avance"><summary>${_t("Position")}</summary>
-      ${this._champNombre(_t("Angle (°, 0 à 359)"), "_angle", rot, 1)}
-      ${this._champXY(o)}</details>
-      ${this._calqueNiveau(o)}`],
-        ["connecte", _t("Connecté"), "mdi:lightning-bolt-outline", this._sectionConnecte(o, def)],
-        ...(anim ? [["animation", _t("Animation"), "mdi:animation-play-outline", anim]] : [])] };
+  _finirTrace() {
+    const o = this.outil, t = this.trace;
+    this.trace = [];
+    this._info("");
+    if (o === "piece" && t.length >= 3) {
+      const z = this.zoneEnAttente;
+      this.zoneEnAttente = null;
+      this.commit(() => { this.d.pieces.push({ nom: z ? this.hass.areas?.[z]?.name || z : _t("Nouvelle pièce"), poly: t, etiquette: centre(t), ...(z ? { zone: z } : {}) }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
+      this.choisirOutil("selection");
+      if (z) { this.integrer(this.d.pieces.length - 1); return; }
+      setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
+      return;
+    }
+    this.carte._construire();
   }
 
   // ---------- calques ----------
@@ -9249,7 +10361,9 @@ class EditeurPlan {
     this.commit(() => { if (v === def(o)) delete o.niveau; else o.niveau = v; });
   }
   panneauCalques(oui) {
+    if (!oui && this.vueCalques && this.vueFond) return this.fermerFond(); // Échap dans « Image de fond » : retour à la liste
     this.vueCalques = oui;
+    if (!oui) this.vueFond = false;
     if (oui && this.vueParametres) this._fermerParametres(); // une seule modale à la fois : ⚙, Ambiance et l'édition d'un élément se ferment
     if (oui && this.vueAmbiance) { this.vueAmbiance = false; this._fermerAmbiance(); this.carte._construire(); }
     if (oui && this.vueEdition) this.fermerEdition();
@@ -9262,14 +10376,15 @@ class EditeurPlan {
   // Échap y revient) ; masquée pendant l'édition d'un élément, ⚙ ou Ambiance
   _panneauCalques() {
     let V = this.R.querySelector(".ed-mvoile.ed-cq-modale");
-    if (!this.vueCalques) { V?.remove(); return; }
+    if (!this.vueCalques) { V?.remove(); this.vueFond = false; this._panneauFond(); return; }
+    this._panneauFond();
     if (!V) {
       V = this._mvoile("ed-cq-modale");
       V.onpointerdown = (ev) => { this._basVoileCq = ev.target === V; };
       V.addEventListener("click", (ev) => { if (ev.target === V && this._basVoileCq) this.panneauCalques(false); });
       this._clavierModale(V);
     }
-    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance);
+    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance || this.vueFond);
     if (V.hidden) return;
     const actif = this.R.activeElement, ds = V.contains(actif) ? actif.dataset || {} : {};
     const garde = ds.act ? `[data-act="${ds.act}"]` : ds.actChk ? `[data-act-chk="${ds.actChk}"]` : ds.cqGlisse ? `[data-cq-glisse="${ds.cqGlisse}"]` : null;
@@ -9292,6 +10407,7 @@ class EditeurPlan {
       <div class="ed-mcontenu ed-medit"><section>
       <h4>${_t("Au-dessus du dessin")}</h4><div class="ed-cqs" data-groupe="html">${[...Q.html].reverse().map(ligne).join("")}</div>
       <h4>${_t("Dessin")}</h4><div class="ed-cqs" data-groupe="svg">${[...Q.svg].reverse().map(ligne).join("")}</div>
+      ${this._ligneFond(Q)}
       ${d.afficher_meubles === "pc" ? `<div class="ed-aide">${_t("Meubles : affichés en vue sur grand écran seulement (show_furniture: desktop).")}</div>` : ""}
       <div class="ed-actions"><button class="ed-btn contour" data-act="cq-reinit" ${q.ordre_svg || q.ordre_html ? "" : "disabled"}><ha-icon icon="mdi:restore"></ha-icon>${_t("Réinitialiser l'ordre")}</button></div>
       <label class="ed-inter"><span>${_t("Bouton Calques pour les visiteurs")}${bulleI(_t("Chacun masque ce qu'il veut, sur son navigateur."))}</span><input type="checkbox" data-act-chk="cq-bouton" ${q.bouton_vue ? "checked" : ""}></label>
@@ -9337,6 +10453,17 @@ class EditeurPlan {
       };
     });
   }
+  // image de fond : toujours sous le dessin (pas de poignée), œil (masquée en vue), cadenas (cliquer à travers), Régler
+  _ligneFond(Q) {
+    const f = this.d.fond, m = Q.masques.has("fond"), v = this.carte._fondVerrouille(), { noms, icones } = this.carte.constructor.CALQUES;
+    const etat = !f ? _t("Aucune image") : f.afficher === "toujours" ? _t("Édition et vue") : _t("Édition seulement");
+    const lv = v ? _t("Déverrouiller") : _t("Cliquer à travers"), lm = m ? _t("Afficher en vue") : _t("Masquer en vue");
+    return `<div class="ed-cqs ed-cqs-fond"><div class="ed-cq${m ? " masque" : ""}" data-cq="fond"><span class="ed-cq-poignee" aria-hidden="true"></span>
+      <ha-icon icon="${icones.fond}"></ha-icon><span class="n">${esc(_t(noms.fond))}<small>${etat}</small></span>
+      ${f ? `<button class="ib${m ? " on" : ""}" data-act="cq-oeil:fond" title="${lm}" aria-label="${lm}" aria-pressed="${m}"><ha-icon icon="mdi:${m ? "eye-off-outline" : "eye-outline"}"></ha-icon></button>
+      <button class="ib${v ? " on" : ""}" data-act="cq-fond-verrou" title="${lv}" aria-label="${lv}" aria-pressed="${v}"><ha-icon icon="mdi:${v ? "lock-outline" : "lock-open-variant-outline"}"></ha-icon></button>` : ""}
+      <button class="ed-btn texte" data-act="cq-fond-regler"><ha-icon icon="mdi:${f ? "tune-variant" : "image-plus-outline"}"></ha-icon>${f ? _t("Régler") : _t("Ajouter")}</button></div></div>`;
+  }
   // éléments du plan par catégorie (repliables) : un clic sélectionne l'élément et ouvre sa modale (Échap : retour aux calques)
   _listesElements() {
     const d = this.d, nomP = (p) => p.nom || this.carte._nom(p.entite), item = (k, ic, nom, sous) => `<button data-choix="${k}"><ha-icon icon="${esc(ic)}"></ha-icon><span>${esc(nom)}<small>${esc(sous)}</small></span>${this._verrouille(k) ? `<ha-icon class="ed-elt-verrou" icon="mdi:lock-outline" title="${_t("Verrouillé")}" aria-label="${_t("Verrouillé")}"></ha-icon>` : ""}</button>`;
@@ -9374,6 +10501,8 @@ class EditeurPlan {
   _actionCalque(a) {
     const [op, k] = a.split(":"), bascule = (l, x) => { const e = new Set(l || []); if (e.has(x)) e.delete(x); else e.add(x); return [...e]; };
     if (op === "cq-fermer") return this.panneauCalques(false);
+    if (op === "cq-fond-regler") return this.ouvrirFond();
+    if (op === "cq-fond-verrou") { this.fondLibre = this.carte._fondVerrouille(); this.carte._construire(); return this._panneauCalques(); }
     this._majCalques((q) => {
       if (op === "cq-oeil" && k === "meubles" && this.d.afficher_meubles === false) { delete this.d.afficher_meubles; q.masques = (q.masques || []).filter((x) => x !== k); }
       else if (op === "cq-oeil") q.masques = bascule(q.masques, k);
@@ -9382,6 +10511,14 @@ class EditeurPlan {
       if (op === "cq-bouton") q.bouton_vue = !q.bouton_vue;
     });
   }
+
+  // j = nouvelle place dans la liste affichée (premier plan en haut, donc ordre de dessin inversé)
+  _deplacerCalque(groupe, k, j) {
+    const vue = [...this.carte._calques()[groupe]].reverse().filter((x) => x !== k);
+    vue.splice(j, 0, k);
+    this._majCalques((q) => { q[`ordre_${groupe}`] = vue.reverse(); });
+  }
+
   // ---------- paramètres : réglages globaux (liste SECTIONS_PARAMETRES) ----------
   // grande modale centrée à onglets (plein écran sur téléphone), au-dessus d'un voile léger : l'aperçu en direct reste visible autour.
   // À l'ouverture le focus va à l'onglet actif ; Échap, la croix ou un clic sur le voile la ferment et le focus revient au bouton ⚙.
@@ -9484,18 +10621,18 @@ class EditeurPlan {
     const aide = (f) => (f.aide ? bulleI(_t(f.aide)) : "");
       const k = esc(f.chemin || f.id || ""), lib = esc(_t(f.libelle ?? f.nom ?? "")), v = f.chemin ? valeur(f) : undefined;
       if (f.type === "intertitre") return `<div class="ed-par-inter">${lib}</div>`;
-      if (f.type === "bool") {
-        const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
-        return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
-          ${conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
+      // confirmation demandée (champ `confirmer`) : encart dans la modale, sous le champ
+      const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
+      const htmlConf = conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
             <p id="ed-conf-d">${esc(_t(conf.texte))}</p><div class="ed-actions"><button class="ed-btn texte" data-par-conf="non">${_t("Annuler")}</button>
-            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : ""}</div>`;
-      }
+            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : "";
+      if (f.type === "bool") return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
+          ${htmlConf}</div>`;
       if (f.type === "choix") {
         // valeur inconnue des options (ex. `language: auto`) : affichée comme la valeur par défaut
         const connue = f.options.some(([val]) => memeValeur(val, v)), opts = f.options.map(([val, l, brut], j) => ({ j, on: memeValeur(val, connue ? v : f.defaut), l: brut ? l : _t(l) }));
-        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span></div>`;
-        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select></div>`;
+        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span>${htmlConf}</div>`;
+        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select>${htmlConf}</div>`;
       }
       if (f.type === "nombre") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><div class="ed-unite"><input type="number" id="par-${k}" data-par="${k}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.pas || 1}" value="${esc(v ?? "")}" placeholder="${esc(f.defaut ?? "")}">${f.unite ? `<span aria-hidden="true">${esc(f.unite)}</span>` : ""}</div></div>`;
       if (f.type === "curseur") {
@@ -9594,7 +10731,7 @@ class EditeurPlan {
       const og = el("ongletPar");
       if (og) return this.ongletParametres(og.dataset.ongletPar);
       const c = el("parConf");
-      if (c) { const f = this._champParametre(this._confParam); this._confParam = null; if (c.dataset.parConf === "oui" && f) return this._ecrireParametre(f, false, true); this._rendreParametres(); return V.querySelector(`[data-par="${f?.chemin}"]`)?.focus(); }
+      if (c) { const f = this._champParametre(this._confParam); this._confParam = null; if (c.dataset.parConf === "oui" && f) return this._ecrireParametre(f, this._confVal, true); this._rendreParametres(); return V.querySelector(`[data-par="${f?.chemin}"]`)?.focus(); }
       if (el("parEffacer")) ev.stopPropagation();
       if (el("parEffacer") || el("parAuto")) return this._clicChamp(ch);
       // raccourci : la modale se ferme, puis le panneau (ou le dialogue) visé s'ouvre
@@ -9652,8 +10789,9 @@ class EditeurPlan {
   }
   _ecrireParametre(f, v, confirme = false) {
     if (!f) return;
-    if (f.confirmer && !confirme && f.confirmer.quand(v)) {
+    if (f.confirmer && !confirme && f.confirmer.quand(v, this.d)) {
       this._confParam = f.chemin;
+      this._confVal = v; // valeur écrite si la confirmation est acceptée
       this._rendreParametres();
       return this.R.querySelector('.ed-mvoile [data-par-conf="oui"]')?.focus();
     }
@@ -10009,13 +11147,6 @@ class EditeurPlan {
         ${this._champNombre(_t("Durée d'un cycle (s)"), `${cle}.duree`, a.duree, 0.1, `${base.duree}`)}</div>
       <div class="ed-ligne">${this._champNombre(_t("Intensité (0,2 à 2)"), `${cle}.intensite`, a.intensite, 0.1, "1")}
         ${ev === "meuble" ? `<div class="ed-champ"><label>${_t("Forme de l'onde")}</label><select data-k="${cle}.forme"><option value="">${_t("Cercle")}</option><option value="contour" ${a.forme === "contour" ? "selected" : ""}>${_t("Contour du meuble")}</option></select></div>` : ""}</div></details>`;
-  }
-
-  // j = nouvelle place dans la liste affichée (premier plan en haut, donc ordre de dessin inversé)
-  _deplacerCalque(groupe, k, j) {
-    const vue = [...this.carte._calques()[groupe]].reverse().filter((x) => x !== k);
-    vue.splice(j, 0, k);
-    this._majCalques((q) => { q[`ordre_${groupe}`] = vue.reverse(); });
   }
 
   // section « Connecté » d'un meuble : entité, valeur, comportement au toucher, protection, fiche (widgets)
@@ -10423,22 +11554,6 @@ class EditeurPlan {
     this._apres();
     this.recadrer();
     this.snack(`${_t("{n} pièce créée|{n} pièces créées", { n: choix.length })}, ${_t("{n} appareil placé|{n} appareils placés", { n })}. ${_t("Ajuste maintenant tailles et positions.")}`, _t("Annuler##defaire"), this._annulation(), 12000);
-  }
-
-  _finirTrace() {
-    const o = this.outil, t = this.trace;
-    this.trace = [];
-    this._info("");
-    if (o === "piece" && t.length >= 3) {
-      const z = this.zoneEnAttente;
-      this.zoneEnAttente = null;
-      this.commit(() => { this.d.pieces.push({ nom: z ? this.hass.areas?.[z]?.name || z : _t("Nouvelle pièce"), poly: t, etiquette: centre(t), ...(z ? { zone: z } : {}) }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
-      this.choisirOutil("selection");
-      if (z) { this.integrer(this.d.pieces.length - 1); return; }
-      setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
-      return;
-    }
-    this.carte._construire();
   }
 
   // ---------- sélection & panneau ----------
@@ -10999,11 +12114,33 @@ class EditeurPlan {
     const P = plan.getBoundingClientRect(), Z = (this.multi.size <= 1 && ["widget", "puce"].includes(s.type) ? this.R.querySelector("ha-card") : zone).getBoundingClientRect();
     const vis = { g: Math.max(Z.left, 0), h: Math.max(Z.top, 0), d: Math.min(Z.right, innerWidth), b: Math.min(Z.bottom, innerHeight) };
     const bw = b.offsetWidth, bh = b.offsetHeight, ec = 12, bord = 4;
-    let x = (Math.max(ex.g, vis.g) + Math.min(ex.d, vis.d)) / 2 - bw / 2, y = ex.h - bh - ec;
-    if (y < vis.h + bord) y = ex.b + ec <= vis.b - bh - bord ? ex.b + ec : vis.h + bord; // pas de place au-dessus : dessous, sinon en haut de la partie visible
-    x = Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord));
-    y = Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
-    b.style.left = `${Math.round(x - P.left)}px`; b.style.top = `${Math.round(y - P.top)}px`;
+    const bx = (x) => Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord)), by = (y) => Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
+    const tient = ([x, y]) => x >= vis.g + bord - 0.5 && x + bw <= vis.d - bord + 0.5 && y >= vis.h + bord - 0.5 && y + bh <= vis.b - bord + 0.5;
+    const couvre = ([x, y], r) => x < r.d && x + bw > r.g && y < r.b && y + bh > r.h;
+    // hors de la sélection, dans la partie visible : au-dessus, dessous, à droite, à gauche (centrée sur la partie visible de la sélection)
+    const cx = bx((Math.max(ex.g, vis.g) + Math.min(ex.d, vis.d)) / 2 - bw / 2), cy = by((Math.max(ex.h, vis.h) + Math.min(ex.b, vis.b)) / 2 - bh / 2);
+    let pos = [[cx, ex.h - bh - ec], [cx, ex.b + ec], [ex.d + ec, cy], [ex.g - bw - ec, cy]].find((q) => tient(q) && !couvre(q, ex));
+    // la sélection occupe toute la partie visible : un coin ou un bord libre qui ne recouvre pas l'élément sous le pointeur
+    if (!pos) {
+      const g = bx(vis.g), d = bx(vis.d), h = by(vis.h), bas = by(vis.b), sous = this._eltSousPointeur(vis);
+      const cand = [[cx, h], [cx, bas], [g, h], [d, h], [g, bas], [d, bas]];
+      pos = (sous && cand.find((q) => !couvre(q, sous))) || cand[0];
+    }
+    b.style.left = `${Math.round(pos[0] - P.left)}px`; b.style.top = `${Math.round(pos[1] - P.top)}px`;
+  }
+  // rectangle à l'écran (marge comprise) du plus petit élément du plan sous le pointeur (dernière position connue), sinon du pointeur
+  // lui-même ; null = pointeur hors de la partie visible. Un élément qui couvre la moitié de la partie visible ne compte pas (pièce de fond)
+  _eltSousPointeur(vis) {
+    const [x, y] = this._xy || [];
+    if (!Number.isFinite(x) || !Number.isFinite(y) || x < vis.g || x > vis.d || y < vis.h || y > vis.b) return null;
+    const zone = this.R.querySelector(".zone"), aire = (vis.d - vis.g) * (vis.b - vis.h);
+    let q = null, min = Infinity;
+    for (const el of this.R.elementsFromPoint?.(x, y) || []) {
+      if (!zone?.contains(el) || el.closest?.(".ed-bf")) continue;
+      const e = el.getBoundingClientRect(), a = e.width * e.height;
+      if (a > 0 && a < aire / 2 && a < min) { min = a; q = e; }
+    }
+    return { g: Math.min(x - 24, q ? q.left - 8 : x), h: Math.min(y - 24, q ? q.top - 8 : y), d: Math.max(x + 24, q ? q.right + 8 : x), b: Math.max(y + 24, q ? q.bottom + 8 : y) };
   }
 
   _ongletsWidget(w) {
@@ -11110,21 +12247,6 @@ class EditeurPlan {
   // champs des panneaux ; aide : texte (traduit) d'une bulle ⓘ après le libellé
   _champTexte(label, k, v, ph = "", aide = "") {
     return `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="text" data-k="${k}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
-  }
-  // repli « Lumière » d'une fenêtre ou d'une porte : vitrage d'une porte (pleine, vitrée sur toute la hauteur, petite vitre en haut),
-  // allège et haut du vitrage (vide = auto), avancée de toit au-dessus (profondeur, hauteur au-dessus du haut)
-  _sectionLumiereOuv(o) {
-    const vt = o.type === "porte" ? (o.vitree === true ? "toute" : o.vitree || "") : "fenetre", larg = Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]);
-    const ouvert = o.allege != null || o.hauteur != null || o.avancee != null || !!o.lames || (o.type === "porte" && !!vt);
-    // lames du volet (`lames`) : pleines = volet de base (défaut), orientables = selon l'inclinaison du volet, ajourées = filets volet fermé
-    const lames = o.volet ? `<div class="ed-champ"><label>${_t("Lames du volet")}${bulleI(_t("Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière."))}</label><select data-k="lames">${[["", _t("Pleines (volet de base)")], ["orientables", _t("Orientables")], ["ajourees", _t("Ajourées")]].map(([v, n]) => `<option value="${v}" ${(o.lames || "") === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
-    const choix = o.type === "porte" ? `<div class="ed-champ"><label>${_t("Vitrage de la porte")}${bulleI(_t("Une porte vitrée laisse entrer la lumière du jour, comme une fenêtre ; son volet est pris en compte."))}</label><select data-k="vitree">${[["", _t("Porte pleine")], ["toute", _t("Vitrée sur toute la hauteur")], ["haut", _t("Petite vitre en haut")]].map(([v, n]) => `<option value="${v}" ${vt === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
-    if (o.type === "porte" && !vt) return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}</details>`;
-    const [bas, haut] = vt === "haut" ? ["150", "200"] : vt === "toute" || larg >= 180 ? ["0", "215"] : ["90", "215"];
-    return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}${lames}
-      <div class="ed-aide">${o.type === "porte" ? _t("Vide = auto : 0 à 215 cm, ou 150 à 200 cm pour une petite vitre.") : _t("Vide = auto : 90 cm, ou 0 dès 1,80 m de baie.")}</div>
-      <div class="ed-ligne">${this._champNombre(_t("Allège (cm)"), "allege", o.allege, 1, bas, _t("Hauteur du bas du vitrage ; 0 = jusqu'au sol."))}${this._champNombre(_t("Haut (cm)"), "hauteur", o.hauteur, 1, haut, _t("Hauteur du haut du vitrage."))}</div>
-      <div class="ed-ligne">${this._champNombre(_t("Avancée de toit (cm)"), "avancee", o.avancee, 1, "0", _t("Profondeur de l'avancée au-dessus : elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver)."))}${this._champNombre(_t("Au-dessus du haut (cm)"), "avancee_hauteur", o.avancee_hauteur, 1, "0", _t("Hauteur de l'avancée au-dessus du haut du vitrage."))}</div></details>`;
   }
 
   _champNombre(label, k, v, step = 1, ph = "", aide = "") {
@@ -11317,6 +12439,20 @@ class EditeurPlan {
       else inp.onchange = () => ecrire(k, inp.dataset.num ? (inp.value === "" ? "" : +inp.value) : inp.value.trim());
     });
     this._cablerIcones(P);
+  }
+
+  // glisser-déposer depuis les panneaux d'information : cote / i = destination (i Infinity = à la fin)
+  deplacerWidget(src, cote, i) {
+    const l = this._wl(src);
+    if (!l?.[src.i] || (src.cote === "fiche") !== (cote === "fiche")) return; // une fiche ne s'échange pas par glisser avec les panneaux
+    let j = i === Infinity ? null : i;
+    if (cote === src.cote && j != null && j > src.i) j--;
+    if (cote === src.cote && (j ?? l.length - 1) === src.i) return;
+    this.commit(() => {
+      const [w] = l.splice(src.i, 1), dest = this._wl({ ...src, cote }, true), k = j == null ? dest.length : Math.min(j, dest.length);
+      dest.splice(k, 0, w);
+      this.sel = { ...src, cote, i: k };
+    });
   }
 
   _action(a) {
@@ -11570,6 +12706,8 @@ class EditeurPlan {
     if (ctrl && k === "a") { ev.preventDefault(); ev.stopPropagation(); this.toutSelectionner(); return; }
     if (ctrl && k === "d") { ev.preventDefault(); if (this.multi.size > 1 || ["point", "meuble", "piece", "ouverture"].includes(this.sel?.type)) this._action("dupliquer"); return; }
     if (ctrl && k === "g") { ev.preventDefault(); ev.stopPropagation(); if (ev.shiftKey) this.degrouper(); else this.grouper(); return; }
+    if (ctrl && k === "c" && (this.sel || this.multi.size)) { if (this.copier()) ev.preventDefault(); return; }
+    if (ctrl && k === "v" && EditeurPlan.pressePapiers?.length) { ev.preventDefault(); this.coller(); return; }
     if (ctrl || ev.altKey) return;
     if (ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); this.aideClavier(); return; }
     // Entrée / Espace sur un bouton de zoom : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
@@ -11591,6 +12729,40 @@ class EditeurPlan {
     if (k === "a") this.ouvrirCatalogue();
   }
 
+  // ---------- copier / coller (Ctrl+C, Ctrl+V) ----------
+  // Le presse-papiers ne dépend pas de l'étage (ni de l'instance de l'éditeur) : coller sur un autre étage pose les éléments
+  // à la même position, c'est ainsi qu'on passe un élément d'un étage à l'autre. Éléments du plan seulement (pas les widgets).
+  copier() {
+    const L = this._listes(), m = (this.multi.size ? [...this.multi] : this.sel ? [cle(this.sel)] : []).map(deCle).filter((x) => L[x.type]?.[x.i]);
+    if (!m.length) return false;
+    EditeurPlan.pressePapiers = m.map((x) => ({ type: x.type, o: clone(L[x.type][x.i]) }));
+    this.snack(_t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
+    return true;
+  }
+  coller() {
+    const pp = EditeurPlan.pressePapiers;
+    if (!pp?.length) return false;
+    // pièce : sa pièce HA n'est gardée que si aucune autre pièce de la maison ne l'a déjà (copie d'une pièce supprimée entre-temps) ;
+    // son nom prend « (copie) » s'il est déjà pris
+    const M = maisonEntiere(this._E, this.d), zones = new Set(M.pieces.map((p) => p?.zone).filter(Boolean)), noms = new Set(M.pieces.map((p) => p?.nom));
+    const LISTE = { point: "points", texte: "textes", piece: "pieces", ouverture: "ouvertures", mur: "murs", limite: "limites", meuble: "meubles" }, nouv = [];
+    this.commit(() => {
+      for (const { type, o } of pp) {
+        if (!LISTE[type]) continue;
+        const c = clone(o);
+        if (type === "piece") { if (c.zone && zones.has(c.zone)) delete c.zone; if (noms.has(c.nom)) c.nom = _t("{nom} (copie)", { nom: c.nom }); }
+        const l = (this.d[LISTE[type]] ||= []);
+        l.push(c);
+        nouv.push(`${type}:${l.length - 1}`);
+      }
+      // hors de tout groupe (le groupe d'origine reste à ses éléments)
+      nouv.forEach((k) => this._poserGr(k, null));
+      this.multi = new Set(nouv); this.sel = nouv.length ? deCle(nouv[nouv.length - 1]) : null;
+    });
+    this.snack(_t("{n} élément collé.|{n} éléments collés.", { n: nouv.length }), _t("Annuler"), this._annulation());
+    return true;
+  }
+
   // ---------- aide aux raccourcis clavier (bouton « ? » ou touche ?) ----------
   aideClavier() {
     if (this.R.querySelector(".ed-voile.ed-aide-clavier")) return;
@@ -11601,7 +12773,9 @@ class EditeurPlan {
     const groupes = [
       [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer sans quitter l'éditeur")],
         [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer une fenêtre")]]],
-      [_t("Outils"), OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))])],
+      [_t("Outils"), [...OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
+        // copier / coller (aussi d'un étage à l'autre) : ici, la colonne qui a de la place (la modale tient sans défiler)
+        [ou(K(ctrl, "C"), K(ctrl, "V")), _t("Copier / coller sur place")]]],
       [_t("Sélection"), [[_t("Clic"), _t("Sélectionner")], [`${K(ctrl)}+${_t("clic")}`, _t("Ajouter à la sélection ou en retirer")], [_t("Glisser dans le vide"), _t("Cadre de sélection")],
         [K(ctrl, "A"), _t("Tout sélectionner")], [K(_t("Flèches")), _t("Déplacer d'un pas de grille (avec Maj : ×10)")], [K(_t("Suppr")), _t("Retirer")],
         [K(ctrl, "D"), _t("Dupliquer")], [K(ctrl, "G"), _t("Grouper")], [K(ctrl, maj, "G"), _t("Dégrouper")]]],
@@ -12152,6 +13326,22 @@ class EditeurPlan {
       <path class="ed-ap-cote" d="M${-L / 2} -58V-46M${L / 2} -58V-46M${-L / 2} -52H${L / 2}"/><text class="ed-ap-cote-t" x="0" y="-62">${fmt(L / 100, 2)} m</text></svg>`;
   }
 
+  // repli « Lumière » d'une fenêtre ou d'une porte : vitrage d'une porte (pleine, vitrée sur toute la hauteur, petite vitre en haut),
+  // allège et haut du vitrage (vide = auto), avancée de toit au-dessus (profondeur, hauteur au-dessus du haut)
+  _sectionLumiereOuv(o) {
+    const vt = o.type === "porte" ? (o.vitree === true ? "toute" : o.vitree || "") : "fenetre", larg = Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]);
+    const ouvert = o.allege != null || o.hauteur != null || o.avancee != null || !!o.lames || (o.type === "porte" && !!vt);
+    // lames du volet (`lames`) : pleines = volet de base (défaut), orientables = selon l'inclinaison du volet, ajourées = filets volet fermé
+    const lames = o.volet ? `<div class="ed-champ"><label>${_t("Lames du volet")}${bulleI(_t("Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière."))}</label><select data-k="lames">${[["", _t("Pleines (volet de base)")], ["orientables", _t("Orientables")], ["ajourees", _t("Ajourées")]].map(([v, n]) => `<option value="${v}" ${(o.lames || "") === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
+    const choix = o.type === "porte" ? `<div class="ed-champ"><label>${_t("Vitrage de la porte")}${bulleI(_t("Une porte vitrée laisse entrer la lumière du jour, comme une fenêtre ; son volet est pris en compte."))}</label><select data-k="vitree">${[["", _t("Porte pleine")], ["toute", _t("Vitrée sur toute la hauteur")], ["haut", _t("Petite vitre en haut")]].map(([v, n]) => `<option value="${v}" ${vt === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
+    if (o.type === "porte" && !vt) return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}</details>`;
+    const [bas, haut] = vt === "haut" ? ["150", "200"] : vt === "toute" || larg >= 180 ? ["0", "215"] : ["90", "215"];
+    return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}${lames}
+      <div class="ed-aide">${o.type === "porte" ? _t("Vide = auto : 0 à 215 cm, ou 150 à 200 cm pour une petite vitre.") : _t("Vide = auto : 90 cm, ou 0 dès 1,80 m de baie.")}</div>
+      <div class="ed-ligne">${this._champNombre(_t("Allège (cm)"), "allege", o.allege, 1, bas, _t("Hauteur du bas du vitrage ; 0 = jusqu'au sol."))}${this._champNombre(_t("Haut (cm)"), "hauteur", o.hauteur, 1, haut, _t("Hauteur du haut du vitrage."))}</div>
+      <div class="ed-ligne">${this._champNombre(_t("Avancée de toit (cm)"), "avancee", o.avancee, 1, "0", _t("Profondeur de l'avancée au-dessus : elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver)."))}${this._champNombre(_t("Au-dessus du haut (cm)"), "avancee_hauteur", o.avancee_hauteur, 1, "0", _t("Hauteur de l'avancée au-dessus du haut du vitrage."))}</div></details>`;
+  }
+
   // ---------- « Créer un meuble » : forme composée de primitives, taille, couleur, catégorie, connecté ----------
   // primitives d'un meuble du catalogue (« partir d'un meuble ») : son dessin SVG relu (rectangles, cercles, ellipses, traits,
   // courbes approchées par des points), coordonnées ramenées en % de sa taille
@@ -12679,6 +13869,52 @@ class EditeurPlan {
     };
   }
 
+  // escalier : étage où il mène (`floor`), parmi les autres étages du plan, ou aucun (clé retirée) ; absent sans autre étage
+  _champMeneA(o) {
+    const ici = this.d.etage_actif?.id, L = this.carte.constructor.ETAGES.parEtage(this.d).filter((e) => e.id != null && e.id !== ici);
+    if (!L.length) return "";
+    const v = typeof o.etage === "string" ? o.etage : "", opt = (id, nom) => `<option value="${esc(id)}" ${v === id ? "selected" : ""}>${esc(nom)}</option>`;
+    return `<div class="ed-champ"><label>${_t("Mène à")}${bulleI(_t("Sur le plan, toucher l'escalier affiche cet étage."))}</label><select data-k="etage">${opt("", _t("aucun"))}
+      ${L.map((e) => opt(e.id, e.nom || e.court)).join("")}${v && !L.some((e) => e.id === v) ? opt(v, v) : ""}</select></div>`;
+  }
+
+  // fenêtre de toit : pente du toit (0 à 75°), hauteur du bas de la fenêtre (cm), store (`cover`) ou contact ; vides = défauts (40°, 200 cm)
+  _champsVelux(o) {
+    const V = this.carte.constructor.VELUX, N = (label, k, v, min, max, ph, aide) => `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="number" step="1" min="${min}" max="${max}" data-k="${k}" data-num="1" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
+    return `<div class="ed-ligne">${N(_t("Pente du toit (°)"), "pente", o.pente, 0, 75, String(V.pente({})), _t("0 = toit plat, jusqu'à 75°. Le bas du rectangle est le bas de la pente."))}
+      ${N(_t("Hauteur du bas (cm)"), "hauteur", o.hauteur, 0, 1000, String(V.hauteur({})), _t("Hauteur du bas de la fenêtre au-dessus du sol."))}</div>
+      ${this._champEntite(_t("Store ou contact"), "entite", o.entite, true, "cover", _t("Un store (cover) raccourcit la tache de soleil selon sa position ; un contact affiche seulement l'état ouvert."))}`;
+  }
+
+  _ongletsMeuble(o) {
+    const perso = o.type === "forme", L = MEUBLES(), def = L[o.type] || { nom: perso ? _t("Meuble personnalisé") : _t("Type inconnu ({t})", { t: o.type }), taille: [60, 60] }, [w, h] = o.taille || def.taille, rot = nbr(o.rotation);
+    const nomDef = L[o.type] ? _t(def.nom) : def.nom; // nom du catalogue (traduit) ; o.nom est celui de l'utilisateur
+    const mode = tactile() ? _t("Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.") : _t("Glisse-le pour le déplacer (il se colle aux murs proches, Alt pour l'en empêcher), tire un coin pour changer sa taille (Maj : proportions gardées).");
+    const anim = o.entite || o.valeur || o.fiche ? this._sectionAnimation(o, "meuble", "animation", _t("Animation (actif)")) : "";
+    return { icone: "mdi:sofa-outline", titre: o.nom || nomDef, resume: nomDef, aide: def.aide ? `${_t(def.aide)}. ${mode}` : mode,
+      actions: `${perso || o.type === "espace" ? "" : ibAct("atelier-meuble", "mdi:shape-outline", _t("Personnaliser la forme (atelier)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : garder ce meuble à ces dimensions dans « Mes modèles »"))}`,
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(o.type === "espace" ? _t("Nom affiché") : _t("Nom (infobulle)"), "nom", o.nom, nomDef)}
+      ${perso ? `<button type="button" class="ed-btn tonal ed-plein" data-act="atelier-meuble"><ha-icon icon="mdi:shape-outline"></ha-icon>${_t("Modifier la forme")}</button>`
+        : `<div class="ed-champ"><label>${_t("Type")}</label><select data-k="type">${Object.entries(L).map(([t, x]) => `<option value="${esc(t)}" ${t === o.type ? "selected" : ""}>${esc(_t(x.cat))} · ${esc(_t(x.nom))}</option>`).join("")}${L[o.type] ? "" : `<option selected value="${esc(o.type)}">${esc(o.type)}</option>`}</select></div>`}
+      ${def.rond ? this._champNombre(_t("Diamètre (cm)"), "_diametre", w, 1) : `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "taille.0", w, 1)}${this._champNombre(_t("Profondeur (cm)"), "taille.1", h, 1)}</div>`}
+      ${def.chaises ? this._champNombre(_t("Chaises"), "chaises", o.chaises ?? def.chaises, 1) : ""}
+      ${o.type === "escalier" ? this._champMeneA(o) : ""}
+      ${o.type === "fenetre_toit" ? this._champsVelux(o) : ""}
+      <div class="ed-champ"><label>${_t("Orientation")}</label><div class="ed-icones">
+        <button data-act="rot:-15" title="${_t("Tourner de 15° à gauche")}"><ha-icon icon="mdi:rotate-left-variant"></ha-icon></button>
+        <button data-act="rot:-90" title="${_t("Tourner de 90° à gauche")}"><ha-icon icon="mdi:rotate-left"></ha-icon></button>
+        <button data-act="rot:90" title="${_t("Tourner de 90° à droite")}"><ha-icon icon="mdi:rotate-right"></ha-icon></button>
+        <button data-act="rot:15" title="${_t("Tourner de 15° à droite")}"><ha-icon icon="mdi:rotate-right-variant"></ha-icon></button>
+        ${def.rond ? "" : `<button data-act="miroir" class="${o.miroir ? "on" : ""}" title="${_t("Miroir (canapé d'angle gauche / droite…)")}"><ha-icon icon="mdi:flip-horizontal"></ha-icon></button>`}
+        </div></div>
+      <details class="ed-avance"><summary>${_t("Position")}</summary>
+      ${this._champNombre(_t("Angle (°, 0 à 359)"), "_angle", rot, 1)}
+      ${this._champXY(o)}</details>
+      ${this._calqueNiveau(o)}`],
+        ["connecte", _t("Connecté"), "mdi:lightning-bolt-outline", this._sectionConnecte(o, def)],
+        ...(anim ? [["animation", _t("Animation"), "mdi:animation-play-outline", anim]] : [])] };
+  }
+
   // ---------- catalogue et modèles ----------
   ouvrirCatalogue(opt = {}) {
     const d = this.d, mod = (d.modeles || []).filter((m) => !opt.widgets || m.genre === "widget");
@@ -13145,27 +14381,14 @@ class EditeurPlan {
     };
   }
 
-  // glisser-déposer depuis les panneaux d'information : cote / i = destination (i Infinity = à la fin)
-  deplacerWidget(src, cote, i) {
-    const l = this._wl(src);
-    if (!l?.[src.i] || (src.cote === "fiche") !== (cote === "fiche")) return; // une fiche ne s'échange pas par glisser avec les panneaux
-    let j = i === Infinity ? null : i;
-    if (cote === src.cote && j != null && j > src.i) j--;
-    if (cote === src.cote && (j ?? l.length - 1) === src.i) return;
-    this.commit(() => {
-      const [w] = l.splice(src.i, 1), dest = this._wl({ ...src, cote }, true), k = j == null ? dest.length : Math.min(j, dest.length);
-      dest.splice(k, 0, w);
-      this.sel = { ...src, cote, i: k };
-    });
-  }
-
   // ---------- nettoyer le plan ----------
   // analyse par le moteur (MaquetteNettoyage) → dialogue : aperçu, défauts cerclés (clic = zoom), corrections à cocher (pièce par
   // pièce pour les murs manquants et les passages) ; « Appliquer » = une seule action annulable, après une copie du plan d'avant
   nettoyerPlan() {
-    const N = globalThis.MaquetteNettoyage, en = versMoteur(this.d), controles = this._controlesNet(), a = N.analyser(en, { ...N.OPTIONS_DEFAUT, controles });
+    const N = globalThis.MaquetteNettoyage, en = this._moteurNet(), controles = this._controlesNet(), a = N.analyser(en, { ...N.OPTIONS_DEFAUT, controles });
     const opts = { ...N.OPTIONS_DEFAUT, controles }, salles = { manquants: new Set(), passages: new Set() };
-    const visibles = OPTIONS_NET.filter(([k]) => a.corrections[k].length && (k !== "arrondir" || a.arrondiUtile));
+    const titre = esc(this._titreNet());
+    const visibles = this._optionsNet().filter(([k]) => a.corrections[k].length && (k !== "arrondir" || a.arrondiUtile));
     const items = visibles.flatMap(([k]) => a.corrections[k]).map((x, i) => ({ ...x, i }));
     const piecesDe = (k) => [...new Set(items.filter((x) => x.option === k).flatMap((x) => x.pieces || [x.piece]))];
     const choix = () => {
@@ -13179,7 +14402,7 @@ class EditeurPlan {
     const { voile, fermer } = this._voile("ed-plein-tel", null, { echap: () => fermer() });
     // plan propre, sans rien de facultatif : un message et rien à faire
     if (!visibles.length) {
-      poserHTML(voile, `<div class="ed-dialogue ed-net ed-net-petit" role="dialog" aria-modal="true" aria-label="${esc(_t("Nettoyer le plan"))}"><header><h2>${_t("Nettoyer le plan")}</h2></header>
+      poserHTML(voile, `<div class="ed-dialogue ed-net ed-net-petit" role="dialog" aria-modal="true" aria-label="${titre}"><header><h2>${titre}</h2></header>
         <div class="ed-net-vide" role="status"><ha-icon icon="mdi:check-circle-outline"></ha-icon><b>${_t("Plan propre")}</b><span>${_t("Rien à corriger.")}</span></div>
         <footer>${lienCopies}<span class="ed-espace"></span><button class="ed-btn plein" data-x="fermer">${_t("Fermer")}</button></footer></div>`);
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.x); if (ev.target === voile || b?.dataset.x === "fermer") fermer(); else if (b?.dataset.x === "copies") { fermer(); this.copiesNettoyage(); } };
@@ -13190,7 +14413,7 @@ class EditeurPlan {
     let vue = "avant", sel = null, vb = null, essai = N.nettoyer(en, choix());
     const plein = cadreNet(en);
     const resume = [nDef ? _t("{n} défaut|{n} défauts", { n: nDef }) : "", nStyle ? _t("{n} retouche de dessin|{n} retouches de dessin", { n: nStyle }) : ""].filter(Boolean).join(" · ");
-    poserHTML(voile, `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${esc(_t("Nettoyer le plan"))}"><header><h2>${_t("Nettoyer le plan")}</h2>
+    poserHTML(voile, `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${titre}"><header><h2>${titre}</h2>
         <div class="ed-aide">${esc(resume ? `${resume}. ${_t("Rien ne change avant « Appliquer ».")}` : _t("Rien ne change avant « Appliquer »."))}</div></header>
       <div class="ed-cat ed-net-corps"><div class="ed-net-apercu"><div class="ed-net-tete"><span class="ed-seg petit" role="group" aria-label="${esc(_t("Aperçu"))}">
           <button data-vue="avant" class="on" aria-pressed="true">${_t("Avant")}</button><button data-vue="apres" aria-pressed="false">${_t("Après")}</button></span><span class="ed-espace"></span>
@@ -13208,7 +14431,7 @@ class EditeurPlan {
       poserHTML(W, svgNettoyage(vue === "avant" ? en : essai.config, v, k, marques, sel));
       W.classList.toggle("ed-net-z", !!vb);
       voile.querySelector('[data-x="tout"]').hidden = !vb;
-      poserHTML(leg, vue === "avant" ? `<span><i class="l-def"></i>${_t("Défaut")}</span><span><i class="l-style"></i>${_t("Retouche de dessin")}</span>${items.some((x) => genre(x) === "info") ? `<span><i class="l-info"></i>${_t("Sans mur")}</span>` : ""}`
+      poserHTML(leg, vue === "avant" ? `<span><i class="l-def"></i>${_t("Défaut")}</span><span><i class="l-style"></i>${_t("Retouche de dessin")}</span>${items.some((x) => genre(x) === "info" && x.segment) ? `<span><i class="l-info"></i>${_t("Sans mur")}</span>` : ""}`
         : `<span><i class="l-fait"></i>${_t("{n} correction|{n} corrections", { n: essai.operations.length })}</span>`);
     };
     // zoom sur un défaut (animé, sauf mouvement réduit) ; null = tout le plan
@@ -13236,13 +14459,20 @@ class EditeurPlan {
         const L = items.filter((x) => x.option === k), on = PAR_PIECE.has(k) ? salles[k].size > 0 : !!opts[k];
         const t = PAR_PIECE.has(k) ? piecesDe(k) : [], partiel = PAR_PIECE.has(k) && salles[k].size > 0 && salles[k].size < t.length;
         const nb = (n) => L.filter((x) => (x.pieces || [x.piece]).includes(n)).length;
-        return `<div class="ed-net-opt"><label class="ed-coche"><input type="checkbox" data-o="${k}" ${on ? "checked" : ""} ${partiel ? 'data-partiel="1"' : ""}>
-            <span class="n"><span>${_t(lib)}</span><small>${_t(sous)}</small></span><span class="ed-net-nb">${L.length}</span></label>
+        // escaliers : seuls les liens vers un étage absent se corrigent ; sans eux (escaliers sans retour seulement), ligne d'information sans case
+        const info = k === "escaliers" && L.every((x) => x.niveau === "info"), compte = k === "escaliers" ? L.filter((x) => x.niveau !== "info").length : L.length;
+        const tete = info ? `<div class="ed-coche ed-net-info" style="cursor:default"><ha-icon icon="mdi:information-outline"></ha-icon>
+            <span class="n"><span>${_t("Escaliers sans retour")}</span><small>${_t("Information : rien à corriger.")}</small></span></div>`
+          : `<label class="ed-coche"><input type="checkbox" data-o="${k}" ${on ? "checked" : ""} ${partiel ? 'data-partiel="1"' : ""}>
+            <span class="n"><span>${_t(lib)}</span><small>${_t(sous)}</small></span><span class="ed-net-nb">${compte}</span></label>`;
+        return `<div class="ed-net-opt">${tete}
           ${t.length > 1 || (t.length && PAR_PIECE.has(k)) ? `<div class="ed-puces ed-net-salles">${t.map((n, j) => `<button type="button" data-salle="${k}:${j}" class="${salles[k].has(n) ? "on" : ""}" aria-pressed="${salles[k].has(n)}">${esc(n ?? _t("Pièce sans nom"))} · ${nb(n)}</button>`).join("")}</div>` : ""}
-          <details class="ed-net-det" data-det="${k}" ${ouverts.has(k) ? "open" : ""}><summary>${_t("Voir où")}</summary><div class="ed-net-liste">${L.map((x) => `<button type="button" data-d="${x.i}" class="${sel === x.i ? "on" : ""}">${esc(texteNet(x))}${x.piece ? `<small> · ${esc(x.piece)}</small>` : ""}</button>`).join("")}</div></details></div>`;
+          <details class="ed-net-det" data-det="${k}" ${ouverts.has(k) ? "open" : ""}><summary>${_t("Voir où")}</summary><div class="ed-net-liste">${L.map((x) => `<button type="button" data-d="${x.i}" class="${sel === x.i ? "on" : ""}">${esc(this._texteNet(x))}${x.piece ? `<small> · ${esc(x.piece)}</small>` : ""}</button>`).join("")}</div></details></div>`;
       };
       const parDefaut = visibles.filter(([k]) => N.OPTIONS_DEFAUT[k]), autres = visibles.filter(([k]) => !N.OPTIONS_DEFAUT[k]);
-      poserHTML(F, (a.propre ? `<div class="ed-net-propre" role="status"><ha-icon icon="mdi:check-circle-outline"></ha-icon><span><b>${_t("Plan propre")}</b>${_t("Rien à corriger. Options facultatives :")}</span></div>` : "")
+      // plan propre : « Options facultatives » seulement s'il reste une case à cocher (pas pour les seuls escaliers sans retour)
+      const cases = visibles.some(([k]) => k !== "escaliers" || items.some((x) => x.option === k && x.niveau !== "info"));
+      poserHTML(F, (a.propre ? `<div class="ed-net-propre" role="status"><ha-icon icon="mdi:check-circle-outline"></ha-icon><span><b>${_t("Plan propre")}</b>${cases ? _t("Rien à corriger. Options facultatives :") : _t("Rien à corriger.")}</span></div>` : "")
         + parDefaut.map(ligne).join("") + (autres.length && parDefaut.length ? `<h4>${_t("Facultatif")}</h4>` : "") + autres.map(ligne).join(""));
       F.querySelectorAll("[data-partiel]").forEach((i) => { i.indeterminate = true; });
       const n = essai.operations.length;
@@ -13302,18 +14532,47 @@ class EditeurPlan {
     btnApp.disabled ? voile.querySelector('[data-x="fermer"]').focus() : btnApp.focus();
   }
 
+  // titre du dialogue : avec des étages, celui qu'on nettoie (le nettoyage n'agit que sur l'étage affiché)
+  _titreNet() {
+    const id = this._etageActif();
+    if (id == null) return _t("Nettoyer le plan");
+    return _t("Nettoyer le plan — {etage}", { etage: this._nomEtageNet(id) });
+  }
+  _nomEtageNet(id, repli = null) { const e = (this.d.etages || []).find((x) => x?.id === id); return e?.nom || repli || id; }
+  // options du dialogue : celles du moteur, plus les escaliers (sans étages, aucun constat : la ligne n'apparaît pas)
+  _optionsNet() { return [...OPTIONS_NET, ["escaliers", _tk("Retirer les liens d'escalier vers un étage absent"), _tk("L'escalier ne mène plus nulle part.")]]; }
+  _texteNet(x) {
+    const nom = x.detail?.nom ? `« ${x.detail.nom} »` : _t("Escalier");
+    if (x.type === "escalier_sans_cible") return _t("{nom} : mène à un étage absent ({cible})", { nom, cible: x.detail.cible });
+    if (x.type === "escalier_sans_retour") return _t("{nom} : pas d'escalier de retour sur « {vers} »", { nom, vers: x.detail.vers });
+    return texteNet(x);
+  }
+  // plan vers le moteur ; avec des étages : l'étage nettoyé, la liste des étages (escaliers des autres étages) et les meubles de celui-ci
+  // (seulement ce qui sert au contrôle des escaliers : type, position, nom, étage visé)
+  _moteurNet() {
+    const en = versMoteur(this.d), id = this._etageActif();
+    if (id == null) return en;
+    const meuble = (m) => ({ type: m?.type === "escalier" ? "stairs" : m?.type ?? null, pos: m?.pos, name: m?.nom ?? null, ...(m?.etage != null ? { floor: m.etage } : {}) });
+    en.floor = id;
+    en.floors = (this.d.etages || []).map((e) => ({ id: e?.id, name: e?.nom ?? null, furniture: e?.id === id ? [] : (e?.meubles || []).map(meuble) }));
+    en.furniture = (this.d.meubles || []).map(meuble);
+    return en;
+  }
   // contrôles des ouvertures (côté dehors, volets reliés à rien) : entités connues de HA (sans HA, aucune n'est dite inexistante)
   _controlesNet() { const st = this.hass?.states; return { entites: st && Object.keys(st).length ? Object.keys(st) : null }; }
 
   // applique les corrections choisies : copie du plan d'avant gardée dans ce navigateur, puis une seule action annulable
   appliquerNettoyage(options = {}) {
-    const N = globalThis.MaquetteNettoyage, r = N.nettoyer(versMoteur(this.d), { controles: this._controlesNet(), ...options }), n = r.operations.length;
+    const N = globalThis.MaquetteNettoyage, en = this._moteurNet(), r = N.nettoyer(en, { controles: this._controlesNet(), ...options }), n = r.operations.length;
     if (!n) return this.snack(_t("Plan propre"));
     const garde = this._garderCopieNettoyage(n), res = depuisMoteur(this.d, r.config);
+    // escaliers dont le moteur a retiré le lien (étage visé absent)
+    const liens = (en.furniture || []).map((m, j) => (m.floor != null && r.config.furniture?.[j]?.floor == null ? j : -1)).filter((j) => j >= 0);
     this.commit(() => {
       this.d.pieces = res.pieces;
       if (this.d.ouvertures || res.ouvertures.length) this.d.ouvertures = res.ouvertures;
       if (this.d.murs || res.murs.length) this.d.murs = res.murs;
+      for (const j of liens) if (this.d.meubles?.[j]) { const m = { ...this.d.meubles[j] }; delete m.etage; this.d.meubles[j] = m; }
       this.sel = null; this.multi.clear();
     });
     this.snack(garde ? _t("{n} correction|{n} corrections", { n }) : `${_t("{n} correction|{n} corrections", { n })} · ${_t("copie d'avant non gardée : stockage du navigateur plein")}`, _t("Annuler##defaire"), this._annulation(), 10000);
@@ -13327,15 +14586,22 @@ class EditeurPlan {
   }
   _garderCopieNettoyage(n) {
     try {
-      const id = this._ident(), inst = this._instantaneNettoyage(n);
-      this._ecrireVersions(id, this._versions(id), [{ t: Date.now(), nettoyage: n, cles: inst.cles, en: 1 }, ...this._copiesNettoyage(id)]);
+      const id = this._ident(), inst = this._instantaneNettoyage(n), e = this._etageActif();
+      // avec des étages : copie étiquetée avec l'étage nettoyé (et son nom à cet instant, si l'étage disparaît)
+      const etage = e == null ? {} : { etage: e, nom_etage: this._nomEtageNet(e) };
+      this._ecrireVersions(id, this._versions(id), [{ t: Date.now(), nettoyage: n, cles: inst.cles, en: 1, ...etage }, ...this._copiesNettoyage(id)]);
       return true;
     } catch (e) { return false; }
   }
-  // remet pièces, murs et ouvertures d'une copie d'avant nettoyage (une action annulable)
+  // remet pièces, murs et ouvertures d'une copie d'avant nettoyage (une action annulable), sur l'étage où elle a été prise :
+  // affiché d'abord s'il ne l'est plus, les autres étages intacts ; étage disparu : rien n'est fait
   restaurerNettoyage(j = 0) {
     const v = this._copiesNettoyage()[j];
     if (!v) return;
+    if (v.etage != null && this._etageActif() != null && v.etage !== this._etageActif()) {
+      if (!this._E.ids(this._replie()).includes(v.etage)) return this.snack(_t("L'étage « {etage} » n'existe plus : rien n'est restauré.", { etage: v.nom_etage || v.etage }));
+      this.changerEtage(v.etage);
+    }
     const back = customElements.get("maquette-card").normaliser({ pieces: [], ...depuisAnglais({ ...v.cles }) });
     this.commit(() => {
       for (const [k, e] of [["pieces", "rooms"], ["murs", "walls"], ["ouvertures", "openings"]]) {
@@ -13364,9 +14630,10 @@ class EditeurPlan {
     let j = 0;
     const date = (t) => new Date(t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "short" });
     const { voile, fermer } = this._voile("ed-plein-tel", `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${esc(_t("Plans d'avant nettoyage"))}"><header><h2>${_t("Plans d'avant nettoyage")}</h2>
-        <div class="ed-aide">${_t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures (annulable).")}</div></header>
+        <div class="ed-aide">${this._etageActif() == null ? _t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures (annulable).")
+          : _t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures de leur étage, les autres étages restent tels quels (annulable).")}</div></header>
       <div class="ed-cat ed-net-corps"><div class="ed-net-apercu"><div class="ed-net-w"></div></div>
-        <div class="ed-versions" role="listbox" aria-label="${esc(_t("Plans d'avant nettoyage"))}">${copies.map((v, i) => `<button type="button" role="option" data-c="${i}" aria-selected="${i === 0}" class="${i === 0 ? "on" : ""}"><span>${esc(date(v.t))}<small> · ${_t("{n} correction|{n} corrections", { n: v.nettoyage })}</small></span></button>`).join("")}</div></div>
+        <div class="ed-versions" role="listbox" aria-label="${esc(_t("Plans d'avant nettoyage"))}">${copies.map((v, i) => `<button type="button" role="option" data-c="${i}" aria-selected="${i === 0}" class="${i === 0 ? "on" : ""}"><span>${esc(date(v.t))}<small> · ${_t("{n} correction|{n} corrections", { n: v.nettoyage })}${v.etage != null ? ` · ${esc(this._nomEtageNet(v.etage, v.nom_etage))}` : ""}</small></span></button>`).join("")}</div></div>
       <footer><button class="ed-btn texte" data-x="yaml"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copier le plan d'avant (YAML)")}</button><span class="ed-espace"></span>
         <button class="ed-btn texte" data-x="fermer">${_t("Fermer")}</button><button class="ed-btn plein" data-x="restaurer"><ha-icon icon="mdi:history"></ha-icon>${_t("Restaurer")}</button></footer></div>`, { echap: () => fermer() });
     const W = voile.querySelector(".ed-net-w");
@@ -13406,7 +14673,7 @@ class EditeurPlan {
         <div class="ed-aide">${tactile() ? _t("Le plan complet. « Importer » remplace le plan en cours (annulable).") : _t("Le plan complet. « Importer » remplace le plan en cours (Ctrl+Z pour annuler).")}</div>
         <span class="ed-seg petit" style="margin-top:12px">${["yaml", "json"].map((f) => `<button data-f="${f}" class="${f === format ? "on" : ""}">${f.toUpperCase()}</button>`).join("")}</span></header>
       <div class="ed-cat">${(() => { const vs = this._versions(); if (!vs.length) return "";
-          const res = (c) => { const w = Object.values(c?.panels || {}).flat().length; return _t("{p} pièces, {a} appareils, {w} widgets", { p: (c?.rooms || []).length, a: (c?.badges || []).length, w }); };
+          const res = (c) => { const n = resumeVersion(c); return _t("{p} pièces, {a} appareils, {w} widgets", { p: n.pieces, a: n.appareils, w: n.widgets }); };
           return `<details class="ed-avance ed-versions-bloc"><summary>${_t("Versions précédentes ({n}) : reprendre un plan enregistré avant", { n: vs.length })}</summary><div class="ed-versions">${vs.map((v, j) => `<button data-v="${j}"><span>${_t("Remplacée le {date}", { date: new Date(v.t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "medium" }) })}<small> · ${res(v.config)}</small></span><span>${_t("Charger")}</span></button>`).join("")}</div></details>`; })()}
         <textarea class="ed-code" spellcheck="false" aria-label="${_t("Plan au format texte")}"></textarea><div class="ed-erreur" hidden></div></div>
       <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-x="copier"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copier")}</button>
@@ -13472,8 +14739,8 @@ class EditeurPlan {
           this.recadrer();
           this.snack(_t("Plan importé : « Enregistrer » pour le garder, Ctrl+Z pour revenir."), _t("Annuler"), this._annulation(), 10000);
         };
-        // même plan que celui en cours (aller-retour) : rien à vérifier ; sinon le récapitulatif d'abord
-        if (canon(o) === canon(this.d)) return appliquer();
+        // même plan que celui en cours (aller-retour, comparé replié) : rien à vérifier ; sinon le récapitulatif d'abord
+        if (canon(o) === canon(this._replie())) return appliquer();
         return this._recapImport(o, { ...rap, ignorees }).then((oui) => { if (oui) appliquer(); });
       }
     };
@@ -13494,8 +14761,13 @@ class EditeurPlan {
     for (const k of ["rooms", "walls", "fences", "openings", "badges", "texts", "templates"]) if (o[k] != null && !Array.isArray(o[k])) throw new Error(_t("« {k} » doit être une liste.", { k }));
     if (o.summary != null && typeof o.summary !== "boolean" && !Array.isArray(o.summary)) throw new Error(_t("« summary » doit être une liste de puces (ou true / false)."));
     if (o.panels != null && (typeof o.panels !== "object" || Array.isArray(o.panels))) throw new Error(_t("« panels » doit contenir left / right."));
-    for (const [j, p] of (o.rooms || []).entries()) if (!Array.isArray(p?.poly) || p.poly.length < 3) throw new Error(_t("Pièce {n} ({nom}) : « poly » doit avoir au moins 3 sommets.", { n: j + 1, nom: p?.name || _t("sans nom") }));
-    o = depuisAnglais({ rooms: [], ...o });
+    // plan à étages : mêmes contrôles, étage par étage (sa géométrie est dans `floors`, rien à la racine)
+    const niveaux = Array.isArray(o.floors) && o.floors.length ? o.floors.filter((f) => f && typeof f === "object" && !Array.isArray(f)) : [o];
+    for (const f of niveaux) {
+      if (f !== o) for (const k of ["rooms", "walls", "fences", "openings", "badges", "texts"]) if (f[k] != null && !Array.isArray(f[k])) throw new Error(_t("« {k} » doit être une liste.", { k }));
+      for (const [j, p] of (f.rooms || []).entries()) if (!Array.isArray(p?.poly) || p.poly.length < 3) throw new Error(_t("Pièce {n} ({nom}) : « poly » doit avoir au moins 3 sommets.", { n: j + 1, nom: p?.name || _t("sans nom") }));
+    }
+    o = depuisAnglais(niveaux[0] === o ? { rooms: [], ...o } : o);
     // même lecture que la carte (booléens en texte, meubles, éléments sans coordonnées ignorés, valeurs invalides retirées)
     return customElements.get("maquette-card").normaliser(o, rap);
   }
@@ -13504,8 +14776,8 @@ class EditeurPlan {
   // ce que le plan importé peut commander (boutons des pièces et leur service, widgets qui commandent, lignes « Activer »),
   // ses liens « Plus d'infos », ce qui a été retiré car invalide et les clés du tableau de bord ignorées ; true = importer
   _analyseImport(c) {
-    const K = customElements.get("maquette-card"), hass = this.hass, services = [], commandes = new Map(), liens = new Set();
-    for (const p of c.pieces || []) for (const a of Array.isArray(p?.actions) ? p.actions : []) {
+    const K = customElements.get("maquette-card"), hass = this.hass, services = [], commandes = new Map(), liens = new Set(), M = maisonEntiere(K.ETAGES, c);
+    for (const p of M.pieces) for (const a of Array.isArray(p?.actions) ? p.actions : []) {
       if (!a || typeof a.action !== "string" || !a.action.includes(".")) continue;
       const [dom, svc] = a.action.split("."), piece = a.cible === "piece", ents = piece ? null : typeof a.cible === "string" && a.cible ? [a.cible] : [];
       services.push({ nom: a.nom || "", piece: p.nom || "", service: a.action, cible: piece ? _t("toute la pièce") : a.cible || "", sensible: K.serviceSensible(hass, dom, svc, ents), confirme: a.confirmer === true });
@@ -13518,8 +14790,8 @@ class EditeurPlan {
         if (typeof e === "string" && /^(script|scene|button|input_button)\./.test(e) && !commandes.has(e)) commandes.set(e, _t("Activer##lancer"));
       }
     });
-    for (const x of [c, ...(c.pieces || [])]) { voir(x?.panneaux?.gauche); voir(x?.panneaux?.droite); }
-    for (const k of ["meubles", "ouvertures", "points"]) for (const o of c[k] || []) {
+    for (const x of [c, ...M.panneaux, ...M.pieces]) { voir(x?.panneaux?.gauche); voir(x?.panneaux?.droite); }
+    for (const k of ["meubles", "ouvertures", "points"]) for (const o of M[k]) {
       voir(o?.fiche?.widgets);
       const pi = o?.fiche?.plus_infos;
       if (typeof pi === "string" && /^(\/|https?:)/i.test(pi)) liens.add(pi);
@@ -13528,15 +14800,15 @@ class EditeurPlan {
     return { services, commandes: [...commandes], liens: [...liens] };
   }
   _recapImport(c, rap) {
-    const { services, commandes, liens } = this._analyseImport(c), retires = rap.retires || [], ignorees = rap.ignorees || [];
-    const nW = [c, ...(c.pieces || [])].reduce((n, x) => n + (x?.panneaux?.gauche?.length || 0) + (x?.panneaux?.droite?.length || 0), 0);
+    const { services, commandes, liens } = this._analyseImport(c), retires = rap.retires || [], ignorees = rap.ignorees || [], M = maisonEntiere(customElements.get("maquette-card").ETAGES, c);
+    const nW = [c, ...M.panneaux, ...M.pieces].reduce((n, x) => n + (x?.panneaux?.gauche?.length || 0) + (x?.panneaux?.droite?.length || 0), 0);
     const plafond = (l, f) => `${l.slice(0, 30).map(f).join("")}${l.length > 30 ? `<li><small>${_t("… et {n} autres", { n: l.length - 30 })}</small></li>` : ""}`;
     const bloc = (ic, titre, n, corps) => `<section class="ed-recap-s"><h4><ha-icon icon="${ic}"></ha-icon>${esc(titre)} (${n})</h4>${corps}</section>`;
     const rien = !services.length && !commandes.length && !liens.length && !retires.length && !rap.ignores && !ignorees.length;
     return new Promise((fin) => {
       const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue large ed-recap" role="alertdialog" aria-modal="true" aria-labelledby="ed-recap-t" aria-describedby="ed-recap-d">
         <header><h2 id="ed-recap-t">${_t("Vérifier avant d'importer")}</h2>
-          <div class="ed-aide" id="ed-recap-d">${esc(_t("Pièces {p} · Ouvertures {o} · Appareils {a} · Meubles {m} · Widgets {w} · Modèles {t}", { p: (c.pieces || []).length, o: (c.ouvertures || []).length, a: (c.points || []).length, m: (c.meubles || []).length, w: nW, t: (c.modeles || []).length }))}</div></header>
+          <div class="ed-aide" id="ed-recap-d">${esc(_t("Pièces {p} · Ouvertures {o} · Appareils {a} · Meubles {m} · Widgets {w} · Modèles {t}", { p: M.pieces.length, o: M.ouvertures.length, a: M.points.length, m: M.meubles.length, w: nW, t: (c.modeles || []).length }))}</div></header>
         <div class="ed-cat">
           ${services.length ? bloc("mdi:gesture-tap-button", _t("Boutons des pièces : services appelés"), services.length, `<ul>${plafond(services, (x) => `<li><span><b>${esc(x.nom || _t("sans nom"))}</b>${x.piece ? ` · ${esc(x.piece)}` : ""}</span>
             <small><code>${esc(x.service)}</code>${x.cible ? ` → ${esc(x.cible)}` : ""}</small>${x.sensible || x.confirme ? `<span class="ed-sensible"><ha-icon icon="mdi:shield-alert-outline"></ha-icon>${_t("Confirmation à chaque appui")}</span>` : ""}</li>`)}</ul>`) : ""}
@@ -13553,6 +14825,766 @@ class EditeurPlan {
     });
   }
 
+  // ---------- étages : frontière repliée ----------
+  // Seuls this.d (= carte._config) et les instantanés d'annulation sont dépliés sur l'étage actif (clé interne `etage_actif`) :
+  // tout ce qui sort de l'éditeur (original, comparaison « modifié », brouillon, versions, enregistrement, export) est replié.
+  // L'id de l'étage actif est gardé à part (brouillon, reprise), jamais dans la config.
+  get _E() { return this.carte.constructor.ETAGES; }
+  // config repliée (copie) : sans étages, une simple copie
+  _replie(d = this.d) { return this._E.replier(d); }
+  // étage actif (null sans étages)
+  _etageActif(d = this.d) { return d?.etage_actif?.id ?? null; }
+  // config repliée → dépliée sur l'étage `id` (s'il existe ; sinon l'étage actif s'il existe encore, sinon l'étage initial)
+  _deplie(plein, id = this._etageActif()) {
+    const E = this._E, ids = E.ids(plein);
+    return E.deplier(plein, ids.includes(id) ? id : E.etageInitial(plein));
+  }
+  // comparaison « modifié » : forme canonique repliée (ordre des clés indifférent), l'original mis en cache
+  _canonOriginal() {
+    if (this._cOrig?.o !== this.original) this._cOrig = { o: this.original, s: canon(this.original) };
+    return this._cOrig.s;
+  }
+  _estModifie(p = this._replie()) { return canon(p) !== this._canonOriginal(); }
+  // la carte suit l'éditeur : étage affiché et config repliée à jour (sélecteur d'étages, résumé de toute la maison)
+  _suivreCarte(p = this._replie()) {
+    const c = this.carte;
+    c._etage = this._etageActif();
+    c._plein = p;
+  }
+  // instantané de l'état en cours, déplié sur l'étage de l'instantané `json` (annuler / rétablir)
+  _instantaneSur(json) {
+    const id = this._etageActif() == null ? null : JSON.parse(json)?.etage_actif?.id;
+    return JSON.stringify(id == null || id === this._etageActif() ? this.d : this._deplie(this._replie(), id));
+  }
+  // brouillon : config repliée, étage actif sous une clé à part
+  _cleEtage() { return `${this._cle()}#etage`; }
+  _ecrireBrouillon(p = this._replie()) {
+    if (stock.ecrire(this._cle(), JSON.stringify(p)) && this._etageActif() != null) stock.ecrire(this._cleEtage(), this._etageActif());
+    else stock.retirer(this._cleEtage());
+  }
+  _retirerBrouillon() { stock.retirer(this._cle()); stock.retirer(this._cleEtage()); }
+  // brouillon relu (normalisé) et déplié sur l'étage où l'on travaillait
+  _brouillonDeplie(b) { return JSON.stringify(this._deplie(this._replie(JSON.parse(this._relire(b))), stock.lire(this._cleEtage()))); }
+
+  // outil en cours, tracé, glisser et sélection remis à zéro (changement d'étage : les index ne désignent plus les mêmes éléments)
+  _remettreAZero() {
+    this._finGlisse?.();
+    this.trace = []; this.aPlacer = null; this.aPlacerMeuble = null; this.zoneEnAttente = null; this.sousZoneEnAttente = null;
+    this.sel = null; this.multi.clear();
+    if (this.outil !== "selection") this.choisirOutil("selection");
+    this._fermerMenu();
+  }
+
+  // changer d'étage en édition (appelé par le sélecteur d'étages de la carte) : rien n'est modifié, ni historique ni « Enregistrer »
+  changerEtage(id) {
+    const E = this._E, plein = this._replie();
+    if (this._etageActif() == null || id === this._etageActif() || !E.ids(plein).includes(id)) return false;
+    this._remettreAZero();
+    this._applique(JSON.stringify(E.deplier(plein, id)));
+    // redessin sans _apres : rien n'est corrigé sur l'étage affiché (groupes vides…), seul un brouillon existant suit l'étage
+    this.modifie = this._estModifie(plein);
+    this._boite();
+    if (this.modifie) this._ecrireBrouillon(plein);
+    this.carte._construire();
+    this._barre();
+    this._panneau();
+    return true;
+  }
+  // ---------- gérer les étages : modale « Étages » ----------
+  // Chaque action est une seule étape d'annulation : la config repliée est modifiée puis reposée dépliée sur l'étage à afficher.
+  // 1 → N : « + Étage » sur un plan sans `floors` range d'abord la géométrie dans l'étage `ground` ; N → 1 : supprimer l'avant-dernier
+  // étage remet la géométrie à la racine (plus de `floors` ni de `default_floor`).
+  // le sélecteur d'étages de la carte reste visible en édition dès qu'il y a un étage (bouton « Gérer »)
+  get afficherSelecteur() { return true; }
+
+  // config repliée (copie) posée dépliée sur l'étage `id` (ou telle quelle sans étages), en une étape d'annulation
+  _poserPlein(plein, id) {
+    const E = this._E, d = E.ids(plein).length ? E.deplier(plein, id) : plein;
+    this.commit(() => this._applique(JSON.stringify(d)));
+  }
+  // mur du contour : d'un côté une pièce intérieure (pas `outside`), de l'autre rien (essai au quart, au milieu, aux trois quarts)
+  _murExterieur(m, pieces) {
+    const P = pieces.filter((p) => p && !p.dehors && Array.isArray(p.poly) && p.poly.length >= 3);
+    if (!P.length) return true;
+    const [x1, y1, x2, y2] = m, L = Math.hypot(x2 - x1, y2 - y1);
+    if (!(L > 0)) return false;
+    const nx = -(y2 - y1) / L * 15, ny = (x2 - x1) / L * 15, dedans = (x, y) => P.some((p) => dansPoly([x, y], p.poly));
+    return [0.25, 0.5, 0.75].some((t) => { const x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t; return dedans(x + nx, y + ny) !== dedans(x - nx, y - ny); });
+  }
+  // identifiant sûr et libre (etage_1, etage_2…) et nom proposé (« Étage 1 »…), au même numéro
+  _nouvelEtage(plein) {
+    const ids = new Set(this._E.ids(plein)), noms = new Set((plein.etages || []).map((e) => e?.nom));
+    let n = 1;
+    while (ids.has(`etage_${n}`) || noms.has(_t("Étage {n}", { n }))) n++;
+    return { id: `etage_${n}`, nom: _t("Étage {n}", { n }), court: String(n), icone: n <= 3 ? `mdi:home-floor-${n}` : "mdi:layers-outline" };
+  }
+  // pièces et autres éléments d'un étage (confirmation de suppression, liste de la modale)
+  _comptesEtage(e) {
+    const g = e.geo, autres = ["murs", "limites", "ouvertures", "points", "textes", "meubles"].reduce((a, k) => a + g[k].length, 0) + (g.fond ? 1 : 0);
+    return { pieces: g.pieces.length, autres };
+  }
+
+  // + Étage : `vide`, `murs` (murs extérieurs de l'étage affiché) ou `tout` (copie de l'étage affiché) ; placé juste au-dessus, on y passe
+  ajouterEtage(mode = "vide") {
+    const E = this._E, plein = this._replie();
+    let cur = this._etageActif();
+    if (!E.ids(plein).length) {
+      // passage 1 → N : le plan actuel devient le rez-de-chaussée
+      const g = { id: "ground", nom: _t("Rez-de-chaussée"), court: "0", icone: "mdi:home-floor-0" };
+      for (const k of E.CLES_ETAGE) if (k in plein) { g[k] = plein[k]; delete plein[k]; }
+      g.pieces ||= [];
+      plein.etages = [g];
+      delete plein.etage_defaut;
+      cur = "ground";
+    }
+    let i = plein.etages.findIndex((e) => e?.id === cur);
+    if (i < 0) i = plein.etages.length - 1;
+    const src = plein.etages[i], neuf = this._nouvelEtage(plein);
+    if (mode === "tout") {
+      for (const k of [...E.CLES_ETAGE, "panneaux"]) if (k in src) neuf[k] = clone(src[k]);
+    } else if (mode === "murs") neuf.murs = (src.murs || []).filter((m) => Array.isArray(m) && this._murExterieur(m, src.pieces || [])).map((m) => [...m]);
+    neuf.pieces ||= [];
+    plein.etages.splice(i + 1, 0, neuf);
+    this._taireDoublons = true;
+    try { this._poserPlein(plein, neuf.id); } finally { this._taireDoublons = false; }
+    const d = this._doublons;
+    this._doublons = null;
+    if (d?.length) this._avertirDoublons(d, _t("Étage « {nom} » ajouté.", { nom: neuf.nom }));
+    else this.snack(_t("Étage « {nom} » ajouté.", { nom: neuf.nom }), _t("Annuler##defaire"), this._annulation(), 8000);
+    this._rendreEtages();
+    return neuf.id;
+  }
+  // nom, nom court, icône (l'id ne change jamais : escaliers et étage mémorisé restent valides) ; vide = retiré
+  modifierEtage(id, champ, valeur, rendre = true) {
+    if (!["nom", "court", "icone"].includes(champ)) return false;
+    const e = (this.d.etages || []).find((x) => x?.id === id), v = String(valeur ?? "").trim();
+    if (!e || (e[champ] ?? "") === v) return false;
+    if (champ === "icone" && v && !/^[\w-]+:[\w-]+$/.test(v)) { this.snack(_t("Icône attendue sous la forme mdi:nom-de-l-icone."), null, null, "erreur"); this._rendreEtages(); return false; }
+    this.commit(() => { if (v) e[champ] = v; else delete e[champ]; });
+    if (rendre) this._rendreEtages();
+    return true;
+  }
+  // monter (+1) ou descendre (-1) un étage dans la maison (`floors` va du bas vers le haut)
+  deplacerEtage(id, sens) {
+    const l = this.d.etages || [], i = l.findIndex((x) => x?.id === id), j = i + sens;
+    if (i < 0 || j < 0 || j >= l.length) return false;
+    this.commit(() => { [l[i], l[j]] = [l[j], l[i]]; });
+    this._rendreEtages();
+    return true;
+  }
+  // étage affiché au chargement (`default_floor`) ; null : le dernier affiché, sinon le premier
+  etageParDefaut(id) {
+    const ids = this._E.ids(this.d);
+    if (id != null && !ids.includes(id)) return false;
+    if ((this.d.etage_defaut ?? null) === (id ?? null)) return false;
+    this.commit(() => { if (id == null) delete this.d.etage_defaut; else this.d.etage_defaut = id; });
+    this._rendreEtages();
+    return true;
+  }
+  // supprimer un étage (confirmation, sauf `confirme`) : escaliers qui y menaient sans `floor` ; au dernier étage restant, plus de `floors`
+  supprimerEtage(id, confirme = false) {
+    const E = this._E, L = E.parEtage(this.d), e = L.find((x) => x.id === id);
+    if (!e || L.length < 2) return false;
+    if (!confirme) return this._confirmerSuppression(e);
+    const plein = this._replie(), i = plein.etages.findIndex((x) => x?.id === id), actif = this._etageActif();
+    plein.etages.splice(i, 1);
+    let n = 0;
+    const sans = (l) => { for (const m of l || []) if (m?.type === "escalier" && "etage" in m && (m.etage === id || plein.etages.length === 1)) { delete m.etage; n++; } };
+    plein.etages.forEach((x) => sans(x.meubles));
+    if (plein.etage_defaut === id) delete plein.etage_defaut;
+    let vers = actif === id ? plein.etages[Math.max(0, i - 1)].id : actif;
+    if (plein.etages.length === 1) {
+      // N → 1 : la géométrie du dernier étage revient à la racine, comme un plan simple
+      const [r] = plein.etages;
+      for (const k of E.CLES_ETAGE) if (k in r) plein[k] = r[k];
+      if ("panneaux" in r) plein.panneaux = r.panneaux;
+      plein.pieces ||= [];
+      delete plein.etages; delete plein.etage_defaut; delete plein.selecteur_etages;
+      vers = null;
+    }
+    this._poserPlein(plein, vers);
+    const nom = e.nom || e.court;
+    this.snack(n ? `${_t("Étage « {nom} » supprimé.", { nom })} ${_t("{n} escalier n'y mène plus.|{n} escaliers n'y mènent plus.", { n })}` : _t("Étage « {nom} » supprimé.", { nom }),
+      _t("Annuler##defaire"), this._annulation(), 10000);
+    this._rendreEtages();
+    return true;
+  }
+  _confirmerSuppression(e) {
+    const { pieces, autres } = this._comptesEtage(e), nom = e.nom || e.court;
+    const perte = pieces || autres ? _t("{p} et {a} seront perdus (annulable).", { p: _t("{n} pièce|{n} pièces", { n: pieces }), a: _t("{n} autre élément|{n} autres éléments", { n: autres }) })
+      : _t("Cet étage est vide.");
+    const { voile, fermer } = this._voile("", `<div class="ed-dialogue ed-et-conf" role="alertdialog" aria-modal="true" aria-labelledby="ed-et-conf-t" aria-describedby="ed-et-conf-d">
+      <header><h2 id="ed-et-conf-t">${esc(_t("Supprimer « {nom} » ?", { nom }))}</h2><div class="ed-aide" id="ed-et-conf-d">${esc(perte)}</div></header>
+      <footer><button class="ed-btn texte" data-x="non">${_t("Annuler")}</button><button class="ed-btn plein ed-et-danger" data-x="oui"><ha-icon icon="mdi:delete-outline"></ha-icon>${_t("Supprimer")}</button></footer></div>`,
+    { echap: () => { fermer(); this._focusEtages(`[data-id="${this._selId(e.id)}"] [data-et="suppr"]`); }, pieger: true, dessus: true });
+    voile.onclick = (ev) => {
+      const x = ev.target === voile ? "non" : ev.composedPath().find((n) => n.dataset?.x)?.dataset.x;
+      if (!x) return;
+      fermer();
+      if (x === "oui") this.supprimerEtage(e.id, true); else this._focusEtages(`[data-id="${this._selId(e.id)}"] [data-et="suppr"]`);
+    };
+    voile.querySelector('[data-x="non"]').focus();
+    return false;
+  }
+
+  // ---------- noms de pièce uniques dans la maison (avertissement, jamais bloquant) ----------
+  _cleNom(n) { return String(n ?? "").trim().toLocaleLowerCase(); }
+  _compterNoms(c) {
+    const m = new Map();
+    for (const e of this._E.parEtage(c)) for (const p of e.geo.pieces) { const k = this._cleNom(p?.nom); if (k) m.set(k, (m.get(k) || 0) + 1); }
+    return m;
+  }
+  // crochet de _apres : un nom de pièce de l'étage affiché devient doublon dans la maison (création, renommage, copie, étage dupliqué)
+  _apresGestionEtages(plein, sansHisto) {
+    // modale ouverte : redessinée après toute modification (annuler depuis la notification compris), sauf pendant une saisie
+    if (this._voileEtages && !this._saisieEtages) this._rendreEtages();
+    const avant = this._nomsMaison || this._compterNoms(this.original), noms = (this._nomsMaison = this._compterNoms(plein));
+    if (sansHisto || !this._E.ids(plein).length) return;
+    const ici = this._E.parEtage(plein).find((e) => e.id === this._etageActif());
+    const d = [...new Set((ici?.geo.pieces || []).map((p) => String(p?.nom ?? "").trim()).filter((n) => {
+      const k = this._cleNom(n);
+      return k && noms.get(k) > 1 && noms.get(k) > (avant.get(k) || 0);
+    }))];
+    if (!d.length) return;
+    if (this._taireDoublons) this._doublons = d; else this._avertirDoublons(d);
+  }
+  // nom proposé : « WC (Étage) » (nom de l'étage affiché), sinon numéroté s'il est déjà pris
+  _nomPropose(nom, noms) {
+    const e = (this.d.etages || []).find((x) => x?.id === this._etageActif()), et = e?.nom || e?.court || "";
+    const base = et ? `${nom} (${et})` : nom;
+    let p = et ? base : `${nom} 2`, k = 1;
+    while (noms.has(this._cleNom(p))) p = `${base} ${++k}`;
+    return p;
+  }
+  _avertirDoublons(d, avant = "") {
+    const noms = this._compterNoms(this.d), prop = d.map((n) => [n, this._nomPropose(n, noms)]);
+    const txt = d.length === 1 ? _t("« {nom} » existe déjà dans la maison : « {prop} » ?", { nom: d[0], prop: prop[0][1] })
+      : _t("{n} noms de pièce existent déjà dans la maison ({noms}) : ajouter le nom de l'étage ?", { n: d.length, noms: d.join(", ") });
+    this.snack(avant ? `${avant} ${txt}` : txt, [[_t("Renommer"), () => this.renommerDoublons(Object.fromEntries(prop))]], 12000);
+  }
+  // renomme les pièces de l'étage affiché ({ ancien: nouveau }), une étape d'annulation
+  renommerDoublons(table) {
+    const l = (this.d.pieces || []).filter((p) => Object.hasOwn(table, String(p?.nom ?? "").trim()));
+    if (!l.length) return 0;
+    this.commit(() => l.forEach((p) => { p.nom = table[String(p.nom).trim()]; }));
+    this._rendreEtages();
+    return l.length;
+  }
+
+  // ---------- la modale ----------
+  ouvrirEtages() {
+    if (this._voileEtages?.isConnected) return this._focusEtages(null);
+    this._fermerMenu?.();
+    const { voile, fermer } = this._voile("ed-plein-tel ed-et-voile", null, {
+      dessus: true,
+      touche: (ev) => {
+        const k = ev.key.toLowerCase(), ctrl = ev.ctrlKey || ev.metaKey;
+        const texte = ev.composedPath().some((n) => n instanceof HTMLInputElement && n.type === "text");
+        if (k === "escape") {
+          ev.preventDefault(); ev.stopPropagation();
+          const a = this.R.activeElement;
+          if (a instanceof HTMLInputElement && a.type === "text" && a.value !== a.defaultValue) a.blur(); // la saisie en cours est gardée
+          return this.fermerEtages();
+        }
+        if (ctrl && (k === "z" || k === "y") && !texte) {
+          ev.preventDefault(); ev.stopPropagation();
+          if (k === "y" || ev.shiftKey) this.retablir(); else this.annuler();
+          this._rendreEtages();
+        } else if (k === "tab") this._pieger(ev, voile.querySelector(".ed-dialogue"));
+      },
+    });
+    this._voileEtages = voile;
+    this._fermerVoileEtages = fermer;
+    voile.addEventListener("click", (ev) => {
+      if (ev.target === voile) return this.fermerEtages();
+      const b = ev.composedPath().find((n) => n instanceof HTMLElement && n.dataset?.et);
+      if (!b || b.disabled) return;
+      const id = b.closest("[data-id]")?.dataset.id, a = b.dataset.et;
+      ({ fermer: () => this.fermerEtages(), haut: () => this.deplacerEtage(id, 1), bas: () => this.deplacerEtage(id, -1), suppr: () => this.supprimerEtage(id),
+        voir: () => { this.changerEtage(id); this._rendreEtages(); }, vide: () => this.ajouterEtage("vide"), murs: () => this.ajouterEtage("murs"), tout: () => this.ajouterEtage("tout") })[a]?.();
+    });
+    voile.addEventListener("change", (ev) => {
+      const t = ev.target, id = t.closest?.("[data-id]")?.dataset.id;
+      // modale redessinée une fois le focus parti (Tab vers le champ suivant) : il est retrouvé ensuite
+      if (t.dataset?.ch && id != null) {
+        this._saisieEtages = true;
+        try { this.modifierEtage(id, t.dataset.ch, t.value, false); } finally { this._saisieEtages = false; }
+        setTimeout(() => this._rendreEtages(), 0);
+      }
+      else if (t.dataset?.defaut != null) this.etageParDefaut(t.value || null);
+    });
+    // Entrée dans un champ : valide la saisie (événement « change ») sans fermer
+    voile.addEventListener("keydown", (ev) => { if (ev.key === "Enter" && ev.target instanceof HTMLInputElement) { ev.preventDefault(); ev.target.blur(); ev.target.focus(); } });
+    this.R.querySelector("ha-card").append(voile);
+    this._rendreEtages();
+    (voile.querySelector(".ed-et.on [data-ch]") || voile.querySelector('[data-et="vide"]'))?.focus();
+  }
+  fermerEtages() {
+    if (!this._voileEtages) return;
+    this._fermerVoileEtages?.();
+    this._voileEtages = null;
+    this.R.querySelector('[data-a="etages"]')?.focus({ preventScroll: true });
+  }
+  // id d'étage dans un sélecteur d'attribut entre guillemets (ids sûrs : lettres, chiffres, _ . : -)
+  _selId(id) { return String(id).replace(/["\\]/g, "\\$&"); }
+  // focus dans la modale : l'élément `sel` s'il existe encore, sinon « Fermer »
+  _focusEtages(sel) { const V = this._voileEtages; ((sel && V?.querySelector(sel)) || V?.querySelector("[data-et=fermer]"))?.focus(); }
+  // sélecteur de l'élément de la modale qui a le focus (pour le retrouver après l'avoir redessinée)
+  _selFocusEtages() {
+    const a = this.R.activeElement, V = this._voileEtages;
+    if (!a || !V?.contains(a)) return null;
+    const id = a.closest("[data-id]")?.dataset.id, x = a.dataset.ch ? `[data-ch="${a.dataset.ch}"]` : a.dataset.et ? `[data-et="${a.dataset.et}"]` : a.dataset.defaut != null ? "[data-defaut]" : null;
+    return x && (id != null ? `[data-id="${this._selId(id)}"] ${x}` : x);
+  }
+  // (re)dessine la modale ouverte : liste du haut vers le bas, ajout au-dessus de l'étage affiché, étage par défaut
+  _rendreEtages() {
+    const V = this._voileEtages;
+    if (!V?.isConnected) return;
+    const focus = this._selFocusEtages(), dedans = V.contains(this.R.activeElement) || !this.R.activeElement || this.R.activeElement === document.body;
+    const E = this._E, L = E.parEtage(this.d), avec = L[0]?.id != null, actif = this._etageActif();
+    const ici = L.find((e) => e.id === actif) || L[0], nomIci = avec ? ici.nom || ici.court : _t("Rez-de-chaussée");
+    const compte = (e) => { const c = this._comptesEtage(e); return `${_t("{n} pièce|{n} pièces", { n: c.pieces })} · ${_t("{n} élément|{n} éléments", { n: c.autres })}`; };
+    const ligne = (e, rang) => {
+      const on = e.id === actif, haut = rang === 0, bas = rang === L.length - 1;
+      return `<div class="ed-et${on ? " on" : ""}" role="listitem" data-id="${esc(e.id)}">
+        <ha-icon class="ed-et-ic" icon="${esc(e.icone || "mdi:layers-outline")}"></ha-icon>
+        <div class="ed-et-champs">
+          <div class="ed-champ ed-et-nom"><label>${_t("Nom")}</label><input type="text" data-ch="nom" value="${esc(e.nom || "")}" placeholder="${esc(e.court)}" aria-label="${esc(_t("Nom"))}"></div>
+          <div class="ed-champ ed-et-court"><label>${_t("Court")}</label><input type="text" data-ch="court" maxlength="4" value="${esc((this.d.etages.find((x) => x?.id === e.id) || {}).court ?? "")}" placeholder="${esc(e.court)}" aria-label="${esc(_t("Nom court (ascenseur)"))}"></div>
+          <div class="ed-champ ed-et-icone"><label>${_t("Icône")}</label><input type="text" data-ch="icone" value="${esc(e.icone || "")}" placeholder="mdi:home-floor-1" aria-label="${esc(_t("Icône"))}"></div>
+          <small class="ed-et-info">${on ? `<b>${_t("Affiché")}</b> · ` : ""}${compte(e)}</small>
+        </div>
+        <div class="ed-et-act">
+          ${ibAct("haut", "mdi:arrow-up", _t("Monter"), haut ? "disabled" : "").replace("data-act", "data-et")}
+          ${ibAct("bas", "mdi:arrow-down", _t("Descendre"), bas ? "disabled" : "").replace("data-act", "data-et")}
+          ${ibAct("voir", "mdi:eye-outline", _t("Afficher cet étage"), on ? "disabled" : "").replace("data-act", "data-et")}
+          ${ibAct("suppr", "mdi:delete-outline", _t("Supprimer"), "").replace("data-act", "data-et")}
+        </div></div>`;
+    };
+    // du haut vers le bas : l'étage le plus haut en tête
+    const liste = avec ? [...L].reverse().map((e) => ligne(e, L.length - 1 - L.indexOf(e))).join("")
+      : `<div class="ed-et on ed-et-seul" role="listitem"><ha-icon class="ed-et-ic" icon="mdi:home-floor-0"></ha-icon><div class="ed-et-champs"><b>${_t("Plan actuel")}</b>
+          <small class="ed-et-info">${compte(L[0])}</small><div class="ed-aide">${_t("Ajouter un étage range le plan actuel dans « {nom} ».", { nom: _t("Rez-de-chaussée") })}</div></div></div>`;
+    const defaut = avec ? `<div class="ed-champ ed-et-defaut"><label for="ed-et-def">${_t("Étage affiché au chargement")}</label><select id="ed-et-def" data-defaut>
+        <option value="">${_t("Le dernier affiché (sinon le premier)")}</option>${[...L].reverse().map((e) => `<option value="${esc(e.id)}" ${this.d.etage_defaut === e.id ? "selected" : ""}>${esc(e.nom || e.court)}</option>`).join("")}</select></div>` : "";
+    const ajout = `<section class="ed-et-ajout" aria-labelledby="ed-et-aj"><h3 id="ed-et-aj">${esc(_t("Ajouter un étage au-dessus de « {nom} »", { nom: nomIci }))}</h3>
+      <div class="ed-et-choix">
+        <button type="button" class="ed-btn tonal" data-et="vide"><ha-icon icon="mdi:plus"></ha-icon>${_t("Vide")}</button>
+        <button type="button" class="ed-btn tonal" data-et="murs"><ha-icon icon="mdi:wall"></ha-icon>${_t("Avec les murs extérieurs")}</button>
+        <button type="button" class="ed-btn tonal" data-et="tout"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copie de cet étage")}</button></div></section>`;
+    poserHTML(V, `<div class="ed-dialogue large ed-et-dlg" role="dialog" aria-modal="true" aria-labelledby="ed-et-titre">
+      <header><h2 id="ed-et-titre">${_t("Étages")}</h2><div class="ed-aide">${_t("Du haut vers le bas. Renommer ne change pas l'identifiant : les escaliers et l'étage mémorisé restent valides.")}</div></header>
+      <div class="ed-cat ed-et-corps"><div class="ed-et-l" role="list" aria-label="${esc(_t("Étages"))}">${liste}</div>${ajout}${defaut}</div>
+      <footer><span class="ed-espace"></span><button class="ed-btn plein" data-et="fermer">${_t("Fermer")}</button></footer></div>`);
+    if (focus || dedans) this._focusEtages(focus);
+  }
+  // ---------- image de fond : modale MD3 ouverte depuis Calques (ligne « Image de fond », bouton Régler) ----------
+  // Chaque changement = une étape d'annulation. Le verrou (cliquer à travers, image immobile) vaut pour la session d'édition.
+  ouvrirFond() {
+    if (!this.vueCalques) this.panneauCalques(true);
+    this.vueFond = true;
+    this._fondAlerte = null;
+    this._panneau();
+    this.R.querySelector(".ed-fond-modale [data-fact=retour]")?.focus({ preventScroll: true });
+  }
+  // retour à la liste des calques (Échap, flèche ←)
+  fermerFond() {
+    this.vueFond = false;
+    this._fondAlerte = null;
+    this.R.querySelector(".ed-mvoile.ed-fond-modale")?.remove();
+    this._panneau();
+    this.R.querySelector('.ed-cq-modale [data-act="cq-fond-regler"]')?.focus({ preventScroll: true });
+  }
+  _fondAvertiLu() { return stock.lire("maquette-fond-avertissement") === "1"; }
+  _panneauFond() {
+    let V = this.R.querySelector(".ed-mvoile.ed-fond-modale");
+    if (!this.vueCalques || !this.vueFond) { V?.remove(); return; }
+    if (!V) {
+      V = this._mvoile("ed-fond-modale");
+      V.onpointerdown = (ev) => { this._basVoileFond = ev.target === V; };
+      V.addEventListener("click", (ev) => { if (ev.target === V && this._basVoileFond) this.fermerFond(); });
+      this._clavierModale(V);
+    }
+    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance);
+    if (V.hidden) return;
+    const actif = this.R.activeElement, garde = V.contains(actif) && actif.dataset?.fk ? `[data-fk="${actif.dataset.fk}"]` : V.contains(actif) && actif.dataset?.fact ? `[data-fact="${actif.dataset.fact}"]` : null;
+    const f = this.d.fond, url = f && this.carte.constructor.urlFond(f.image), admin = !!this.hass?.user?.is_admin;
+    const libre = !this.carte._fondVerrouille(), num = (v) => (Number.isFinite(+v) ? Math.round(+v * 10) / 10 : "");
+    const op = Number.isFinite(+f?.opacite) ? +f.opacite : 0.5;
+    const envoyer = admin ? `<button type="button" class="ed-btn${f ? " contour" : ""}" data-fact="envoyer"><ha-icon icon="mdi:upload"></ha-icon>${_t("Envoyer une image")}</button>
+      <input type="file" accept="image/png,image/jpeg,image/webp" hidden data-fond-fichier>` : "";
+    const avert = this._fondAvertiLu() ? "" : `<div class="ed-fond-avert" role="note"><ha-icon icon="mdi:shield-alert-outline"></ha-icon><div>${_t("Confidentialité : ce qui est dans /local et /api/image/serve est lisible sans connexion si Home Assistant est exposé sur Internet. N'y mets pas un plan que tu ne veux pas rendre public.")}
+      <div class="ed-actions"><button type="button" class="ed-btn texte" data-fact="compris">${_t("Compris")}</button></div></div></div>`;
+    const alerte = this._fondAlerte ? `<div class="ed-fond-alerte" role="alert"><ha-icon icon="mdi:alert-circle-outline"></ha-icon><span>${esc(this._fondAlerte)}</span></div>` : "";
+    const chemin = `<div class="ed-champ"><label for="ed-fond-chemin">${_t("Chemin de l'image")}${bulleI(_t("Une image du même site : un fichier de /local/… (dossier www de Home Assistant) ou une image envoyée ici. PNG, JPEG, WebP, AVIF ou SVG."))}</label>
+      <input type="text" id="ed-fond-chemin" data-fk="image" value="${esc(f?.image || "")}" placeholder="/local/plans/rdc.png" spellcheck="false" autocomplete="off"></div>`;
+    const reglages = f ? `${url ? `<div class="ed-fond-apercu"><img src="${esc(url)}" alt="${esc(_t("Aperçu de l'image de fond"))}" loading="lazy" decoding="async"></div>` : ""}
+      ${chemin}
+      <div class="ed-actions">${envoyer}${url ? `<button type="button" class="ed-btn contour" data-fact="calibrer" title="${_t("Deux points de l'image et leur distance réelle (ou un mur du plan) : l'image est mise à l'échelle.")}"><ha-icon icon="mdi:ruler"></ha-icon>${_t("Calibrer")}</button>` : ""}</div>
+      ${champCurseur(_t("Opacité"), 'data-fk="opacite"', 0, 1, 0.05, op, `${Math.round(op * 100)} %`)}
+      <div class="ed-ligne">${this._champFond(_t("Position X (cm)"), "x", num(f.pos?.[0] ?? 0))}${this._champFond(_t("Position Y (cm)"), "y", num(f.pos?.[1] ?? 0))}</div>
+      <div class="ed-ligne">${this._champFond(_t("Largeur (cm)"), "largeur", num(f.largeur), _t("La hauteur suit (même proportion)."))}${this._champFond(_t("Rotation (°)"), "rotation", num(f.rotation || 0))}</div>
+      <label class="ed-inter"><span>${_t("Afficher aussi en vue")}${bulleI(_t("Sinon, l'image n'apparaît que pendant l'édition (rien n'est chargé en vue)."))}</span><input type="checkbox" data-fk="afficher" ${f.afficher === "toujours" ? "checked" : ""}></label>
+      <label class="ed-inter"><span>${_t("Verrouillée (on clique à travers)")}${bulleI(_t("Les clics atteignent les pièces et les murs dessous. Déverrouillée : elle peut être déplacée sur le plan, le temps de l'édition."))}</span><input type="checkbox" data-fk="verrou" ${libre ? "" : "checked"}></label>
+      <div class="ed-actions"><button type="button" class="ed-btn danger" data-fact="retirer"><ha-icon icon="mdi:delete-outline"></ha-icon>${_t("Retirer l'image")}</button></div>`
+      : `<p class="ed-aide">${_t("Pose un plan scanné ou une photo sous le dessin pour le recopier. Visible pendant l'édition seulement, sauf si tu choisis de l'afficher aussi en vue.")}</p>
+      ${chemin}<div class="ed-actions">${envoyer}</div>`;
+    poserHTML(V, `<style>.ed-fond-apercu{border-radius:12px;overflow:hidden;background:var(--md-surface-container-high,#eee);display:flex;justify-content:center;max-height:180px;margin-bottom:8px}
+      .ed-fond-apercu img{max-width:100%;max-height:180px;object-fit:contain;display:block}
+      .ed-fond-avert,.ed-fond-alerte{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:12px;margin-bottom:12px;font-size:14px;line-height:20px}
+      .ed-fond-avert{background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
+      .ed-fond-alerte{background:var(--md-error-container,#fce8e6);color:var(--md-on-error-container,#410e0b)}
+      .ed-fond-avert>ha-icon,.ed-fond-alerte>ha-icon{flex:none;--mdc-icon-size:20px}
+      .ed-fond-avert .ed-actions{margin:4px 0 -8px -12px}</style>
+      <div class="ed-modale ed-modale-cq ed-modale-fond" role="dialog" aria-modal="true" aria-labelledby="ed-fond-titre">
+      <header><button class="ib" data-fact="retour" title="${_t("Retour aux calques (Échap)")}" aria-label="${_t("Retour aux calques (Échap)")}"><ha-icon icon="mdi:arrow-left"></ha-icon></button>
+        <div><h2 id="ed-fond-titre">${_t("Image de fond")}</h2><div class="ed-version">${_t("Sous tout le dessin, à l'échelle du plan (cm)")}</div></div>
+        <button class="ib" data-fact="fermer" title="${_t("Fermer")}" aria-label="${_t("Fermer")}"><ha-icon icon="mdi:close"></ha-icon></button></header>
+      <div class="ed-mcontenu ed-medit"><section>${avert}${alerte}${reglages}</section></div></div>`);
+    const boite = V.querySelector(".ed-modale");
+    if (garde) boite.querySelector(garde)?.focus({ preventScroll: true });
+    this._cablerFond(boite);
+  }
+  _champFond(label, k, v, aide = "") {
+    return `<div class="ed-champ"><label for="ed-fond-${k}">${esc(label)}${bulleI(aide)}</label><input type="number" step="any" id="ed-fond-${k}" data-fk="${k}" value="${esc(v)}"></div>`;
+  }
+  _cablerFond(B) {
+    B.onclick = (ev) => {
+      const el = ev.composedPath().find((n) => n.dataset?.fact);
+      if (!el) return;
+      const a = el.dataset.fact;
+      if (a === "retour") return this.fermerFond();
+      if (a === "fermer") { this.vueFond = false; return this.panneauCalques(false); }
+      if (a === "compris") { stock.ecrire("maquette-fond-avertissement", "1"); return this._panneauFond(); }
+      if (a === "calibrer") return this.calibrerFond?.();
+      if (a === "envoyer") return B.querySelector("[data-fond-fichier]")?.click();
+      if (a === "retirer") { this.commit(() => { delete this.d.fond; }); return this.snack(_t("Image de fond retirée."), _t("Annuler"), this._annulation(), 8000); }
+    };
+    const fic = B.querySelector("[data-fond-fichier]");
+    if (fic) fic.onchange = () => { const f = fic.files?.[0]; fic.value = ""; if (f) this._envoyerFond(f); };
+    B.querySelectorAll("[data-fk]").forEach((inp) => {
+      const k = inp.dataset.fk;
+      if (k === "opacite") {
+        const out = inp.parentElement.querySelector("output"), im = () => this.carte.shadowRoot.querySelector(".zone svg .fond-image");
+        inp.oninput = () => { out.textContent = `${Math.round(+inp.value * 100)} %`; im()?.setAttribute("opacity", inp.value); }; // aperçu en direct, une seule étape au relâcher
+        inp.onchange = () => this._modifFond(k, +inp.value);
+      } else if (inp.type === "checkbox") inp.onchange = () => this._modifFond(k, inp.checked);
+      else inp.onchange = () => this._modifFond(k, inp.type === "number" ? (inp.value === "" ? null : +inp.value) : inp.value.trim());
+    });
+  }
+  // plan entier : position et largeur d'une nouvelle image (largeur du plan, au moins 100 cm)
+  _cadreFond() {
+    const b = this.carte.bornes();
+    const ok = (v, d) => (Number.isFinite(+v) ? Math.round(+v) : d);
+    return { pos: [ok(b.x0, 0), ok(b.y0, 0)], largeur: Math.max(100, Math.min(1e6, ok(b.W, 1000))) };
+  }
+  _alerteFond(t) { this._fondAlerte = t; this._panneauFond(); }
+  _modifFond(k, v) {
+    this._fondAlerte = null;
+    if (k === "verrou") {
+      this.fondLibre = !v;
+      this.carte._construire();
+      return this._panneauFond();
+    }
+    if (k === "image") {
+      if (!v) return this._panneauFond();
+      if (!this.carte.constructor.urlFond(v)) return this._alerteFond(_t("Chemin refusé : une image du même site seulement (/local/… ou image envoyée), en PNG, JPEG, WebP, AVIF ou SVG."));
+      return this.commit(() => { if (this.d.fond) this.d.fond.image = v; else this.d.fond = { image: v, ...this._cadreFond() }; });
+    }
+    const f = this.d.fond;
+    if (!f) return;
+    if (k === "largeur" && !(v > 0)) return this._alerteFond(_t("La largeur doit être plus grande que 0."));
+    if ((k === "x" || k === "y" || k === "rotation") && v != null && !Number.isFinite(v)) return this._panneauFond();
+    this.commit(() => {
+      if (k === "opacite") f.opacite = Math.min(1, Math.max(0, v));
+      else if (k === "x" || k === "y") { const p = Array.isArray(f.pos) ? [...f.pos] : [0, 0]; p[k === "x" ? 0 : 1] = v ?? 0; f.pos = p; }
+      else if (k === "largeur") { const v2 = Math.min(1e6, v); if (+f.hauteur > 0 && +f.largeur > 0) f.hauteur = Math.round(f.hauteur * v2 / f.largeur * 10) / 10; f.largeur = v2; }
+      else if (k === "rotation") { const r = (((v ?? 0) % 360) + 360) % 360; if (r) f.rotation = r; else delete f.rotation; }
+      else if (k === "afficher") { if (v) f.afficher = "toujours"; else delete f.afficher; }
+    });
+  }
+  // « Envoyer une image » (administrateur) : envoi à Home Assistant (/api/image/upload), puis image = /api/image/serve/<id>/original,
+  // à la largeur du plan en gardant la proportion de l'image
+  async _envoyerFond(fichier) {
+    this._fondAlerte = null;
+    const h = this.hass;
+    if (!h?.user?.is_admin || typeof h.fetchWithAuth !== "function") return this._alerteFond(_t("Envoi réservé aux administrateurs de Home Assistant."));
+    if (!/^image\/(?:png|jpeg|webp)$/.test(fichier.type)) return this._alerteFond(_t("Format refusé : PNG, JPEG ou WebP seulement."));
+    if (fichier.size > 10 * 1024 * 1024) return this._alerteFond(_t("Image trop lourde : 10 Mo au plus. Réduis-la avant de l'envoyer."));
+    let dims;
+    try { const bm = await createImageBitmap(fichier); dims = [bm.width, bm.height]; bm.close?.(); } catch (e) { return this._alerteFond(_t("Image illisible : le fichier n'est pas une image valide.")); }
+    if (!dims[0] || !dims[1]) return this._alerteFond(_t("Image illisible : le fichier n'est pas une image valide."));
+    this.snack(_t("Envoi de l'image…"), null, null, 3000);
+    const fd = new FormData();
+    fd.append("file", fichier);
+    let r, id;
+    try { r = await h.fetchWithAuth("/api/image/upload", { method: "POST", body: fd }); } catch (e) { return this._alerteFond(_t("Envoi impossible : Home Assistant ne répond pas.")); }
+    if (r.status === 401 || r.status === 403) return this._alerteFond(_t("Envoi refusé : réservé aux administrateurs de Home Assistant."));
+    if (r.status === 413) return this._alerteFond(_t("Image trop lourde pour Home Assistant. Réduis-la avant de l'envoyer."));
+    if (!r.ok) return this._alerteFond(_t("Envoi refusé par Home Assistant (erreur {n}).", { n: r.status }));
+    try { id = (await r.json())?.id; } catch (e) { id = null; }
+    const url = typeof id === "string" && this.carte.constructor.urlFond(`/api/image/serve/${id}/original`);
+    if (!url) return this._alerteFond(_t("Réponse inattendue de Home Assistant : image non posée."));
+    const cadre = this._cadreFond(), haut = Math.round(cadre.largeur * dims[1] / dims[0] * 10) / 10;
+    this.commit(() => {
+      const f = this.d.fond;
+      this.d.fond = { ...(f && Number.isFinite(+f.opacite) ? { opacite: f.opacite } : {}), ...(f?.afficher ? { afficher: f.afficher } : {}), image: url, ...cadre, hauteur: haut };
+    });
+    if (Math.max(...dims) > 4096) this._alerteFond(_t("Image très grande ({l} × {h} px) : au-delà de 4096 px, l'affichage peut être lent sur une tablette ou un téléphone.", { l: dims[0], h: dims[1] }));
+    else this.snack(_t("Image envoyée et posée sous le plan."));
+  }
+  // ---------- image de fond : calibrage 2 points, aligner sur un mur, glisser l'image déverrouillée ----------
+  // Rien n'est écrit pendant le mode : une seule étape d'annulation à la fin, Échap (ou ×) ressort sans rien changer.
+  // Le bandeau est un « ed-voile » : tant qu'il est là, les raccourcis de l'éditeur se taisent (Échap, Ctrl+Z…).
+
+  // verrou de session (Calques, panneau Image de fond) : déverrouillée, l'image se glisse sur le plan
+  get fondLibre() { return !!this._fondLibre; }
+  set fondLibre(v) {
+    this._fondLibre = !!v;
+    // pas de style écrit dans .zone (elle survit à l'éditeur) : une classe, et sa règle dans le style de l'éditeur, retiré à la fermeture
+    if (v && this.style && !this.style.textContent.includes(".fond-libre")) this.style.textContent += "\n.zone.fond-libre,.zone.zoome.figee.fond-libre{touch-action:none}";
+    this.zone?.classList.toggle("fond-libre", !!v);
+    if (v && !this._glFond) { this._glFond = (ev) => this._basFond(ev); this.R.addEventListener("pointerdown", this._glFond, true); }
+  }
+  // géométrie de l'image (cm) telle que dessinée : hauteur absente → lue sur l'<image> (ratio naturel)
+  _geoFondEd() {
+    const f = this.d.fond, url = f && this.carte.constructor.urlFond(f.image);
+    if (!url || !(+f.largeur > 0)) return null;
+    const G = this.carte._geoFond(f, url);
+    if (G.h == null) { const h = +this.R.querySelector(".zone svg .fond-image")?.getAttribute("height"); if (h > 0) G.h = h; else return null; }
+    return G;
+  }
+  // point du plan ↔ point de l'image (0..1 sur la largeur et la hauteur, avant rotation autour du centre)
+  static _tourne([x, y], deg) { const a = (deg * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a); return [x * c - y * s, x * s + y * c]; }
+  static _versImage(G, p) {
+    const [vx, vy] = EditeurPlan._tourne([p[0] - G.x - G.w / 2, p[1] - G.y - G.h / 2], -G.rot);
+    return [vx / G.w + 0.5, vy / G.h + 0.5];
+  }
+  // nouvelle géométrie : largeur w, rotation rot, le point (u, v) de l'image posé sur `cible`
+  static _poserSur([u, v], cible, w, h, rot) {
+    const [ox, oy] = EditeurPlan._tourne([(u - 0.5) * w, (v - 0.5) * h], rot);
+    return { x: cible[0] - ox - w / 2, y: cible[1] - oy - h / 2, w, h, rot };
+  }
+  _dessinerImageFond(G) {
+    const im = this.R.querySelector(".zone svg .fond-image");
+    if (!im) return;
+    for (const [k, v] of [["x", G.x], ["y", G.y], ["width", G.w], ["height", G.h]]) im.setAttribute(k, String(v));
+    if (G.rot) im.setAttribute("transform", `rotate(${G.rot} ${G.x + G.w / 2} ${G.y + G.h / 2})`); else im.removeAttribute("transform");
+  }
+
+  // appui sur le dessin (SVG, étiquettes posées par-dessus), pas sur la barre flottante ni un bouton de l'éditeur
+  _surPlan(chemin) {
+    const z = this.zone, svg = z?.querySelector("svg");
+    return !!svg && chemin.includes(z) && !chemin.some((n) => n.classList?.contains("ed-bf") || n.classList?.contains("ed-terminer") || n.classList?.contains("ed-calib"));
+  }
+
+  // ---------- glisser l'image (calque déverrouillé) : un appui dans l'image la prend, une étape d'annulation au relâcher ----------
+  _basFond(ev) {
+    if (this.carte._editeur !== this) { this.R?.removeEventListener("pointerdown", this._glFond, true); this.zone?.classList.remove("fond-libre"); return; }
+    if (this._calib || ev.button !== 0 || !ev.isPrimary || this.carte._fondVerrouille() || this.outil !== "selection" || this.aPlacer || this.aPlacerMeuble
+      || this.trace.length || this.espace || this.R.querySelector(".ed-voile") || this.carte._calques().masques.has("fond")) return;
+    const chemin = ev.composedPath();
+    if (!this._surPlan(chemin) || chemin.some((n) => n.dataset?.poignee != null)) return;
+    const G = this._geoFondEd(), p = G && this.carte.cm(ev), u = p && EditeurPlan._versImage(G, p);
+    if (!u || u[0] < 0 || u[0] > 1 || u[1] < 0 || u[1] > 1) return;
+    ev.preventDefault(); ev.stopPropagation();
+    let d = null;
+    const mv = (m) => {
+      if (m.pointerId !== ev.pointerId) return;
+      if (!d && Math.hypot(m.clientX - ev.clientX, m.clientY - ev.clientY) < 4) return;
+      const q = this.carte.cm(m);
+      d = [q[0] - p[0], q[1] - p[1]];
+      this._dessinerImageFond({ ...G, x: G.x + d[0], y: G.y + d[1] });
+    };
+    const fin = (u2) => {
+      if (u2.pointerId !== ev.pointerId) return;
+      window.removeEventListener("pointermove", mv, true); window.removeEventListener("pointerup", fin, true); window.removeEventListener("pointercancel", fin, true);
+      if (!d) return;
+      if (u2.type === "pointercancel" || !this.d.fond) return this._dessinerImageFond(G);
+      const r = (v) => Math.round(v * 10) / 10;
+      this.commit(() => { this.d.fond.pos = [r(G.x + d[0]), r(G.y + d[1])]; });
+    };
+    window.addEventListener("pointermove", mv, true); window.addEventListener("pointerup", fin, true); window.addEventListener("pointercancel", fin, true);
+  }
+
+  // ---------- calibrage : A, B sur l'image, puis la distance réelle (ou deux extrémités de mur) ----------
+  calibrerFond() {
+    const G = this._geoFondEd();
+    if (!G) return this._alerteFond?.(_t("Image pas encore chargée : réessaie dans un instant."));
+    if (this.carte._calques().masques.has("fond")) return this._alerteFond?.(_t("Affiche le calque « Image de fond » pour la calibrer."));
+    this.vueFond = false;
+    this.panneauCalques(false);
+    if (this.sel || this.multi.size) this.selectionner(null);
+    if (this.outil !== "selection") this.choisirOutil("selection");
+    const C = this._calib = { etape: "A", G, msg: "" };
+    const { voile, fermer } = this._voile("ed-calib", null, { touche: (ev) => this._toucheCalib(ev) });
+    voile.onclick = (ev) => {
+      const a = ev.composedPath().find((n) => n.dataset?.cal)?.dataset.cal;
+      if (a === "annuler") this.quitterCalibrage();
+      else if (a === "valider") this._validerDistance();
+      else if (a === "mur") { C.etape = "M1"; C.msg = ""; this._majCalib(); }
+    };
+    C.voile = voile; C.fermer = fermer;
+    (this.R.querySelector(".plan") || this.R.querySelector("ha-card")).append(voile);
+    this._calibPd = (ev) => this._basCalib(ev);
+    this.R.addEventListener("pointerdown", this._calibPd, true);
+    // plan redessiné (zoom, Calques…) : les repères reviennent
+    C.obs = new MutationObserver(() => { const svg = this.R.querySelector(".zone svg"); if (this._calib === C && svg && !svg.querySelector(".ed-calib-marques")) this._marquesCalib(); });
+    C.obs.observe(this.zone, { childList: true, subtree: true });
+    this._majCalib();
+  }
+  // sortie du mode ; sans calibrage fait (Échap, ×) : rien n'a changé, retour au panneau
+  quitterCalibrage(fait = false) {
+    const C = this._calib;
+    if (!C) return;
+    this._calib = null;
+    C.obs?.disconnect();
+    C.fermer();
+    this.R?.removeEventListener("pointerdown", this._calibPd, true);
+    this.R?.querySelector(".zone svg .ed-calib-marques")?.remove();
+    if (!fait && this.carte._editeur === this) this.ouvrirFond();
+  }
+  _toucheCalib(ev) {
+    const C = this._calib;
+    if (!C || this.carte._editeur !== this) return this.quitterCalibrage(true);
+    if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); return this.quitterCalibrage(); }
+    if (ev.key === "Enter" && C.etape === "dist" && ev.composedPath().some((n) => n.dataset?.calVal != null || n.dataset?.calUnite != null)) { ev.preventDefault(); ev.stopPropagation(); this._validerDistance(); }
+  }
+  // appui sur le plan : un toucher bref (sans glisser, un seul doigt) pose le point ; deux doigts zooment, la molette du milieu déplace la vue
+  _basCalib(ev) {
+    const C = this._calib;
+    if (C && this.carte._editeur !== this) return this.quitterCalibrage(true);
+    if (!C || !this._surPlan(ev.composedPath()) || ev.button !== 0) return;
+    ev.stopPropagation(); ev.preventDefault();
+    if (!ev.isPrimary) { C.appui = null; return; }
+    if (C.etape === "dist") return;
+    C.appui = { id: ev.pointerId, x: ev.clientX, y: ev.clientY };
+    const up = (u) => {
+      if (u.pointerId !== ev.pointerId) return;
+      window.removeEventListener("pointerup", up, true); window.removeEventListener("pointercancel", up, true);
+      const a = C.appui;
+      C.appui = null;
+      if (!a || a.id !== u.pointerId || u.type === "pointercancel" || this._calib !== C || Math.hypot(u.clientX - a.x, u.clientY - a.y) > 10) return;
+      this._pointCalib(this.carte.cm(u));
+    };
+    window.addEventListener("pointerup", up, true); window.addEventListener("pointercancel", up, true);
+  }
+  // extrémité de mur la plus proche (30 px à l'écran au plus)
+  _extremiteMur(p) {
+    const svg = this.R.querySelector(".zone svg"), seuil = (30 * this.carte.vue().W) / (svg?.clientWidth || 1);
+    let m = null, dm = seuil;
+    for (const s of this.d.murs || []) for (const q of [[+s[0], +s[1]], [+s[2], +s[3]]]) {
+      const dd = Math.hypot(q[0] - p[0], q[1] - p[1]);
+      if (Number.isFinite(dd) && dd <= dm) { dm = dd; m = q; }
+    }
+    return m;
+  }
+  _pointCalib(p) {
+    const C = this._calib;
+    C.msg = "";
+    if (C.etape === "A") { C.A = p; C.etape = "B"; }
+    else if (C.etape === "B") {
+      if (Math.hypot(p[0] - C.A[0], p[1] - C.A[1]) < 1) C.msg = _t("Points trop proches : touche un point plus loin du premier.");
+      else { C.B = p; C.etape = "dist"; }
+    } else if (C.etape === "M1" || C.etape === "M2") {
+      const m = this._extremiteMur(p);
+      if (!m) C.msg = _t("Pas d'extrémité de mur ici : touche le bout d'un mur existant (zoome si besoin).");
+      else if (C.etape === "M1") { C.M1 = m; C.etape = "M2"; }
+      else if (Math.hypot(m[0] - C.M1[0], m[1] - C.M1[1]) < 1) C.msg = _t("Même extrémité que la première : touche l'autre bout.");
+      else { C.M2 = m; return this._finirCalib(); }
+    }
+    this._majCalib();
+  }
+  _validerDistance() {
+    const C = this._calib, V = C?.voile;
+    if (!V || C.etape !== "dist") return;
+    const n = parseFloat(String(V.querySelector("[data-cal-val]")?.value || "").replace(",", ".")), u = V.querySelector("[data-cal-unite]")?.value === "m" ? 100 : 1;
+    C.unite = u === 100 ? "m" : "cm";
+    if (!(n > 0)) { C.msg = _t("Saisis la distance réelle, plus grande que 0."); return this._majCalib(); }
+    this._finirCalib(n * u);
+  }
+  // distance (cm) : mise à l'échelle autour de A ; sans distance : A et B posés sur les extrémités M1 et M2 du mur (échelle, rotation, position)
+  _finirCalib(dist = null) {
+    const C = this._calib, G = C.G, ab = Math.hypot(C.B[0] - C.A[0], C.B[1] - C.A[1]), a = EditeurPlan._versImage(G, C.A);
+    let s = dist / ab, rot = G.rot, cible = C.A;
+    if (dist == null) {
+      s = Math.hypot(C.M2[0] - C.M1[0], C.M2[1] - C.M1[1]) / ab;
+      rot = G.rot + ((Math.atan2(C.M2[1] - C.M1[1], C.M2[0] - C.M1[0]) - Math.atan2(C.B[1] - C.A[1], C.B[0] - C.A[0])) * 180) / Math.PI;
+      cible = C.M1;
+    }
+    const w = G.w * s, h = G.h * s;
+    if (!(w >= 1) || w > 1e6 || !(h >= 1) || h > 1e6) { C.msg = _t("Résultat hors limites (image de plus de 10 km ou de moins de 1 cm) : vérifie les points et la distance."); if (C.etape !== "dist") C.etape = "dist"; return this._majCalib(); }
+    const r1 = (v) => Math.round(v * 10) / 10;
+    rot = Math.round(((((rot % 360) + 360) % 360)) * 100) / 100 % 360;
+    const N = EditeurPlan._poserSur(a, cible, w, h, rot);
+    this.quitterCalibrage(true);
+    this.commit(() => {
+      const f = this.d.fond;
+      if (!f) return;
+      f.pos = [r1(N.x), r1(N.y)]; f.largeur = r1(N.w); f.hauteur = r1(N.h);
+      if (rot) f.rotation = rot; else delete f.rotation;
+    });
+    this.ouvrirFond();
+    this.snack(_t("Image calibrée : {l} cm de large.", { l: fmt(r1(N.w), 1) }), _t("Annuler"), this._annulation(), 8000);
+  }
+  // bandeau MD3 (étape, consigne, message) et repères sur le plan
+  _majCalib() {
+    const C = this._calib, V = C?.voile;
+    if (!V) return;
+    const mur = C.etape === "M1" || C.etape === "M2";
+    const num = { A: "1/3", B: "2/3", dist: "3/3", M1: _t("Mur 1/2"), M2: _t("Mur 2/2") }[C.etape];
+    const txt = {
+      A: _t("Touche un premier point de l'image dont tu connais la distance à un autre (zoome pour viser juste)."),
+      B: _t("Touche le second point, le plus loin possible du premier."),
+      dist: _t("Distance réelle entre les deux points :"),
+      M1: _t("Touche l'extrémité de mur où doit tomber le point 1."),
+      M2: _t("Touche l'extrémité de mur où doit tomber le point 2."),
+    }[C.etape];
+    const dist = C.etape === "dist" ? `<div class="ed-calib-dist">
+        <input type="number" min="0" step="any" inputmode="decimal" data-cal-val aria-label="${_t("Distance réelle")}" value="">
+        <select data-cal-unite aria-label="${_t("Unité")}"><option value="cm"${C.unite !== "m" ? " selected" : ""}>cm</option><option value="m"${C.unite === "m" ? " selected" : ""}>m</option></select></div>
+      <div class="ed-actions"><button type="button" class="ed-btn texte" data-cal="mur" title="${_t("Poser les deux points sur les extrémités d'un mur existant : l'image est aussi déplacée et tournée.")}"><ha-icon icon="mdi:wall"></ha-icon>${_t("Aligner sur un mur")}</button>
+        <button type="button" class="ed-btn plein" data-cal="valider"><ha-icon icon="mdi:check"></ha-icon>${_t("Valider")}</button></div>` : "";
+    poserHTML(V, `<style>.ed-voile.ed-calib{position:absolute;inset:8px 8px auto 8px;background:none;display:flex;justify-content:center;padding:0;z-index:6;pointer-events:none}
+      ha-card.ed-etroit .ed-voile.ed-calib{position:fixed;inset:auto 8px 136px 8px;z-index:9}
+      .ed-calib-bandeau{pointer-events:auto;display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;max-width:560px;width:100%;box-sizing:border-box;padding:8px 8px 8px 16px;border-radius:16px;
+        background:var(--md-surface-container-high,#ece6f0);color:var(--md-on-surface,#1d1b20);box-shadow:0 2px 6px #0004;font-size:14px;line-height:20px}
+      .ed-calib-num{flex:none;font-weight:500;padding:2px 10px;border-radius:8px;background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
+      .ed-calib-texte{flex:1 1 180px;min-width:0}
+      .ed-calib-msg{color:var(--md-error,#b3261e);margin-top:2px}
+      .ed-calib-bandeau>.ib{flex:none;margin-left:auto}
+      .ed-calib-dist{display:flex;gap:8px;flex:1 1 200px}
+      .ed-calib-dist input,.ed-calib-dist select{height:40px;box-sizing:border-box;border-radius:8px;border:1px solid var(--md-outline,#79747e);background:var(--md-surface,#fff);color:inherit;font:inherit;padding:0 12px}
+      .ed-calib-dist input{flex:1;min-width:0;width:100px}
+      .ed-calib-bandeau .ed-actions{flex:1 1 100%;justify-content:flex-end;margin:0;flex-wrap:wrap}</style>
+      <div class="ed-calib-bandeau${mur ? " mur" : ""}" role="group" aria-label="${_t("Calibrer l'image de fond")}">
+        <span class="ed-calib-num">${esc(num)}</span>
+        <div class="ed-calib-texte" role="status" aria-live="polite">${esc(txt)}${C.msg ? `<div class="ed-calib-msg">${esc(C.msg)}</div>` : ""}</div>
+        <button type="button" class="ib" data-cal="annuler" title="${_t("Annuler le calibrage (Échap)")}" aria-label="${_t("Annuler le calibrage (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button>
+        ${dist}</div>`);
+    if (C.etape === "dist") V.querySelector("[data-cal-val]")?.focus({ preventScroll: true });
+    this._marquesCalib();
+  }
+  _marquesCalib() {
+    const C = this._calib, svg = this.R.querySelector(".zone svg");
+    if (!svg) return;
+    svg.querySelector(".ed-calib-marques")?.remove();
+    if (!C) return;
+    const k = this.carte.vue().W / (svg.clientWidth || 1), g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+    g.setAttribute("class", "ed-calib-marques");
+    g.setAttribute("pointer-events", "none");
+    const rond = (p, t, coul) => `<circle cx="${p[0]}" cy="${p[1]}" r="${9 * k}" fill="${coul}" stroke="var(--md-surface,#fff)" stroke-width="${2 * k}"/>
+      <text x="${p[0]}" y="${p[1]}" dy=".35em" text-anchor="middle" font-size="${11 * k}" font-weight="600" fill="var(--md-on-primary,#fff)">${t}</text>`;
+    const trait = (p, q, coul) => `<line x1="${p[0]}" y1="${p[1]}" x2="${q[0]}" y2="${q[1]}" stroke="${coul}" stroke-width="${2 * k}" stroke-dasharray="${6 * k} ${4 * k}"/>`;
+    let h = "";
+    if (C.A && C.B) h += trait(C.A, C.B, "var(--md-primary,#6750a4)");
+    if (C.M1 && C.M2) h += trait(C.M1, C.M2, "var(--md-tertiary,#7d5260)");
+    if (C.A) h += rond(C.A, 1, "var(--md-primary,#6750a4)");
+    if (C.B) h += rond(C.B, 2, "var(--md-primary,#6750a4)");
+    if (C.M1) h += rond(C.M1, 1, "var(--md-tertiary,#7d5260)");
+    poserHTML(g, h);
+    svg.append(g);
+  }
   // ---------- divers ----------
   // action : un libellé (avec fn) ou une liste [[libellé, fn], …]
   snack(txt, action, fn, duree = 5000) {
@@ -13742,23 +15774,24 @@ class EditeurPlan {
       const avant = clone(ref);
       // une carte sans id (ou dupliquée avec le même id) en reçoit un, pour être retrouvée à coup sûr aux prochains enregistrements
       if (this.d.id == null || nouvelId) {
-        stock.retirer(this._cle());
+        this._retirerBrouillon();
         const ancien = this._ident(), copies = this._copiesNettoyage(ancien);
         this.d.id = `plan-${Math.random().toString(36).slice(2, 8)}`;
         // les copies d'avant nettoyage suivent la carte sous son nouvel id
         if (copies.length) try { this._ecrireVersions(this.d.id, this._versions(this.d.id), [...copies, ...this._copiesNettoyage(this.d.id)]); } catch (e) { /* stockage plein ou indisponible */ }
       }
       Object.keys(ref).forEach((k) => delete ref[k]);
+      // enregistré replié (versAnglais replie, `floors` dans l'ordre, aucune clé interne)
       Object.assign(ref, versAnglais(this.d));
-      const fige = JSON.stringify(this.d);
-      // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit
-      if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, t: Date.now() }));
+      const fige = JSON.stringify(this._replie());
+      // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit (même étage)
+      if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, etage: this._etageActif(), t: Date.now() }));
       await this.hass.callWS({ type: "lovelace/config/save", url_path, config: cfg });
       this._garderVersion(this.d.id, avant); // seulement après un enregistrement réussi
       this.original = JSON.parse(fige);
       this.externe = null;
       this.modifie = false;
-      stock.retirer(this._cle());
+      this._retirerBrouillon();
       this._barre();
       this.snack(_t("Plan enregistré."));
       return true;
@@ -13780,7 +15813,7 @@ class EditeurPlan {
         voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) { voile.remove(); fin(b?.dataset.r || "0"); } };
       });
       if (ok === "0") return;
-      if (ok === "2") stock.retirer(this._cle());
+      if (ok === "2") this._retirerBrouillon();
     }
     // la carte n'a pas été recréée après l'enregistrement : la reprise prévue ne doit pas rouvrir l'éditeur qu'on quitte
     stockSession.retirer(cleRouvrir(this.d.id));
@@ -13808,7 +15841,11 @@ class EditeurPlan {
     this.vueParametres = false; this.vueEdition = false;
     const c = this.carte;
     c._editeur = null; c._boxFige = null;
-    c._config = clone(this.externe || this.original);
+    // la carte reprend la config repliée (enregistrée, ou modifiée ailleurs) et reste sur l'étage affiché s'il existe encore
+    const E = c.constructor.ETAGES, plein = clone(this.externe || this.original), ids = E.ids(plein);
+    c._plein = plein;
+    c._etage = ids.length ? (ids.includes(this._etageActif()) ? this._etageActif() : E.etageInitial(plein)) : null;
+    c._config = E.deplier(plein, c._etage);
     suivreLangue(c, c._config);
     if (silencieux) c._ok = false; else c._construire();
   }

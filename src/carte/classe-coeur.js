@@ -8,7 +8,7 @@ class MaquetteCard extends HTMLElement {
   static normaliserForme = normaliserForme;
   static traitsOuverture = traitsOuverture;
   static LUMIERE = { couche: coucheLumiere, tache: tacheLumiere, baies: baiesFenetres, couleur: couleurLampe, phases: PHASES_LUNE, ciel: LUM_CIEL, kelvin: kelvinRgb,
-    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames };
+    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure };
   static couleurSure = (c) => !!couleurSure(c);
   static couleurEcrite = couleurEcrite;
   static palette = palette;
@@ -31,6 +31,8 @@ class MaquetteCard extends HTMLElement {
   static etatCombine = etatCombine;
   static versAnglais = versAnglais;
   static SCHEMA_ANGLAIS = N_RACINE;
+  // étages : config repliée ↔ dépliée sur un étage, toute la maison par étage, identifiants, étage du chargement
+  static ETAGES = { deplier, replier, parEtage, ids: idsEtages, etageInitial, CLES_ETAGE };
   // valeurs par défaut des réglages globaux (panneau ⚙ Paramètres de l'éditeur)
   // outils communs à la carte et à l'éditeur (une seule définition, lue par l'éditeur au chargement)
   static outils = { dansPoly, distBord, entitesZone, esc, fmt, canon, GENRES_FICHE, porteurDe, deCle, BASCULES, NOMS_OUVERTURE, initiales, borne,
@@ -68,13 +70,19 @@ class MaquetteCard extends HTMLElement {
     this._retires = ret;
     if (this._editeur) {
       // config rechargée après notre propre enregistrement : on garde l'éditeur ouvert
-      if (canon(config) === canon(this._editeur.original)) return;
+      if (canon(config) === canon(replier(this._editeur.original))) return;
       // modifiée ailleurs pendant l'édition : on garde le travail en cours, le conflit sera proposé à l'enregistrement
       this._editeur.externe = JSON.parse(JSON.stringify(config));
       this._editeur.snack(_t("Ce plan vient d'être modifié ailleurs : à l'enregistrement, tu choisiras de garder ta version ou non."), _t("Exporter le mien"), () => this._editeur.exporter(), 12000);
       return;
     }
-    this._config = JSON.parse(JSON.stringify(config));
+    // étages : _plein = config repliée (normalisée), _config = l'étage affiché déplié à la racine, _etage = son id (null sans étages)
+    // étage du chargement : `default_floor`, sinon le dernier vu sur ce navigateur, sinon le premier ; même plan à étages rechargé
+    // (enregistrement, tableau de bord modifié) : on reste sur l'étage affiché s'il existe encore
+    const reste = idsEtages(this._plein).length > 1 && this._plein.id === config.id && idsEtages(config).includes(this._etage);
+    this._plein = JSON.parse(JSON.stringify(config));
+    this._etage = reste ? this._etage : etageInitial(this._plein, stock.lire(this._cleEtage()));
+    this._config = deplier(this._plein, this._etage);
     this._ok = false;
     if (relangue) this._textesSquelette();
     if (this._hass) this._construire();
@@ -188,6 +196,9 @@ class MaquetteCard extends HTMLElement {
     if (!this._ok || !this.isConnected || !(interactionDe(this._config).retour > 0)) return;
     if (this._editeur || this._rp?.lecture) return this._activite();
     this.revenirAuPlan();
+    // étages : retour à `default_floor` (sinon au premier), même vue figée
+    const e = etageInitial(this._plein, null);
+    if (e != null && e !== this._etage) this._changerEtage(e);
   }
   // retour au plan entier : fiche et menu des calques fermés, replay en pause fermé (retour au direct), vue de la pièce fermée, zoom initial
   revenirAuPlan() {
@@ -289,13 +300,14 @@ class MaquetteCard extends HTMLElement {
   getCardSize() { return 14; }
   getGridOptions() { return { columns: "full", rows: "auto" }; }
 
+  // entités suivies : celles de TOUTE la maison (résumé, alertes et pastilles d'étage comptent tous les étages) ; sans étages, la config
   _entites() {
-    const c = this._config, l = [];
-    for (const p of c.pieces) l.push(p.temperature, p.humidite);
-    for (const t of c.textes || []) if (Array.isArray(t?.infos)) for (const x of t.infos) l.push(x?.entite);
-    for (const o of c.ouvertures || []) { l.push(...contactsDe(o), o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
-    for (const p of c.points || []) { l.push(p.entite, p.actif, p.valeur); for (const w of p.fiche?.widgets || []) l.push(...entitesWidget(w)); }
-    for (const m of c.meubles || []) { l.push(m.entite, m.actif, m.valeur); for (const w of m.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    const c = this._config, l = [], E = parEtage(c);
+    for (const e of E) for (const p of e.geo.pieces) l.push(p.temperature, p.humidite);
+    for (const e of E) for (const t of e.geo.textes) if (Array.isArray(t?.infos)) for (const x of t.infos) l.push(x?.entite);
+    for (const e of E) for (const o of e.geo.ouvertures) { l.push(...contactsDe(o), o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    for (const e of E) for (const p of e.geo.points) { l.push(p.entite, p.actif, p.valeur); for (const w of p.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    for (const e of E) for (const m of e.geo.meubles) { l.push(m.entite, m.actif, m.valeur); for (const w of m.fiche?.widgets || []) l.push(...entitesWidget(w)); }
     for (const w of [...(c.panneaux?.gauche || []), ...(c.panneaux?.droite || [])]) l.push(...entitesWidget(w));
     for (const q of this._puces()) if (q.afficher === "absent" || q.afficher === "present") l.push(q.presence || presenceDefaut(c)); // puces selon la présence
     for (const p of c.pieces) for (const w of [...(p.panneaux?.gauche || []), ...(p.panneaux?.droite || [])]) l.push(...entitesWidget(w));
@@ -307,7 +319,7 @@ class MaquetteCard extends HTMLElement {
     l.push(...this._listePersonnes(A).map((p) => p.entite));
     for (const r of Array.isArray(c.alertes) ? c.alertes : []) if (r && typeof r === "object") {
       l.push(r.entite, ...(Array.isArray(r.entites) ? r.entites : []), r.si_absent ? r.presence || presenceDefaut(c) : null);
-      if (r.type === "ouvertures") for (const o of c.ouvertures || []) l.push(...contactsDe(o), o.entite);
+      if (r.type === "ouvertures") for (const e of E) for (const o of e.geo.ouvertures) l.push(...contactsDe(o), o.entite);
     }
     return [...new Set(l.filter((e) => typeof e === "string" && e.includes(".")))];
   }
@@ -433,13 +445,9 @@ class MaquetteCard extends HTMLElement {
     if (this._rp) this._replayFermer();
     this._ouverture = true;
     try {
-      // version HACS : l'éditeur est embarqué dans le même fichier ; version de développement : module à part
-      let EditeurPlan = globalThis.MaquetteEditeur;
-      if (!EditeurPlan) {
-        const url = new URL("maquette-editeur.js" + new URL(import.meta.url).search, import.meta.url);
-        ({ EditeurPlan } = await import(url.href));
-      }
-      if (this.isConnected) new EditeurPlan(this, reprise);
+      // l'éditeur est embarqué dans le même fichier (build.mjs : globalThis.MaquetteEditeur)
+      const EditeurPlan = globalThis.MaquetteEditeur;
+      if (EditeurPlan && this.isConnected) new EditeurPlan(this, reprise);
     } finally { this._ouverture = false; }
   }
 

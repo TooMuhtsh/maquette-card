@@ -251,6 +251,8 @@ class EditeurPlan { // @assemblage
     if (ctrl && k === "a") { ev.preventDefault(); ev.stopPropagation(); this.toutSelectionner(); return; }
     if (ctrl && k === "d") { ev.preventDefault(); if (this.multi.size > 1 || ["point", "meuble", "piece", "ouverture"].includes(this.sel?.type)) this._action("dupliquer"); return; }
     if (ctrl && k === "g") { ev.preventDefault(); ev.stopPropagation(); if (ev.shiftKey) this.degrouper(); else this.grouper(); return; }
+    if (ctrl && k === "c" && (this.sel || this.multi.size)) { if (this.copier()) ev.preventDefault(); return; }
+    if (ctrl && k === "v" && EditeurPlan.pressePapiers?.length) { ev.preventDefault(); this.coller(); return; }
     if (ctrl || ev.altKey) return;
     if (ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); this.aideClavier(); return; }
     // Entrée / Espace sur un bouton de zoom : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
@@ -272,6 +274,40 @@ class EditeurPlan { // @assemblage
     if (k === "a") this.ouvrirCatalogue();
   }
 
+  // ---------- copier / coller (Ctrl+C, Ctrl+V) ----------
+  // Le presse-papiers ne dépend pas de l'étage (ni de l'instance de l'éditeur) : coller sur un autre étage pose les éléments
+  // à la même position, c'est ainsi qu'on passe un élément d'un étage à l'autre. Éléments du plan seulement (pas les widgets).
+  copier() {
+    const L = this._listes(), m = (this.multi.size ? [...this.multi] : this.sel ? [cle(this.sel)] : []).map(deCle).filter((x) => L[x.type]?.[x.i]);
+    if (!m.length) return false;
+    EditeurPlan.pressePapiers = m.map((x) => ({ type: x.type, o: clone(L[x.type][x.i]) }));
+    this.snack(_t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
+    return true;
+  }
+  coller() {
+    const pp = EditeurPlan.pressePapiers;
+    if (!pp?.length) return false;
+    // pièce : sa pièce HA n'est gardée que si aucune autre pièce de la maison ne l'a déjà (copie d'une pièce supprimée entre-temps) ;
+    // son nom prend « (copie) » s'il est déjà pris
+    const M = maisonEntiere(this._E, this.d), zones = new Set(M.pieces.map((p) => p?.zone).filter(Boolean)), noms = new Set(M.pieces.map((p) => p?.nom));
+    const LISTE = { point: "points", texte: "textes", piece: "pieces", ouverture: "ouvertures", mur: "murs", limite: "limites", meuble: "meubles" }, nouv = [];
+    this.commit(() => {
+      for (const { type, o } of pp) {
+        if (!LISTE[type]) continue;
+        const c = clone(o);
+        if (type === "piece") { if (c.zone && zones.has(c.zone)) delete c.zone; if (noms.has(c.nom)) c.nom = _t("{nom} (copie)", { nom: c.nom }); }
+        const l = (this.d[LISTE[type]] ||= []);
+        l.push(c);
+        nouv.push(`${type}:${l.length - 1}`);
+      }
+      // hors de tout groupe (le groupe d'origine reste à ses éléments)
+      nouv.forEach((k) => this._poserGr(k, null));
+      this.multi = new Set(nouv); this.sel = nouv.length ? deCle(nouv[nouv.length - 1]) : null;
+    });
+    this.snack(_t("{n} élément collé.|{n} éléments collés.", { n: nouv.length }), _t("Annuler"), this._annulation());
+    return true;
+  }
+
   // ---------- aide aux raccourcis clavier (bouton « ? » ou touche ?) ----------
   aideClavier() {
     if (this.R.querySelector(".ed-voile.ed-aide-clavier")) return;
@@ -282,7 +318,9 @@ class EditeurPlan { // @assemblage
     const groupes = [
       [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer sans quitter l'éditeur")],
         [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer une fenêtre")]]],
-      [_t("Outils"), OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))])],
+      [_t("Outils"), [...OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
+        // copier / coller (aussi d'un étage à l'autre) : ici, la colonne qui a de la place (la modale tient sans défiler)
+        [ou(K(ctrl, "C"), K(ctrl, "V")), _t("Copier / coller sur place")]]],
       [_t("Sélection"), [[_t("Clic"), _t("Sélectionner")], [`${K(ctrl)}+${_t("clic")}`, _t("Ajouter à la sélection ou en retirer")], [_t("Glisser dans le vide"), _t("Cadre de sélection")],
         [K(ctrl, "A"), _t("Tout sélectionner")], [K(_t("Flèches")), _t("Déplacer d'un pas de grille (avec Maj : ×10)")], [K(_t("Suppr")), _t("Retirer")],
         [K(ctrl, "D"), _t("Dupliquer")], [K(ctrl, "G"), _t("Grouper")], [K(ctrl, maj, "G"), _t("Dégrouper")]]],

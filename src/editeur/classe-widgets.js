@@ -105,21 +105,6 @@ class EditeurPlan { // @assemblage
   _champTexte(label, k, v, ph = "", aide = "") {
     return `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="text" data-k="${k}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
   }
-  // repli « Lumière » d'une fenêtre ou d'une porte : vitrage d'une porte (pleine, vitrée sur toute la hauteur, petite vitre en haut),
-  // allège et haut du vitrage (vide = auto), avancée de toit au-dessus (profondeur, hauteur au-dessus du haut)
-  _sectionLumiereOuv(o) {
-    const vt = o.type === "porte" ? (o.vitree === true ? "toute" : o.vitree || "") : "fenetre", larg = Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]);
-    const ouvert = o.allege != null || o.hauteur != null || o.avancee != null || !!o.lames || (o.type === "porte" && !!vt);
-    // lames du volet (`lames`) : pleines = volet de base (défaut), orientables = selon l'inclinaison du volet, ajourées = filets volet fermé
-    const lames = o.volet ? `<div class="ed-champ"><label>${_t("Lames du volet")}${bulleI(_t("Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière."))}</label><select data-k="lames">${[["", _t("Pleines (volet de base)")], ["orientables", _t("Orientables")], ["ajourees", _t("Ajourées")]].map(([v, n]) => `<option value="${v}" ${(o.lames || "") === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
-    const choix = o.type === "porte" ? `<div class="ed-champ"><label>${_t("Vitrage de la porte")}${bulleI(_t("Une porte vitrée laisse entrer la lumière du jour, comme une fenêtre ; son volet est pris en compte."))}</label><select data-k="vitree">${[["", _t("Porte pleine")], ["toute", _t("Vitrée sur toute la hauteur")], ["haut", _t("Petite vitre en haut")]].map(([v, n]) => `<option value="${v}" ${vt === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
-    if (o.type === "porte" && !vt) return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}</details>`;
-    const [bas, haut] = vt === "haut" ? ["150", "200"] : vt === "toute" || larg >= 180 ? ["0", "215"] : ["90", "215"];
-    return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}${lames}
-      <div class="ed-aide">${o.type === "porte" ? _t("Vide = auto : 0 à 215 cm, ou 150 à 200 cm pour une petite vitre.") : _t("Vide = auto : 90 cm, ou 0 dès 1,80 m de baie.")}</div>
-      <div class="ed-ligne">${this._champNombre(_t("Allège (cm)"), "allege", o.allege, 1, bas, _t("Hauteur du bas du vitrage ; 0 = jusqu'au sol."))}${this._champNombre(_t("Haut (cm)"), "hauteur", o.hauteur, 1, haut, _t("Hauteur du haut du vitrage."))}</div>
-      <div class="ed-ligne">${this._champNombre(_t("Avancée de toit (cm)"), "avancee", o.avancee, 1, "0", _t("Profondeur de l'avancée au-dessus : elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver)."))}${this._champNombre(_t("Au-dessus du haut (cm)"), "avancee_hauteur", o.avancee_hauteur, 1, "0", _t("Hauteur de l'avancée au-dessus du haut du vitrage."))}</div></details>`;
-  }
 
   _champNombre(label, k, v, step = 1, ph = "", aide = "") {
     return `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="number" step="${esc(step)}" data-k="${k}" data-num="1" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
@@ -311,6 +296,20 @@ class EditeurPlan { // @assemblage
       else inp.onchange = () => ecrire(k, inp.dataset.num ? (inp.value === "" ? "" : +inp.value) : inp.value.trim());
     });
     this._cablerIcones(P);
+  }
+
+  // glisser-déposer depuis les panneaux d'information : cote / i = destination (i Infinity = à la fin)
+  deplacerWidget(src, cote, i) {
+    const l = this._wl(src);
+    if (!l?.[src.i] || (src.cote === "fiche") !== (cote === "fiche")) return; // une fiche ne s'échange pas par glisser avec les panneaux
+    let j = i === Infinity ? null : i;
+    if (cote === src.cote && j != null && j > src.i) j--;
+    if (cote === src.cote && (j ?? l.length - 1) === src.i) return;
+    this.commit(() => {
+      const [w] = l.splice(src.i, 1), dest = this._wl({ ...src, cote }, true), k = j == null ? dest.length : Math.min(j, dest.length);
+      dest.splice(k, 0, w);
+      this.sel = { ...src, cote, i: k };
+    });
   }
 
 } // @assemblage

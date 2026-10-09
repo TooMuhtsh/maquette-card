@@ -168,6 +168,24 @@ const PARAMS_INTERACTION = [
       aide: _tk("Réduit : rien ne bouge en boucle (pulsations, ondes, météo, flux), transitions courtes. Aucune : rien ne bouge.") },
   ] },
 ];
+// widgets latéraux d'un étage (plan à étages, config dépliée : `etage_actif.propres`) : propres = les panneaux à la racine sont ceux de
+// l'étage, ceux de la maison mis de côté dans `etage_actif.panneaux` ; passer à propres part d'une copie des widgets de la maison,
+// revenir aux communs remet ceux de la maison à la racine (ceux de l'étage sont perdus)
+const avecEtages = (d) => !!d.etage_actif && typeof d.etage_actif === "object";
+const avecWidgets = (p) => !!p && typeof p === "object" && ["gauche", "droite"].some((c) => Array.isArray(p[c]) && p[c].length);
+function ecrirePanneauxEtage(d, v) {
+  const A = d.etage_actif;
+  if (!avecEtages(d) || !!A.propres === !!v) return;
+  if (v) {
+    A.propres = true;
+    if ("panneaux" in d) A.panneaux = JSON.parse(JSON.stringify(d.panneaux));
+    else d.panneaux = {};
+    return;
+  }
+  delete A.propres;
+  if ("panneaux" in A) d.panneaux = A.panneaux; else delete d.panneaux;
+  delete A.panneaux;
+}
 // ---------- modale ⚙ Paramètres : réglages globaux de la carte (fonctionnement plutôt que dessin) ----------
 // Liste déclarative, rendue et écrite par EditeurPlan._rendreParametres. Section : { id, titre: clé i18n, icone?: icône de l'onglet,
 //   onglet?: id de la section qui ouvre l'onglet où elle s'ajoute (sous-titre = son titre ; sinon elle a son propre onglet), aide?: clé i18n, champs: [champ] }.
@@ -200,6 +218,15 @@ const SECTIONS_PARAMETRES = [
     { type: "intertitre", libelle: _tk("Couleurs nommées") },
     { id: "palette", type: "palette", libelle: _tk("Palette du plan"),
       aide: _tk("Proposées dans tous les champs couleur. Un élément qui utilise un nom suit la palette quand elle change ; une couleur retirée rend aux éléments leur couleur par défaut.") },
+  ] },
+  // plan à étages : widgets latéraux communs à la maison (défaut) ou propres à l'étage affiché ; section absente sans étages
+  { id: "panneaux_etage", titre: _tk("Widgets latéraux"), onglet: "affichage", champs: [
+    { chemin: "etage_actif.propres", type: "choix", libelle: _tk("Widgets de cet étage"), defaut: false, si: avecEtages,
+      options: [[false, _tk("Communs à la maison")], [true, _tk("Propres à cet étage")]],
+      aide: _tk("Propres : cet étage a ses widgets, partis d'une copie de ceux de la maison ; les autres étages gardent ceux de la maison. Les widgets ajoutés vont là où ils s'affichent."),
+      lire: (d) => !!d.etage_actif?.propres, ecrire: ecrirePanneauxEtage,
+      confirmer: { quand: (v, d) => v === false && !!d.etage_actif?.propres && avecWidgets(d.panneaux), titre: _tk("Reprendre les widgets de la maison ?"), bouton: _tk("Reprendre ceux de la maison"),
+        texte: _tk("Les widgets propres à cet étage seront perdus (Ctrl+Z pour revenir en arrière).") } },
   ] },
   { id: "fonctions", titre: _tk("Fonctions"), icone: "mdi:puzzle-outline", champs: [
     { chemin: "replay", type: "bool", libelle: _tk("Revoir la journée"), aide: _tk("Bouton à côté du zoom : la journée rejouée en accéléré."), defaut: false },

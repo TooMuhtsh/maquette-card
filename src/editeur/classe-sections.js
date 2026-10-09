@@ -12,13 +12,6 @@ class EditeurPlan { // @assemblage
         ${ev === "meuble" ? `<div class="ed-champ"><label>${_t("Forme de l'onde")}</label><select data-k="${cle}.forme"><option value="">${_t("Cercle")}</option><option value="contour" ${a.forme === "contour" ? "selected" : ""}>${_t("Contour du meuble")}</option></select></div>` : ""}</div></details>`;
   }
 
-  // j = nouvelle place dans la liste affichée (premier plan en haut, donc ordre de dessin inversé)
-  _deplacerCalque(groupe, k, j) {
-    const vue = [...this.carte._calques()[groupe]].reverse().filter((x) => x !== k);
-    vue.splice(j, 0, k);
-    this._majCalques((q) => { q[`ordre_${groupe}`] = vue.reverse(); });
-  }
-
   // section « Connecté » d'un meuble : entité, valeur, comportement au toucher, protection, fiche (widgets)
   _sectionConnecte(o, def) {
     const dom = (o.entite || "").split(".")[0], lie = !!(o.entite || o.valeur || o.fiche);
@@ -424,22 +417,6 @@ class EditeurPlan { // @assemblage
     this._apres();
     this.recadrer();
     this.snack(`${_t("{n} pièce créée|{n} pièces créées", { n: choix.length })}, ${_t("{n} appareil placé|{n} appareils placés", { n })}. ${_t("Ajuste maintenant tailles et positions.")}`, _t("Annuler##defaire"), this._annulation(), 12000);
-  }
-
-  _finirTrace() {
-    const o = this.outil, t = this.trace;
-    this.trace = [];
-    this._info("");
-    if (o === "piece" && t.length >= 3) {
-      const z = this.zoneEnAttente;
-      this.zoneEnAttente = null;
-      this.commit(() => { this.d.pieces.push({ nom: z ? this.hass.areas?.[z]?.name || z : _t("Nouvelle pièce"), poly: t, etiquette: centre(t), ...(z ? { zone: z } : {}) }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
-      this.choisirOutil("selection");
-      if (z) { this.integrer(this.d.pieces.length - 1); return; }
-      setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
-      return;
-    }
-    this.carte._construire();
   }
 
   // ---------- sélection & panneau ----------

@@ -114,7 +114,8 @@ class MaquetteCard extends HTMLElement { // @assemblage
     (Array.isArray(c.alertes) ? c.alertes : []).forEach((r, i) => {
       if (!r || typeof r !== "object" || r.actif === false) return;
       if (r.si_absent && this._quelquun(r.presence) !== false) return;
-      const ents = r.type === "ouvertures" ? (c.ouvertures || []).flatMap((o) => [...contactsDe(o), ...(contactsDe(o).length ? [] : [o.entite])]) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
+      // ouvertures de toute la maison (tous les étages)
+      const ents = r.type === "ouvertures" ? parEtage(c).flatMap((e) => e.geo.ouvertures).flatMap((o) => [...contactsDe(o), ...(contactsDe(o).length ? [] : [o.entite])]) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
       const vide = (v) => v == null || v === "";
       const on = [...new Set(ents.filter((e) => typeof e === "string"))].filter((e) => {
         const s = this._etat(e);
@@ -145,7 +146,12 @@ class MaquetteCard extends HTMLElement { // @assemblage
     if (!bd) { bd = document.createElement("div"); bd.setAttribute("role", "alert"); plan.append(bd); }
     v.className = `alerte-voile ${a0.niv}`; bd.className = `bandeau-al ${a0.niv}`;
     plan.style.setProperty("--al-c", COUL[a0.niv]);
-    const nomDe = (e) => { const o = (this._config.ouvertures || []).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e)); return o?.baie || o?.nom || this._nom(e); };
+    // nom de l'élément concerné (ouverture de n'importe quel étage, l'affiché d'abord), suivi de son étage s'il n'est pas affiché
+    const nomDe = (e) => {
+      const o = this._maisonEtages().flatMap((E) => E.geo.ouvertures).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e));
+      const n = o?.baie || o?.nom || this._nom(e), E = this._etageAilleurs(e);
+      return E ? _t("{nom} ({etage})", { nom: n, etage: E.nom || E.court }) : n;
+    };
     const html = `<ha-icon icon="${esc(a0.r.icone || NIVEAUX_ALERTE[a0.niv].icone)}"></ha-icon><span class="t"><b>${esc(a0.r.nom || _t("Alerte"))}</b>
       <small>${esc([...new Set(a0.on.map(nomDe))].join(", "))}${l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : ""}</small></span>
       <button class="ib" data-al="infos" title="${_t("Détails")}" aria-label="${_t("Détails")}"><ha-icon icon="mdi:information-outline"></ha-icon></button>

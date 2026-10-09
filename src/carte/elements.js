@@ -9,6 +9,10 @@ const normaliserMeubles = (liste) => (Array.isArray(liste) ? liste : []).filter(
   }
   if (n.rotation != null) n.rotation = nb(n.rotation);
   if (n.chaises != null) n.chaises = Math.max(0, Math.min(12, Math.round(nb(n.chaises))));
+  // fenêtre de toit : pente du toit 0 à 75° (défaut 40 à l'affichage), hauteur du bas de la fenêtre au-dessus du sol en cm (défaut 200)
+  for (const [k, max] of [["pente", 75], ["hauteur", 1000]]) if (k in n) { if (num(n[k])) n[k] = Math.min(max, Math.max(0, +n[k])); else delete n[k]; }
+  // escalier : `etage` (étage où il mène) est un identifiant, vérifié ensuite avec la liste des étages
+  if ("etage" in n && !(typeof n.etage === "string" && ID_SUR.test(n.etage))) n.etage = null;
   if (n.teinte != null) n.teinte = n.teinte !== false && n.teinte !== "false";
   if (n.type === "forme") n.forme = normaliserForme(n.forme); else delete n.forme;
   // meuble connecté : mêmes clés que les pastilles ; une valeur invalide est retirée, jamais d'erreur

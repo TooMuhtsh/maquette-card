@@ -41,5 +41,18 @@ const EN = { // @assemblage
     "Voiture branchée": "Car plugged in",
     "Volet chambre": "Bedroom shutter",
     "Volet du séjour": "Living room shutter",
+    // ---- démo : étage ----
+    "Atelier": "Studio",
+    "Chambre d'amis": "Guest room",
+    "Étage##demo": "Upstairs",
+    "Fenêtre atelier": "Studio window",
+    "Fenêtre chambre d'amis": "Guest room window",
+    "Fenêtre salle d'eau": "Shower room window",
+    "Lampe de l'atelier": "Studio lamp",
+    "Palier": "Landing",
+    "Plafonnier chambre d'amis": "Guest room ceiling light",
+    "Rez-de-chaussée##demo": "Ground floor",
+    "Salle d'eau##piece": "Shower room",
+    "Volet chambre d'amis": "Guest room shutter",
 }; // @assemblage
 })(); // @assemblage

@@ -15,34 +15,28 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ![Maquette : l'appartement de démonstration en direct, thème sombre](images/plan-pc-dark.png)
 
-## Bêta 0.2.0
+## Nouveautés de la 0.2.0
 
-La prochaine version est sortie en bêta, sur la branche `dev`. Le gros morceau, c'est la lumière : le soleil et le ciel
-qui entrent par les fenêtres (volets et météo compris), la lune la nuit, et des halos de lampes qui mélangent leurs
-couleurs. L'éditeur a aussi perdu son panneau latéral : chaque élément s'ouvre maintenant dans sa propre fenêtre, avec
-un aperçu en direct. Elle tourne sur mon propre tableau de bord, mais ça reste une bêta : si quelque chose cloche,
-dites-le-moi dans les [issues](https://github.com/TooMuhtsh/maquette-card/issues). Le détail est sur le wiki :
+Le gros morceau, c'est la lumière : le soleil et le ciel qui entrent par les fenêtres (volets et météo compris), la lune
+la nuit, et des halos de lampes qui mélangent leurs couleurs. Un plan peut maintenant avoir plusieurs étages, avec des
+escaliers pour passer de l'un à l'autre, des fenêtres de toit et une image de fond à décalquer (j'ai testé les étages
+sur la démo, ma maison est de plain-pied). L'éditeur a perdu son panneau latéral : chaque élément s'ouvre dans sa propre
+fenêtre, avec un aperçu en direct. Une habitude à changer : **Enregistrer** quitte maintenant l'éditeur, **Appliquer**
+(Ctrl+S) enregistre sans quitter. Le détail est sur le wiki :
 [Nouveautés de la 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-020).
 
-| Lumière du jour | Nuit |
-|---|---|
-| ![Lumière du jour dans l'appartement de démo : taches de soleil et lumière du ciel derrière les fenêtres](images/light-day-pc-dark.png) | ![Nuit dans l'appartement de démo : lune et halos de lampes colorés](images/light-night-pc-dark.png) |
-
-**Essayer la bêta avec HACS** (Maquette déjà installée par HACS) :
-
-1. Paramètres → Appareils et services → **HACS** → appareil **Maquette** → entité **Pre-release**. Elle est
-   désactivée par défaut : activez-la, puis allumez-la.
-2. HACS propose alors `v0.2.0-beta.1` comme mise à jour de Maquette. Installez-la et rechargez le navigateur.
-
-Sans l'interrupteur : HACS → Maquette → ⋮ → **Retélécharger** → *Need a different version?* → `v0.2.0-beta.1`.
-Pour revenir en arrière, éteignez l'interrupteur et retéléchargez `v0.1.0` de la même façon. Installation manuelle :
-prenez `maquette-card.js` dans la [release v0.2.0-beta.1](https://github.com/TooMuhtsh/maquette-card/releases/tag/v0.2.0-beta.1).
+| Lumière du jour | Nuit | L'étage de la démo |
+|---|---|---|
+| ![Lumière du jour dans l'appartement de démo : taches de soleil et lumière du ciel derrière les fenêtres](images/light-day-pc-dark.png) | ![Nuit dans l'appartement de démo : lune et halos de lampes colorés](images/light-night-pc-dark.png) | ![L'étage de la démo, avec le sélecteur d'étage en haut à droite](images/floors-upstairs-pc-light.png) |
 
 ## Fonctionnalités
 
 - **Plan en direct** : halos des lumières limités à leur pièce, portes et fenêtres en rouge quand elles sont ouvertes,
   volets dessinés selon leur position, pièces teintées selon la température, meubles connectés (borne de recharge,
   frigo, TV…) avec leur puissance.
+- **Étages** : un plan par étage, un petit sélecteur en haut à droite, des escaliers qui mènent à l'étage voisin, des
+  puces de résumé et des alertes qui couvrent toute la maison, des fenêtres de toit, et une image de fond à décalquer
+  avec un calibrage en 2 points.
 - **Éditeur intégré** (administrateurs seulement) : murs, pièces, ouvertures, 45 meubles vus de dessus, calques,
   groupes, aimantation, annuler / rétablir, vos pièces Home Assistant et leurs appareils en un clic, une fenêtre
   d'édition avec aperçu en direct pour chaque élément. Enregistrement direct dans la configuration du tableau de bord.

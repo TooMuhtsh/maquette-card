@@ -40,10 +40,10 @@ const V_MEUBLES = { canape: "sofa", canape_angle: "corner_sofa", fauteuil: "armc
   lit_simple: "single_bed", lit_double: "double_bed", lit_bebe: "crib", table_nuit: "nightstand", armoire: "wardrobe", commode: "dresser", bureau: "desk",
   douche: "shower", baignoire: "bathtub", lavabo: "washbasin", wc: "toilet", chaudiere: "boiler", ballon: "water_heater", radiateur: "radiator",
   tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool",
-  espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom" };
+  espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom", fenetre_toit: "skylight" };
 // catégories des meubles (catalogue et meubles personnalisés `modeles[].cat`)
 const V_CATS_MEUBLES = { sejour: "living", repas: "dining", cuisine: "kitchen", chambre: "bedroom", salle_eau: "bathroom", technique: "utility", formes: "shapes", exterieur: "outdoor" };
-const V_CALQUES = { pieces: "rooms", sous_zones: "sub_areas", halos: "halos", meubles: "furniture", limites: "fences", murs: "walls", ouvertures: "openings",
+const V_CALQUES = { fond: "background", pieces: "rooms", sous_zones: "sub_areas", halos: "halos", meubles: "furniture", limites: "fences", murs: "walls", ouvertures: "openings",
   etiquettes: "room_labels", libelles: "area_labels", appareils: "badges", textes: "texts" };
 const V_WIDGETS = { tarif: "tariff", ve: "ev", jauge: "gauge", tuile: "tile", entites: "entities", periodes: "periods", separateur: "divider", commande: "cover",
   thermostat: "thermostat", climat: "climate", serrure: "lock" };
@@ -87,7 +87,9 @@ const N_TEXTE = nObj({ t: "text", pos: "pos", taille: "size", style: ["style", n
 const N_PRIMITIVE = nObj({ genre: ["kind", nEnum({ rect: "rect", arrondi: "rounded_rect", ellipse: "ellipse", trait: "line", polygone: "polygon" })],
   x: "x", y: "y", l: "w", h: "h", rayon: "radius", points: "points", style: ["style", nEnum({ plein: "filled", vide: "outline", tirets: "dashed" })] });
 const N_MEUBLE = nObj({ type: ["type", nEnum(V_MEUBLES)], pos: "pos", taille: "size", rotation: "rotation", miroir: "mirror", nom: "name", chaises: "chairs", teinte: "tint",
-  forme: ["shape", nListe(N_PRIMITIVE)], ...K_CONNECTE, ...K_ELEMENT });
+  forme: ["shape", nListe(N_PRIMITIVE)], ...K_CONNECTE, ...K_ELEMENT,
+  // escalier : étage où il mène (`floor`) ; fenêtre de toit (`skylight`) : pente du toit et hauteur du bas de la fenêtre
+  etage: "floor", pente: "roof_tilt", hauteur: "sill_height" });
 const N_PUCE = nObj({ type: ["type", nEnum({ ouvertures: "openings", lumieres: "lights", volets: "shutters", temperature: "temperature", entite: "entity" })],
   icone: "icon", entite: "entity", nom: "name", unite: "unit", decimales: "decimals", alerte_au_dessus: "alert_above", alerte_etat: "alert_state",
   masquer_si: "hide_if", afficher: ["show", nEnum({ absent: "away", present: "home" })], presence: "presence", ligne: "new_line", sous: "below" });
@@ -137,10 +139,18 @@ const N_MODELE = nObj({ id: "id", demander: ["ask", N_DEMANDER], nom: "name", ge
   cat: ["category", nEnum(V_CATS_MEUBLES)], mots: "keywords" },
 { var: ["genre", { widget: { objet: N_WIDGET }, meuble: { objet: N_MEUBLE, demander: N_DEMANDER_SIMPLE({ entite: "entity", valeur: "value", actif: "active" }) }, point: { objet: N_POINT },
   ouverture: { objet: N_OUVERTURE, demander: N_DEMANDER_SIMPLE({ contact: "contact", volet: "shutter", entite: "entity" }) } }] });
+// géométrie d'un plan : à la racine d'un plan à un étage, sinon dans chaque étage (`floors[n]`), avec les mêmes sous-schémas
+const K_GEOMETRIE = { pieces: ["rooms", nListe(N_PIECE)], murs: "walls", limites: "fences", ouvertures: ["openings", nListe(N_OUVERTURE)], points: ["badges", nListe(N_POINT)],
+  textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))] };
+// image de fond (plan scanné, photo) : coin haut gauche et taille en cm, rotation, opacité, affichée en édition seulement ou toujours
+const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "height", rotation: "rotation", opacite: "opacity",
+  afficher: ["show", nEnum({ editeur: "editor", toujours: "always" })] });
+// un étage (`floors`, du bas vers le haut) : identifiant, nom, nom court, icône, sa géométrie, ses panneaux (facultatifs) et son fond
+const N_ETAGE = nObj({ id: "id", nom: "name", court: "short", icone: "icon", ...K_GEOMETRIE, panneaux: ["panels", N_PANNEAUX], fond: ["background", N_FOND] });
 const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summary", nListe(N_PUCE)], plein_ecran: "full_page", edition: "editor", marge: "margin",
-  pieces: ["rooms", nListe(N_PIECE)], murs: "walls", limites: "fences", ouvertures: ["openings", nListe(N_OUVERTURE)], points: ["badges", nListe(N_POINT)],
-  textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })],
-  calques: ["layers", N_CALQUES], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))], panneaux: ["panels", N_PANNEAUX],
+  ...K_GEOMETRIE, afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })], fond: ["background", N_FOND],
+  etages: ["floors", nListe(N_ETAGE)], etage_defaut: "default_floor", selecteur_etages: ["floor_selector", nEnum({ ascenseur: "elevator", onglets: "tabs" })],
+  calques: ["layers", N_CALQUES], panneaux: ["panels", N_PANNEAUX],
   modeles: ["templates", nListe(N_MODELE)], ambiance: ["ambience", N_AMBIANCE], animations: ["animations", N_ANIMATIONS], alertes: ["alerts", nListe(N_ALERTE)],
   style_pastilles: ["badge_style", N_STYLE_PASTILLES], palette: "palette",
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
@@ -218,7 +228,8 @@ function traduire(x, n, versEn, chemin, rap) {
   return x;
 }
 // config interne (clés françaises) → format public (anglais)
-const versAnglais = (cfg, rap) => (cfg && typeof cfg === "object" && !Array.isArray(cfg) ? traduire(cfg, N_RACINE, true, "", rap) : cfg);
+// (config dépliée sur un étage, `etage_actif` : repliée d'abord, cette clé interne n'est jamais exportée)
+const versAnglais = (cfg, rap) => (cfg && typeof cfg === "object" && !Array.isArray(cfg) ? traduire(objetSimple(cfg.etage_actif) ? replier(cfg) : cfg, N_RACINE, true, "", rap) : cfg);
 // format public (anglais) → config interne ; une config entière à l'ancien format (clés françaises) est refusée avec un message clair
 function depuisAnglais(cfg, rap) {
   if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) return cfg;

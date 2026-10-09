@@ -184,7 +184,21 @@ function passageLumiere(o, etat, portesFermees, ouv = 1) {
   const v = vitrageDe(o);
   return (v === "toute" ? 0.7 : v === "haut" ? 0.25 : 0) * ouv;
 }
-// lumière entre pièces : ouverture intérieure = une pièce de chaque côté (à 15 cm du milieu, le long de la perpendiculaire).
+// pièces de part et d'autre d'une ouverture (à 15 cm du milieu, le long de la perpendiculaire) : { p1, p2 } (-1 = aucune pièce de ce
+// côté), avec le segment, sa longueur, son milieu et sa normale ; null = segment invalide. pieces = [[poly, k]] (pièces intérieures)
+function cotesOuverture(pieces, o) {
+  if (!Array.isArray(o?.seg) || o.seg.length < 4) return null;
+  const [a, b, d, f] = o.seg.map(Number), L = Math.hypot(d - a, f - b);
+  if (![a, b, d, f].every(Number.isFinite) || L < 1) return null;
+  const nx = -(f - b) / L, ny = (d - a) / L, m = [(a + d) / 2, (b + f) / 2];
+  const cote = (sg) => pieces.find(([poly]) => dansPoly([m[0] + nx * 15 * sg, m[1] + ny * 15 * sg], poly))?.[1] ?? -1;
+  return { p1: cote(1), p2: cote(-1), L, m, nx, ny };
+}
+// ouverture intérieure : une pièce intérieure différente de chaque côté (verrière, porte intérieure : lumiereVoisins). Une fenêtre ou une
+// porte vitrée entre deux pièces qui a aussi un côté `dehors` ne compte qu'une fois : en fenêtre extérieure, son `dehors` fait foi (une
+// terrasse dessinée en pièce sans `outside` reste dehors) ; le contrôle « fenêtre intérieure avec un côté dehors » de Nettoyer le plan la signale
+const ouvertureInterieure = (pieces, o) => { const c = cotesOuverture(pieces, o); return !!c && c.p1 >= 0 && c.p2 >= 0 && c.p1 !== c.p2; };
+// lumière entre pièces : ouverture intérieure = une pièce de chaque côté (voir cotesOuverture).
 // pieces = [[poly, k]], trans[i] = part qui passe par l'ouverture i, F = Map(k → lumière de fond de la pièce éclairée par le jour).
 // Un seul saut : seules les pièces de F éclairent leurs voisines. fond = lumière de fond de la voisine (plus faible, selon la taille
 // du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine
@@ -192,13 +206,9 @@ function lumiereVoisins(pieces, ouvertures, trans, F) {
   const res = [];
   (ouvertures || []).forEach((o, i) => {
     const t = trans[i];
-    if (!(t > 0) || !Array.isArray(o?.seg) || o.seg.length < 4) return;
-    const [a, b, d, f] = o.seg.map(Number), L = Math.hypot(d - a, f - b);
-    if (![a, b, d, f].every(Number.isFinite) || L < 1) return;
-    const nx = -(f - b) / L, ny = (d - a) / L, m = [(a + d) / 2, (b + f) / 2];
-    const cote = (sg) => pieces.find(([poly]) => dansPoly([m[0] + nx * 15 * sg, m[1] + ny * 15 * sg], poly))?.[1] ?? -1;
-    const p1 = cote(1), p2 = cote(-1);
-    if (p1 < 0 || p2 < 0 || p1 === p2) return;
+    const c = t > 0 ? cotesOuverture(pieces, o) : null;
+    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2) return;
+    const { p1, p2, L, m, nx, ny } = c;
     const [bas, haut] = o.type === "porte" ? [0, 210] : vitrageBornes(o, L);
     for (const [de, vers, sg] of [[p1, p2, -1], [p2, p1, 1]]) {
       const Fd = F.get(de) || 0, poly = pieces.find((x) => x[1] === vers)[0];

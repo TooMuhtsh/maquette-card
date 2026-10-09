@@ -20,6 +20,7 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - [Conventions](#conventions)
 - [Racine de la carte](#racine-de-la-carte)
 - [Réglages généraux](#réglages-généraux)
+- [Étages et image de fond](#étages-et-image-de-fond)
 - [Pièces et sous-zones](#pièces-et-sous-zones)
 - [Murs](#murs)
 - [Limites et clôtures](#limites-et-clôtures)
@@ -112,6 +113,10 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `texts` | liste | | `[]` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `furniture` | liste | | `[]` | [Meubles](#meubles) et [meubles connectés](#meubles-connectés) |
 | `panels` | objet | | — | [Panneaux](#panneaux) de la vue d'ensemble |
+| `floors` | liste | | — | [Étages](#étages-et-image-de-fond), du bas vers le haut. Avec `floors`, `rooms`, `walls`, `fences`, `openings`, `badges`, `texts`, `furniture`, `groups` et `background` passent dans chaque étage |
+| `default_floor` | texte | `id` d'un étage | premier étage | [Étage](#étages-et-image-de-fond) affiché au chargement |
+| `floor_selector` | énum | `elevator` `tabs` | `elevator` | [Sélecteur d'étage](#étages-et-image-de-fond) |
+| `background` | objet | | — | [Image de fond](#image-de-fond) d'un plan sans `floors` |
 | `layers` | objet | | — | [Calques](#calques) |
 | `groups` | liste | | — | [Groupes](#groupes) |
 | `templates` | liste | | — | [Modèles](#modèles) enregistrés par l'éditeur |
@@ -185,6 +190,117 @@ legend: false
 `layers.view_button`), › Fonctions (`replay`, `showcase`, `presence` ; *Réglés ailleurs* : liens vers les alertes plein
 plan et les puces du résumé), › Pièces et légende (`room_labels`, `temperature_tint`, `legend`). Les aides sont derrière
 les boutons ⓘ.
+
+## Étages et image de fond
+
+Un plan peut être découpé en étages. Chaque étage a son propre dessin ; le résumé, les alertes, l'ambiance, les calques, les
+modèles, la relecture et tous les autres réglages sont communs à la maison. Un plan sans `floors` fonctionne exactement comme avant.
+
+| Clé | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `floors` | liste | 1 étage au moins | — | Étages, **du bas vers le haut** |
+| `floors[].id` | texte | lettres, chiffres, `_` `-` `.` `:` (80 au plus) | `floor_<rang>` | Identifiant stable, utilisé par `default_floor` et `furniture[].floor`. Un id absent, invalide ou en double est corrigé (`floor_2`, `id_2`…) avec un avertissement |
+| `floors[].name` | texte | | — | Nom complet, affiché au survol et dans le sélecteur `tabs` |
+| `floors[].short` | texte | 3 caractères au plus | rang depuis `0` | Texte du bouton de l'ascenseur |
+| `floors[].icon` | icône | `mdi:…` | `mdi:layers-outline` | Icône du sélecteur `tabs` |
+| `floors[].rooms`, `walls`, `fences`, `openings`, `badges`, `texts`, `furniture`, `groups` | | | `[]` | Mêmes clés et mêmes règles qu'à la racine d'un plan sans étages |
+| `floors[].panels` | objet | | — | [Panneaux](#panneaux) de cet étage seulement. Sans cette clé, l'étage montre les `panels` de la carte (communs à la maison) |
+| `floors[].background` | objet | voir plus bas | — | [Image de fond](#image-de-fond) de cet étage |
+| `default_floor` | texte | `id` d'un étage | premier étage | Étage affiché au chargement. Sans cette clé, la carte rouvre le dernier étage vu dans ce navigateur |
+| `floor_selector` | énum | `elevator` `tabs` | `elevator` | `elevator` : une petite pile de boutons au bord du plan, l'étage le plus haut en haut. `tabs` : onglets Material (icône et nom) au-dessus du plan. Rien n'est affiché avec un seul étage |
+| `furniture[].floor` | texte | `id` d'un étage | — | `stairs` seulement : l'étage où mène l'escalier. Un autre étage que le sien, sinon la clé est retirée |
+
+```yaml
+type: custom:maquette-card
+default_floor: ground
+floor_selector: elevator
+floors:
+  - id: ground
+    name: Rez-de-chaussée
+    short: "0"
+    rooms:
+      - name: Séjour
+        poly: [[0, 0], [500, 0], [500, 420], [0, 420]]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: upstairs}
+  - id: upstairs
+    name: Étage
+    short: "1"
+    rooms:
+      - name: Chambre
+        poly: [[0, 0], [500, 0], [500, 420], [0, 420]]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: ground}
+```
+
+**Règles**
+
+- `floors` doit être une liste. `floors` avec un `rooms`, `walls`, `furniture`… non vide (ou un `background`) à la racine
+  s'arrête avec un message qui dit quoi déplacer dans `floors[n]`.
+- Les noms de pièce devraient être uniques dans la maison (l'éditeur prévient, sans jamais bloquer). Une entité placée sur deux
+  étages (lumière d'escalier) compte une seule fois dans le résumé.
+- Le plan garde le même cadre sur tous les étages : changer d'étage ne décale jamais le dessin.
+- Changer d'étage remet à zéro la vue d'une pièce, le zoom et la fiche ouverte. Clavier : flèches dans le sélecteur, Page
+  précédente / Page suivante sur le plan.
+- Un escalier avec `floor` mène à cet étage, zoomé sur l'escalier de retour, et porte une petite pastille ↑ ou ↓. Un `tap`
+  posé sur l'escalier l'emporte.
+- Tablettes murales : `interaction.reset_after` ramène aussi à `default_floor` (ou au premier étage).
+
+### Fenêtre de toit
+
+Un meuble `furniture` de type `skylight` (« Fenêtre de toit » dans le catalogue), posé sur l'étage qu'il éclaire.
+
+| Clé | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `type` | énum | `skylight` | — | Fenêtre de toit. Son rectangle est la fenêtre vue du dessus ; le bas du rectangle est le bas de la pente (utiliser `rotation`). Taille par défaut 78 × 118 |
+| `roof_tilt` | nombre (°) | 0–75 | `40` | Pente du toit ; `0` = toit plat |
+| `sill_height` | nombre (cm) | 0–1000 | `200` | Hauteur du bord bas de la fenêtre au-dessus du sol |
+| `entity` | entité | `cover.…` ou `binary_sensor.…` | — | Un store : sa `current_position` raccourcit la tache de soleil (fermé = aucune). Un contact montre seulement l'état ouvert |
+
+Avec `ambience.light`, une fenêtre de toit projette une tache de soleil qui suit `sun.sun` et `north`, coupée par la pièce qui
+la contient (rien quand le soleil est derrière le pan de toit). Les autres clés de meuble s'appliquent.
+
+```yaml
+furniture:
+  - {type: skylight, pos: [250, 100], rotation: 0, roof_tilt: 35, sill_height: 180, entity: cover.store_atelier}
+```
+
+Éditeur : pente, hauteur du bas et store ou contact dans la fenêtre du meuble.
+
+### Image de fond
+
+Un plan scanné ou une photo, dessiné sous tout le reste. C'est le calque `background`, verrouillé par défaut dans l'éditeur
+(les clics passent aux pièces). Les mêmes clés servent à la racine (plan sans étages) et dans `floors[].background`.
+
+| Clé | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `background.image` | texte | `/local/….png` (`jpg`, `jpeg`, `webp`, `avif`, `svg`) ou `/api/image/serve/<id>/original` | — | Image **du même site seulement**. `http(s)://`, `data:`, `blob:` et les autres sites sont refusés. Sans image valide ou sans `width`, tout le `background` est retiré |
+| `background.pos` | `[x, y]` | | `[0, 0]` | Coin haut gauche (cm) |
+| `background.width` | nombre (cm) | > 0 | obligatoire | Largeur de l'image sur le plan |
+| `background.height` | nombre (cm) | > 0 | garde le rapport de l'image | Hauteur ; l'omettre garde les proportions |
+| `background.rotation` | nombre (°) | 0–360 | `0` | Rotation dans le sens horaire |
+| `background.opacity` | nombre | 0–1 | `0.5` | Opacité |
+| `background.show` | énum | `editor` `always` | `editor` | `editor` : l'image n'est dessinée qu'en édition, et même pas chargée en vue. `always` : aussi en vue (sauf si le calque est masqué) |
+
+```yaml
+floors:
+  - id: ground
+    background:
+      image: /local/plans/rdc.png
+      pos: [-40, -40]
+      width: 620
+      opacity: 0.6
+      show: always
+```
+
+> **Confidentialité.** Tout ce qui est dans `/local` (le dossier `www`) et `/api/image/serve` est lisible **sans connexion** par
+> quiconque peut joindre ton Home Assistant, s'il est exposé sur Internet. N'y mets pas un plan que tu ne veux pas rendre public.
+
+Éditeur : *Calques › Image de fond* : chemin avec aperçu, opacité, position, largeur, rotation, *Afficher aussi en vue*,
+verrou, *Envoyer une image* (administrateurs), *Calibrer* (deux points et leur vraie distance), *Aligner sur un mur*, *Retirer*.
+Les étages se gèrent depuis le bouton *Étages* de la barre (*Plus › Gérer les étages* sur téléphone). Chaque changement peut être annulé.
 
 ## Pièces et sous-zones
 
@@ -309,6 +425,7 @@ corrections à cocher avec leur nombre :
 | Arrondir à 5 cm | non | sommets, murs, ouvertures ; proposé seulement si au moins 30 % des cotes sont hors de la grille (plan relevé sur une image) |
 | Poser le côté dehors des fenêtres | non | fenêtre ou porte vitrée sans `outside` (pièce intérieure d'un seul côté) : sans lui, pas de lumière du jour ; `outside` posé vers l'extérieur. Une verrière entre deux pièces n'est pas concernée |
 | Retirer les volets reliés à rien | non | `shutter` vers une entité qui n'existe pas, ou `shutter_only` sans `shutter` : le lien est retiré |
+| Retirer le côté dehors des fenêtres intérieures | non | fenêtre ou porte vitrée entre deux pièces intérieures qui a aussi un `outside` : la carte la compte une fois, en fenêtre extérieure (`outside` fait foi : une terrasse dessinée en pièce reste dehors) ; `outside` est retiré, elle devient une verrière. Une terrasse : la marquer `outside` plutôt |
 
 *Appliquer* = une seule action annulable (Ctrl+Z ou *Annuler* dans la notification) ; relancé juste après, il ne
 trouve plus rien. Avant, une copie de `rooms`, `walls` et `openings` est gardée dans ce navigateur (les 3 dernières) :
@@ -560,6 +677,7 @@ d'une fiche est un [meuble connecté](#meubles-connectés).
 | `hidden` | booléen | | `false` | Masqué en vue |
 | `level` | nombre | | `0` (`-1` pour `rug` et `area`) | Ordre dans le calque Meubles |
 | `group` | texte | `id` de groupe | — | Groupe de l'éditeur |
+| `floor`, `roof_tilt`, `sill_height` | | | | `stairs` et `skylight` : voir [Étages](#étages-et-image-de-fond) |
 | `entity`, `value`, `active`, `active_attribute`, `threshold`, `attribute`, `unit`, `decimals`, `color`, `tap`, `protected`, `confirm`, `card`, `animation` | | | | Voir [Meubles connectés](#meubles-connectés) |
 
 ```yaml
@@ -628,7 +746,8 @@ furniture:
 | Formes et espaces | `area` | Espace nommé | 300 × 200 | niveau −1 |
 | Formes et espaces | `rect` | Rectangle libre | 100 × 60 |  |
 | Formes et espaces | `circle` | Cercle libre | 60 × 60 | rond |
-| Formes et espaces | `stairs` | Escalier | 90 × 280 |  |
+| Formes et espaces | `stairs` | Escalier | 90 × 280 | `floor` : l'étage où il mène |
+| Formes et espaces | `skylight` | Fenêtre de toit | 78 × 118 | `roof_tilt`, `sill_height`, voir [Fenêtre de toit](#fenêtre-de-toit) |
 | Extérieur | `car` | Voiture | 178 × 406 | couleur `#43a047` |
 | Extérieur | `bike` | Vélo | 60 × 180 |  |
 | Extérieur | `tree` | Arbre / arbuste | 200 × 200 | rond |
@@ -1180,12 +1299,13 @@ groupe superposé est toujours au-dessus du dessin.
 |---|---|---|---|---|
 | `layers.drawing_order` | liste | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` | cet ordre | Calques du dessin, du bas vers le haut ; ceux qui manquent suivent dans l'ordre par défaut |
 | `layers.overlay_order` | liste | `room_labels` `area_labels` `badges` `texts` | cet ordre | Calques au-dessus du dessin, du bas vers le haut |
-| `layers.hidden` | liste | n'importe quel calque | `[]` | Masqués en vue (dessinés à 25 % et non cliquables dans l'éditeur) |
-| `layers.locked` | liste | n'importe quel calque | `[]` | Non sélectionnables dans l'éditeur (les clics passent à travers) ; sans effet en vue |
+| `layers.hidden` | liste | n'importe quel calque, et `background` | `[]` | Masqués en vue (dessinés à 25 % et non cliquables dans l'éditeur) |
+| `layers.locked` | liste | n'importe quel calque, et `background` | `[]` | Non sélectionnables dans l'éditeur (les clics passent à travers) ; sans effet en vue |
 | `layers.view_button` | booléen | | `false` | Bouton *Calques* à côté des boutons de zoom : chaque visiteur masque des calques pour lui-même (mémorisé dans le navigateur) |
 | `hidden` (sur un élément) | booléen | | `false` | Cet élément est masqué en vue |
 | `level` (sur un élément) | nombre | | `0` | Ordre dans son calque, plus grand = au-dessus (`rug`, `area` : `-1`) |
 
+`background` est l'[image de fond](#image-de-fond) : sous tous les autres calques, hors de l'ordre du dessin.
 `area_labels` contient les étiquettes des espaces nommés et des sous-zones ; `badges` les pastilles d'appareils ;
 `room_labels` les étiquettes des pièces.
 
@@ -1446,7 +1566,7 @@ filtre), redessiné seulement quand le soleil (au degré près), un volet, la ph
 | `light.sky_kelvin` | `auto` / nombre | `1800` à `10000` | `auto` | Teinte de la lumière du ciel en température de couleur (corps noir) ; `auto` = blanc légèrement chaud |
 | `light.sun_kelvin` | `auto` / nombre | `1800` à `10000` | `auto` | Teinte de la tache de soleil (la lueur rediffusée un peu plus chaude) ; `auto` = celle d'origine, dorée près du coucher |
 | `light.moon` | booléen / entité | `true`, `false` ou un `sensor.*` | `true` | La nuit, une lumière froide par les mêmes fenêtres. La direction de la lune est calculée par la carte d'après la latitude / longitude de Home Assistant et l'heure : une tache faible et froide derrière les fenêtres qui la voient, seulement la lueur du ciel nocturne par les autres (et lune couchée). Phase d'après un capteur (intégration Moon, `sensor.moon_phase` pris s'il existe), sinon calculée ; plus forte vers la pleine lune. Sans coordonnées, une lueur dans l'axe de chaque fenêtre |
-| `light.doors` | énum | `open` `closed` | `open` | La lumière du jour d'une pièce éclairée passe aussi dans la pièce voisine par une porte intérieure ouverte (son `contact` à on / open) ou une verrière (une `window`, ou une porte `glazed`, entre deux pièces intérieures) : une lumière plus faible sur toute la voisine et une lueur près de l'ouverture, un seul saut (pas de propagation plus loin), lampes non comprises. `closed` = une porte intérieure sans capteur compte comme fermée |
+| `light.doors` | énum | `open` `closed` | `open` | La lumière du jour d'une pièce éclairée passe aussi dans la pièce voisine par une porte intérieure ouverte (son `contact` à on / open) ou une verrière (une `window`, ou une porte `glazed`, entre deux pièces intérieures, sans `outside` : avec, elle compte en fenêtre extérieure seulement) : une lumière plus faible sur toute la voisine et une lueur près de l'ouverture, un seul saut (pas de propagation plus loin), lampes non comprises. `closed` = une porte intérieure sans capteur compte comme fermée |
 | `light.lamps` | booléen | | `true` | Les halos des pastilles `light.*` avec `halo` prennent la couleur de la lampe (`rgb_color`, sinon `hs_color`, sinon `color_temp_kelvin`) et sa luminosité, se mélangent (écran) quand ils se recouvrent et restent dans la pièce de la lampe (`room`, sinon celle où elle est posée) |
 
 ```yaml
@@ -1769,6 +1889,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `avatar` | [Personnes](#personnes) |
 | `average` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `away` | [Personnes](#personnes) |
+| `background` | [Racine de la carte](#racine-de-la-carte), [Image de fond](#image-de-fond), [Calques](#calques) |
 | `badge` | [Animations](#animations) |
 | `badge_style` | [Racine de la carte](#racine-de-la-carte), [Style des pastilles](#style-des-pastilles) |
 | `badges` | [Racine de la carte](#racine-de-la-carte), [Pastilles d'appareils](#pastilles-dappareils), [Flux d'énergie](#flux-dénergie) |
@@ -1790,6 +1911,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `day` | [Widget `periods`](#widget-periods) |
 | `day_night` | [Jour et nuit](#jour-et-nuit), [Ambiance](#ambiance) |
 | `decimals` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `default_floor` | [Racine de la carte](#racine-de-la-carte), [Étages](#étages-et-image-de-fond) |
 | `demo` | [Racine de la carte](#racine-de-la-carte), [Démo](#démo) |
 | `description` | [Modèles](#modèles) |
 | `direction` | [Météo](#météo) |
@@ -1803,6 +1925,9 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `entity` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `cover`](#widget-cover), [Widget `lock`](#widget-lock), [Widget `thermostat`](#widget-thermostat), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés), [Météo](#météo), [Personnes](#personnes), [Alertes plein plan](#alertes-plein-plan) |
 | `factor` | [Widget `periods`](#widget-periods) |
 | `fences` | [Racine de la carte](#racine-de-la-carte), [Limites et clôtures](#limites-et-clôtures) |
+| `floor` | [Étages](#étages-et-image-de-fond), [Meubles](#meubles) |
+| `floor_selector` | [Racine de la carte](#racine-de-la-carte), [Étages](#étages-et-image-de-fond) |
+| `floors` | [Racine de la carte](#racine-de-la-carte), [Étages](#étages-et-image-de-fond) |
 | `full_page` | [Réglages généraux](#réglages-généraux) |
 | `furniture` | [Racine de la carte](#racine-de-la-carte), [Meubles](#meubles), [Animations](#animations) |
 | `glazed` | [Ouvertures](#ouvertures) |
@@ -1813,7 +1938,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `h_max` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `h_min` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `halo` | [Pastilles d'appareils](#pastilles-dappareils) |
-| `height` | [Ouvertures](#ouvertures) |
+| `height` | [Ouvertures](#ouvertures), [Image de fond](#image-de-fond) |
 | `hidden` | [Pièces et sous-zones](#pièces-et-sous-zones), [Calques](#calques), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
 | `hide_if` | [Puces de résumé](#puces-de-résumé) |
 | `history` | [Widgets](#widgets), [Widget `tile`](#widget-tile) |
@@ -1821,8 +1946,9 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `hours` | [Revoir la journée](#revoir-la-journée) |
 | `humidity` | [Pièces et sous-zones](#pièces-et-sous-zones), [Réglages généraux](#réglages-généraux) |
 | `humidity_attribute` | [Pièces et sous-zones](#pièces-et-sous-zones) |
-| `icon` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan) |
-| `id` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes), [Modèles](#modèles) |
+| `icon` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan), [Étages](#étages-et-image-de-fond) |
+| `id` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes), [Modèles](#modèles), [Étages](#étages-et-image-de-fond) |
+| `image` | [Image de fond](#image-de-fond) |
 | `inactive` | [Style des pastilles](#style-des-pastilles) |
 | `info` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `intensity` | [Animations](#animations), [Ambiance](#ambiance), [Jour et nuit](#jour-et-nuit), [Météo](#météo) |
@@ -1852,10 +1978,11 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `month` | [Widget `periods`](#widget-periods) |
 | `moon` | [Lumière](#lumière) |
 | `more_info` | [Fiches](#fiches) |
-| `name` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `periods`](#widget-periods), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Groupes](#groupes), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux) |
+| `name` | [Puces de résumé](#puces-de-résumé), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `periods`](#widget-periods), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Groupes](#groupes), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux), [Étages](#étages-et-image-de-fond) |
 | `new_line` | [Puces de résumé](#puces-de-résumé) |
 | `north` | [Ambiance](#ambiance) |
 | `note` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
+| `opacity` | [Image de fond](#image-de-fond) |
 | `opening` | [Animations](#animations) |
 | `openings` | [Racine de la carte](#racine-de-la-carte), [Ouvertures](#ouvertures) |
 | `outside` | [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `climate`](#widget-climate), [Ouvertures](#ouvertures) |
@@ -1864,7 +1991,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `overhang_height` | [Ouvertures](#ouvertures) |
 | `overlay_order` | [Calques](#calques) |
 | `palette` | [Racine de la carte](#racine-de-la-carte) |
-| `panels` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux), [Racine de la carte](#racine-de-la-carte), [Tablette murale](#tablette-murale) |
+| `panels` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux), [Racine de la carte](#racine-de-la-carte), [Tablette murale](#tablette-murale), [Étages](#étages-et-image-de-fond) |
 | `people` | [Personnes](#personnes), [Ambiance](#ambiance) |
 | `period` | [Widgets](#widgets), [Widget `tariff`](#widget-tariff) |
 | `periods` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
@@ -1872,7 +1999,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `plugged` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `points` | [Meubles personnalisés](#meubles-personnalisés) |
 | `poly` | [Pièces et sous-zones](#pièces-et-sous-zones) |
-| `pos` | [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Exemples sous le plan](#exemples-sous-le-plan) |
+| `pos` | [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Exemples sous le plan](#exemples-sous-le-plan), [Image de fond](#image-de-fond) |
 | `power` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `presence` | [Puces de résumé](#puces-de-résumé), [Alertes plein plan](#alertes-plein-plan), [Réglages généraux](#réglages-généraux) |
 | `price` | [Widgets](#widgets), [Widget `tariff`](#widget-tariff) |
@@ -1882,18 +2009,20 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `replay` | [Racine de la carte](#racine-de-la-carte), [Revoir la journée](#revoir-la-journée) |
 | `reset_after` | [Interaction](#interaction) |
 | `right` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux) |
+| `roof_tilt` | [Fenêtre de toit](#fenêtre-de-toit) |
 | `room` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `room_labels` | [Réglages généraux](#réglages-généraux) |
 | `room_tap` | [Interaction](#interaction) |
 | `rooms` | [Racine de la carte](#racine-de-la-carte), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `climate`](#widget-climate) |
-| `rotation` | [Meubles](#meubles) |
+| `rotation` | [Meubles](#meubles), [Image de fond](#image-de-fond) |
 | `rows` | [Widgets](#widgets) |
 | `seg` | [Ouvertures](#ouvertures) |
 | `session_cost` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `severity` | [Widgets](#widgets), [Widget `gauge`](#widget-gauge) |
 | `session_kwh` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `shape` | [Animations](#animations), [Meubles](#meubles) |
-| `show` | [Puces de résumé](#puces-de-résumé) |
+| `short` | [Étages](#étages-et-image-de-fond) |
+| `show` | [Puces de résumé](#puces-de-résumé), [Image de fond](#image-de-fond) |
 | `show_furniture` | [Réglages généraux](#réglages-généraux) |
 | `showcase` | [Racine de la carte](#racine-de-la-carte), [Exemples sous le plan](#exemples-sous-le-plan) |
 | `shutter` | [Ouvertures](#ouvertures), [Animations](#animations) |
@@ -1901,6 +2030,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `shutter_only` | [Ouvertures](#ouvertures) |
 | `sill` | [Ouvertures](#ouvertures) |
 | `slats` | [Ouvertures](#ouvertures) |
+| `sill_height` | [Fenêtre de toit](#fenêtre-de-toit) |
 | `size` | [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Style des pastilles](#style-des-pastilles) |
 | `source` | [Widget `periods`](#widget-periods), [Flux d'énergie](#flux-dénergie) |
 | `spacing` | [Widgets](#widgets), [Widget `divider`](#widget-divider) |
@@ -1943,7 +2073,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `week` | [Widget `periods`](#widget-periods) |
 | `when_away` | [Alertes plein plan](#alertes-plein-plan) |
 | `widgets` | [Fiches](#fiches) |
-| `width` | [Exemples sous le plan](#exemples-sous-le-plan) |
+| `width` | [Exemples sous le plan](#exemples-sous-le-plan), [Image de fond](#image-de-fond) |
 | `x` | [Meubles personnalisés](#meubles-personnalisés) |
 | `y` | [Meubles personnalisés](#meubles-personnalisés) |
 | `year` | [Widget `periods`](#widget-periods) |
@@ -1964,7 +2094,7 @@ Chaque valeur énumérée, par clé.
 | `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` |
 | `alerts[].level` | `critical` `warning` `info` |
 | `alerts[].type` | `openings` |
-| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `custom` |
+| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
@@ -1978,6 +2108,8 @@ Chaque valeur énumérée, par clé.
 | `badge_style.unavailable` | `dimmed` `dashed` `hidden` |
 | `badge_style.values` | `always` `hover` `never` |
 | `badges[].tap`<br>`furniture[].tap`<br>`openings[].tap` | `card` `more_info` `none` |
+| `floor_selector` | `elevator` `tabs` |
+| `floors[].background.show`<br>`background.show` | `editor` `always` |
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |
 | `furniture[].shape[].style`<br>`templates[].item.shape[].style` | `filled` `outline` `dashed` |
 | `interaction.room_tap` | `room_view` `more_info` `none` |

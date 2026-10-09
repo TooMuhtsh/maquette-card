@@ -189,23 +189,24 @@ class EditeurPlan { // @assemblage
       const avant = clone(ref);
       // une carte sans id (ou dupliquée avec le même id) en reçoit un, pour être retrouvée à coup sûr aux prochains enregistrements
       if (this.d.id == null || nouvelId) {
-        stock.retirer(this._cle());
+        this._retirerBrouillon();
         const ancien = this._ident(), copies = this._copiesNettoyage(ancien);
         this.d.id = `plan-${Math.random().toString(36).slice(2, 8)}`;
         // les copies d'avant nettoyage suivent la carte sous son nouvel id
         if (copies.length) try { this._ecrireVersions(this.d.id, this._versions(this.d.id), [...copies, ...this._copiesNettoyage(this.d.id)]); } catch (e) { /* stockage plein ou indisponible */ }
       }
       Object.keys(ref).forEach((k) => delete ref[k]);
+      // enregistré replié (versAnglais replie, `floors` dans l'ordre, aucune clé interne)
       Object.assign(ref, versAnglais(this.d));
-      const fige = JSON.stringify(this.d);
-      // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit
-      if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, t: Date.now() }));
+      const fige = JSON.stringify(this._replie());
+      // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit (même étage)
+      if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, etage: this._etageActif(), t: Date.now() }));
       await this.hass.callWS({ type: "lovelace/config/save", url_path, config: cfg });
       this._garderVersion(this.d.id, avant); // seulement après un enregistrement réussi
       this.original = JSON.parse(fige);
       this.externe = null;
       this.modifie = false;
-      stock.retirer(this._cle());
+      this._retirerBrouillon();
       this._barre();
       this.snack(_t("Plan enregistré."));
       return true;
@@ -227,7 +228,7 @@ class EditeurPlan { // @assemblage
         voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) { voile.remove(); fin(b?.dataset.r || "0"); } };
       });
       if (ok === "0") return;
-      if (ok === "2") stock.retirer(this._cle());
+      if (ok === "2") this._retirerBrouillon();
     }
     // la carte n'a pas été recréée après l'enregistrement : la reprise prévue ne doit pas rouvrir l'éditeur qu'on quitte
     stockSession.retirer(cleRouvrir(this.d.id));
@@ -255,7 +256,11 @@ class EditeurPlan { // @assemblage
     this.vueParametres = false; this.vueEdition = false;
     const c = this.carte;
     c._editeur = null; c._boxFige = null;
-    c._config = clone(this.externe || this.original);
+    // la carte reprend la config repliée (enregistrée, ou modifiée ailleurs) et reste sur l'étage affiché s'il existe encore
+    const E = c.constructor.ETAGES, plein = clone(this.externe || this.original), ids = E.ids(plein);
+    c._plein = plein;
+    c._etage = ids.length ? (ids.includes(this._etageActif()) ? this._etageActif() : E.etageInitial(plein)) : null;
+    c._config = E.deplier(plein, c._etage);
     suivreLangue(c, c._config);
     if (silencieux) c._ok = false; else c._construire();
   }

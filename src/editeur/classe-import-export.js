@@ -9,7 +9,7 @@ class EditeurPlan { // @assemblage
         <div class="ed-aide">${tactile() ? _t("Le plan complet. « Importer » remplace le plan en cours (annulable).") : _t("Le plan complet. « Importer » remplace le plan en cours (Ctrl+Z pour annuler).")}</div>
         <span class="ed-seg petit" style="margin-top:12px">${["yaml", "json"].map((f) => `<button data-f="${f}" class="${f === format ? "on" : ""}">${f.toUpperCase()}</button>`).join("")}</span></header>
       <div class="ed-cat">${(() => { const vs = this._versions(); if (!vs.length) return "";
-          const res = (c) => { const w = Object.values(c?.panels || {}).flat().length; return _t("{p} pièces, {a} appareils, {w} widgets", { p: (c?.rooms || []).length, a: (c?.badges || []).length, w }); };
+          const res = (c) => { const n = resumeVersion(c); return _t("{p} pièces, {a} appareils, {w} widgets", { p: n.pieces, a: n.appareils, w: n.widgets }); };
           return `<details class="ed-avance ed-versions-bloc"><summary>${_t("Versions précédentes ({n}) : reprendre un plan enregistré avant", { n: vs.length })}</summary><div class="ed-versions">${vs.map((v, j) => `<button data-v="${j}"><span>${_t("Remplacée le {date}", { date: new Date(v.t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "medium" }) })}<small> · ${res(v.config)}</small></span><span>${_t("Charger")}</span></button>`).join("")}</div></details>`; })()}
         <textarea class="ed-code" spellcheck="false" aria-label="${_t("Plan au format texte")}"></textarea><div class="ed-erreur" hidden></div></div>
       <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-x="copier"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copier")}</button>
@@ -75,8 +75,8 @@ class EditeurPlan { // @assemblage
           this.recadrer();
           this.snack(_t("Plan importé : « Enregistrer » pour le garder, Ctrl+Z pour revenir."), _t("Annuler"), this._annulation(), 10000);
         };
-        // même plan que celui en cours (aller-retour) : rien à vérifier ; sinon le récapitulatif d'abord
-        if (canon(o) === canon(this.d)) return appliquer();
+        // même plan que celui en cours (aller-retour, comparé replié) : rien à vérifier ; sinon le récapitulatif d'abord
+        if (canon(o) === canon(this._replie())) return appliquer();
         return this._recapImport(o, { ...rap, ignorees }).then((oui) => { if (oui) appliquer(); });
       }
     };
@@ -97,8 +97,13 @@ class EditeurPlan { // @assemblage
     for (const k of ["rooms", "walls", "fences", "openings", "badges", "texts", "templates"]) if (o[k] != null && !Array.isArray(o[k])) throw new Error(_t("« {k} » doit être une liste.", { k }));
     if (o.summary != null && typeof o.summary !== "boolean" && !Array.isArray(o.summary)) throw new Error(_t("« summary » doit être une liste de puces (ou true / false)."));
     if (o.panels != null && (typeof o.panels !== "object" || Array.isArray(o.panels))) throw new Error(_t("« panels » doit contenir left / right."));
-    for (const [j, p] of (o.rooms || []).entries()) if (!Array.isArray(p?.poly) || p.poly.length < 3) throw new Error(_t("Pièce {n} ({nom}) : « poly » doit avoir au moins 3 sommets.", { n: j + 1, nom: p?.name || _t("sans nom") }));
-    o = depuisAnglais({ rooms: [], ...o });
+    // plan à étages : mêmes contrôles, étage par étage (sa géométrie est dans `floors`, rien à la racine)
+    const niveaux = Array.isArray(o.floors) && o.floors.length ? o.floors.filter((f) => f && typeof f === "object" && !Array.isArray(f)) : [o];
+    for (const f of niveaux) {
+      if (f !== o) for (const k of ["rooms", "walls", "fences", "openings", "badges", "texts"]) if (f[k] != null && !Array.isArray(f[k])) throw new Error(_t("« {k} » doit être une liste.", { k }));
+      for (const [j, p] of (f.rooms || []).entries()) if (!Array.isArray(p?.poly) || p.poly.length < 3) throw new Error(_t("Pièce {n} ({nom}) : « poly » doit avoir au moins 3 sommets.", { n: j + 1, nom: p?.name || _t("sans nom") }));
+    }
+    o = depuisAnglais(niveaux[0] === o ? { rooms: [], ...o } : o);
     // même lecture que la carte (booléens en texte, meubles, éléments sans coordonnées ignorés, valeurs invalides retirées)
     return customElements.get("maquette-card").normaliser(o, rap);
   }
@@ -107,8 +112,8 @@ class EditeurPlan { // @assemblage
   // ce que le plan importé peut commander (boutons des pièces et leur service, widgets qui commandent, lignes « Activer »),
   // ses liens « Plus d'infos », ce qui a été retiré car invalide et les clés du tableau de bord ignorées ; true = importer
   _analyseImport(c) {
-    const K = customElements.get("maquette-card"), hass = this.hass, services = [], commandes = new Map(), liens = new Set();
-    for (const p of c.pieces || []) for (const a of Array.isArray(p?.actions) ? p.actions : []) {
+    const K = customElements.get("maquette-card"), hass = this.hass, services = [], commandes = new Map(), liens = new Set(), M = maisonEntiere(K.ETAGES, c);
+    for (const p of M.pieces) for (const a of Array.isArray(p?.actions) ? p.actions : []) {
       if (!a || typeof a.action !== "string" || !a.action.includes(".")) continue;
       const [dom, svc] = a.action.split("."), piece = a.cible === "piece", ents = piece ? null : typeof a.cible === "string" && a.cible ? [a.cible] : [];
       services.push({ nom: a.nom || "", piece: p.nom || "", service: a.action, cible: piece ? _t("toute la pièce") : a.cible || "", sensible: K.serviceSensible(hass, dom, svc, ents), confirme: a.confirmer === true });
@@ -121,8 +126,8 @@ class EditeurPlan { // @assemblage
         if (typeof e === "string" && /^(script|scene|button|input_button)\./.test(e) && !commandes.has(e)) commandes.set(e, _t("Activer##lancer"));
       }
     });
-    for (const x of [c, ...(c.pieces || [])]) { voir(x?.panneaux?.gauche); voir(x?.panneaux?.droite); }
-    for (const k of ["meubles", "ouvertures", "points"]) for (const o of c[k] || []) {
+    for (const x of [c, ...M.panneaux, ...M.pieces]) { voir(x?.panneaux?.gauche); voir(x?.panneaux?.droite); }
+    for (const k of ["meubles", "ouvertures", "points"]) for (const o of M[k]) {
       voir(o?.fiche?.widgets);
       const pi = o?.fiche?.plus_infos;
       if (typeof pi === "string" && /^(\/|https?:)/i.test(pi)) liens.add(pi);
@@ -131,15 +136,15 @@ class EditeurPlan { // @assemblage
     return { services, commandes: [...commandes], liens: [...liens] };
   }
   _recapImport(c, rap) {
-    const { services, commandes, liens } = this._analyseImport(c), retires = rap.retires || [], ignorees = rap.ignorees || [];
-    const nW = [c, ...(c.pieces || [])].reduce((n, x) => n + (x?.panneaux?.gauche?.length || 0) + (x?.panneaux?.droite?.length || 0), 0);
+    const { services, commandes, liens } = this._analyseImport(c), retires = rap.retires || [], ignorees = rap.ignorees || [], M = maisonEntiere(customElements.get("maquette-card").ETAGES, c);
+    const nW = [c, ...M.panneaux, ...M.pieces].reduce((n, x) => n + (x?.panneaux?.gauche?.length || 0) + (x?.panneaux?.droite?.length || 0), 0);
     const plafond = (l, f) => `${l.slice(0, 30).map(f).join("")}${l.length > 30 ? `<li><small>${_t("… et {n} autres", { n: l.length - 30 })}</small></li>` : ""}`;
     const bloc = (ic, titre, n, corps) => `<section class="ed-recap-s"><h4><ha-icon icon="${ic}"></ha-icon>${esc(titre)} (${n})</h4>${corps}</section>`;
     const rien = !services.length && !commandes.length && !liens.length && !retires.length && !rap.ignores && !ignorees.length;
     return new Promise((fin) => {
       const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue large ed-recap" role="alertdialog" aria-modal="true" aria-labelledby="ed-recap-t" aria-describedby="ed-recap-d">
         <header><h2 id="ed-recap-t">${_t("Vérifier avant d'importer")}</h2>
-          <div class="ed-aide" id="ed-recap-d">${esc(_t("Pièces {p} · Ouvertures {o} · Appareils {a} · Meubles {m} · Widgets {w} · Modèles {t}", { p: (c.pieces || []).length, o: (c.ouvertures || []).length, a: (c.points || []).length, m: (c.meubles || []).length, w: nW, t: (c.modeles || []).length }))}</div></header>
+          <div class="ed-aide" id="ed-recap-d">${esc(_t("Pièces {p} · Ouvertures {o} · Appareils {a} · Meubles {m} · Widgets {w} · Modèles {t}", { p: M.pieces.length, o: M.ouvertures.length, a: M.points.length, m: M.meubles.length, w: nW, t: (c.modeles || []).length }))}</div></header>
         <div class="ed-cat">
           ${services.length ? bloc("mdi:gesture-tap-button", _t("Boutons des pièces : services appelés"), services.length, `<ul>${plafond(services, (x) => `<li><span><b>${esc(x.nom || _t("sans nom"))}</b>${x.piece ? ` · ${esc(x.piece)}` : ""}</span>
             <small><code>${esc(x.service)}</code>${x.cible ? ` → ${esc(x.cible)}` : ""}</small>${x.sensible || x.confirme ? `<span class="ed-sensible"><ha-icon icon="mdi:shield-alert-outline"></ha-icon>${_t("Confirmation à chaque appui")}</span>` : ""}</li>`)}</ul>`) : ""}

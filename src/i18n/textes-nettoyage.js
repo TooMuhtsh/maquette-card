@@ -48,6 +48,8 @@ const EN = { // @assemblage
     "Pièce sans nom": "Unnamed room",
     "Voir où": "Show where",
     "Rien à corriger. Options facultatives :": "Nothing to fix. Optional:",
+    "Escaliers sans retour": "Stairs without a way back",
+    "Information : rien à corriger.": "For information: nothing to fix.",
     "Facultatif": "Optional",
     "Appliquer · {n}": "Apply · {n}",
     "copie d'avant non gardée : stockage du navigateur plein": "copy of the plan before not kept: browser storage full",
@@ -59,5 +61,13 @@ const EN = { // @assemblage
     "Restaurer": "Restore",
     "Plan d'avant copié (YAML : rooms, walls, openings).": "Plan from before copied (YAML: rooms, walls, openings).",
     "Copie refusée par le navigateur.": "Copy refused by the browser.",
+    // ---- nettoyer par étage ----
+    "Nettoyer le plan — {etage}": "Clean up the plan — {etage}",
+    "Retirer les liens d'escalier vers un étage absent": "Remove stair links to a missing floor",
+    "L'escalier ne mène plus nulle part.": "The stairs no longer lead anywhere.",
+    "{nom} : mène à un étage absent ({cible})": "{nom}: leads to a missing floor ({cible})",
+    "{nom} : pas d'escalier de retour sur « {vers} »": "{nom}: no stairs back on “{vers}”",
+    "L'étage « {etage} » n'existe plus : rien n'est restauré.": "The floor “{etage}” no longer exists: nothing restored.",
+    "Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures de leur étage, les autres étages restent tels quels (annulable).": "The last 3, kept in this browser. “Restore” replaces the rooms, walls and openings of their floor, other floors stay as they are (can be undone).",
 }; // @assemblage
 })(); // @assemblage

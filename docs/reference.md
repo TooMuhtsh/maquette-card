@@ -14,6 +14,7 @@ valid YAML example and where to find it in the built-in editor.
 - [Conventions](#conventions)
 - [Card root](#card-root)
 - [Global settings](#global-settings)
+- [Floors and background image](#floors-and-background-image)
 - [Rooms and sub-areas](#rooms-and-sub-areas)
 - [Walls](#walls)
 - [Fences](#fences)
@@ -99,6 +100,10 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `texts` | list | | `[]` | [Texts and info boxes](#texts-and-info-boxes) |
 | `furniture` | list | | `[]` | [Furniture](#furniture) and [connected furniture](#connected-furniture) |
 | `panels` | object | | — | [Panels](#panels) of the home view |
+| `floors` | list | | — | [Floors](#floors-and-background-image), bottom to top. With `floors`, `rooms`, `walls`, `fences`, `openings`, `badges`, `texts`, `furniture`, `groups` and `background` move into each floor |
+| `default_floor` | string | a floor `id` | first floor | [Floor](#floors-and-background-image) shown on load |
+| `floor_selector` | enum | `elevator` `tabs` | `elevator` | [Floor selector](#floors-and-background-image) |
+| `background` | object | | — | [Background image](#floors-and-background-image) of a plan without `floors` |
 | `layers` | object | | — | [Layers](#layers) |
 | `groups` | list | | — | [Groups](#groups) |
 | `templates` | list | | — | [Templates](#templates) saved by the editor |
@@ -171,6 +176,117 @@ legend: false
 Editor: ⚙ Settings › General (`title`, `language`, `full_page`, `margin`, `editor`), › Display (`show_furniture`,
 `layers.view_button`), › Features (`replay`, `showcase`, `presence`; *Set elsewhere*: links to Full-plan alerts and
 Summary chips), › Rooms and legend (`room_labels`, `temperature_tint`, `legend`). Help texts are behind the ⓘ buttons.
+
+## Floors and background image
+
+A plan can be split into floors. Each floor has its own drawing; summary, alerts, ambience, layers, templates, replay and
+every other setting are common to the whole house. A plan without `floors` works exactly as before.
+
+| Key | Type | Values | Default | Description |
+|---|---|---|---|---|
+| `floors` | list | at least 1 floor | — | Floors, **bottom to top** |
+| `floors[].id` | string | letters, digits, `_` `-` `.` `:` (80 at most) | `floor_<rank>` | Stable identifier, used by `default_floor` and `furniture[].floor`. A missing, invalid or duplicate id is fixed (`floor_2`, `id_2`…) with a warning |
+| `floors[].name` | string | | — | Full name, shown on hover and in the `tabs` selector |
+| `floors[].short` | string | 3 characters at most | rank from `0` | Text of the elevator button |
+| `floors[].icon` | icon | `mdi:…` | `mdi:layers-outline` | Icon of the `tabs` selector |
+| `floors[].rooms`, `walls`, `fences`, `openings`, `badges`, `texts`, `furniture`, `groups` | | | `[]` | Same keys and rules as at the root of a plan without floors |
+| `floors[].panels` | object | | — | [Panels](#panels) of this floor only. Without it, the floor shows the card's `panels` (common to the house) |
+| `floors[].background` | object | see below | — | [Background image](#background-image) of this floor |
+| `default_floor` | string | a floor `id` | first floor | Floor shown on load. Without it, the card reopens the last floor viewed in this browser |
+| `floor_selector` | enum | `elevator` `tabs` | `elevator` | `elevator`: a small stack of buttons at the edge of the plan, top floor on top. `tabs`: Material tabs (icon and name) above the plan. Nothing is shown with a single floor |
+| `furniture[].floor` | string | a floor `id` | — | `stairs` only: the floor the stairs lead to. Another floor than its own, or the key is removed |
+
+```yaml
+type: custom:maquette-card
+default_floor: ground
+floor_selector: elevator
+floors:
+  - id: ground
+    name: Ground floor
+    short: "0"
+    rooms:
+      - name: Living room
+        poly: [[0, 0], [500, 0], [500, 420], [0, 420]]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: upstairs}
+  - id: upstairs
+    name: Upstairs
+    short: "1"
+    rooms:
+      - name: Bedroom
+        poly: [[0, 0], [500, 0], [500, 420], [0, 420]]
+    walls: [[0, 0, 500, 0], [500, 0, 500, 420], [500, 420, 0, 420], [0, 420, 0, 0]]
+    furniture:
+      - {type: stairs, pos: [450, 200], floor: ground}
+```
+
+**Rules**
+
+- `floors` must be a list. `floors` together with a non-empty `rooms`, `walls`, `furniture`… (or `background`) at the root stops
+  with a message that says what to move into `floors[n]`.
+- Room names should be unique in the house (the editor warns, it never blocks). An entity placed on two floors (a stair light)
+  counts once in the summary.
+- The plan keeps the same frame on every floor, so switching floors never shifts the drawing.
+- Switching floors resets the room view, the zoom and the open detail sheet. Keyboard: arrow keys in the selector, Page Up /
+  Page Down on the plan.
+- Stairs with `floor` take you to that floor, zoomed on the stairs leading back, and show a small ↑ or ↓ badge. A `tap` set on
+  the stairs wins.
+- Wall tablets: `interaction.reset_after` also goes back to `default_floor` (or the first floor).
+
+### Roof window
+
+A `furniture` item of type `skylight` ("Roof window" in the catalogue), placed on the floor it lights.
+
+| Key | Type | Values | Default | Description |
+|---|---|---|---|---|
+| `type` | enum | `skylight` | — | Roof window. Its rectangle is the window seen from above; the bottom of the rectangle is the bottom of the slope (use `rotation`). Default size 78 × 118 |
+| `roof_tilt` | number (°) | 0–75 | `40` | Roof pitch; `0` = flat roof |
+| `sill_height` | number (cm) | 0–1000 | `200` | Height of the bottom edge of the window above the floor |
+| `entity` | entity | `cover.…` or `binary_sensor.…` | — | A blind: its `current_position` shortens the sun patch (closed = none). A contact only shows the open state |
+
+With `ambience.light`, a roof window casts a sun patch that follows `sun.sun` and `north`, cut by the room that holds it
+(nothing when the sun is behind the roof slope). The other furniture keys apply.
+
+```yaml
+furniture:
+  - {type: skylight, pos: [250, 100], rotation: 0, roof_tilt: 35, sill_height: 180, entity: cover.studio_blind}
+```
+
+Editor: roof pitch, bottom height and blind or contact in the furniture window.
+
+### Background image
+
+A scanned plan or a photo drawn under everything else. It is the `background` layer, locked by default in the editor
+(clicks go through to the rooms). The same keys are used at the root (plan without floors) and in `floors[].background`.
+
+| Key | Type | Values | Default | Description |
+|---|---|---|---|---|
+| `background.image` | string | `/local/….png` (`jpg`, `jpeg`, `webp`, `avif`, `svg`) or `/api/image/serve/<id>/original` | — | Image **of the same site only**. `http(s)://`, `data:`, `blob:` and other sites are refused. Without a valid image or a `width`, the whole `background` is removed |
+| `background.pos` | `[x, y]` | | `[0, 0]` | Top-left corner (cm) |
+| `background.width` | number (cm) | > 0 | required | Width of the image on the plan |
+| `background.height` | number (cm) | > 0 | keeps the image ratio | Height; leave it out to keep the proportions |
+| `background.rotation` | number (°) | 0–360 | `0` | Clockwise rotation |
+| `background.opacity` | number | 0–1 | `0.5` | Opacity |
+| `background.show` | enum | `editor` `always` | `editor` | `editor`: the image is drawn while editing only, and not even loaded in the view. `always`: also in the view (unless the layer is hidden) |
+
+```yaml
+floors:
+  - id: ground
+    background:
+      image: /local/plans/ground.png
+      pos: [-40, -40]
+      width: 620
+      opacity: 0.6
+      show: always
+```
+
+> **Privacy.** Everything in `/local` (the `www` folder) and `/api/image/serve` is readable **without signing in** by anyone
+> who can reach your Home Assistant, if it is exposed on the Internet. Do not put there a plan you do not want to make public.
+
+Editor: *Layers › Background image*: path with preview, opacity, position, width, rotation, *Also show in view mode*,
+lock, *Upload an image* (administrators), *Calibrate* (two points and their real distance), *Align with a wall*, *Remove*.
+Floors are managed from the toolbar *Floors* button (*More › Manage floors* on phones). Every change can be undone.
 
 ## Rooms and sub-areas
 
@@ -519,6 +635,7 @@ Top-view symbols. Plain furniture never catches clicks in the view; furniture wi
 | `hidden` | bool | | `false` | Hidden in the view |
 | `level` | number | | `0` (`-1` for `rug` and `area`) | Order inside the Furniture layer |
 | `group` | string | group `id` | — | Editor group |
+| `floor`, `roof_tilt`, `sill_height` | | | | `stairs` and `skylight`: see [Floors](#floors-and-background-image) |
 | `entity`, `value`, `active`, `active_attribute`, `threshold`, `attribute`, `unit`, `decimals`, `color`, `tap`, `protected`, `confirm`, `card`, `animation` | | | | See [Connected furniture](#connected-furniture) |
 
 ```yaml
@@ -587,7 +704,8 @@ furniture:
 | Shapes and areas | `area` | Named area | 300 × 200 | level −1 |
 | Shapes and areas | `rect` | Rectangle | 100 × 60 |  |
 | Shapes and areas | `circle` | Circle | 60 × 60 | round |
-| Shapes and areas | `stairs` | Stairs | 90 × 280 |  |
+| Shapes and areas | `stairs` | Stairs | 90 × 280 | `floor`: the floor they lead to |
+| Shapes and areas | `skylight` | Roof window | 78 × 118 | `roof_tilt`, `sill_height`, see [Roof window](#roof-window) |
 | Outdoor | `car` | Car | 178 × 406 | colour `#43a047` |
 | Outdoor | `bike` | Bike | 60 × 180 |  |
 | Outdoor | `tree` | Tree / shrub | 200 × 200 | round |
@@ -1127,12 +1245,13 @@ the drawing.
 |---|---|---|---|---|
 | `layers.drawing_order` | list | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` | that order | Drawing layers, bottom → top; missing ones follow in default order |
 | `layers.overlay_order` | list | `room_labels` `area_labels` `badges` `texts` | that order | Layers above the drawing, bottom → top |
-| `layers.hidden` | list | any layer | `[]` | Hidden in the view (drawn at 25 % and not clickable in the editor) |
-| `layers.locked` | list | any layer | `[]` | Not selectable in the editor (clicks go through); no effect in the view |
+| `layers.hidden` | list | any layer, and `background` | `[]` | Hidden in the view (drawn at 25 % and not clickable in the editor) |
+| `layers.locked` | list | any layer, and `background` | `[]` | Not selectable in the editor (clicks go through); no effect in the view |
 | `layers.view_button` | bool | | `false` | *Layers* button next to the zoom buttons: each viewer hides layers for himself (kept in the browser) |
 | `hidden` (on an element) | bool | | `false` | This element is hidden in the view |
 | `level` (on an element) | number | | `0` | Order inside its layer, higher = on top (`rug`, `area`: `-1`) |
 
+`background` is the [background image](#background-image): under every other layer, outside the drawing order.
 `area_labels` holds the labels of named areas and sub-areas; `badges` the device badges; `room_labels` the room labels.
 
 ```yaml
@@ -1390,7 +1509,7 @@ redrawn only when the sun (to the degree), a shutter, the moon phase or a lamp c
 | `light.sky_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sky light color as a color temperature (black body); `auto` = the default slightly warm white |
 | `light.sun_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sun patch color (the bounced glow is a little warmer); `auto` = the default, golden near sunset |
 | `light.moon` | boolean / entity | `true`, `false` or a `sensor.*` | `true` | At night, a cool light through the same windows. The moon's direction is computed by the card from the Home Assistant latitude / longitude and the time: a faint cool patch behind the windows that see it, only the night-sky glow through the others (and when the moon is down). Phase from a moon phase sensor (Moon integration, `sensor.moon_phase` used if present), else computed; stronger near full moon. Without coordinates, a glow straight through each window |
-| `light.doors` | enum | `open` `closed` | `open` | Daylight of a lit room also reaches the next room through an inside door that is open (its `contact` on / open) or an interior glass wall (a `window`, or a `glazed` door, between two indoor rooms): a fainter light over the whole next room and a glow near the opening, one step only (not passed on further), lamps not included. `closed` = an inside door without a sensor counts as closed |
+| `light.doors` | enum | `open` `closed` | `open` | Daylight of a lit room also reaches the next room through an inside door that is open (its `contact` on / open) or an interior glass wall (a `window`, or a `glazed` door, between two indoor rooms, without `outside`: with it, it counts as an outside window only): a fainter light over the whole next room and a glow near the opening, one step only (not passed on further), lamps not included. `closed` = an inside door without a sensor counts as closed |
 | `light.lamps` | boolean | | `true` | Halos of `light.*` badges with `halo` take the lamp color (`rgb_color`, else `hs_color`, else `color_temp_kelvin`) and brightness, blend (screen) where they overlap, and stay inside the lamp's room (`room`, else the room it is in) |
 
 ```yaml
@@ -1710,6 +1829,7 @@ Every public key, alphabetically, with the sections that document it.
 | `avatar` | [People](#people) |
 | `average` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `away` | [People](#people) |
+| `background` | [Card root](#card-root), [Background image](#background-image), [Layers](#layers) |
 | `badge` | [Animations](#animations) |
 | `badge_style` | [Card root](#card-root), [Badge style](#badge-style) |
 | `badges` | [Card root](#card-root), [Device badges](#device-badges), [Energy flows](#energy-flows) |
@@ -1731,6 +1851,7 @@ Every public key, alphabetically, with the sections that document it.
 | `day` | [Widget: periods](#widget-periods) |
 | `day_night` | [Day and night](#day-and-night), [Ambience](#ambience) |
 | `decimals` | [Summary chips](#summary-chips), [Widgets](#widgets), [Widget: gauge](#widget-gauge), [Widget: tile](#widget-tile), [Widget: periods](#widget-periods), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Connected furniture](#connected-furniture) |
+| `default_floor` | [Card root](#card-root), [Floors](#floors-and-background-image) |
 | `demo` | [Card root](#card-root), [Demo](#demo) |
 | `description` | [Templates](#templates) |
 | `direction` | [Weather](#weather) |
@@ -1744,6 +1865,9 @@ Every public key, alphabetically, with the sections that document it.
 | `entity` | [Summary chips](#summary-chips), [Widgets](#widgets), [Widget: gauge](#widget-gauge), [Widget: tile](#widget-tile), [Widget: cover](#widget-cover), [Widget: lock](#widget-lock), [Widget: thermostat](#widget-thermostat), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Connected furniture](#connected-furniture), [Weather](#weather), [People](#people), [Full-plan alerts](#full-plan-alerts) |
 | `factor` | [Widget: periods](#widget-periods) |
 | `fences` | [Card root](#card-root), [Fences](#fences) |
+| `floor` | [Floors](#floors-and-background-image), [Furniture](#furniture) |
+| `floor_selector` | [Card root](#card-root), [Floors](#floors-and-background-image) |
+| `floors` | [Card root](#card-root), [Floors](#floors-and-background-image) |
 | `full_page` | [Global settings](#global-settings) |
 | `furniture` | [Card root](#card-root), [Furniture](#furniture), [Animations](#animations) |
 | `glazed` | [Openings](#openings) |
@@ -1754,7 +1878,7 @@ Every public key, alphabetically, with the sections that document it.
 | `h_max` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `h_min` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `halo` | [Device badges](#device-badges) |
-| `height` | [Openings](#openings) |
+| `height` | [Openings](#openings), [Background image](#background-image) |
 | `hidden` | [Rooms and sub-areas](#rooms-and-sub-areas), [Layers](#layers), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture) |
 | `hide_if` | [Summary chips](#summary-chips) |
 | `history` | [Widgets](#widgets), [Widget: tile](#widget-tile) |
@@ -1762,8 +1886,9 @@ Every public key, alphabetically, with the sections that document it.
 | `hours` | [Replay](#replay) |
 | `humidity` | [Rooms and sub-areas](#rooms-and-sub-areas), [Global settings](#global-settings) |
 | `humidity_attribute` | [Rooms and sub-areas](#rooms-and-sub-areas) |
-| `icon` | [Summary chips](#summary-chips), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Templates](#templates), [Full-plan alerts](#full-plan-alerts) |
-| `id` | [Card root](#card-root), [Groups](#groups), [Templates](#templates) |
+| `icon` | [Summary chips](#summary-chips), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Templates](#templates), [Full-plan alerts](#full-plan-alerts), [Floors](#floors-and-background-image) |
+| `id` | [Card root](#card-root), [Groups](#groups), [Templates](#templates), [Floors](#floors-and-background-image) |
+| `image` | [Background image](#background-image) |
 | `inactive` | [Badge style](#badge-style) |
 | `info` | [Texts and info boxes](#texts-and-info-boxes) |
 | `intensity` | [Animations](#animations), [Ambience](#ambience), [Day and night](#day-and-night), [Weather](#weather) |
@@ -1793,10 +1918,11 @@ Every public key, alphabetically, with the sections that document it.
 | `month` | [Widget: periods](#widget-periods) |
 | `moon` | [Light](#light) |
 | `more_info` | [Cards](#cards) |
-| `name` | [Summary chips](#summary-chips), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: periods](#widget-periods), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Groups](#groups), [Templates](#templates), [Full-plan alerts](#full-plan-alerts), [Global settings](#global-settings) |
+| `name` | [Summary chips](#summary-chips), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: periods](#widget-periods), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Groups](#groups), [Templates](#templates), [Full-plan alerts](#full-plan-alerts), [Global settings](#global-settings), [Floors](#floors-and-background-image) |
 | `new_line` | [Summary chips](#summary-chips) |
 | `north` | [Ambience](#ambience) |
 | `note` | [Widgets](#widgets), [Widget: periods](#widget-periods) |
+| `opacity` | [Background image](#background-image) |
 | `opening` | [Animations](#animations) |
 | `openings` | [Card root](#card-root), [Openings](#openings) |
 | `outside` | [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: climate](#widget-climate), [Openings](#openings) |
@@ -1805,7 +1931,7 @@ Every public key, alphabetically, with the sections that document it.
 | `overhang_height` | [Openings](#openings) |
 | `overlay_order` | [Layers](#layers) |
 | `palette` | [Card root](#card-root) |
-| `panels` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels), [Card root](#card-root), [Wall tablet](#wall-tablet) |
+| `panels` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels), [Card root](#card-root), [Wall tablet](#wall-tablet), [Floors](#floors-and-background-image) |
 | `people` | [People](#people), [Ambience](#ambience) |
 | `period` | [Widgets](#widgets), [Widget: tariff](#widget-tariff) |
 | `periods` | [Widgets](#widgets), [Widget: periods](#widget-periods) |
@@ -1813,7 +1939,7 @@ Every public key, alphabetically, with the sections that document it.
 | `plugged` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
 | `points` | [Custom furniture](#custom-furniture) |
 | `poly` | [Rooms and sub-areas](#rooms-and-sub-areas) |
-| `pos` | [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Showcase](#showcase) |
+| `pos` | [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Showcase](#showcase), [Background image](#background-image) |
 | `power` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
 | `presence` | [Summary chips](#summary-chips), [Full-plan alerts](#full-plan-alerts), [Global settings](#global-settings) |
 | `price` | [Widgets](#widgets), [Widget: tariff](#widget-tariff) |
@@ -1823,18 +1949,20 @@ Every public key, alphabetically, with the sections that document it.
 | `replay` | [Card root](#card-root), [Replay](#replay) |
 | `reset_after` | [Interaction](#interaction) |
 | `right` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels) |
+| `roof_tilt` | [Roof window](#roof-window) |
 | `room` | [Device badges](#device-badges) |
 | `room_labels` | [Global settings](#global-settings) |
 | `room_tap` | [Interaction](#interaction) |
 | `rooms` | [Card root](#card-root), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: climate](#widget-climate) |
-| `rotation` | [Furniture](#furniture) |
+| `rotation` | [Furniture](#furniture), [Background image](#background-image) |
 | `rows` | [Widgets](#widgets) |
 | `seg` | [Openings](#openings) |
 | `session_cost` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
 | `severity` | [Widgets](#widgets), [Widget: gauge](#widget-gauge) |
 | `session_kwh` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
 | `shape` | [Animations](#animations), [Furniture](#furniture) |
-| `show` | [Summary chips](#summary-chips) |
+| `short` | [Floors](#floors-and-background-image) |
+| `show` | [Summary chips](#summary-chips), [Background image](#background-image) |
 | `show_furniture` | [Global settings](#global-settings) |
 | `showcase` | [Card root](#card-root), [Showcase](#showcase) |
 | `shutter` | [Openings](#openings), [Animations](#animations) |
@@ -1842,6 +1970,7 @@ Every public key, alphabetically, with the sections that document it.
 | `shutter_only` | [Openings](#openings) |
 | `sill` | [Openings](#openings) |
 | `slats` | [Openings](#openings) |
+| `sill_height` | [Roof window](#roof-window) |
 | `size` | [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Badge style](#badge-style) |
 | `source` | [Widget: periods](#widget-periods), [Energy flows](#energy-flows) |
 | `spacing` | [Widgets](#widgets), [Widget: divider](#widget-divider) |
@@ -1884,7 +2013,7 @@ Every public key, alphabetically, with the sections that document it.
 | `week` | [Widget: periods](#widget-periods) |
 | `when_away` | [Full-plan alerts](#full-plan-alerts) |
 | `widgets` | [Cards](#cards) |
-| `width` | [Showcase](#showcase) |
+| `width` | [Showcase](#showcase), [Background image](#background-image) |
 | `x` | [Custom furniture](#custom-furniture) |
 | `y` | [Custom furniture](#custom-furniture) |
 | `year` | [Widget: periods](#widget-periods) |
@@ -1904,7 +2033,7 @@ Every enumerated value, by key.
 | `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` |
 | `alerts[].level` | `critical` `warning` `info` |
 | `alerts[].type` | `openings` |
-| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `custom` |
+| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
@@ -1918,6 +2047,8 @@ Every enumerated value, by key.
 | `badge_style.unavailable` | `dimmed` `dashed` `hidden` |
 | `badge_style.values` | `always` `hover` `never` |
 | `badges[].tap`<br>`furniture[].tap`<br>`openings[].tap` | `card` `more_info` `none` |
+| `floor_selector` | `elevator` `tabs` |
+| `floors[].background.show`<br>`background.show` | `editor` `always` |
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |
 | `furniture[].shape[].style`<br>`templates[].item.shape[].style` | `filled` `outline` `dashed` |
 | `interaction.room_tap` | `room_view` `more_info` `none` |

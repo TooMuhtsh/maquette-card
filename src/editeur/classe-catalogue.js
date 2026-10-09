@@ -466,18 +466,4 @@ class EditeurPlan { // @assemblage
     };
   }
 
-  // glisser-déposer depuis les panneaux d'information : cote / i = destination (i Infinity = à la fin)
-  deplacerWidget(src, cote, i) {
-    const l = this._wl(src);
-    if (!l?.[src.i] || (src.cote === "fiche") !== (cote === "fiche")) return; // une fiche ne s'échange pas par glisser avec les panneaux
-    let j = i === Infinity ? null : i;
-    if (cote === src.cote && j != null && j > src.i) j--;
-    if (cote === src.cote && (j ?? l.length - 1) === src.i) return;
-    this.commit(() => {
-      const [w] = l.splice(src.i, 1), dest = this._wl({ ...src, cote }, true), k = j == null ? dest.length : Math.min(j, dest.length);
-      dest.splice(k, 0, w);
-      this.sel = { ...src, cote, i: k };
-    });
-  }
-
 } // @assemblage
