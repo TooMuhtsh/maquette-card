@@ -1,13 +1,13 @@
 {
   "name": "maquette-card",
-  "version": "0.1.0",
+  "version": "0.2.0-beta.1",
   "description": "Live, editable floor plan card for Home Assistant (Material Design 3)",
   "type": "module",
   "license": "MIT",
   "homepage": "https://github.com/TooMuhtsh/maquette-card",
   "scripts": {
     "build": "node build.mjs",
-    "check": "node --check src/maquette-i18n.js && node --check src/maquette-nettoyage.js && node --check src/plan-demo.js && node --check src/maquette-card.js && node --check src/maquette-editeur.js && node --check dist/maquette-card.js",
+    "check": "node --check src/maquette-nettoyage.js && node --check src/plan-demo.js && for f in src/carte/*.js src/carte/css/*.js src/editeur/*.js src/editeur/css/*.js src/i18n/*.js; do node --check $f || exit 1; done && node build.mjs && node --check dist/maquette-card.js",
     "demo": "python3 -m http.server 8765"
   }
 }

@@ -33,7 +33,7 @@ valid YAML example and where to find it in the built-in editor.
 - [Groups](#groups)
 - [Templates](#templates)
 - [Ambience](#ambience):
-  [day and night](#day-and-night) · [weather](#weather) · [traces](#traces) · [energy flows](#energy-flows) · [people](#people)
+  [day and night](#day-and-night) · [weather](#weather) · [traces](#traces) · [energy flows](#energy-flows) · [people](#people) · [light](#light)
 - [Badge style](#badge-style)
 - [Full-plan alerts](#full-plan-alerts)
 - [Animations](#animations)
@@ -70,8 +70,14 @@ valid YAML example and where to find it in the built-in editor.
   entirely with the former French keys (`pieces`, `murs`…) is refused with a message; see the [CHANGELOG](../CHANGELOG.md#former-french-keys).
 - **Omitted keys** use the default shown. *—* means “absent / not set”. The editor removes a key whose value is put
   back to its default, so saved YAML stays minimal.
-- **Common element keys.** Rooms, openings, badges, texts and furniture also take `hidden`, `level` and `group`
-  (see [Layers](#layers) and [Groups](#groups)).
+- **Common element keys.** Rooms, openings, badges, texts and furniture also take `hidden`, `level`, `group` and `locked`
+  (see [Layers](#layers) and [Groups](#groups)). `locked: true`: in the editor the element can still be selected and edited
+  in its edit dialog, but it can no longer be moved or resized with the mouse or the arrow keys, and a click on it goes to the
+  element underneath when there is one (padlock in its floating toolbar, its edit dialog and *Layers › Plan elements*). Walls and fences have
+  no per-element lock: lock their whole layer (`layers.locked: [walls, fences]`, see [Layers](#layers)).
+- **Named colors.** Every color key (`color`, `animation.color`, widget `color`, `animations.<event>.color`,
+  `ambience.traces.color`, `ambience.energy.color`) also takes a name of the plan [palette](#card-root): the element follows
+  the palette when it changes. A gauge `severity` keeps its fixed green, orange and red.
 - **Editor paths** use the English interface labels: *Editor: ⚙ Settings › Display* means the ⚙ Settings button of the
   editor toolbar (in the « More tools » menu ⋮ on phones), tab *Display* of its dialog. *Add › Furniture* is the **Add** button (key `A`), tab *Furniture*.
 
@@ -100,6 +106,7 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `animations` | object | | — | [Animations](#animations) per event |
 | `alerts` | list | | — | [Full-plan alerts](#full-plan-alerts) |
 | `badge_style` | object | | — | [Badge style](#badge-style) |
+| `palette` | object | name → color | — | Named colors, e.g. `{accent: "#e8710a"}`. Name: lowercase letter first, then lowercase letters, digits, `_` or `-` (31 at most); color: `#hex`, `rgb()`, `hsl()`, CSS name or `var(--…)`. Offered in every color picker of the editor (traces and energy flows have no color picker: YAML only); an element whose color is a name follows the palette (a removed name gives it its default color back). Editor: ⚙ Settings › Display › *Named colors* |
 | `replay` | bool / object | | — | [Replay](#replay) |
 | `showcase` | bool / object | | — | [Showcase](#showcase) |
 | `interaction` | object | | — | [Interaction](#interaction) |
@@ -243,8 +250,12 @@ rooms:
 ```
 
 Editor: toolbar *Rectangular room with its walls (R)* or *Freeform room (P)*; *Add › Rooms* (*Home Assistant area*,
-*All my HA areas*); select a room to edit it in the side panel (*Action buttons*, *Left panel* / *Right panel*,
-*Sub-area*). Sub-areas: *Add › Furniture › Sub-areas (kitchen, shower…)*.
+*All my HA areas*). Click a room to select it: its handles appear and a small floating toolbar shows next to it
+(*Edit*, *Duplicate*, lock, *Bring to front* / *Send to back*, *Delete*). *Edit*, a double-click or Enter opens the room's
+edit dialog: tabs *General* (name, size, sensors, *Outdoor*, *Sub-area*…), *Home Assistant area* (link, *Add the
+area's devices*, entities to place on the walls) and *Room view* (*Left panel* / *Right panel*, *Action buttons*), with a
+live preview of the room cropped from the real plan (right on a computer, on top on a phone). Ctrl+Z undoes, *Apply* or
+Esc closes. Sub-areas: *Add › Furniture › Sub-areas (kitchen, shower…)*.
 
 ## Walls
 
@@ -262,7 +273,7 @@ walls:
 ```
 
 Editor: toolbar *Wall (M)*; select a wall for *To boundary* (turn it into a fence) and *Split in two*. Hide or lock all
-walls in *Layers*. *Clean up the plan* fixes gaps, offsets, stubs, duplicates and walls under openings, with a preview
+walls in *Layers*. *Clean up the plan* fixes gaps, offsets, stubs, duplicates and walls under openings, and flags windows without `outside` and shutters linked to nothing, with a preview
 (see [configuration](configuration.md#clean-up-the-plan)).
 
 ## Fences
@@ -291,12 +302,18 @@ Windows, doors and gates drawn on a wall segment, with their contact, shutter or
 | `type` | enum | `window` `door` `gate` | required | Kind of opening (drawing, icons) |
 | `seg` | `[x1, y1, x2, y2]` | | required | Segment on the wall. An opening without a valid `seg` is ignored |
 | `name` | string | | — | Name (lists, card header, open-openings chip) |
-| `contact` | entity | | — | Contact sensor: red when `on` / `open` |
+| `contact` | entity / list | up to 8 entities | — | Contact sensor: red when `on` / `open`. A list for one opening with several sensors (left and right leaf…): open as soon as one is, closed when one answers and none is open, unavailable only when all are; counted once, one line per sensor in its card |
 | `shutter` | entity | | — | Shutter (`cover`): drawn on the outside, darker when closed, animated while moving |
 | `entity` | entity | | — | Motorised opening (gate, garage door), used when there is no `contact` |
 | `outside` | `[dx, dy]` | `[-1, 0]` `[1, 0]` `[0, -1]` `[0, 1]` | `[0, 0]` | Outside direction (left, right, up, down): the shutter is drawn on that side |
 | `shutter_only` | bool | | `false` | Draw only the shutter, not the window line |
-| `bay` | string | | — | Bay name: leaves with the same `bay` form one bay (one card, one line, counted once) |
+| `bay` | string | | — | Bay name: leaves with the same `bay` form one bay (one card, one line, counted once; one sun patch for the ambience light) |
+| `sill` | number (cm) | 0–300 | auto | Ambience light: height of the bottom of the glazing (`0` = down to the floor). Auto = 90, or 0 for a bay at least 180 cm wide (adjoining leaves added up) |
+| `height` | number (cm) | 10–500 | `215` | Ambience light: height of the top of the glazing (glazed door with `glazed: top`: 200) |
+| `glazed` | enum / bool | `full` `top` (`true` = `full`) | — | Door only: a glazed door lets daylight in like a window (sky light, sun patch, bounced glow; its `shutter` counts). `full` = glazed full height (0 to 215 cm, patch at the foot of the door), `top` = small pane at the top (150 to 200 cm: patch further in, smaller, weaker sky light). `sill` and `height` still refine it |
+| `overhang` | number (cm) | 0–500 | — | Ambience light: depth of a roof overhang above the window or door. It blocks the high sun (summer) and lets the low sun in (winter): the patch is shortened or removed depending on the elevation |
+| `overhang_height` | number (cm) | 0–300 | `0` | Height of the overhang above the top of the glazing |
+| `slats` | enum | `tilt` `vented` | — | Ambience light, with a `shutter`: `tilt` = tilting slats, the lowered part lets light through according to the cover's `current_tilt_position` (100 = open); `vented` = a closed shutter still lets thin streaks of light through. Without it, a basic shutter (unchanged rendering) |
 | `leaves` | number | `1` `2` | `1` | Number of leaves drawn (with `swing`) |
 | `swing` | enum | `left` `right` `sliding` | — | Draws the leaves: hinge side seen from inside facing `outside`, or two sliding panels. Absent = nothing drawn |
 | `outward` | bool | | `false` | Leaves open outward (`left` / `right`) |
@@ -342,17 +359,29 @@ openings:
     tap: more_info
     group: garden
     hidden: false
+  - type: window                 # one bay, two sensors (left and right leaf)
+    seg: [600, 0, 840, 0]
+    name: Bedroom bay
+    contact: [binary_sensor.bedroom_left, binary_sensor.bedroom_right]
+    leaves: 2
+    swing: sliding
 ```
+
+`bay` is still there for leaves drawn as separate openings; one opening with a `contact` list is simpler when the leaves
+share one segment.
 
 Editor: toolbar *Opening (O)*, or *Add › Openings*: presets (*Window + shutter + contact*, *Door + shutter + contact*,
 *French window + shutter + contact*, *Sliding bay window*, *Tilt and turn window*, *Garage door*, *Gate*…) and *Create an
 opening* (type, leaves, swing, sensors, animation, preview; *Add* then draw it, or *Save to My templates*). Drawn on a
 wall, its sensors are looked up among the free entities of the bordering room (room `area`, else the HA area with the same
 name): one match is linked, several open a short list (that room first, *Other entity…*, *Skip*), none is highlighted
-“to complete”; `outside` points away from the indoor room. Select it for the side panel (*Type*, *Leaves*, *Opening*,
-*Contact*, *Shutter*, *Outside side*, *Bay (grouped leaves)*, *Animation (open)*, *Shutter animation (moving)*, *Card*,
-*Edit in the workshop* to apply another preset without redrawing); the panel suggests a free contact or shutter of the
-same room, or the type matching the contact's device class.
+“to complete” (the edit dialog then opens on *Sensors*); `outside` points away from the indoor room. Select it for the
+floating toolbar, then *Edit* (or double-click, Enter) for its edit dialog, previewed in its room: tabs *General* (*Type*,
+*Leaves*, *Opening*, *Outside side*, *Bay (grouped leaves)*, position), *Sensors* (*Contact*, *Shutter*, motorised
+entity), *Light*, *Card* and *Animation*; the footer has *Edit in the workshop* to apply another preset without redrawing.
+The dialog suggests a free contact or shutter of the
+same room, or the type matching the contact's device class. *Add a sensor* under *Contact* links another one (several
+free contacts in the room: tick them in the short list, then *Link*).
 
 ## Device badges
 
@@ -384,6 +413,7 @@ halo, animation and card.
 | `animation` | enum / object | see [Animations](#animations) | `animations.light`, `.alert` or `.badge` | Animation while active |
 | `hidden` | bool | | `false` | Hidden in the view and in the room view (still counted in the summary chips) |
 | `level` | number | | `0` | Order inside the Devices layer |
+| `zoom_only` | bool | | `badge_style.zoom_only` | `true`: hidden on the whole plan, shown in the view of its room (always shown in the editor) |
 | `group` | string | group `id` | — | Editor group |
 
 ```yaml
@@ -420,8 +450,9 @@ badges:
     group: ground_floor
 ```
 
-Editor: *Add › Devices* (*Light*, *Any device*…), then click on the plan; select it for the side panel (*Value shown on
-the badge*, *Advanced settings*, *Card*, *Animation*).
+Editor: *Add › Devices* (*Light*, *Any device*…), then click on the plan; select it for its floating toolbar, then *Edit*
+(double-click, Enter) for its edit dialog: tabs *General* (entity, name, icon, colour, *Value shown on the badge*…),
+*Advanced settings*, *Card* and *Animation*, previewed in its room.
 
 ## Texts and info boxes
 
@@ -466,7 +497,8 @@ texts:
       - {entity: climate.thermostat, attribute: current_temperature, unit: "°C", icon: mdi:thermostat}
 ```
 
-Editor: toolbar *Text (T)*; *Add › Info box*, then *Entity* to add lines in its panel.
+Editor: toolbar *Text (T)* (the new text opens in its edit dialog, ready to type); *Add › Info box*, then *Entity* to add
+lines in the *Entities* tab of its edit dialog.
 
 ## Furniture
 
@@ -598,7 +630,7 @@ furniture:
 Editor: *Add › Furniture › Create furniture*: start from a basic shape (rectangle, rounded rectangle, circle, L shape) or
 any catalogue piece (converted to shapes), set name, size (cm), category, search words, colour, shapes (cm) and
 optionally an entity, with a preview to scale; *Add* to place it or *Save to My templates* (shown in its category, with
-*Edit*). A placed piece opens in the same workshop from its panel (*Edit the shape*, or *Customize the shape* for a
+*Edit*). A placed piece opens in the same workshop from its edit dialog (*Edit the shape*, or *Customize the shape* for a
 catalogue piece). In the preview, shapes are selected, dragged and resized directly (8 handles, Shift: proportions; points
 of lines and polygons, *+* to add one, long press or Delete to remove one), snapping to a 5 cm grid and to edges and
 centres (Alt: off); arrows move by 1 cm (Shift: 10 cm), Ctrl+Z / Ctrl+Y undo inside the workshop. Values are stored in %
@@ -767,7 +799,8 @@ panels:
         - {entity: sensor.outside_pressure, name: Pressure, icon: mdi:gauge, decimals: 0, unit: hPa}
 ```
 
-Editor: *Add › Widgets*, or *Add widget* in a panel or a card; click the widget to edit it.
+Editor: *Add › Widgets*, or *Add widget* in a panel or a card; click the widget, then *Edit* in its floating toolbar: the
+edit dialog shows the widget itself as its preview (← or Esc goes back to the room or the card it belongs to).
 
 ### Widget: tariff
 
@@ -1082,7 +1115,7 @@ summary:
     presence: person.sam
 ```
 
-Editor: click a chip above the plan to edit it; *+ Chip* (*Add a chip to the summary*) adds one; drag a chip next to,
+Editor: click a chip above the plan, then *Edit* in its floating toolbar (preview: the chip itself); *+ Chip* (*Add a chip to the summary*) adds one; drag a chip next to,
 under or below the others. Also ⚙ Settings › Features › *Summary chips*. Hidden by default in [tablet mode](#wall-tablet).
 
 ## Layers
@@ -1111,7 +1144,8 @@ layers:
   view_button: true
 ```
 
-Editor: toolbar *Layers* (drag or ↑ / ↓ to reorder, eye, padlock, *Reset order*, *Plan elements*); per element: *Hide in view*,
+Editor: toolbar *Layers*, a dialog (drag or ↑ / ↓ to reorder, eye, padlock, *Reset order*, *Plan elements*: a click opens
+the element's edit dialog, Esc comes back to *Layers*); per element: *Hide in view*,
 *Bring to front* / *Send to back*; `view_button` also in ⚙ Settings › Display.
 
 ## Groups
@@ -1134,7 +1168,9 @@ fences:
   - [550, 450, 900, 450, garden]
 ```
 
-Editor: select several elements › *Group* (Ctrl+G) / *Ungroup* (Ctrl+Shift+G). The first click on a member selects the
+Editor: select several elements (frame, Ctrl+click, Ctrl+A): the floating toolbar acts on all of them (*Edit*, *Duplicate*,
+lock, *Delete*); *Edit* opens a dialog with the shared settings (*Align*, *Hide in view*, group name) and the list of the
+selection, previewed together; *Group* (Ctrl+G) / *Ungroup* (Ctrl+Shift+G). The first click on a member selects the
 group, a second click the element alone.
 
 ## Templates
@@ -1339,6 +1375,34 @@ ambience:
 Editor: shared `away`, `at_home`, `avatar` in ⚙ Settings › *People on the plan*; per person and `home` in *Ambience and
 animations* › *People* (drag the avatars on the plan to set `home` as `[x, y]`).
 
+### Light
+
+Light from outside and from the lamps, on by default as soon as `ambience` is present. Static SVG (no animation, no filter),
+redrawn only when the sun (to the degree), a shutter, the moon phase or a lamp changes.
+
+| Key | Type | Values | Default | Description |
+|---|---|---|---|---|
+| `light` | boolean / object | | `true` | `false` = off; an object = the settings below |
+| `light.sun` | boolean / number | `0` to `2` | `true` | Daylight through the `window` openings and glazed doors (`glazed`), clipped to the room. Every window that is not closed lets in sky light by day: a beam that widens into the room, brightest against the glass and fading with depth, in a slightly warm white blended in screen mode (it brightens the floor, never a grey veil), plus a faint light over the whole room, scaled to the number and size of its open windows (fades in during civil twilight, a little stronger on the sunny side, a little stronger when overcast). Windows facing the sun also get a soft-edged patch on the floor (direction from `sun.sun` azimuth + `north`, length from the elevation, shortened by the linked `shutter`) and a warm glow bounced around it. Adjoining leaves (same `bay`, same `group`, or in line and touching) form one bay with a single patch. With a `meteo` weather entity, the direct sun follows its `cloud_coverage` (10 % or less = full sun, 90 % or more = none), else its condition (overcast = none); rain, fog or snow remove it. Weather effects (clouds, fog, rain) stay outside: never painted over indoor rooms. `false` turns all daylight off (sky glow included); a number scales the direct patch only (`1` = default, `0` = no patch, `2` = twice as bright) |
+| `light.sky` | boolean / number | `0` to `2` | `true` | Strength of the sky glow (`1` = default, `0` = none) |
+| `light.bounce` | boolean / number | `0` to `2` | `true` | Strength of the glow bounced around the patches, sun and moon (`1` = default, `0` = none) |
+| `light.sky_diffusion` | number | `0` to `1` | `0.6` | Diffusion of the sky light (and of the night-sky glow): `0` = a sharp beam, `1` = a wide blur that grows with the depth (nearly sharp against the glass, wider and wider into the room, no visible edge). Editor: *Diffusion* slider, 0 to 100 % |
+| `light.sky_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sky light color as a color temperature (black body); `auto` = the default slightly warm white |
+| `light.sun_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sun patch color (the bounced glow is a little warmer); `auto` = the default, golden near sunset |
+| `light.moon` | boolean / entity | `true`, `false` or a `sensor.*` | `true` | At night, a cool light through the same windows. The moon's direction is computed by the card from the Home Assistant latitude / longitude and the time: a faint cool patch behind the windows that see it, only the night-sky glow through the others (and when the moon is down). Phase from a moon phase sensor (Moon integration, `sensor.moon_phase` used if present), else computed; stronger near full moon. Without coordinates, a glow straight through each window |
+| `light.doors` | enum | `open` `closed` | `open` | Daylight of a lit room also reaches the next room through an inside door that is open (its `contact` on / open) or an interior glass wall (a `window`, or a `glazed` door, between two indoor rooms): a fainter light over the whole next room and a glow near the opening, one step only (not passed on further), lamps not included. `closed` = an inside door without a sensor counts as closed |
+| `light.lamps` | boolean | | `true` | Halos of `light.*` badges with `halo` take the lamp color (`rgb_color`, else `hs_color`, else `color_temp_kelvin`) and brightness, blend (screen) where they overlap, and stay inside the lamp's room (`room`, else the room it is in) |
+
+```yaml
+ambience:
+  north: 45
+  light: {sun: true, moon: sensor.moon_phase, lamps: true}
+  # stronger and warmer: light: {sky: 1.6, bounce: 1.6, sun: 1.3, sky_kelvin: 5000, sun_kelvin: 3200}
+```
+
+Windows: sill at 90 cm and top at 215 cm; 180 cm wide or more = a bay down to the floor. Glazed doors: 0 to 215 cm (`full`) or 150 to 200 cm (`top`). Light grazing the wall (over 78°)
+is ignored. Editor: *Ambience and animations* › *Light* (sliders 0 to 200 %, color temperature with an *Auto* button), with a sample room to preview them at any time of day and in any weather.
+
 ## Badge style
 
 How device badges show on the plan. Every key is optional; the defaults keep the original look.
@@ -1349,6 +1413,7 @@ How device badges show on the plan. Every key is optional; the defaults keep the
 | `badge_style.inactive` | enum | `shown` `active_only` `dimmed` | `shown` | Inactive device: shown, shown only while active, or faded |
 | `badge_style.size` | enum | `small` `normal` `large` | `normal` | 0.8 ×, 1 ×, 1.25 × (same size on screen whatever the zoom) |
 | `badge_style.values` | enum | `always` `hover` `never` | `always` | Value in the badge: always, on hover / focus (always on touch screens), never |
+| `badge_style.zoom_only` | bool | | `false` | `true`: badges only show in the view of their room; a badge's own `zoom_only` wins |
 
 A hidden badge still counts in the summary chips and still appears in the room view; a badge in a full-plan alert stays
 visible; in the editor every badge stays visible.
@@ -1373,7 +1438,7 @@ change), elements circled by a wave. Never while editing.
 | `name` | string | | `Alert` | Banner title |
 | `entity` | entity | | — | One watched entity |
 | `entities` | list of entities | | — | Several watched entities |
-| `type` | enum | `openings` | — | Watch every opening of the plan (`contact`, else `entity`) |
+| `type` | enum | `openings` | — | Watch every opening of the plan (each of its `contact` sensors, else `entity`; an opening is named once) |
 | `level` | enum | `critical` `warning` `info` | `critical` | Red (critical), amber (warning), accent without pulse (info); the highest active level wins |
 | `icon` | icon | | per level | Banner icon |
 | `above` | number | | — | Active when the value is above |
@@ -1440,7 +1505,7 @@ badges:
   - {entity: binary_sensor.motion, pos: [100, 100], animation: {type: wave, color: "#e91e63"}}
 ```
 
-Editor: *Ambience and animations* › *Animations per event* (*Default animations* resets them); per element: its panel ›
+Editor: *Ambience and animations* › *Animations per event* (*Default animations* resets them); per element: its edit dialog ›
 *Animation*. The [animation level](#animation-level) can reduce or stop them all.
 
 ## Replay
@@ -1681,6 +1746,7 @@ Every public key, alphabetically, with the sections that document it.
 | `fences` | [Card root](#card-root), [Fences](#fences) |
 | `full_page` | [Global settings](#global-settings) |
 | `furniture` | [Card root](#card-root), [Furniture](#furniture), [Animations](#animations) |
+| `glazed` | [Openings](#openings) |
 | `grid_options` | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
 | `group` | [Rooms and sub-areas](#rooms-and-sub-areas), [Groups](#groups), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture) |
 | `groups` | [Card root](#card-root), [Groups](#groups) |
@@ -1688,6 +1754,7 @@ Every public key, alphabetically, with the sections that document it.
 | `h_max` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `h_min` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `halo` | [Device badges](#device-badges) |
+| `height` | [Openings](#openings) |
 | `hidden` | [Rooms and sub-areas](#rooms-and-sub-areas), [Layers](#layers), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture) |
 | `hide_if` | [Summary chips](#summary-chips) |
 | `history` | [Widgets](#widgets), [Widget: tile](#widget-tile) |
@@ -1706,6 +1773,7 @@ Every public key, alphabetically, with the sections that document it.
 | `keywords` | [Templates](#templates) |
 | `kind` | [Templates](#templates), [Custom furniture](#custom-furniture) |
 | `label` | [Rooms and sub-areas](#rooms-and-sub-areas) |
+| `lamps` | [Light](#light) |
 | `language` | [Global settings](#global-settings) |
 | `layers` | [Card root](#card-root), [Layers](#layers) |
 | `layout_options` | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
@@ -1713,16 +1781,17 @@ Every public key, alphabetically, with the sections that document it.
 | `left` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels) |
 | `legend` | [Global settings](#global-settings) |
 | `level` | [Rooms and sub-areas](#rooms-and-sub-areas), [Layers](#layers), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Full-plan alerts](#full-plan-alerts) |
-| `light` | [Animations](#animations) |
+| `light` | [Animations](#animations), [Light](#light) |
 | `light_color` | [Device badges](#device-badges) |
 | `lock_view` | [Interaction](#interaction) |
-| `locked` | [Layers](#layers) |
+| `locked` | [Layers](#layers), [Conventions](#conventions) (on an element) |
 | `margin` | [Global settings](#global-settings) |
 | `marker` | [Day and night](#day-and-night) |
 | `max` | [Widgets](#widgets), [Widget: gauge](#widget-gauge), [Global settings](#global-settings) |
 | `min` | [Widgets](#widgets), [Widget: gauge](#widget-gauge), [Global settings](#global-settings) |
 | `mirror` | [Furniture](#furniture) |
 | `month` | [Widget: periods](#widget-periods) |
+| `moon` | [Light](#light) |
 | `more_info` | [Cards](#cards) |
 | `name` | [Summary chips](#summary-chips), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: periods](#widget-periods), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Groups](#groups), [Templates](#templates), [Full-plan alerts](#full-plan-alerts), [Global settings](#global-settings) |
 | `new_line` | [Summary chips](#summary-chips) |
@@ -1732,7 +1801,10 @@ Every public key, alphabetically, with the sections that document it.
 | `openings` | [Card root](#card-root), [Openings](#openings) |
 | `outside` | [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: climate](#widget-climate), [Openings](#openings) |
 | `outward` | [Openings](#openings) |
+| `overhang` | [Openings](#openings) |
+| `overhang_height` | [Openings](#openings) |
 | `overlay_order` | [Layers](#layers) |
+| `palette` | [Card root](#card-root) |
 | `panels` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels), [Card root](#card-root), [Wall tablet](#wall-tablet) |
 | `people` | [People](#people), [Ambience](#ambience) |
 | `period` | [Widgets](#widgets), [Widget: tariff](#widget-tariff) |
@@ -1768,6 +1840,8 @@ Every public key, alphabetically, with the sections that document it.
 | `shutter` | [Openings](#openings), [Animations](#animations) |
 | `shutter_animation` | [Animations](#animations), [Openings](#openings) |
 | `shutter_only` | [Openings](#openings) |
+| `sill` | [Openings](#openings) |
+| `slats` | [Openings](#openings) |
 | `size` | [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Badge style](#badge-style) |
 | `source` | [Widget: periods](#widget-periods), [Energy flows](#energy-flows) |
 | `spacing` | [Widgets](#widgets), [Widget: divider](#widget-divider) |
@@ -1779,7 +1853,7 @@ Every public key, alphabetically, with the sections that document it.
 | `style` | [Texts and info boxes](#texts-and-info-boxes), [Custom furniture](#custom-furniture) |
 | `sub_area` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `summary` | [Card root](#card-root), [Summary chips](#summary-chips), [Wall tablet](#wall-tablet) |
-| `sun` | [Day and night](#day-and-night) |
+| `sun` | [Day and night](#day-and-night), [Light](#light) |
 | `swing` | [Openings](#openings) |
 | `t_max` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `t_min` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
@@ -1815,6 +1889,7 @@ Every public key, alphabetically, with the sections that document it.
 | `y` | [Custom furniture](#custom-furniture) |
 | `year` | [Widget: periods](#widget-periods) |
 | `zoom` | [Rooms and sub-areas](#rooms-and-sub-areas) |
+| `zoom_only` | [Device badges](#device-badges), [Badge style](#badge-style) |
 
 ## Enumerated values
 

@@ -1,10 +1,17 @@
 // Construit dist/maquette-card.js : textes (en/fr) + démo + carte + éditeur embarqué (un seul fichier pour HACS).
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import vm from "node:vm";
+import { MORCEAUX, assembler, verifier } from "./src/assemblage.mjs";
 
 const pkg = JSON.parse(readFileSync("package.json", "utf8"));
 // textes de l'interface, placés en tête : la démo, la carte et l'éditeur les lisent (globalThis.MaquetteI18n)
-const i18n = readFileSync("src/maquette-i18n.js", "utf8");
+// sources découpées par sujet (src/i18n/, src/carte/, src/editeur/) : recollées dans l'ordre de src/assemblage.mjs
+const assemblage = verifier();
+if (assemblage.problemes.length) {
+  console.error(`Assemblage des sources (src/assemblage.mjs) :\n  ${assemblage.problemes.join("\n  ")}`);
+  process.exit(1);
+}
+const i18n = assembler(MORCEAUX.i18n);
 // en développement, la carte et l'éditeur importent maquette-i18n.js (et l'éditeur maquette-nettoyage.js) ; dans dist/ ils sont déjà en tête
 const sansImport = (s) => s.replace(/^import "\.\/maquette-(?:i18n|nettoyage)\.js";.*\n/gm, "");
 // moteur « Nettoyer le plan » (module pur, globalThis.MaquetteNettoyage), placé après les textes
@@ -13,10 +20,10 @@ if (/^(?:import|export) /m.test(nettoyage)) {
   console.error("import / export inattendu dans src/maquette-nettoyage.js (fichier placé tel quel dans dist/)");
   process.exit(1);
 }
-const carte = sansImport(readFileSync("src/maquette-card.js", "utf8"));
+const carte = sansImport(assembler(MORCEAUX.carte));
 // mode démo (appartement + simulation), placé avant la carte qui l'utilise
 const demo = readFileSync("src/plan-demo.js", "utf8");
-const editeur = sansImport(readFileSync("src/maquette-editeur.js", "utf8"));
+const editeur = sansImport(assembler(MORCEAUX.editeur));
 // js-yaml 4.1.0 (MIT, src/vendor/js-yaml.LICENSE) : lecture des plans importés en YAML, gardé local à l'éditeur
 const jsyaml = readFileSync("src/vendor/js-yaml.min.js", "utf8");
 
@@ -26,7 +33,7 @@ if (version !== pkg.version) {
   process.exit(1);
 }
 if (!/^export class EditeurPlan/m.test(editeur)) {
-  console.error("« export class EditeurPlan » introuvable dans src/maquette-editeur.js");
+  console.error("« export class EditeurPlan » introuvable dans src/editeur/ (classe-coeur.js)");
   process.exit(1);
 }
 if (/^import /m.test(carte) || /^import /m.test(editeur)) {
@@ -42,7 +49,7 @@ const cles = new Set();
 for (const s of [carte, demo, editeur]) for (const m of s.matchAll(/\b_tk?\(\s*"((?:[^"\\\n]|\\.)*)"/g)) cles.add(JSON.parse(`"${m[1]}"`));
 const manquantes = [...cles].filter((k) => !(k in en));
 if (manquantes.length) {
-  console.error(`${manquantes.length} texte(s) sans traduction anglaise (src/maquette-i18n.js) :\n  ${manquantes.join("\n  ")}`);
+  console.error(`${manquantes.length} texte(s) sans traduction anglaise (src/i18n/textes-*.js) :\n  ${manquantes.join("\n  ")}`);
   process.exit(1);
 }
 const enTrop = Object.keys(en).filter((k) => !cles.has(k));

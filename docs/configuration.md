@@ -35,10 +35,11 @@ checked when the card reads its configuration: an invalid one is removed, with a
 | `groups` | list | — | Editor groups `{id, name}`, see below |
 | `panels` | object | — | `{left: [widgets], right: [widgets]}` |
 | `templates` | list | — | Templates saved from the editor |
-| `ambience` | object | — | Night tint, weather, traces, energy flows, people, see below |
+| `ambience` | object | — | Night tint, weather, traces, energy flows, people, light, see below |
 | `animations` | object | — | One animation per event, see below |
 | `alerts` | list | — | Full-plan alerts, see below |
-| `badge_style` | object | — | How device badges show (unavailable, inactive, size, values), see below |
+| `badge_style` | object | — | How device badges show (unavailable, inactive, size, values, room view only), see below |
+| `palette` | object | — | Named colors `{name: color}`, usable in every color key; elements follow the palette when it changes, see [Settings](#settings-panel-and-global-options) |
 | `replay` | bool / object | — | « Replay the day », see below |
 | `showcase` | bool / object | — | Examples of animations and ambience under the plan |
 | `presence` | entity | `zone.home` | Default presence of `show: away / home` chips and `when_away` alerts, see [Settings](#settings-panel-and-global-options) |
@@ -112,12 +113,18 @@ drag a chip next to another (left / right half), under it (lower part: stack) or
 - type: window         # window | door | gate
   seg: [90, 0, 410, 0]
   name: Living room window
-  contact: binary_sensor.living_window   # red when open
+  contact: binary_sensor.living_window   # red when open; or a list: [binary_sensor.left_leaf, binary_sensor.right_leaf] (open as soon as one is)
   shutter: cover.living_shutter          # drawn outside, darker when closed
   entity: cover.garage_door              # motorised opening (gate)
   outside: [0, -1]                       # outside direction: [-1,0] left, [1,0] right, [0,-1] up, [0,1] down
   shutter_only: false                    # draw only the shutter
-  bay: Bedroom bay                       # optional: same name on each leaf = one bay (one card, one line, counted once)
+  bay: Bedroom bay                       # optional: same name on each leaf = one bay (one card, one line, counted once, one sun patch)
+  sill: 0                                # optional, ambience light: bottom of the glazing in cm (0 = down to the floor; auto = 90, or 0 from 180 cm wide)
+  height: 215                            # optional, ambience light: top of the glazing in cm
+  glazed: full                           # door only, optional: full (glazed full height) | top (small pane at the top) — lets daylight in
+  overhang: 80                           # optional, ambience light: roof overhang above (cm); blocks the high summer sun, not the low winter sun
+  overhang_height: 0                     # optional: height of the overhang above the top of the glazing (cm)
+  slats: tilt                            # optional, with a shutter: tilt (light follows current_tilt_position) | vented (a closed shutter lets streaks through)
   leaves: 2                              # optional: 1 (default) or 2
   swing: left                            # optional: left | right (hinge side seen from inside) | sliding — draws the leaves
   outward: true                          # optional: leaves open outward (default inward)
@@ -133,6 +140,20 @@ drag a chip next to another (left / right half), under it (lower part: stack) or
       - {type: entities, title: Sensor, entities: [{entity: binary_sensor.living_window}, {entity: sensor.living_window_battery}]}
 ```
 
+**Several sensors on one opening.** A bay with a sensor on each leaf can stay one opening: give `contact` a list
+(up to 8). It is open as soon as one sensor is, closed when one answers and none is open (the card then mentions the
+unavailable sensor), unavailable only when all are. It is counted once in the summary and the `openings` alert, its card
+lists one line per sensor, and the replay loads all of them. A single sensor is still written as plain text.
+
+```yaml
+- type: window
+  seg: [600, 0, 840, 0]
+  name: Bedroom bay
+  contact: [binary_sensor.bedroom_left, binary_sensor.bedroom_right]
+  leaves: 2
+  swing: sliding
+```
+
 Without `swing` nothing changes on the plan. With it, each leaf and its arc are drawn in thin lines (inward unless
 `outward`), or two offset panels for `sliding`.
 
@@ -142,8 +163,9 @@ animation, with a preview on a wall; *Add* then draw it on a wall, or save it to
 its sensors are looked up among the free entities of the room it borders (the room's `area`, else the Home Assistant area
 with the same name): one match is linked, several open a short list (that room first, « Other entity… »), none leaves the
 field highlighted « to complete ». `outside` points away from the indoor room. A drawn opening keeps its place when its
-type, leaves or sensors change (panel, or *Edit in the workshop* to apply another preset), and its panel suggests a free
-contact or shutter of the same room, or the type matching the contact's device class.
+type, leaves or sensors change (edit dialog, or *Edit in the workshop* to apply another preset), and its edit dialog suggests a free
+contact or shutter of the same room, or the type matching the contact's device class. *Add a sensor* under *Contact*
+links another one; when several contacts of the room are free, tick them in the short list, then *Link*.
 
 ## Devices (`badges`)
 
@@ -211,7 +233,7 @@ texts:
 ```
 
 Values are live; a tap on a line opens its « more info ». In the editor: **Add → Info box**, then add,
-reorder and remove entities in its panel ; it moves, groups, hides and duplicates like a text.
+reorder and remove entities in its edit dialog ; it moves, groups, hides and duplicates like a text.
 
 ## Sub-areas (`sub_area: true` on a room)
 
@@ -283,7 +305,7 @@ name / `var(--…)`) and tints the piece.
 **Create furniture** (*Add › Furniture*): start from a basic shape or any catalogue piece (converted to shapes), set the
 name, size in cm, category, search words, colour and shapes (positions in cm) with a preview to scale, optionally
 connected to an entity; *Add* to place it, or save it to *My templates*: it then shows in its category of the catalogue,
-with *Edit*. A placed piece (catalogue or custom) opens in the same workshop from its panel (*Edit the shape*).
+with *Edit*. A placed piece (catalogue or custom) opens in the same workshop from its edit dialog (*Edit the shape*).
 Shapes can also be edited **directly in the preview**: click or tap one to select it, drag it, resize it with its 8
 handles (Shift keeps the proportions), drag the points of a line or polygon (*+* in the middle of an edge adds one, a long
 press or Delete removes one, at least 3 remain). Shapes snap to a 5 cm grid and to the edges and centres of the piece and
@@ -320,9 +342,10 @@ layers:
 - A named area's label is hidden with the Furniture layer; a sub-area's label with the Sub-areas layer.
 - The view button keeps each viewer's choice in the browser (`localStorage`, per plan `id`), never in the config;
   it is ignored once `view_button` is removed.
-- Editor: the **Layers** toolbar button opens a side panel (drag handle or ↑ / ↓ keys to reorder, eye, padlock,
+- Editor: the **Layers** toolbar button opens a dialog (drag handle or ↑ / ↓ keys to reorder, eye, padlock,
   element counts, reset order, view button, and *Plan elements*: every room, device, opening, piece of furniture, text,
-  widget, summary chip and group by category, a click selects it on the plan). The element panel has **Hide in view** and **Bring to front / Send to back**.
+  widget, summary chip and group by category, a click selects it and opens its edit dialog; Esc comes back to Layers). The
+  element's edit dialog has **Hide in view** and **Bring to front / Send to back**, also in its floating toolbar.
 
 ### Connected furniture
 
@@ -411,11 +434,30 @@ Also in `ambience`:
   people: {home: Living room}   # person.* (or entities: [...]): at home = side by side at `home` ([x, y] or a room name),
                             # away = on the plan edge in their real direction (HA home coordinates + `north`) with the distance or zone
   # people: {home: [420, 310]}   # a free spot in cm
+  light: true               # on by default with the ambience; false = off. Or {sun, moon, lamps}, each true by default:
+                            # sun: patches of sunlight on the floor behind the windows facing the sun (sun.sun azimuth + `north`,
+                            #   elevation = length), shortened by the linked shutter's position, nothing when it is closed
+                            # moon: a cool glow at night, in the moon's direction (computed from the HA latitude / longitude and the time);
+                            #   moon: sensor.moon_phase = phase from that sensor (else computed)
+                            # doors: open (default) | closed: an inside door without a sensor; daylight reaches the next room through
+                            #   an open inside door or an interior glass wall (one step, fainter)
+                            # lamps: halos of the lights (badges with `halo`) in their color (rgb_color, hs_color, color_temp_kelvin)
+                            #   and brightness, blending where they overlap, kept inside their room
+                            # sky / bounce / sun: true, false or a strength from 0 to 2 (1 = default) for the sky glow, the glow
+                            #   bounced around the patches and the direct patch (sun: false = no daylight at all)
+                            # sky_diffusion: 0 (sharp beam) to 1 (wide blur growing with the depth), 0.6 by default
+                            # sky_kelvin / sun_kelvin: auto (default) or a color temperature from 1800 to 10000 K
 ```
 
-In the editor, with the *Ambience and animations* panel open (live preview), drag the avatars of the people at home to
-place them: `home` becomes `[x, y]` (cm, snapped to the grid, Alt for free). The room list of the panel brings them back
+In the editor, with the *Ambience and animations* dialog open (live preview), drag the avatars of the people at home to
+place them: `home` becomes `[x, y]` (cm, snapped to the grid, Alt for free). The room list of the dialog brings them back
 to a room or to the centre.
+
+Sun and moon patches only use `window` openings and glazed doors (`glazed: full | top`) with `outside` set, inside a room
+(sill 90 cm, top 215 cm, a window of 180 cm or wider = a bay down to the floor; glazed door 0 to 215 cm, or 150 to 200 cm
+for `top`). A roof `overhang` shortens or removes the sun patch when the sun is high. Daylight also reaches the next room
+through an open inside door or an interior glass wall (`light.doors`), and `slats` (`tilt` / `vented`) lets light through a lowered shutter. With a weather entity, its
+`cloud_coverage` grades the direct sun; clouds, fog and rain are only painted outside. Settings: ⚙ Settings › *Display* › *Light*.
 
 Nothing leaves Home Assistant (no external service). Animations pause when the plan is off screen and follow
 `prefers-reduced-motion`. A Home Assistant restart (many entities changing at once) leaves no traces.
@@ -445,6 +487,7 @@ badge_style:               # device badges (`badges`)
   size: normal             # small (0.8 ×) | normal (default) | large (1.25 ×) ; badges keep the same size on screen when zooming
   values: always           # always (default) | hover (value on mouse hover and keyboard focus; always shown on touch screens
                            #   without hover) | never
+  zoom_only: false         # true: badges only show in the view of their room (a badge's own `zoom_only` wins)
 ```
 
 - A person or badge hidden by these settings is no longer drawn, clickable or read by screen readers. It still counts in
@@ -491,6 +534,11 @@ default the plan width).
 
 ## Settings panel and global options
 
+**Saving.** *Apply* (Ctrl+S) saves the card and keeps the editor open, with a « Plan saved. » message; *Save* saves and
+leaves the editor. **Locking.** `locked: true` on a room, opening, badge, text or furniture (padlock in its floating toolbar and its edit
+dialog): it stays selectable and editable in its edit dialog, but no longer moves or resizes with the mouse or the arrow keys, and a click on it goes
+to what lies underneath. Walls and fences lock by layer only (`layers.locked`, above).
+
 The **⚙ Settings** button of the editor toolbar opens a centred dialog with tabs (full screen on phones, in the « More
 tools » menu ⋮) with the options that concern how the whole card works rather than the drawing. Every change is previewed live under
 the dialog and can be undone (Ctrl+Z); a setting put back to its default value is **removed** from the YAML. Tabs: General
@@ -507,6 +555,7 @@ remove `editor: false`.
 | `room_labels` | object | all `true` | `{name, temperature, humidity}`: `false` removes that element from every room label (the name stays available to screen readers); a label left empty is hidden |
 | `temperature_tint` | object / `false` | `{min: 17, max: 28}` | Room colour by temperature: blue at `min` (°C) and below, red at `max` and above; also the ends of the legend. `false`: no temperature tint, and no gradient in the legend. An inconsistent pair (`min` ≥ `max`) falls back to the default |
 | `legend` | bool | `true` | `false` hides the legend under the plan |
+| `palette` | object | — | Named colors (tab Display › *Named colors*): `{accent: "#e8710a", wall_blue: "rgb(30, 90, 160)"}`. Every color picker of the editor offers them (traces and energy flows: YAML only); a `color: accent` follows the palette when it changes. Name: lowercase letter first, then lowercase letters, digits, `_` or `-` |
 | `presence` | entity | `zone.home` | Default presence of the `show: away / home` chips and of the `when_away` alerts: a zone (number of people), a person or a group (`home` / `on`). A chip or an alert with its own `presence` keeps it |
 | `replay.speed` | `60` / `300` / `900` / `3600` | `900` | Starting speed of the replay (seconds of the day per second); the speed selector of the timeline still changes it |
 
@@ -721,6 +770,8 @@ room outlines, which are the reference. A dialog shows the plan with each defect
 | Close passages between rooms | off | shared edges without a wall, room by room |
 | Snap nearly matching corners | off | room corners less than 6 cm apart: the only fix, with rounding, that changes room shapes |
 | Round to 5 cm | off | corners, walls and openings; offered only when at least 30 % of the coordinates are off the 5 cm grid (plan traced from an image) |
+| Set the outside side of windows | off | a window or glazed door without `outside` (an indoor room on one side only) gets no daylight; sets `outside` towards the exterior. An interior glass wall between two rooms is left alone |
+| Remove shutters linked to nothing | off | `shutter` pointing to an entity that does not exist, or `shutter_only` without a `shutter`: the link is removed |
 
 **Apply** is a single undoable action (Ctrl+Z, or *Undo* in the notification). Running it again right after finds
 nothing more. The result does not depend on how walls were drawn nor on the plan's orientation.

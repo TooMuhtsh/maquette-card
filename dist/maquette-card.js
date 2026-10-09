@@ -1,4 +1,4 @@
-/*! Maquette v0.1.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.2.0-beta.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -110,9 +110,19 @@ const MaquetteI18n = (() => {
     "Motorisation libre : « {nom} »": "Free motor: “{nom}”",
     "{n} motorisations libres dans « {piece} »": "{n} free motors in “{piece}”",
     "Relier": "Link",
+    "Contacts (ouverte dès que l'un l'est)": "Contacts (open as soon as one is)",
+    "Ajouter un capteur": "Add a sensor",
+    "Cocher (plusieurs capteurs)": "Tick (several sensors)",
+    "Plusieurs capteurs sur cette ouverture : coche-les puis « Relier ».": "Several sensors on this opening: tick them, then “Link”.",
+    "{n} capteur indisponible|{n} capteurs indisponibles": "{n} sensor unavailable|{n} sensors unavailable",
     "Choisir": "Choose",
     "Type d'après le contact : {type}": "Type from the contact: {type}",
     "Appliquer": "Apply",
+    // ---- modale d'édition d'un élément, barre flottante ----
+    "Modifier": "Edit",
+    "Modifier (Entrée ou double-clic)": "Edit (Enter or double-click)",
+    "Actions de la sélection": "Selection actions",
+    "La pièce de l'élément, telle qu'elle sera en vue ; elle suit chaque réglage.": "The element's room, as it will look in view; it follows every setting.",
     "Créer une ouverture": "Create an opening",
     "Modifier l'ouverture": "Edit the opening",
     "Ouverture modifiée.": "Opening updated.",
@@ -146,7 +156,6 @@ const MaquetteI18n = (() => {
     "Aimanter (Alt : couper)": "Snap (Alt: off)",
     "Agrandir l'aperçu": "Enlarge the preview",
     "Retirer le sommet choisi": "Remove the selected point",
-    "Ajouter un sommet": "Add a point",
     "Sommet {n}": "Point {n}",
     "Redimensionner : {c}": "Resize: {c}",
     "coin haut gauche": "top left corner",
@@ -643,6 +652,46 @@ const MaquetteI18n = (() => {
     "Pièce de forme libre (P)": "Freeform room (P)",
     "Texte (T)": "Text (T)",
     "Lumière": "Light",
+    // ---- lumière de l'ambiance (soleil, lune, lampes) ----
+    "Soleil par les fenêtres": "Sunlight through windows",
+    "Lueur du jour par toutes les fenêtres, taches de soleil à bords doux selon l'azimut et la hauteur, raccourcies par les volets.": "Daylight glow through every window, soft-edged sun patches from the sun's azimuth and elevation, shortened by shutters.",
+    "Lueur de la lune": "Moonlight",
+    "Vide = auto : 90 cm, ou 0 dès 1,80 m de baie.": "Empty = auto: 90 cm, or 0 from a 1.80 m bay.",
+    "Allège (cm)": "Sill (cm)",
+    "Vitrage de la porte": "Door glazing",
+    "Une porte vitrée laisse entrer la lumière du jour, comme une fenêtre ; son volet est pris en compte.": "A glazed door lets daylight in, like a window; its shutter is taken into account.",
+    "Porte pleine": "Solid door",
+    "Porte vitrée": "Glazed door",
+    "Vitrée sur toute la hauteur": "Glazed full height",
+    "Petite vitre en haut": "Small pane at the top",
+    "Portes sans capteur ouvertes": "Doors without a sensor are open",
+    "La lumière du jour passe dans la pièce voisine par une porte intérieure ouverte ou une verrière ; une porte sans capteur compte comme ouverte.": "Daylight reaches the next room through an open inside door or an interior glass wall; a door without a sensor counts as open.",
+    "Poser le côté dehors des fenêtres": "Set the outside side of windows",
+    "Fenêtres et portes vitrées sans côté dehors : pas de lumière du jour.": "Windows and glazed doors without an outside side: no daylight.",
+    "Retirer les volets reliés à rien": "Remove shutters linked to nothing",
+    "Volet sans entité, ou entité qui n'existe pas.": "Shutter without an entity, or with an entity that does not exist.",
+    "« {nom} » sans côté dehors": "“{nom}” has no outside side",
+    "Volet de « {nom} » relié à rien": "Shutter of “{nom}” linked to nothing",
+    "Volet de « {nom} » : {e} n'existe pas": "Shutter of “{nom}”: {e} does not exist",
+    "Lames du volet": "Shutter slats",
+    "Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière.": "Tilting: light passes according to the shutter tilt (current_tilt_position). Vented: a closed shutter lets thin streaks of light through.",
+    "Pleines (volet de base)": "Solid (basic shutter)",
+    "Orientables": "Tilting",
+    "Ajourées": "Vented",
+    "Vide = auto : 0 à 215 cm, ou 150 à 200 cm pour une petite vitre.": "Empty = auto: 0 to 215 cm, or 150 to 200 cm for a small pane.",
+    "Avancée de toit (cm)": "Roof overhang (cm)",
+    "Profondeur de l'avancée au-dessus : elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver).": "Depth of the overhang above: it blocks the high sun (summer) and lets the low sun in (winter).",
+    "Au-dessus du haut (cm)": "Above the top (cm)",
+    "Hauteur de l'avancée au-dessus du haut du vitrage.": "Height of the overhang above the top of the glazing.",
+    "Hauteur du bas du vitrage ; 0 = jusqu'au sol.": "Height of the bottom of the glazing; 0 = down to the floor.",
+    "Haut (cm)": "Top (cm)",
+    "Hauteur du haut du vitrage.": "Height of the top of the glazing.",
+    "La nuit, par les mêmes fenêtres ; plus forte à la pleine lune.": "At night, through the same windows; stronger at full moon.",
+    "Phase de la lune": "Moon phase",
+    "Capteur de l'intégration Moon (sensor.moon_phase si vide).": "Sensor from the Moon integration (sensor.moon_phase if empty).",
+    "Halos colorés des lampes": "Colored lamp halos",
+    "Couleur et luminosité de chaque lampe ; les halos voisins se mélangent.": "Each lamp's color and brightness; neighboring halos blend.",
+    "Lune": "Moon",
     "Halo quand elle est allumée": "Halo when on",
     "Prise / interrupteur": "Plug / switch",
     "Appareil mesuré": "Metered device",
@@ -719,7 +768,31 @@ const MaquetteI18n = (() => {
     "Ajouter": "Add",
     "Quitter l'éditeur": "Exit the editor",
     "Quitter": "Exit",
-    "Enregistrer (Ctrl+S)": "Save (Ctrl+S)",
+    "Seulement dans la vue de leur pièce": "Only in their room view",
+    "Les pastilles n'apparaissent qu'en zoomant sur leur pièce. Chaque appareil peut avoir son propre réglage.": "Badges only appear when you zoom into their room. Each device can have its own setting.",
+    "Couleurs nommées": "Named colors",
+    "Proposées dans tous les champs couleur. Un élément qui utilise un nom suit la palette quand elle change ; une couleur retirée rend aux éléments leur couleur par défaut.": "Offered in every color field. An element that uses a name follows the palette when it changes; removing a color gives its elements their default color back.",
+    "Palette du plan": "Plan palette",
+    "Appliquer : enregistrer sans quitter l'éditeur": "Apply: save without leaving the editor",
+    "Appliquer : enregistrer sans quitter l'éditeur (Ctrl+S)": "Apply: save without leaving the editor (Ctrl+S)",
+    "Enregistrer et quitter l'éditeur": "Save and leave the editor",
+    "Enregistrer sans quitter l'éditeur": "Save without leaving the editor",
+    "Couleur nommée « {nom} »": "Named color “{nom}”",
+    "Verrouiller : ni déplacé ni redimensionné à la souris": "Lock: no moving or resizing with the mouse",
+    "Se verrouille avec son calque (Calques).": "Locks with its layer (Layers).",
+    "verrouillé": "locked",
+    "Verrouillé": "Locked",
+    "Couleur de « {nom} »": "Color of “{nom}”",
+    "Retirer « {nom} »": "Remove “{nom}”",
+    "Aucune couleur nommée.": "No named colors.",
+    "Nouvelle couleur": "New color",
+    "Nom, ex. accent": "Name, e.g. accent",
+    "Nom de la nouvelle couleur": "Name of the new color",
+    "Nom refusé : une lettre d'abord, puis lettres, chiffres, « _ » ou « - » (31 au plus).": "Name refused: a letter first, then letters, digits, “_” or “-” (31 at most).",
+    "« {nom} » existe déjà dans la palette.": "“{nom}” is already in the palette.",
+    "Seulement dans la vue de sa pièce": "Only in its room view",
+    "Absent du plan entier : il apparaît quand on zoome sur sa pièce. Réglage par défaut : ⚙ Paramètres › Pastilles d'appareils.": "Hidden on the whole plan: it appears when you zoom into its room. Default: ⚙ Settings › Device badges.",
+    "Élément verrouillé : déverrouille-le (cadenas de sa barre d'actions) pour le déplacer.": "Locked element: unlock it (padlock in its action bar) to move it.",
     "Enregistrer": "Save",
     "Touche ou clique pour enchaîner les murs ; « Terminer » pour finir.": "Tap or click to chain walls; “Done” to finish.",
     "Touche ou clique pour enchaîner les murs ; Échap, Entrée ou clic droit pour finir.": "Tap or click to chain walls; Esc, Enter or right-click to finish.",
@@ -738,7 +811,7 @@ const MaquetteI18n = (() => {
     "Ajouter un sommet": "Add a corner",
     "Terminer": "Done",
     "longueur {v} m": "length {v} m",
-    "À compléter dans le panneau : {l}.": "To complete in the panel: {l}.",
+    "À compléter dans la fenêtre d'édition : {l}.": "To complete in the edit dialog: {l}.",
     "déplacement {x} × {y} cm": "move {x} × {y} cm",
     "collé au mur": "snapped to wall",
     "Informations": "Information",
@@ -816,9 +889,40 @@ const MaquetteI18n = (() => {
     "Où se rangent les personnes à la maison": "Where people at home are placed",
     "Au centre de la maison": "In the middle of the home",
     "Position personnalisée ({pos} cm)": "Custom position ({pos} cm)",
-    "Glisse les avatars sur le plan pour les placer.": "Drag the avatars on the plan to place them.",
+    "« Placer sur le plan » : glisse les avatars à l'endroit voulu.": "“Place on the plan”: drag the avatars where you want them.",
+    "Placer sur le plan": "Place on the plan",
+    "Glisse les avatars sur le plan, puis Échap pour revenir à l'ambiance.": "Drag the avatars on the plan, then Esc to go back to the ambience.",
+    "Auto": "Auto",
+    "Pièce fictive : baie avec volet au sud, fenêtre à l'est, lampe. Heure et météo de l'aperçu seulement : rien n'est enregistré.": "Sample room: a bay with a shutter facing south, a window facing east, a lamp. Preview time and weather only: nothing is saved.",
+    "Heure de l'aperçu": "Preview time",
+    "Météo de l'aperçu": "Preview weather",
+    "Clair": "Clear",
+    "Couvert": "Overcast",
+    "Jardin": "Garden",
+    "Baie": "Bay",
+    "Teinte d'origine": "Default color",
+    "Intensités": "Strength",
+    "Lumière du ciel": "Sky light",
+    "Lueur douce du jour par toutes les fenêtres non fermées.": "Soft daylight glow through every window that is not closed.",
+    "Diffusion": "Diffusion",
+    "Flou de la lumière du ciel, de plus en plus large en profondeur ; 0 % = faisceau net.": "Blur of the sky light, wider and wider into the room; 0 % = a sharp beam.",
+    "Lumière rediffusée": "Bounced light",
+    "Lueur chaude renvoyée autour des taches de soleil (et de lune).": "Warm glow bounced around the sun (and moon) patches.",
+    "Soleil direct": "Direct sun",
+    "Taches de soleil au sol derrière les fenêtres qui le voient.": "Sun patches on the floor behind the windows that face it.",
+    "Teintes": "Color",
+    "Teinte du ciel": "Sky color",
+    "Température de couleur de la lueur du ciel ; Auto = blanc froid d'origine.": "Color temperature of the sky glow; Auto = the default cool white.",
+    "Teinte du soleil": "Sun color",
+    "Température de couleur des taches de soleil ; Auto = teinte d'origine, dorée près du coucher.": "Color temperature of the sun patches; Auto = the default, golden near sunset.",
+    "Lumière du jour, lune et lampes": "Daylight, moon and lamps",
+    "Ambiance et animations › Lumière": "Ambience and animations › Light",
+    "Active d'abord l'ambiance du plan (onglet Général).": "Turn on the plan ambience first (General tab).",
+    "Alertes": "Alerts",
+    "Jour / nuit, météo, lumière, traces. Fenêtre ouverte, le plan derrière la montre telle qu'elle sera en vue.": "Day / night, weather, light, traces. While this window is open, the plan behind shows it as it will look in view.",
+    "Sections de l'ambiance": "Ambience sections",
     "Animations par événement": "Animations per event",
-    "Type, couleur et durée d'un cycle. Chaque élément peut avoir la sienne (section « Animation » de son panneau).": "Type, color and cycle duration. Each element can have its own (“Animation” section of its panel).",
+    "Type, couleur et durée d'un cycle. Chaque élément peut avoir la sienne (onglet « Animation » de sa fenêtre d'édition).": "Type, color and cycle duration. Each element can have its own (“Animation” tab of its edit dialog).",
     "Animations par défaut": "Default animations",
     "Alertes plein plan": "Full-plan alerts",
     "Le plan entier s'allume (voile, bandeau, éléments entourés) tant que l'alerte dure ; « Masquer » la cache jusqu'au prochain changement.": "The whole plan lights up (overlay, banner, circled elements) while the alert lasts; “Hide” hides it until the next change.",
@@ -838,7 +942,6 @@ const MaquetteI18n = (() => {
     "Appareil inactif": "Inactive device",
     "Petite": "Small",
     "Grande": "Large",
-    "Jamais": "Never",
     "Quand elle est dehors": "When away",
     "{nom} : quand elle est dehors": "{nom}: when away",
     "Comme les autres": "Like the others",
@@ -936,10 +1039,6 @@ const MaquetteI18n = (() => {
     "{n} pièce créée|{n} pièces créées": "{n} room created|{n} rooms created",
     "{n} appareil placé|{n} appareils placés": "{n} device placed|{n} devices placed",
     "Ajuste maintenant tailles et positions.": "Now adjust sizes and positions.",
-    "Afficher le panneau d'édition": "Show edit panel",
-    "Replier le panneau d'édition": "Collapse edit panel",
-    "Propriétés": "Properties",
-    "Replier": "Collapse",
     "{n} élément sélectionné.|{n} éléments sélectionnés.": "{n} element selected.|{n} elements selected.",
     "{n} appareil|{n} appareils": "{n} device|{n} devices",
     "{n} texte|{n} textes": "{n} text|{n} texts",
@@ -957,7 +1056,6 @@ const MaquetteI18n = (() => {
     "meuble": "furniture",
     "Limite": "Boundary",
     "{n} éléments": "{n} elements",
-    "Tout désélectionner (Échap)": "Deselect all (Esc)",
     "Aligner (appareils, textes et meubles)": "Align (devices, texts and furniture)",
     "À gauche": "Left",
     "Centrer horizontalement": "Center horizontally",
@@ -1171,11 +1269,10 @@ const MaquetteI18n = (() => {
     "{n} appareil ajouté|{n} appareils ajoutés": "{n} device added|{n} devices added",
     "Aucun nouvel appareil": "No new device",
     ", température reliée": ", temperature linked",
-    ", {n} ouverture à placer sur les murs (panneau)|, {n} ouvertures à placer sur les murs (panneau)": ", {n} opening to place on the walls (panel)|, {n} openings to place on the walls (panel)",
+    ", {n} ouverture à placer sur les murs (fenêtre d'édition de la pièce)|, {n} ouvertures à placer sur les murs (fenêtre d'édition de la pièce)": ", {n} opening to place on the walls (room edit dialog)|, {n} openings to place on the walls (room edit dialog)",
     "Enregistrer comme modèle": "Save as template",
     "Garder les entités (sinon le meuble et sa fiche sont à relier à nouveau)": "Keep the entities (otherwise the furniture and its card must be linked again)",
     "Garder les entités (sinon elles seront demandées à chaque usage)": "Keep the entities (otherwise they are asked for at each use)",
-    "Ajouter un appareil": "Add a device",
     "Rechercher une entité, une pièce…": "Search for an entity, a room…",
     "Aucune": "None",
     " · déjà sur le plan": " · already on the plan",
@@ -1325,7 +1422,7 @@ const MaquetteI18n = (() => {
     "Rétablir": "Redo",
     "Ajouter un objet ou un widget": "Add an object or a widget",
     "Cette aide": "This help",
-    "Annuler l'outil, désélectionner, fermer un panneau": "Cancel the tool, deselect, close a panel",
+    "Annuler l'outil, désélectionner, fermer une fenêtre": "Cancel the tool, deselect, close a dialog",
     "Clic": "Click",
     "clic": "click",
     "Sélectionner": "Select",
@@ -1408,7 +1505,7 @@ const MaquetteI18n = (() => {
     "Tableau jour / semaine / mois / année, depuis l'historique HA ou des compteurs": "Day / week / month / year table, from HA history or meters",
     "Volet, portail": "Shutter, gate",
     "Au bord": "At the edge",
-    "Au bord : dans leur direction, avec la distance. En bas : en bas du plan, avec leur zone. Chaque personne peut avoir son propre réglage (panneau Ambiance).": "At the edge: in their direction, with the distance. At the bottom: below the plan, with their zone. Each person can have their own setting (Ambience panel).",
+    "Au bord : dans leur direction, avec la distance. En bas : en bas du plan, avec leur zone. Chaque personne peut avoir son propre réglage (fenêtre Ambiance).": "At the edge: in their direction, with the distance. At the bottom: below the plan, with their zone. Each person can have their own setting (Ambience dialog).",
     "Regroupées": "Grouped",
     "Regroupées au point de la maison.": "Grouped at the home point.",
     "Photo": "Photo",
@@ -1434,7 +1531,7 @@ const MaquetteI18n = (() => {
     "Animations, météo et ambiance en démonstration.": "Animations, weather and ambience as a demo.",
     "Zone, personne ou groupe. Sert aux puces absent / présent et aux alertes « personne à la maison » ; chacune peut avoir la sienne.": "Zone, person or group. Used by away / home chips and “nobody home” alerts; each can have its own.",
     "Réglés ailleurs": "Set elsewhere",
-    "Panneau Ambiance": "Ambience panel",
+    "Fenêtre Ambiance": "Ambience dialog",
     "Grille": "Grid",
     "Grille (Alt : sans aimant)": "Grid (Alt: no snapping)",
     "Recadrer : tout le plan avec 5 m de marge": "Reframe: the whole plan with a 5 m margin",
@@ -1446,7 +1543,7 @@ const MaquetteI18n = (() => {
     "Un réglage remis à sa valeur par défaut est retiré de la configuration.": "A setting set back to its default is removed from the configuration.",
     "Défaut ({nom})": "Default ({nom})",
     "Ambiance du plan": "Plan ambience",
-    "Jour / nuit, météo, traces. Ce panneau ouvert, le plan la montre telle qu'elle sera en vue.": "Day / night, weather, traces. While this panel is open, the plan shows it as it will look in view.",
+    "Jour / nuit, météo, traces. Cette fenêtre ouverte, le plan la montre telle qu'elle sera en vue.": "Day / night, weather, traces. While this dialog is open, the plan shows it as it will look in view.",
     "Nord du plan (°)": "Plan north (°)",
     "Degrés, sens horaire depuis le haut ; 45 = en haut à droite.": "Degrees, clockwise from the top; 45 = top right.",
     "Aucune pièce « extérieur » : météo et soleil n'ont rien à dessiner.": "No “outdoor” room: weather and sun have nothing to draw on.",
@@ -1584,11 +1681,13 @@ const MaquetteNettoyage = (() => {
   const VOISIN = 6; // distance de part et d'autre d'une arête pour trouver la pièce voisine
   const CLES = ["rooms", "walls", "openings"]; // tout ce que le nettoyage peut toucher
   // options (cases du dialogue) et valeurs par défaut ; les étapes s'appliquent dans l'ordre de ETAPES (une option peut en avoir deux)
-  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir"];
-  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false });
+  // « dehors » et « volets » : contrôles des ouvertures (côté dehors des baies, volets reliés à rien), faits seulement avec l'option
+  // `controles` ({ entites: [ids connus] } ; sans liste, une entité n'est jamais dite inexistante)
+  const ORDRE = ["aimanter", "couper", "bouts", "fusionner", "manquants", "passages", "sommets", "arrondir", "dehors", "volets"];
+  const OPTIONS_DEFAUT = Object.freeze({ aimanter: true, couper: true, bouts: true, fusionner: true, manquants: false, passages: false, sommets: false, arrondir: false, dehors: false, volets: false });
   // gravité : « defaut » (à corriger), « style » (façon de dessiner, corrigée sans être comptée comme défaut), « info » (passage ouvert)
   const NIVEAU = { trou: "defaut", decale: "defaut", depasse: "defaut", bout: "defaut", doublon: "defaut", absent: "defaut", sommet: "defaut",
-    sous: "style", aligne: "style", arrondi: "style", passage: "info" };
+    sous: "style", aligne: "style", arrondi: "style", passage: "info", sans_dehors: "defaut", volet_vide: "defaut", volet_inconnu: "defaut" };
 
   // ---------- géométrie ----------
   const copie = (o) => (o === undefined ? o : typeof structuredClone === "function" ? structuredClone(o) : JSON.parse(JSON.stringify(o)));
@@ -2032,11 +2131,46 @@ const MaquetteNettoyage = (() => {
     return ops;
   }
 
+  // ---------- contrôles des ouvertures ----------
+  // fenêtre ou porte vitrée sans côté dehors (`outside`) : d'un côté une pièce intérieure, de l'autre rien ou une pièce extérieure ;
+  // correction = côté dehors posé vers l'extérieur. Une ouverture entre deux pièces intérieures (verrière, porte intérieure) n'est pas concernée
+  function etapeDehors(cfg) {
+    const ops = [], ctx = contexte(cfg);
+    for (const o of Array.isArray(cfg.openings) ? cfg.openings : []) {
+      if (!segValide(o) || o.outside || !(o.type === "window" || (o.type === "door" && o.glazed))) continue;
+      const R = repere([o.seg[0], o.seg[1]], [o.seg[2], o.seg[3]]);
+      if (R.lg < 1) continue;
+      const m = au(R, R.lg / 2), n = [R.uy, -R.ux], cote = (sg) => ctx.interieures.find((P) => dedans([m[0] + n[0] * VOISIN * 2.5 * sg, m[1] + n[1] * VOISIN * 2.5 * sg], P.poly));
+      const P1 = cote(1), P2 = cote(-1);
+      if (!!P1 === !!P2) continue;
+      const sg = P1 ? -1 : 1;
+      o.outside = [net(n[0] * sg), net(n[1] * sg)];
+      ops.push({ type: "sans_dehors", piece: (P1 || P2).nom, point: netP(m), segment: o.seg.slice(0, 4), detail: { ouverture: o.name || o.type } });
+    }
+    return ops;
+  }
+  // volet relié à rien (ouverture « volet seul » sans entité) ou à une entité inexistante ; correction = lien retiré
+  function etapeVolets(cfg, opts) {
+    const ops = [], connues = Array.isArray(opts?.controles?.entites) ? new Set(opts.controles.entites) : null, ctx = contexte(cfg);
+    for (const o of Array.isArray(cfg.openings) ? cfg.openings : []) {
+      if (!segValide(o)) continue;
+      const m = milieu([o.seg[0], o.seg[1]], [o.seg[2], o.seg[3]]), base = { piece: pieceDe(ctx, m), point: m, segment: o.seg.slice(0, 4) };
+      if (typeof o.shutter === "string" && o.shutter && connues && !connues.has(o.shutter)) {
+        ops.push({ type: "volet_inconnu", ...base, detail: { ouverture: o.name || o.type, entite: o.shutter } });
+        delete o.shutter;
+      } else if (o.shutter_only && !o.shutter) {
+        ops.push({ type: "volet_vide", ...base, detail: { ouverture: o.name || o.type } });
+        delete o.shutter_only;
+      }
+    }
+    return ops;
+  }
+
   // ---------- API ----------
   // [option, étape] dans l'ordre d'application : les murs épais sont ramenés à leur axe avant d'être aimantés
   const ETAPES = [["arrondir", etapeArrondir], ["sommets", etapeSommets], ["fusionner", etapeEpais], ["aimanter", etapeAimanter], ["bouts", etapeBouts],
     ["manquants", (cfg, choix) => etapeManquants(cfg, "manquants", choix)], ["passages", (cfg, choix) => etapeManquants(cfg, "passages", choix)],
-    ["couper", etapeCouper], ["fusionner", etapeFusionner]];
+    ["couper", etapeCouper], ["fusionner", etapeFusionner], ["dehors", etapeDehors], ["volets", etapeVolets]];
   const actif = (v) => v === true || (Array.isArray(v) && v.length > 0);
 
   // nettoyer(config, options) → { config, operations (appliquées), constats (toutes, appliquées ou non, par option) }
@@ -2047,13 +2181,14 @@ const MaquetteNettoyage = (() => {
     const operations = [], constats = Object.fromEntries(ORDRE.map((k) => [k, []]));
     for (const [nom, etape] of ETAPES) {
       let ops;
+      if ((nom === "dehors" || nom === "volets") && !opts.controles) continue;
       if (nom === "manquants" || nom === "passages") {
         // constat toujours fait ; seules les pièces choisies sont complétées
         ops = etape(cfg, opts[nom]);
       } else if (actif(opts[nom])) {
-        ops = etape(cfg).map((o) => ({ ...o, applique: true }));
+        ops = etape(cfg, opts).map((o) => ({ ...o, applique: true }));
       } else {
-        ops = etape(copie(cfg)).map((o) => ({ ...o, applique: false }));
+        ops = etape(copie(cfg), opts).map((o) => ({ ...o, applique: false }));
       }
       ops = ops.map((o) => ({ option: nom, ...o, niveau: o.niveau || NIVEAU[o.type] || "defaut" }));
       constats[nom].push(...ops);
@@ -2242,7 +2377,7 @@ const PlanDemo = (() => {
         { type: "tuile", titre: _t("Maison en direct"), icone: "mdi:home-lightning-bolt", entite: D("sensor.puissance_maison"), unite: "W", decimales: 0, historique: 24 },
       ],
     },
-    ambiance: { nord: 45, meteo: D("weather.maison"), traces: 10, energie: {}, personnes: { maison: _t("Séjour"), entites: [D("person.sam"), D("person.camille")] } },
+    ambiance: { nord: 45, meteo: D("weather.maison"), traces: 10, energie: {}, lumiere: { lune: D("sensor.moon_phase") }, personnes: { maison: _t("Séjour"), entites: [D("person.sam"), D("person.camille")] } },
     animations: { lumiere: { type: "halo" }, meuble: { type: "onde" } },
     alertes: [{ nom: _t("Ouverture alors que la maison est vide"), type: "ouvertures", si_absent: true, presence: D("zone.maison") }],
   });
@@ -2256,8 +2391,12 @@ const PlanDemo = (() => {
       // états de départ datés d'une heure (pas de « trace » au chargement)
       const t0 = Date.now() - 3600e3, e = {};
       const pose = (n, s, a) => { e[D(n)] = { ...S(s, a, t0), entity_id: D(n) }; };
-      pose("light.sejour", "on", { friendly_name: _tk("Lampe du séjour") }); pose("light.cuisine", "off", { friendly_name: _tk("Plafonnier cuisine") });
-      pose("light.chambre", "off", { friendly_name: _tk("Lampe de chevet") }); pose("light.bureau", "on", { friendly_name: _tk("Lampe du bureau") });
+      // lumière : lampe d'ambiance violette et plafonnier blanc chaud (halos qui se mélangent), lampe du bureau en blanc froid
+      pose("light.sejour", "on", { friendly_name: _tk("Lampe du séjour"), color_mode: "rgb", rgb_color: [186, 104, 255], brightness: 200 });
+      pose("light.cuisine", "off", { friendly_name: _tk("Plafonnier cuisine"), color_mode: "color_temp", color_temp_kelvin: 2700, brightness: 255 });
+      pose("light.chambre", "off", { friendly_name: _tk("Lampe de chevet"), color_mode: "color_temp", color_temp_kelvin: 2200, brightness: 120 });
+      pose("light.bureau", "on", { friendly_name: _tk("Lampe du bureau"), color_mode: "color_temp", color_temp_kelvin: 5000, brightness: 230 });
+      pose("sensor.moon_phase", "waxing_gibbous", { friendly_name: _tk("Lune"), device_class: "enum" });
       pose("media_player.tv", "playing", { friendly_name: _tk("Téléviseur"), device_class: "tv" });
       pose("switch.machine_cafe", "on", { friendly_name: _tk("Machine à café") }); pose("sensor.machine_cafe_puissance", 6, u("W", "power", _tk("Machine à café")));
       pose("camera.entree", "idle", { friendly_name: _tk("Caméra de l'entrée") }); pose("binary_sensor.mouvement_entree", "off", { friendly_name: _tk("Mouvement entrée"), device_class: "motion" });
@@ -2392,9 +2531,9 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.1.0";
+const VERSION = "0.2.0-beta.1";
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
-const fmt = (v, d = 1) => Number(v).toLocaleString(_loc(), { maximumFractionDigits: d });
+const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const PALIERS = [[17, "#4f7fe0"], [19, "#56b4d3"], [21, "#62c48a"], [23, "#a8cf5a"], [24.5, "#f2c14e"], [26, "#f29e4c"], [28, "#e5604d"]];
 function couleurTemp(t) {
@@ -2443,6 +2582,9 @@ ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,1
   border:1px solid var(--md-outline-variant);background:var(--md-surface);color:var(--md-on-surface-variant);
   font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.1px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .chip ha-icon{--mdc-icon-size:18px;color:var(--md-primary);flex:none}
+/* texte trop long pour la largeur (téléphone : « 5 ouvertes : … ») : coupé proprement, la liste entière reste dans la bulle (title) ;
+   1 px de marge intérieure compensée : le lissage de la dernière lettre n'est pas rogné quand le texte tient */
+.chip>span{min-width:0;overflow:hidden;text-overflow:ellipsis;padding-right:1px;margin-right:-1px}
 .chip b{color:var(--md-on-surface);font-weight:500}
 .chip.alerte{background:var(--md-error-container);border-color:transparent;color:var(--md-on-error-container)}
 .chip.alerte ha-icon,.chip.alerte b{color:var(--md-on-error-container)}
@@ -2531,6 +2673,7 @@ svg{display:block;width:100%;height:auto;user-select:none}
 .volet.bouge.a-clignote{animation:clignote var(--a-d) steps(1) infinite}
 .volet.bouge.monte{animation-direction:reverse}
 .halo{transition:opacity .5s var(--md-sys-motion);pointer-events:none}
+.cq.fondu{isolation:isolate}.cq.fondu .halo.lampe{mix-blend-mode:screen}.lum{pointer-events:none}.lum .lum-b{mix-blend-mode:screen}
 .calque{position:absolute;inset:0;pointer-events:none;font:500 clamp(10px,1.2cqw,13px)/1.3 var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.1px}
 .calque>*{position:absolute;transform:translate(-50%,-50%);pointer-events:auto}
 .calque>.etq.evite{transform:translate(calc(-50% + var(--dx,0px)),calc(-50% + var(--dy,0px)))}
@@ -2766,8 +2909,10 @@ function ilya(iso) {
   const j = Math.round(s / 86400);
   return j < 60 ? _t("il y a {n} j", { n: j }) : new Date(iso).toLocaleDateString(_loc());
 }
+// champs entité d'un widget (hors listes et colonnes) : liste unique (entités surveillées, modèles, choix de l'éditeur)
+const CHAMPS_ENTITE_WIDGET = ["entite", "prix", "periode", "couleur_jour", "couleur_demain", "batterie", "autonomie", "puissance", "branche", "session_kwh", "session_cout"];
 function entitesWidget(w) {
-  const l = [w.entite, w.prix, w.periode, w.couleur_jour, w.couleur_demain, w.batterie, w.autonomie, w.puissance, w.branche, w.session_kwh, w.session_cout];
+  const l = CHAMPS_ENTITE_WIDGET.map((k) => w[k]);
   for (const x of [...(w.lignes || []), ...(w.entites || [])]) l.push(typeof x === "string" ? x : x?.entite);
   for (const c of w.colonnes || []) l.push(c.jour, c.semaine, c.mois, c.annee);
   return l;
@@ -2790,15 +2935,14 @@ ha-card.plein{display:flex;flex-direction:column;box-sizing:border-box}
 .corps.edition:not(.colonne)>.vue{flex:none;align-self:flex-start}
 .corps.colonne,.corps.colonne>.vue{flex-direction:column;align-items:center}
 .corps.colonne>.vue{width:100%;flex:none}
-.vue>.col,.corps>.panneau-hote{flex:0 0 320px;align-self:stretch;min-height:0;overflow:auto;box-sizing:border-box;scrollbar-width:none}
+.vue>.col{flex:0 0 320px;align-self:stretch;min-height:0;overflow:auto;box-sizing:border-box;scrollbar-width:none}
 .vue>.col::-webkit-scrollbar{display:none}
 .col-in{display:flex;flex-direction:column;gap:12px}
-.corps>.panneau-hote{flex-basis:360px}
-.vue>.col[hidden],.corps>.panneau-hote:empty{display:none}
+.vue>.col[hidden]{display:none}
 .col>.widgets{display:flex;flex-direction:column;gap:12px}
 .col>.widgets:empty{display:none}
-.corps.colonne .vue>.col,.corps.colonne>.panneau-hote{flex:1 1 auto;width:100%;max-width:720px}
-ha-card:not(.plein) .corps.colonne .vue>.col,ha-card:not(.plein) .corps.colonne>.panneau-hote{flex:none;overflow:visible}
+.corps.colonne .vue>.col{flex:1 1 auto;width:100%;max-width:720px}
+ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .w{background:var(--md-surface-container);border-radius:16px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;color:var(--md-on-surface);
   font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);position:relative}
 .w.sel{outline:3px solid var(--md-primary);outline-offset:2px}
@@ -2891,7 +3035,6 @@ ha-card:not(.plein) .corps.colonne .vue>.col,ha-card:not(.plein) .corps.colonne>
 .w-ve .anneau svg{width:100%;height:100%;transform:rotate(-90deg)}
 .w-ve .anneau b{position:absolute;inset:0;display:grid;place-items:center;font:500 22px/28px var(--ha-font-family-body,Roboto,sans-serif)}
 .w-ve .etat{display:flex;flex-direction:column;gap:6px;min-width:0}
-.corps>.panneau-hote>.ed-panneau{max-height:none!important;position:static!important;min-height:100%;box-sizing:border-box}
 .edition .calque>*{cursor:grab}
 .edition .txt{pointer-events:auto}
 .edition .etq.dehors{cursor:grab}
@@ -3007,6 +3150,20 @@ dialog.conf[open]{animation:conf-entree .2s var(--md-sys-motion)}
 
 // ---------- meubles : symboles vus du dessus, dans le repère du meuble (centre 0,0 ; dos en haut) ----------
 const nb = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
+// côté d'un meuble : 5 à 5000 cm (lecture de la config, dessin, éditeur)
+const TAILLE_MEUBLE_MAX = 5000, bornerTaille = (v, d = 60) => Math.max(5, Math.min(TAILLE_MEUBLE_MAX, nb(v, d)));
+// stockage du navigateur : accès sûr (navigation privée, stockage bloqué) ; session = sessionStorage, sinon localStorage
+const stockage = (session) => {
+  const S = () => (session ? sessionStorage : localStorage);
+  return {
+    lire: (k) => { try { return S().getItem(k); } catch (e) { return null; } },
+    ecrire: (k, v) => { try { S().setItem(k, v); return true; } catch (e) { return false; } },
+    retirer: (k) => { try { S().removeItem(k); } catch (e) { /* stockage indisponible */ } },
+  };
+};
+const stock = stockage(false), stockSession = stockage(true);
+// éditeur à rouvrir après l'enregistrement (la carte est recréée) ; versions enregistrées d'un plan
+const cleRouvrir = (id) => `maquette-rouvrir:${id || "plan"}`, cleVersions = (id) => `maquette-versions:${id}`;
 // couleur d'une jauge selon ses seuils { vert, jaune, rouge } : celle dont la valeur de départ est la plus haute sous la mesure
 // (comme la carte Jauge de HA : { vert: 0, jaune: 800, rouge: 1200 } pour le CO₂, { rouge: 0, jaune: 20, vert: 50 } pour une batterie)
 const COULEURS_SEUILS = { vert: "#188038", jaune: "#e8710a", rouge: "#d93025" };
@@ -3123,11 +3280,11 @@ Object.assign(MEUBLES.chaudiere, { mots: "gaz chauffe eau" }); Object.assign(MEU
 Object.setPrototypeOf(MEUBLES, null); // « constructor », « toString »… ne sont pas des types de meuble
 // YAML écrit à la main : on remet chaque meuble dans une forme que le dessin et l'éditeur savent lire (sans perdre les clés inconnues)
 const normaliserMeubles = (liste) => (Array.isArray(liste) ? liste : []).filter((m) => m && typeof m === "object" && !Array.isArray(m)).map((m) => {
-  const n = { ...m }, def = MEUBLES[n.type], borne = (v, d) => Math.max(5, Math.min(5000, nb(v, d)));
+  const n = { ...m }, def = MEUBLES[n.type];
   n.pos = [nb(n.pos?.[0]), nb(n.pos?.[1])];
   if (n.taille != null) {
     const t = Array.isArray(n.taille) ? n.taille : [n.taille, n.taille], d = def?.taille || [60, 60];
-    n.taille = [borne(t[0], d[0]), borne(t[1] ?? t[0], d[1])];
+    n.taille = [bornerTaille(t[0], d[0]), bornerTaille(t[1] ?? t[0], d[1])];
   }
   if (n.rotation != null) n.rotation = nb(n.rotation);
   if (n.chaises != null) n.chaises = Math.max(0, Math.min(12, Math.round(nb(n.chaises))));
@@ -3136,7 +3293,7 @@ const normaliserMeubles = (liste) => (Array.isArray(liste) ? liste : []).filter(
   // meuble connecté : mêmes clés que les pastilles ; une valeur invalide est retirée, jamais d'erreur
   for (const k of ["entite", "valeur", "actif"]) if (k in n && !(typeof n[k] === "string" && n[k].includes("."))) delete n[k];
   for (const k of ["unite", "actif_attribut", "attribut", "couleur"]) if (k in n && typeof n[k] !== "string") delete n[k];
-  if ("couleur" in n && !COULEUR_SURE.test(n.couleur)) delete n.couleur;
+  if ("couleur" in n && !couleurEcrite(n.couleur)) delete n.couleur;
   if ("seuil" in n) { if (n.seuil !== "" && n.seuil !== null && typeof n.seuil !== "boolean" && Number.isFinite(+n.seuil)) n.seuil = +n.seuil; else delete n.seuil; }
   if ("decimales" in n) { if (n.decimales !== null && n.decimales !== "" && Number.isFinite(+n.decimales)) n.decimales = Math.max(0, Math.min(6, Math.round(+n.decimales))); else delete n.decimales; }
   normaliserFiche(n);
@@ -3164,6 +3321,22 @@ function normaliserFiche(n) {
   }
   return n;
 }
+// capteurs d'une ouverture : `contact` est une entité ou une liste (baie à plusieurs capteurs : ouverte dès que l'un l'est)
+const contactsDe = (o) => (Array.isArray(o?.contact) ? o.contact : [o?.contact]).filter((e) => typeof e === "string" && e.includes("."));
+// entité de référence d'une ouverture (nom, « plus d'infos », repères) : le premier contact, sinon l'entité motorisée
+const entOuv = (o) => contactsDe(o)[0] || o?.entite;
+const ETATS_MUETS = ["unavailable", "unknown"];
+// état combiné de plusieurs capteurs : ouvert si l'un l'est (depuis le premier ouvert), puis en mouvement, puis fermé dès qu'un
+// capteur répond (depuis le dernier fermé) ; indisponible seulement si aucun ne répond
+function etatCombine(ss) {
+  const l = ss.filter(Boolean), t = (s) => Date.parse(s.last_changed) || 0;
+  const ouv = l.filter((s) => s.state === "on" || s.state === "open");
+  if (ouv.length) return ouv.reduce((a, b) => (t(b) < t(a) ? b : a));
+  const bouge = l.find((s) => s.state === "opening" || s.state === "closing");
+  if (bouge) return bouge;
+  const ok = l.filter((s) => !ETATS_MUETS.includes(s.state));
+  return ok.length ? ok.reduce((a, b) => (t(b) > t(a) ? b : a)) : l[0];
+}
 // ouvertures : `battants` 1 ou 2, `ouvrant` connu, `vers_dehors` booléen ; une valeur invalide est retirée (seules les ouvertures
 // qui portent ces clés sont copiées)
 const normaliserOuvertures = (l) => (Array.isArray(l) ? l.map((o) => {
@@ -3178,9 +3351,9 @@ const normaliserOuvertures = (l) => (Array.isArray(l) ? l.map((o) => {
 const normaliserModeles = (l) => (Array.isArray(l) ? l.map((m) => {
   if (!m || typeof m !== "object" || m.genre !== "meuble" || !m.objet || typeof m.objet !== "object") return m;
   const o = { ...m.objet };
-  if ("couleur" in o && !(typeof o.couleur === "string" && COULEUR_SURE.test(o.couleur))) delete o.couleur;
+  if ("couleur" in o && !couleurEcrite(o.couleur)) delete o.couleur;
   if ("forme" in o) o.forme = normaliserForme(o.forme);
-  if ("taille" in o) { const t = Array.isArray(o.taille) ? o.taille : [o.taille, o.taille]; o.taille = [0, 1].map((j) => Math.max(5, Math.min(5000, nb(t[j] ?? t[0], 60)))); }
+  if ("taille" in o) { const t = Array.isArray(o.taille) ? o.taille : [o.taille, o.taille]; o.taille = [0, 1].map((j) => bornerTaille(t[j] ?? t[0])); }
   const n = { ...m, objet: o };
   if ("cat" in n && !Object.hasOwn(V_CATS_MEUBLES, n.cat)) delete n.cat;
   return n;
@@ -3210,17 +3383,32 @@ const CLICS_MEUBLE = ["fiche", "infos", "aucun"];
 // couleur écrite dans la config (pastilles, widgets, jauges, meubles, animations, traces, flux) : #hex, rgb() / hsl() aux valeurs
 // numériques, nom de couleur CSS ou var(--…) ; rien d'autre (ni « ; », ni url(), ni expression) n'arrive jamais dans un style
 const COULEUR_SURE = /^(?:#[0-9a-f]{3,8}|[a-z]{3,20}|var\(--[\w-]{1,60}\)|(?:rgb|hsl)a?\(\s*-?\d{1,3}(?:\.\d+)?(?:deg|%)?(?:\s*[,\s]\s*-?\d{1,3}(?:\.\d+)?%?){2}(?:\s*[,/]\s*\d{0,3}(?:\.\d+)?%?)?\s*\))$/i;
-// la couleur si elle est sûre, sinon null
-const couleurSure = (c) => (typeof c === "string" && COULEUR_SURE.test(c) ? c : null);
+// couleurs nommées (`palette: {nom: couleur}`) : un élément écrit le nom, la carte pose --mq-c-<nom> sur son hôte et l'élément
+// suit la palette. Nom : minuscules, chiffres, « _ » et « - » ; couleur de la palette : une couleur sûre (jamais un autre nom).
+const NOM_PALETTE = /^[a-z][a-z0-9_-]{0,30}$/;
+const palette = (c) => (c?.palette && typeof c.palette === "object" && !Array.isArray(c.palette)
+  ? Object.entries(c.palette).filter(([n, v]) => NOM_PALETTE.test(n) && typeof v === "string" && COULEUR_SURE.test(v)) : []);
+// noms de palette connus (ajoutés par chaque carte à son rendu) ; la couleur vient de la variable posée sur l'hôte de CETTE carte :
+// un nom inconnu d'une carte y reste sans valeur (couleur par défaut de l'élément)
+const paletteActive = new Set();
+// la couleur si elle est sûre (un nom de la palette devient var(--mq-c-<nom>)), sinon null
+// (un nom qui est aussi une couleur CSS, « red », la garde en secours dans les cartes qui ne le définissent pas)
+const couleurSure = (c) => (typeof c !== "string" ? null : paletteActive.has(c) ? `var(--mq-c-${c}${COULEUR_SURE.test(c) ? `,${c}` : ""})` : COULEUR_SURE.test(c) ? c : null);
+// écrite dans la config : couleur sûre ou nom de palette (résolu au rendu par couleurSure)
+const couleurEcrite = (c) => typeof c === "string" && (COULEUR_SURE.test(c) || NOM_PALETTE.test(c));
 // couleur d'un meuble connecté sur le plan : la sienne, sinon celle de son type, sinon l'accent du thème
 const COULEURS_TYPE = { refrigerateur: "#29b6f6", meuble_tv: "#7e57c2", bureau: "#fb8c00", tableau_elec: "#fbc02d", box: "#26a69a", chaudiere: "#ef5350", radiateur: "#ef5350",
   voiture: "#43a047", borne_recharge: "#43a047", lave_linge: "#42a5f5", lave_vaisselle: "#42a5f5", pac: "#26c6da", plaques: "#ff7043", ballon: "#ef5350" };
-const couleurMeuble = (m) => (m?.couleur && COULEUR_SURE.test(m.couleur) ? m.couleur : COULEURS_TYPE[m?.type] || null);
+const couleurMeuble = (m) => couleurSure(m?.couleur) || COULEURS_TYPE[m?.type] || null;
 const estConnecte = (m) => !!(m && (m.entite || m.valeur || m.fiche));
 const clicMeuble = (m) => (CLICS_MEUBLE.includes(m.clic) ? m.clic : m.fiche ? "fiche" : m.entite || m.valeur ? "infos" : "aucun");
 // fiches : portées par un meuble, une ouverture ou une pastille ; la sélection d'un de leurs widgets porte { meuble | ouverture | point: i }
 const GENRES_FICHE = { meuble: "meubles", ouverture: "ouvertures", point: "points" };
 const porteurDe = (s) => { const g = s && Object.keys(GENRES_FICHE).find((k) => s[k] != null); return g ? { genre: g, i: s[g] } : null; };
+// clé de sélection → élément : « widget:<côté>:<i>[:<pièce>] », « widget:fiche:<i>:<n>[:ouverture | point] », sinon « <type>:<i> »
+const deCle = (k) => { const [type, a, b, c, g] = k.split(":"); return type === "widget" ? { type, cote: a, i: +b, ...(c != null ? (a === "fiche" ? { [Object.hasOwn(GENRES_FICHE, g ?? "") ? g : "meuble"]: +c } : { piece: +c }) : {}) } : { type, i: +a }; };
+// initiales d'un nom (deux au plus)
+const initiales = (nom) => nom.trim().split(/[\s_]+/).map((w) => w[0] || "").join("").slice(0, 2).toUpperCase();
 // suffixe des widgets d'une fiche (« fiche:1:5 » pour le meuble 5, « fiche:1:5:ouverture », « fiche:1:5:point »)
 const sufFiche = (pf) => `:${pf.i}${pf.genre === "meuble" ? "" : `:${pf.genre}`}`;
 // ouverture ou pastille : « fiche » si elle en a une (ou `clic` choisi) ; null = pas de réglage, le comportement d'avant
@@ -3248,7 +3436,7 @@ function animDe(c, ev, o, cle = "animation") {
 const classeAnim = (a) => ` a-${a.type}${a.forme === "contour" ? " a-contour" : ""}`;
 const styleAnim = (a) => {
   const d = Math.min(20, Math.max(0.2, +a.duree || 1.6)), i = Math.min(2, Math.max(0.2, +a.intensite || 1));
-  return `--a-d:${d}s;--a-i:${i}${a.couleur && COULEUR_SURE.test(a.couleur) ? `;--a-c:${a.couleur}` : ""}`;
+  return `--a-d:${d}s;--a-i:${i}${couleurSure(a.couleur) ? `;--a-c:${couleurSure(a.couleur)}` : ""}`;
 };
 
 // ---------- interaction (`interaction`), tablette murale (`tablette`), niveau d'animation (`niveau_animation`) ----------
@@ -3344,6 +3532,227 @@ function dessinMeteo(w, b, nord, I, fixe = false, pre = "amb", e = 1, sens = 135
   if (cond === "fog") h += `<g opacity="${Math.min(0.6, I * 0.55).toFixed(3)}"><rect class="m-brume" x="${b.x0}" y="${b.y0}" width="${b.W}" height="${b.H}" fill="#cfd8dc"/></g>`;
   if (cond === "lightning" || cond === "lightning-rainy") h += `<g opacity="${(I * 0.6).toFixed(3)}"><rect class="m-eclair" x="${b.x0}" y="${b.y0}" width="${b.W}" height="${b.H}" fill="#ffffff"/></g>`;
   return h;
+}
+// lumière (`ambiance.lumiere`) : taches de soleil au sol derrière les fenêtres, lueur de lune la nuit, halos de lampes colorés.
+// Active avec l'ambiance (false = rien) ; objet = { soleil, lune, lampes } (true par défaut ; lune : true ou entité de phase).
+// Réglages : `ciel` (lueur du ciel), `rediffusion` (lueur autour de la tache) et `soleil` (tache directe) = true / false ou multiplicateur
+// de 0 à 2 (1 = rendu d'origine) ; `soleil: false` coupe toute la lumière du jour (ciel compris). `ciel_kelvin`, `soleil_kelvin` :
+// teinte forcée de 1800 à 10000 K (corps noir), sinon `auto` = teintes d'origine (ciel blanc froid, soleil doré près du coucher).
+// `ciel_diffusion` : flou du faisceau du ciel (et de la lueur de la nuit), de 0 (faisceau net) à 1 (flou large qui grandit avec la profondeur)
+const LUM_MULT = (v) => (v === false ? 0 : typeof v === "number" && Number.isFinite(v) ? borne(v, 0, 2) : 1);
+const LUM_DIFFUSION = 0.6, LUM_DIFF = (v) => (typeof v === "number" && Number.isFinite(v) ? borne(v, 0, 1) : LUM_DIFFUSION);
+const LUM_KELVIN = (v) => (typeof v === "number" && Number.isFinite(v) ? borne(v, 1800, 10000) : null);
+const coucheLumiere = (a) => {
+  if (!a || a.lumiere === false) return null;
+  const o = objetSimple(a.lumiere) ? a.lumiere : {};
+  const r = { soleil: o.soleil !== false, lune: o.lune !== false, lampes: o.lampes !== false, phase: typeof o.lune === "string" ? o.lune : null, portes: o.portes === "fermees" ? "fermees" : "ouvertes",
+    mult: { ciel: LUM_MULT(o.ciel), rediffusion: LUM_MULT(o.rediffusion), soleil: LUM_MULT(o.soleil) }, kelvin: { ciel: LUM_KELVIN(o.ciel_kelvin), soleil: LUM_KELVIN(o.soleil_kelvin) }, diffusion: LUM_DIFF(o.ciel_diffusion) };
+  return r.soleil || r.lune || r.lampes ? r : null;
+};
+const soleilDe = (a) => (objetSimple(a?.jour_nuit) && typeof a.jour_nuit.soleil === "string" ? a.jour_nuit.soleil : "sun.sun");
+// part de la lune éclairée selon l'état de l'intégration Moon (sensor.moon_phase) ; inconnue = 0,6
+const PHASES_LUNE = { new_moon: 0.05, waxing_crescent: 0.3, first_quarter: 0.55, waxing_gibbous: 0.8, full_moon: 1, waning_gibbous: 0.8, last_quarter: 0.55, waning_crescent: 0.3 };
+// position de la lune (formules astronomiques usuelles, précision de l'ordre du degré, comme suncalc) : t = instant (ms),
+// lat / lon en degrés. Retour : az = azimut en degrés depuis le nord, sens horaire ; haut = hauteur en degrés (réfraction comprise) ;
+// fraction = part éclairée (0 = nouvelle lune, 1 = pleine lune). null si les coordonnées manquent
+function positionLune(t, lat, lon) {
+  if (![t, lat, lon].every((v) => typeof v === "number" && Number.isFinite(v)) || Math.abs(lat) > 90) return null;
+  const R = Math.PI / 180, d = t / 864e5 - 0.5 + 2440588 - 2451545, eps = R * 23.4397;
+  const asc = (l, b) => Math.atan2(Math.sin(l) * Math.cos(eps) - Math.tan(b) * Math.sin(eps), Math.cos(l));
+  const dec = (l, b) => Math.asin(Math.sin(b) * Math.cos(eps) + Math.cos(b) * Math.sin(eps) * Math.sin(l));
+  // lune : longitude moyenne, anomalie moyenne, distance moyenne au nœud
+  const L = R * (218.316 + 13.176396 * d), Mm = R * (134.963 + 13.064993 * d), F = R * (93.272 + 13.22935 * d);
+  const l = L + R * 6.289 * Math.sin(Mm), b = R * 5.128 * Math.sin(F), dist = 385001 - 20905 * Math.cos(Mm);
+  const ra = asc(l, b), de = dec(l, b), phi = R * lat, H = R * (280.16 + 360.9856235 * d) + R * lon - ra;
+  let h = Math.asin(Math.sin(phi) * Math.sin(de) + Math.cos(phi) * Math.cos(de) * Math.cos(H));
+  const az = Math.atan2(Math.sin(H), Math.cos(H) * Math.sin(phi) - Math.tan(de) * Math.cos(phi)); // depuis le sud, vers l'ouest
+  const hr = Math.max(h, 0);
+  h += (0.0002967 / Math.tan(hr + 0.00312536 / (hr + 0.08901179))); // réfraction
+  // soleil : pour la part éclairée (angle de phase)
+  const M = R * (357.5291 + 0.98560028 * d), C = R * (1.9148 * Math.sin(M) + 0.02 * Math.sin(2 * M) + 0.0003 * Math.sin(3 * M));
+  const ls = M + C + R * 102.9372 + Math.PI, sra = asc(ls, 0), sde = dec(ls, 0), sd = 149598000;
+  const el = Math.acos(Math.sin(sde) * Math.sin(de) + Math.cos(sde) * Math.cos(de) * Math.cos(sra - ra));
+  const inc = Math.atan2(sd * Math.sin(el), dist - sd * Math.cos(el));
+  return { az: (((az / R + 180) % 360) + 360) % 360, haut: h / R, fraction: (1 + Math.cos(inc)) / 2, ra: (((ra / R) % 360) + 360) % 360, dec: de / R };
+}
+// lumière du jour selon la hauteur du soleil et le temps : `ciel` = lueur diffuse du ciel par toutes les fenêtres (fondu du crépuscule
+// civil, -6° à +10°, puis plateau ; un peu plus forte par temps couvert : un ciel gris est lumineux, la pièce reste claire),
+// `direct` = part du soleil direct : selon `cloud_coverage` (%) de l'entité météo quand il existe (10 % ou moins = 1, 90 % ou plus = 0),
+// sinon selon la condition (couvert = 0, quelques nuages = 0,55) ; pluie, neige, grêle, brouillard, orage = 0 ; sans météo = 1
+const DIRECT_METEO = { sunny: 1, "clear-night": 1, windy: 1, exceptional: 1, partlycloudy: 0.55 };
+const SANS_SOLEIL = ["rainy", "pouring", "lightning-rainy", "lightning", "snowy", "snowy-rainy", "hail", "fog"];
+function LUM_CIEL(e, cond, couv) {
+  const cc = nbOpt(couv), direct = !cond || cond === "unknown" || cond === "unavailable" ? (cc != null ? borne((90 - cc) / 80, 0, 1) : 1)
+    : SANS_SOLEIL.includes(cond) ? 0 : cc != null ? borne((90 - cc) / 80, 0, 1) : DIRECT_METEO[cond] ?? 0;
+  return { ciel: Number.isFinite(e) ? borne((e + 6) / 16, 0, 1) * (1 + 0.3 * (1 - direct)) : 0, direct };
+}
+const nbOpt = (v) => (v == null || v === "" || typeof v === "boolean" || !Number.isFinite(+v) ? null : +v);
+// baie vitrée qui laisse passer la lumière : une fenêtre, ou une porte vitrée (`vitree` : true / « toute » = toute la hauteur, « haut » = petite vitre en haut)
+const vitrageDe = (o) => (o?.type === "porte" ? (o.vitree === true ? "toute" : o.vitree === "toute" || o.vitree === "haut" ? o.vitree : null) : o?.type === "fenetre" ? "fenetre" : null);
+// bas et haut du vitrage (cm au-dessus du sol) : `allege` / `hauteur` d'abord ; sinon fenêtre = allège 90 (0 dès 180 cm de large), haut 215 ;
+// porte vitrée sur toute la hauteur = 0 à 215 ; petite vitre en haut = 150 à 200
+function vitrageBornes(o, larg) {
+  const v = vitrageDe(o), al = nbOpt(o.allege), ht = nbOpt(o.hauteur);
+  return [al != null ? borne(al, 0, 300) : v === "haut" ? 150 : v === "toute" || larg >= 180 ? 0 : 90, ht != null ? borne(ht, 0, 500) : v === "haut" ? 200 : 215];
+}
+// haut du vitrage encore au soleil sous une avancée de toit (`avancee` cm de profondeur, posée `avancee_hauteur` cm au-dessus du haut) :
+// l'ombre de son bord descend de (profondeur / expo) × tan(hauteur du soleil) sous l'avancée : soleil haut (été) coupé, soleil bas (hiver) passe
+function hautAuSoleil(o, haut, e, expo) {
+  const P = nbOpt(o.avancee);
+  if (!P || P <= 0) return haut;
+  const h0 = haut + borne(nbOpt(o.avancee_hauteur) ?? 0, 0, 300), t = Math.tan((Math.min(e, 89) * Math.PI) / 180);
+  return Math.min(haut, h0 - (P / Math.max(expo, 0.05)) * t);
+}
+// tache de lumière d'une baie au sol, côté intérieur : bord de la baie décalé selon la direction de l'astre.
+// (ux, uy) = direction de l'astre dans le plan (vers lui), e = hauteur (°), ouvert = part dégagée par le volet (0 à 1, du bas).
+// `o` = une fenêtre, ou une baie de baiesFenetres (vantaux réunis : `parts` = [début, fin (cm le long de seg), ouvert] de chacun).
+// Allège : `allege` (cm, 0 = jusqu'au sol), sinon 90 cm, et 0 pour une baie d'au moins 180 cm de large (largeur cumulée des vantaux) ;
+// haut : `hauteur` (cm), sinon 215. Le volet de chaque vantail réduit sa part : la tache reste d'un seul polygone. Rien si la baie ne voit pas l'astre.
+function tacheLumiere(o, ux, uy, e, ouvert = 1, max = 900) {
+  if (!vitrageDe(o) || !Array.isArray(o.seg) || o.seg.length < 4 || !Array.isArray(o.dehors)) return null;
+  const [a, b, d, f] = o.seg.map(Number), [nx, ny] = o.dehors.map(Number), ln = Math.hypot(nx, ny), L = Math.hypot(d - a, f - b);
+  if (![a, b, d, f, nx, ny, ux, uy, e].every(Number.isFinite) || !ln || !L || e <= 0.5) return null;
+  const parts = Array.isArray(o.parts) && o.parts.length ? o.parts : [[0, L, ouvert]];
+  if (Math.max(...parts.map((p) => p[2])) <= 0.02) return null;
+  const expo = (nx * ux + ny * uy) / ln;
+  if (expo <= 0.2) return null; // lumière rasante (plus de 78°) : arrêtée par l'embrasure
+  const larg = Number.isFinite(o.largeur) ? o.largeur : L;
+  const [bas, haut0] = vitrageBornes(o, larg), haut = hautAuSoleil(o, haut0, e, expo);
+  if (haut - bas < 5) return null; // vitrage trop bas, ou tout à l'ombre de l'avancée
+  const t = Math.tan((Math.min(e, 89) * Math.PI) / 180), pres = Math.min(max, bas / t);
+  const loinDe = (ouv) => (ouv <= 0.02 ? pres : Math.min(max, Math.min(haut, bas + (haut0 - bas) * Math.min(1, ouv)) / t));
+  const loin = Math.max(...parts.map((p) => loinDe(p[2])));
+  if (loin - pres < 2) return null;
+  const vx = (d - a) / L, vy = (f - b) / L, lx = -ux, ly = -uy, r = (v) => +v.toFixed(1);
+  const P = (s, k) => [r(a + vx * s + lx * k), r(b + vy * s + ly * k)];
+  const ps = [...parts].sort((p, q) => p[0] - q[0]), s0 = ps[0][0], s1 = Math.max(...ps.map((p) => p[1]));
+  const poly = [P(s0, pres), P(s1, pres)];
+  // bord loin : un palier par vantail (vantaux voisins au même niveau fusionnés)
+  for (let i = ps.length - 1; i >= 0; i--) {
+    const k = loinDe(ps[i][2]);
+    if (i < ps.length - 1 && k === loinDe(ps[i + 1][2])) poly.pop();
+    else poly.push(P(i === ps.length - 1 ? s1 : ps[i][1], k));
+    poly.push(P(i ? ps[i][0] : s0, k));
+  }
+  const net = poly.filter((p, i) => !i || p[0] !== poly[i - 1][0] || p[1] !== poly[i - 1][1]);
+  let aire = 0;
+  net.forEach((p, i) => { const q = net[(i + 1) % net.length]; aire += p[0] * q[1] - q[0] * p[1]; });
+  const m = (s0 + s1) / 2;
+  return { expo, poly: net, aire: Math.abs(aire) / 2, pres, loin, de: P(m, pres), vers: P(m, loin), centre: P(m, (pres + loin) / 2), coupe: haut < haut0 };
+}
+// lumière de fond d'une pièce, de 0 à 1 : selon la surface vitrée dégagée (cm², une valeur par baie : largeur × hauteur du vitrage × part
+// ouverte) rapportée à la surface au sol de la pièce (cm²) ; une fenêtre de 1 m dans 16 m² ≈ 0,37, une baie de 2,8 m ≈ 0,9 ; sans baie = 0
+const lumiereFond = (surfaces, aire) => (aire > 0 ? 1 - Math.exp((-6 * surfaces.reduce((t, v) => t + Math.max(0, +v || 0), 0)) / aire) : 0);
+// part dégagée d'une baie derrière son volet : pos = position du volet (0 à 1). Lames (`lames` de l'ouverture) : « orientables » = la
+// partie couverte laisse passer selon l'inclinaison (`current_tilt_position` du volet : 100 = lames ouvertes, 0 = fermées), « ajourees » =
+// un volet fermé laisse passer un peu de lumière (filets). Sans `lames` : pos tel quel (rendu d'origine)
+function partLames(pos, lames, tilt) {
+  const t = lames === "orientables" ? (Number.isFinite(tilt) ? (0.85 * borne(tilt, 0, 100)) / 100 : 0) : lames === "ajourees" ? 0.06 : 0;
+  return t > 0 ? pos + (1 - pos) * t : pos;
+}
+// part de lumière qui passe par une ouverture intérieure (0 à 1) : porte ouverte = 1 (etat = état du capteur, null = sans capteur :
+// ouverte, sauf `portes: fermees` de la lumière) ; porte fermée vitrée = 0,7 (toute la hauteur) ou 0,25 (petite vitre en haut) ;
+// fenêtre intérieure (verrière) = 0,7 ; ouv = part dégagée par un volet éventuel
+function passageLumiere(o, etat, portesFermees, ouv = 1) {
+  if (!o || o.masque) return 0;
+  if (o.type === "fenetre") return 0.7 * ouv;
+  if (o.type !== "porte") return 0;
+  if (etat != null ? etat === "on" || etat === "open" : !portesFermees) return 1;
+  const v = vitrageDe(o);
+  return (v === "toute" ? 0.7 : v === "haut" ? 0.25 : 0) * ouv;
+}
+// lumière entre pièces : ouverture intérieure = une pièce de chaque côté (à 15 cm du milieu, le long de la perpendiculaire).
+// pieces = [[poly, k]], trans[i] = part qui passe par l'ouverture i, F = Map(k → lumière de fond de la pièce éclairée par le jour).
+// Un seul saut : seules les pièces de F éclairent leurs voisines. fond = lumière de fond de la voisine (plus faible, selon la taille
+// du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine
+function lumiereVoisins(pieces, ouvertures, trans, F) {
+  const res = [];
+  (ouvertures || []).forEach((o, i) => {
+    const t = trans[i];
+    if (!(t > 0) || !Array.isArray(o?.seg) || o.seg.length < 4) return;
+    const [a, b, d, f] = o.seg.map(Number), L = Math.hypot(d - a, f - b);
+    if (![a, b, d, f].every(Number.isFinite) || L < 1) return;
+    const nx = -(f - b) / L, ny = (d - a) / L, m = [(a + d) / 2, (b + f) / 2];
+    const cote = (sg) => pieces.find(([poly]) => dansPoly([m[0] + nx * 15 * sg, m[1] + ny * 15 * sg], poly))?.[1] ?? -1;
+    const p1 = cote(1), p2 = cote(-1);
+    if (p1 < 0 || p2 < 0 || p1 === p2) return;
+    const [bas, haut] = o.type === "porte" ? [0, 210] : vitrageBornes(o, L);
+    for (const [de, vers, sg] of [[p1, p2, -1], [p2, p1, 1]]) {
+      const Fd = F.get(de) || 0, poly = pieces.find((x) => x[1] === vers)[0];
+      if (Fd < 0.004) continue;
+      res.push({ de, vers, i, fond: Fd * t * 0.6 * lumiereFond([L * Math.max(0, haut - bas)], aireDe(poly)), lueur: Fd * t, mil: m, n: [nx * sg, ny * sg], L });
+    }
+  });
+  return res;
+}
+const aireDe = (poly) => Math.abs(poly.reduce((t, p, i) => { const q = poly[(i + 1) % poly.length]; return t + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
+// fenêtres → baies (lumière) : vantaux de même `baie` (prioritaire), colinéaires et contigus (bouts à moins de 5 cm, même côté dehors),
+// ou de même `groupe`, réunis en une baie d'un seul tenant. Un volet seul posé sur la baie (colinéaire, qui recouvre le vantail) réduit aussi sa part.
+// ouv[i] = part dégagée de l'ouverture i (null = ignorée). Retour : [{ type, seg, dehors, largeur, allege, hauteur, parts, ouvert, ids }]
+function baiesFenetres(l, ouv) {
+  const geo = (o) => {
+    if (!Array.isArray(o?.seg) || o.seg.length < 4 || !Array.isArray(o.dehors)) return null;
+    const [a, b, d, f] = o.seg.map(Number), [nx, ny] = o.dehors.map(Number), L = Math.hypot(d - a, f - b), ln = Math.hypot(nx, ny);
+    return [a, b, d, f, nx, ny].every(Number.isFinite) && L > 0 && ln > 0 ? { a, b, d, f, L, vx: (d - a) / L, vy: (f - b) / L, nx: nx / ln, ny: ny / ln } : null;
+  };
+  // g2 sur la droite de g1 (parallèles, à moins de `tol` cm) : positions de ses bouts le long de g1
+  const surLigne = (g1, g2, tol) => {
+    if (Math.abs(g1.vx * g2.vy - g1.vy * g2.vx) > 0.03) return null;
+    const dist = (x, y) => Math.abs((x - g1.a) * g1.vy - (y - g1.b) * g1.vx);
+    if (dist(g2.a, g2.b) > tol || dist(g2.d, g2.f) > tol) return null;
+    const s = (x, y) => (x - g1.a) * g1.vx + (y - g1.b) * g1.vy, p = s(g2.a, g2.b), q = s(g2.d, g2.f);
+    return [Math.min(p, q), Math.max(p, q)];
+  };
+  const F = [], V = [];
+  (l || []).forEach((o, i) => {
+    if (!vitrageDe(o) || ouv[i] == null) return;
+    const g = geo(o);
+    if (g) (o.volet_seul ? V : F).push({ o, i, g, ouvert: ouv[i] });
+  });
+  // volet seul (avec un volet) qui recouvre au moins la moitié du vantail
+  for (const v of V) if (v.o.volet) for (const x of F) {
+    const s = surLigne(x.g, v.g, 10);
+    if (s && Math.min(x.g.L, s[1]) - Math.max(0, s[0]) >= x.g.L / 2) x.ouvert = Math.min(x.ouvert, v.ouvert);
+  }
+  const chef = F.map((_, k) => k), racine = (k) => (chef[k] === k ? k : (chef[k] = racine(chef[k])));
+  const nom = (o, k) => (typeof o[k] === "string" && o[k].trim() ? o[k].trim() : null);
+  for (let i = 0; i < F.length; i++) for (let j = i + 1; j < F.length; j++) {
+    const A = F[i], B = F[j];
+    if (A.g.nx * B.g.nx + A.g.ny * B.g.ny < 0.95 || vitrageDe(A.o) !== vitrageDe(B.o)) continue;
+    const s = surLigne(A.g, B.g, 5);
+    // `baie` prioritaire : même nom = une baie ; deux noms différents = deux baies, même contiguës
+    const ba = nom(A.o, "baie"), bb = nom(B.o, "baie"), memeNom = (ba && ba === bb) || (nom(A.o, "groupe") && nom(A.o, "groupe") === nom(B.o, "groupe"));
+    if (ba && bb && ba !== bb) continue;
+    if ((s && s[0] <= A.g.L + 5 && s[1] >= -5) || (memeNom && surLigne(A.g, B.g, 40))) chef[racine(j)] = racine(i);
+  }
+  const groupes = new Map();
+  F.forEach((x, k) => { const r = racine(k); if (!groupes.has(r)) groupes.set(r, []); groupes.get(r).push(x); });
+  return [...groupes.values()].map((m) => {
+    const g = m[0].g, s = m.map((x) => [...(x === m[0] ? [0, g.L] : surLigne(g, x.g, 40)), x.ouvert]);
+    const s0 = Math.min(...s.map((p) => p[0])), s1 = Math.max(...s.map((p) => p[1])), r = (v) => +v.toFixed(1);
+    const larg = m.reduce((t, x) => t + x.g.L, 0), prem = (k) => m.map((x) => nbOpt(x.o[k])).find((v) => v != null);
+    return { type: m[0].o.type, ...(m[0].o.type === "porte" ? { vitree: vitrageDe(m[0].o) } : {}), avancee: prem("avancee"), avancee_hauteur: prem("avancee_hauteur"), seg: [r(g.a + g.vx * s0), r(g.b + g.vy * s0), r(g.a + g.vx * s1), r(g.b + g.vy * s1)], dehors: [g.nx, g.ny], largeur: larg,
+      allege: prem("allege"), hauteur: prem("hauteur"), parts: s.map(([p, q, v]) => [p - s0, q - s0, v]),
+      ouvert: m.reduce((t, x) => t + x.g.L * x.ouvert, 0) / larg, ids: m.map((x) => x.i) };
+  });
+}
+// couleur d'une lampe allumée : rgb_color, sinon hs_color, sinon color_temp_kelvin ; force = luminosité (0 à 1) ; null = jaune d'origine
+// teinte d'une température de couleur : approximation du corps noir (1000 à 40000 K) → [r, g, b] de 0 à 255
+function kelvinRgb(K) {
+  const t = borne(+K || 6500, 1000, 40000) / 100, k = (v) => Math.round(borne(v, 0, 255));
+  return (t <= 66 ? [255, 99.47 * Math.log(t) - 161.12, t <= 19 ? 0 : 138.52 * Math.log(t - 10) - 305.04] : [329.7 * (t - 60) ** -0.1332, 288.12 * (t - 60) ** -0.0755, 255]).map(k);
+}
+function couleurLampe(s) {
+  const at = s?.attributes || {}, k = (v) => Math.round(borne(+v || 0, 0, 255));
+  let rgb = null;
+  if (Array.isArray(at.rgb_color) && at.rgb_color.length >= 3 && at.rgb_color.every((v) => Number.isFinite(+v))) rgb = at.rgb_color.slice(0, 3).map(k);
+  else if (Array.isArray(at.hs_color) && Number.isFinite(+at.hs_color[0]) && Number.isFinite(+at.hs_color[1])) {
+    const h = ((+at.hs_color[0] % 360) + 360) % 360 / 60, sat = borne(+at.hs_color[1], 0, 100) / 100, c = sat, x = c * (1 - Math.abs((h % 2) - 1)), m = 1 - c;
+    const [r, g, b] = [[c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]][Math.floor(h) % 6];
+    rgb = [r + m, g + m, b + m].map((v) => k(v * 255));
+  } else if (Number.isFinite(+at.color_temp_kelvin) && +at.color_temp_kelvin > 0) rgb = kelvinRgb(at.color_temp_kelvin);
+  const br = Number.isFinite(+at.brightness) ? borne(+at.brightness / 255, 0, 1) : 1;
+  return { rgb, force: 0.35 + 0.65 * br };
 }
 // flux d'énergie (`ambiance.energie`) : du tableau électrique vers chaque meuble / pastille dont la valeur est une puissance ;
 // des billes avancent à une vitesse qui suit la puissance (échelle logarithmique), plus nombreuses quand elle est forte
@@ -3470,9 +3879,9 @@ function dessinForme(l, w, h) {
 }
 // taille = [largeur, profondeur] dans le repère du meuble, AVANT rotation ; type inconnu → rectangle (jamais supprimé)
 const dessinMeuble = (m) => {
-  const def = MEUBLES[m.type], [w, h] = (m.taille || def?.taille || [60, 60]).map((v) => Math.max(5, Math.min(5000, nb(v, 60))));
+  const def = MEUBLES[m.type], [w, h] = (m.taille || def?.taille || [60, 60]).map((v) => bornerTaille(v));
   // meuble personnalisé : sa forme, teintée de sa couleur (validée) ; connecté, la teinte d'accent prend le dessus
-  const teinte = m.type === "forme" && typeof m.couleur === "string" && COULEUR_SURE.test(m.couleur) ? m.couleur : null;
+  const teinte = m.type === "forme" ? couleurSure(m.couleur) : null;
   const corps = m.type === "forme" ? `<g class="forme${teinte ? " colore" : ""}"${teinte ? ` style="--mb-teinte:${esc(teinte)}"` : ""}>${dessinForme(m.forme, w, h)}</g>`
     : def ? def.d(w, h, m) : R_(-w / 2, -h / 2, w, h, 3);
   return `<g class="meuble${m.type === "espace" ? " zone" : ""}" transform="translate(${nb(m.pos?.[0])} ${nb(m.pos?.[1])}) rotate(${nb(m.rotation)})${m.miroir ? " scale(-1 1)" : ""}">${corps}</g>`;
@@ -3559,7 +3968,7 @@ const normaliserNiveaux = (l) => (Array.isArray(l) ? l.map((o) => {
 }) : l);
 // booléens écrits en texte dans le YAML (« false », « non », « 0 »…) : remis en vrai booléen, partout dans la config ; les autres textes ne sont pas touchés
 const CLES_BOOL = new Set(["sous_zone", "dehors", "zoom", "masque", "teinte", "protege", "miroir", "alerte", "volet_seul", "auto_actions", "automatismes", "confirmer",
-  "plein_ecran", "bouton_vue", "jour_nuit", "si_absent", "moyenne", "pastilles", "marqueur", "afficher_meubles", "vitrine", "replay", "edition", "legende", "teinte_temperature"]);
+  "plein_ecran", "bouton_vue", "jour_nuit", "si_absent", "moyenne", "pastilles", "marqueur", "afficher_meubles", "vitrine", "replay", "edition", "legende", "teinte_temperature", "verrouille", "zoom_seul"]);
 const FAUX = /^\s*(false|faux|non|no|off|0)\s*$/i, VRAI = /^\s*(true|vrai|oui|yes|on|1)\s*$/i;
 // (les clés __proto__, constructor et prototype d'un fichier importé sont écartées au passage)
 const CLES_PROTO = new Set(["__proto__", "constructor", "prototype"]);
@@ -3625,7 +4034,7 @@ function normaliserConfig(config, rapport) {
 const BALISES_SURES = new Set(["div", "span", "button", "label", "input", "select", "option", "optgroup", "textarea", "output", "datalist", "small", "b", "i", "em", "strong",
   "p", "br", "h1", "h2", "h3", "h4", "h5", "header", "footer", "section", "aside", "nav", "details", "summary", "dialog", "kbd", "dl", "dt", "dd", "ul", "ol", "li",
   "table", "thead", "tbody", "tr", "th", "td", "img", "style", "code", "ha-icon", "ha-card", "svg", "g", "defs", "path", "rect", "circle", "ellipse", "line", "polyline",
-  "polygon", "text", "tspan", "title", "clipPath", "radialGradient", "linearGradient", "stop", "pattern", "animateTransform", "animateMotion"]);
+  "polygon", "text", "tspan", "title", "clipPath", "radialGradient", "linearGradient", "stop", "pattern", "animateTransform", "animateMotion", "filter", "feGaussianBlur", "mask"]);
 const ATTR_LIENS = new Set(["href", "xlink:href", "src", "srcset", "srcdoc", "action", "formaction", "poster", "background", "ping", "data", "codebase", "lowsrc", "dynsrc", "manifest"]);
 const ATTR_ANIMES = new Set(["transform", "patternTransform", "gradientTransform", "opacity"]);
 // texte de style ou valeur d'attribut sans chargement ni code : url() seulement vers « #id » du document
@@ -3720,6 +4129,7 @@ const verbeService = (dom, svc) => _t(VERBES_SERVICE[`${dom}.${svc}`] || (dom ==
 // rapport.retires garde son chemin au format public (récapitulatif d'import de l'éditeur, console).
 const ICONE_SURE = /^[\w-]{1,40}:[\w.-]{1,120}$/;
 const SERVICE_SUR = /^[a-z0-9_]{1,64}\.[a-z0-9_]{1,64}$/;
+const ENTITE_SURE = /^[a-z0-9_]{1,64}\.[a-z0-9_]{1,200}$/;
 // lien de « plus d'infos » : chemin du même site (pas « // » ni « /\ ») ou adresse web, sans espace ni guillemet
 const LIEN_SUR = /^(?:\/(?![/\\])[^\s"'<>`\\]*|https?:\/\/[^\s"'<>`\\]+)$/i;
 const estLien = (v) => typeof v === "string" && /^(?:\/|[a-z][\w+.-]*:)/i.test(v);
@@ -3738,7 +4148,12 @@ function assainirConfig(c, rapport) {
   const retires = [];
   // règle : valeur gardée (au besoin corrigée), ou undefined = retirée ; ch = chemin interne de la valeur
   const nbF = (v) => (num(v) ? Math.min(1e7, Math.max(-1e7, +v)) : undefined);
-  const coul = (v) => couleurSure(v) ?? undefined;
+  const coul = (v) => (couleurEcrite(v) ? v : undefined);
+  const oui = (v) => (typeof v === "boolean" ? v : undefined);
+  // lumière : multiplicateur (booléen, ou nombre borné de 0 à 2) et teinte (`auto` ou 1800 à 10000 K)
+  const multLum = (v) => (typeof v === "boolean" ? v : num(v) ? Math.round(Math.min(2, Math.max(0, +v)) * 100) / 100 : undefined);
+  const diffLum = (v) => (num(v) ? Math.round(Math.min(1, Math.max(0, +v)) * 100) / 100 : undefined);
+  const kelvinLum = (v) => (v === "auto" ? v : num(v) ? Math.round(Math.min(10000, Math.max(1800, +v))) : undefined);
   const ico = (v) => (v === "" || (typeof v === "string" && ICONE_SURE.test(v)) ? v : undefined);
   const idg = (v) => (typeof v === "string" && ID_SUR.test(v) ? v : undefined);
   const parmi = (l) => (v) => (l.includes(v) ? v : undefined);
@@ -3779,7 +4194,20 @@ function assainirConfig(c, rapport) {
     return fixer(a, { icone: ico, donnees: (d) => (objetSimple(d) ? d : undefined), cible: (v) => (typeof v === "string" ? v : undefined) }, ch);
   };
   const R_PIECE = { ...ELEMENT, panneaux, actions: liste(action) };
-  const R_OUV = { ...ELEMENT, type: parmi(Object.keys(NOMS_OUVERTURE)), dehors: pt, animation: anim, animation_volet: anim, fiche };
+  // allège et haut d'une fenêtre (cm, lumière) : bornés
+  const cm = (a, b) => (v) => (num(v) ? Math.min(b, Math.max(a, +v)) : undefined);
+  // contact(s) : une entité, ou une liste d'au plus 8 identifiants d'entité sûrs, sans doublon (une liste d'un seul redevient une chaîne)
+  const contacts = (v, ch) => {
+    if (typeof v === "string") return v;
+    if (!Array.isArray(v)) return undefined;
+    const l = [];
+    v.forEach((e, i) => { if (typeof e === "string" && ENTITE_SURE.test(e) && !l.includes(e) && l.length < 8) l.push(e); else retires.push([...ch, i]); });
+    return l.length > 1 ? l : l[0];
+  };
+  const R_OUV = { ...ELEMENT, type: parmi(Object.keys(NOMS_OUVERTURE)), contact: contacts, dehors: pt, animation: anim, animation_volet: anim, fiche, allege: cm(0, 300), hauteur: cm(10, 500),
+    // porte vitrée (true = toute la hauteur) et avancée de toit au-dessus de la baie (profondeur, hauteur au-dessus du haut du vitrage)
+    vitree: (v) => (v === true ? "toute" : v === "toute" || v === "haut" ? v : undefined), avancee: cm(0, 500), avancee_hauteur: cm(0, 300),
+    lames: parmi(["orientables", "ajourees"]) };
   const R_POINT = { ...CONNECTE, icone: ico, halo: (v) => (typeof v === "boolean" ? v : num(v) ? Math.min(5000, Math.max(0, +v)) : undefined) };
   const R_TEXTE = { ...ELEMENT, taille: nbF, style: parmi(["discret"]), infos: liste(objet({ icone: ico, decimales: nbF })) };
   // type de meuble : un type inconnu (identifiant simple) reste, il est dessiné comme un rectangle
@@ -3795,6 +4223,7 @@ function assainirConfig(c, rapport) {
   const anims = Object.fromEntries(Object.keys(EVENEMENTS_ANIM).map((k) => [k, anim]));
   fixer(c, {
     marge: nbF,
+    palette: (v) => (objetSimple(v) ? Object.fromEntries(palette({ palette: v })) : undefined),
     pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
     groupes: liste((g, ch) => (objetSimple(g) && idg(g.id) ? g : undefined)),
     panneaux, modeles: liste(modele), animations: objet(anims),
@@ -3807,6 +4236,7 @@ function assainirConfig(c, rapport) {
       traces: (v, ch) => (typeof v === "boolean" ? v : num(v) ? +v : objet({ duree: nbF, couleur: coul })(v, ch)),
       energie: (v, ch) => (typeof v === "boolean" ? v : objet({ source: (x) => (typeof x === "string" || num(x) ? x : undefined), seuil: nbF, couleur: coul })(v, ch)),
       personnes: (v, ch) => (typeof v === "boolean" || Array.isArray(v) ? v : objet({ maison: (x) => (typeof x === "string" ? x : pt(x)) })(v, ch)),
+      lumiere: (v, ch) => (typeof v === "boolean" ? v : objet({ soleil: multLum, ciel: multLum, rediffusion: multLum, ciel_diffusion: diffLum, ciel_kelvin: kelvinLum, soleil_kelvin: kelvinLum, lampes: oui, portes: parmi(["ouvertes", "fermees"]), lune: (x) => (typeof x === "boolean" || (typeof x === "string" && /^sensor\.\w{1,120}$/.test(x)) ? x : undefined) })(v, ch)),
     }),
     replay: (v, ch) => (typeof v === "boolean" ? v : objet({ heures: nbF, vitesse: nbF })(v, ch)),
     vitrine: (v, ch) => (typeof v === "boolean" ? v : objet({ pos: pt, largeur: nbF })(v, ch)),
@@ -3885,7 +4315,7 @@ const N_PANNEAUX = nObj({ gauche: ["left", nListe(N_WIDGET)], droite: ["right", 
 const N_FICHE = nObj({ titre: "title", widgets: ["widgets", nListe(N_WIDGET)], plus_infos: "more_info" }, { l: N_WIDGET });
 // animation : un type, ou { type, couleur, duree, intensite, forme }
 const N_ANIM = nObj({ type: ["type", nEnum(V_ANIM)], couleur: "color", duree: "duration", intensite: "intensity", forme: ["shape", nEnum({ contour: "outline" })] }, { v: V_ANIM });
-const K_ELEMENT = { masque: "hidden", niveau: "level", groupe: "group" };
+const K_ELEMENT = { masque: "hidden", niveau: "level", groupe: "group", verrouille: "locked" };
 // clés « connectées » communes aux pastilles et aux meubles
 const K_CONNECTE = { entite: "entity", valeur: "value", actif: "active", actif_attribut: "active_attribute", seuil: "threshold", attribut: "attribute",
   unite: "unit", decimales: "decimals", couleur: "color", clic: ["tap", nEnum(V_CLIC)], protege: "protected", confirmer: "confirm", fiche: ["card", N_FICHE], animation: ["animation", N_ANIM] };
@@ -3894,10 +4324,11 @@ const N_PIECE = nObj({ nom: "name", poly: "poly", etiquette: "label", temperatur
   actions: ["actions", nListe(nObj({ nom: "name", icone: "icon", action: "action", cible: ["target", nEnum({ piece: "room" })], donnees: "data", confirmer: "confirm" }))],
   panneaux: ["panels", N_PANNEAUX], sous_zone: "sub_area", ...K_ELEMENT });
 const N_OUVERTURE = nObj({ type: ["type", nEnum({ fenetre: "window", porte: "door", portail: "gate" })], seg: "seg", nom: "name", contact: "contact", volet: "shutter",
-  entite: "entity", dehors: "outside", volet_seul: "shutter_only", baie: "bay",
+  entite: "entity", dehors: "outside", volet_seul: "shutter_only", baie: "bay", allege: "sill", hauteur: "height",
+  vitree: ["glazed", nEnum({ toute: "full", haut: "top" })], avancee: "overhang", avancee_hauteur: "overhang_height", lames: ["slats", nEnum({ orientables: "tilt", ajourees: "vented" })],
   battants: "leaves", ouvrant: ["swing", nEnum({ gauche: "left", droite: "right", coulissant: "sliding" })], vers_dehors: "outward", animation: ["animation", N_ANIM], animation_volet: ["shutter_animation", N_ANIM],
   clic: ["tap", nEnum(V_CLIC)], protege: "protected", confirmer: "confirm", fiche: ["card", N_FICHE], ...K_ELEMENT });
-const N_POINT = nObj({ ...K_CONNECTE, pos: "pos", icone: "icon", nom: "name", halo: "halo", piece: "room", alerte: "alert", clair: "light_color", ...K_ELEMENT });
+const N_POINT = nObj({ ...K_CONNECTE, pos: "pos", icone: "icon", nom: "name", halo: "halo", piece: "room", alerte: "alert", clair: "light_color", zoom_seul: "zoom_only", ...K_ELEMENT });
 const N_TEXTE = nObj({ t: "text", pos: "pos", taille: "size", style: ["style", nEnum({ discret: "subtle" })],
   infos: ["info", nListe(nObj({ entite: "entity", nom: "name", attribut: "attribute", unite: "unit", decimales: "decimals", icone: "icon" }))], ...K_ELEMENT });
 // forme d'un meuble personnalisé (`type: custom`) : primitives en % de la taille
@@ -3916,7 +4347,7 @@ const K_AFF_PERSONNE = { dehors: ["away", nEnum({ direction: "direction", zone: 
   avatar: ["avatar", nEnum({ photo: "picture", initiales: "initials" })] };
 // bulles d'appareils (`style_pastilles`) : indisponibles, inactives, taille, valeurs
 const N_STYLE_PASTILLES = nObj({ indisponible: ["unavailable", nEnum({ estompe: "dimmed", tirets: "dashed", cache: "hidden" })],
-  inactif: ["inactive", nEnum({ visible: "shown", actif_seul: "active_only", estompe: "dimmed" })], taille: ["size", nEnum({ petit: "small", normal: "normal", grand: "large" })],
+  inactif: ["inactive", nEnum({ visible: "shown", actif_seul: "active_only", estompe: "dimmed" })], zoom_seul: "zoom_only", taille: ["size", nEnum({ petit: "small", normal: "normal", grand: "large" })],
   valeurs: ["values", nEnum({ toujours: "always", survol: "hover", jamais: "never" })] });
 const N_AMBIANCE = nObj({ intensite: ["intensity", nEnum({ discret: "subtle", normal: "normal", fort: "strong" })], nord: "north",
   jour_nuit: ["day_night", nObj({ soleil: "sun", intensite: "intensity", marqueur: "marker" })],
@@ -3924,7 +4355,8 @@ const N_AMBIANCE = nObj({ intensite: ["intensity", nEnum({ discret: "subtle", no
   traces: ["traces", nObj({ duree: "duration", couleur: "color" })],
   // source : numéro d'un meuble ou type de meuble ; pastilles : flux aussi vers les pastilles (points)
   energie: ["energy", nObj({ source: ["source", nEnum(V_MEUBLES)], seuil: "threshold", couleur: "color", pastilles: "badges" })],
-  personnes: ["people", nObj({ maison: "home", entites: ["entities", nListe(N_PERSONNE)], ...K_AFF_PERSONNE, par_personne: ["persons", nDico(nObj(K_AFF_PERSONNE))] }, { l: N_PERSONNE })] });
+  personnes: ["people", nObj({ maison: "home", entites: ["entities", nListe(N_PERSONNE)], ...K_AFF_PERSONNE, par_personne: ["persons", nDico(nObj(K_AFF_PERSONNE))] }, { l: N_PERSONNE })],
+  lumiere: ["light", nObj({ soleil: "sun", lune: "moon", lampes: "lamps", ciel: "sky", rediffusion: "bounce", ciel_diffusion: "sky_diffusion", ciel_kelvin: "sky_kelvin", soleil_kelvin: "sun_kelvin", portes: ["doors", nEnum({ ouvertes: "open", fermees: "closed" })] })] });
 const N_ANIMATIONS = nObj({ ouverture: ["opening", N_ANIM], volet: ["shutter", N_ANIM], alerte: ["alert", N_ANIM], lumiere: ["light", N_ANIM],
   appareil: ["badge", N_ANIM], meuble: ["furniture", N_ANIM] });
 const N_ALERTE = nObj({ nom: "name", entite: "entity", entites: "entities", niveau: ["level", nEnum({ critique: "critical", alerte: "warning", info: "info" })],
@@ -3958,7 +4390,7 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
   textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })],
   calques: ["layers", N_CALQUES], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))], panneaux: ["panels", N_PANNEAUX],
   modeles: ["templates", nListe(N_MODELE)], ambiance: ["ambience", N_AMBIANCE], animations: ["animations", N_ANIMATIONS], alertes: ["alerts", nListe(N_ALERTE)],
-  style_pastilles: ["badge_style", N_STYLE_PASTILLES],
+  style_pastilles: ["badge_style", N_STYLE_PASTILLES], palette: "palette",
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
   // réglages globaux (panneau ⚙ Paramètres de l'éditeur) : présence par défaut, étiquettes des pièces, teinte de température, légende
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
@@ -4053,7 +4485,11 @@ class MaquetteCard extends HTMLElement {
   static dessinMeuble = dessinMeuble;
   static normaliserForme = normaliserForme;
   static traitsOuverture = traitsOuverture;
+  static LUMIERE = { couche: coucheLumiere, tache: tacheLumiere, baies: baiesFenetres, couleur: couleurLampe, phases: PHASES_LUNE, ciel: LUM_CIEL, kelvin: kelvinRgb,
+    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames };
   static couleurSure = (c) => !!couleurSure(c);
+  static couleurEcrite = couleurEcrite;
+  static palette = palette;
   static poserHTML = poserHTML;
   static ajouterHTML = ajouterHTML;
   static VERSION = VERSION;
@@ -4069,9 +4505,14 @@ class MaquetteCard extends HTMLElement {
   static evenementPoint = evenementPoint;
   // format public (YAML en anglais) ↔ config interne : pour l'éditeur, les tests et la migration des anciennes configs
   static depuisAnglais = depuisAnglais;
+  static contactsDe = contactsDe;
+  static etatCombine = etatCombine;
   static versAnglais = versAnglais;
   static SCHEMA_ANGLAIS = N_RACINE;
   // valeurs par défaut des réglages globaux (panneau ⚙ Paramètres de l'éditeur)
+  // outils communs à la carte et à l'éditeur (une seule définition, lue par l'éditeur au chargement)
+  static outils = { dansPoly, distBord, entitesZone, esc, fmt, canon, GENRES_FICHE, porteurDe, deCle, BASCULES, NOMS_OUVERTURE, initiales, borne,
+    TAILLE_MEUBLE_MAX, CHAMPS_ENTITE_WIDGET, stock, stockSession, cleRouvrir, cleVersions };
   static REGLAGES = { vitesses: VITESSES_REPLAY, teinte: TEINTE_DEF, presence: "zone.home", heures: 24, vitesse: 900, marge: 40 };
 
   setConfig(config) {
@@ -4145,7 +4586,7 @@ class MaquetteCard extends HTMLElement {
     this._textesSquelette();
     this._construire();
     const ed = this._editeur;
-    if (ed) { ed._etatRepli(); ed._barre(); ed._panneau(); }
+    if (ed) { ed._barre(); ed._panneau(); }
   }
 
   _textesSquelette() {
@@ -4253,11 +4694,11 @@ class MaquetteCard extends HTMLElement {
     const fiche = !R.querySelector(".fiche").hidden, ed = !!this._editeur, vue = R.querySelector(".vue");
     const mode = cw >= 1180 ? "large" : cw >= 760 ? "moyen" : "etroit";
     if (mode !== this._modeMise) { this._modeMise = mode; this._widgets(); }
-    // en édition, la vue finale garde exactement sa mise en page (réduite de la largeur prise par l'éditeur, 0 : son panneau flotte)
+    // en édition, la vue finale garde exactement sa mise en page (l'éditeur n'a plus de panneau latéral : rien n'est pris à sa largeur)
     const reduite = ed && mode !== "etroit";
-    this._zVue = reduite ? (cw - this._editeur.largeurPanneau()) / cw : 1;
+    this._zVue = 1;
     card.classList.toggle("ed-etroit", ed && mode === "etroit");
-    vue.style.zoom = reduite ? String(this._zVue) : "";
+    vue.style.zoom = "";
     vue.style.width = reduite ? `${cw}px` : "";
     vue.style.height = reduite && plein ? `${ch}px` : "";
     const voirG = mode === "large" && (aG || ed);
@@ -4330,7 +4771,7 @@ class MaquetteCard extends HTMLElement {
     const c = this._config, l = [];
     for (const p of c.pieces) l.push(p.temperature, p.humidite);
     for (const t of c.textes || []) if (Array.isArray(t?.infos)) for (const x of t.infos) l.push(x?.entite);
-    for (const o of c.ouvertures || []) { l.push(o.contact, o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
+    for (const o of c.ouvertures || []) { l.push(...contactsDe(o), o.volet, o.entite); for (const w of o.fiche?.widgets || []) l.push(...entitesWidget(w)); }
     for (const p of c.points || []) { l.push(p.entite, p.actif, p.valeur); for (const w of p.fiche?.widgets || []) l.push(...entitesWidget(w)); }
     for (const m of c.meubles || []) { l.push(m.entite, m.actif, m.valeur); for (const w of m.fiche?.widgets || []) l.push(...entitesWidget(w)); }
     for (const w of [...(c.panneaux?.gauche || []), ...(c.panneaux?.droite || [])]) l.push(...entitesWidget(w));
@@ -4339,10 +4780,12 @@ class MaquetteCard extends HTMLElement {
     const A = c.ambiance;
     if (coucheJour(A)) l.push(coucheJour(A).soleil || "sun.sun");
     if (coucheMeteo(A)) l.push(coucheMeteo(A).entite);
+    const LU = coucheLumiere(A);
+    if (LU) l.push(soleilDe(A), ...(LU.lune ? [this._entiteLune(LU)] : []));
     l.push(...this._listePersonnes(A).map((p) => p.entite));
     for (const r of Array.isArray(c.alertes) ? c.alertes : []) if (r && typeof r === "object") {
       l.push(r.entite, ...(Array.isArray(r.entites) ? r.entites : []), r.si_absent ? r.presence || presenceDefaut(c) : null);
-      if (r.type === "ouvertures") for (const o of c.ouvertures || []) l.push(o.contact, o.entite);
+      if (r.type === "ouvertures") for (const o of c.ouvertures || []) l.push(...contactsDe(o), o.entite);
     }
     return [...new Set(l.filter((e) => typeof e === "string" && e.includes(".")))];
   }
@@ -4369,7 +4812,7 @@ class MaquetteCard extends HTMLElement {
           <button data-z="moins" title="${_t("Dézoomer")}"><ha-icon icon="mdi:minus"></ha-icon></button>
           <button data-z="tout" title="${_t("Toute la maison")}" hidden><ha-icon icon="mdi:fit-to-screen-outline"></ha-icon></button>
           <button data-z="replay" title="${_t("Revoir la journée")}" hidden><ha-icon icon="mdi:history"></ha-icon></button></div></div>
-        <aside class="col col-d" hidden><div class="col-in"><div class="fiche" hidden></div><div class="widgets"></div></div></aside></div><div class="panneau-hote"></div></div>
+        <aside class="col col-d" hidden><div class="col-in"><div class="fiche" hidden></div><div class="widgets"></div></div></aside></div></div>
       <div class="legende"></div></ha-card>`);
     const R = this.shadowRoot;
     R.querySelector("ha-card").addEventListener("click", (ev) => {
@@ -4488,7 +4931,7 @@ class MaquetteCard extends HTMLElement {
 
   _reprise() {
     if (this._editeur || !this._hass?.user?.is_admin) return;
-    const cle = `maquette-rouvrir:${this._config.id || "plan"}`;
+    const cle = cleRouvrir(this._config.id);
     let r = null;
     try { r = JSON.parse(sessionStorage.getItem(cle) || "null"); sessionStorage.removeItem(cle); } catch (e) { return; }
     if (r && Date.now() - r.t < 30000) setTimeout(() => this.ouvrirEditeur(r), 0);
@@ -4585,7 +5028,7 @@ class MaquetteCard extends HTMLElement {
       const l = new Set(this._calquesVisiteur());
       if (ev.target.checked) l.delete(k); else l.add(k);
       this._cqV = { cle: this._cleCalques(), l: [...l] };
-      try { if (l.size) localStorage.setItem(this._cqV.cle, JSON.stringify([...l])); else localStorage.removeItem(this._cqV.cle); } catch (e) { /* stockage indisponible : le choix vaut pour cette page */ }
+      if (l.size) stock.ecrire(this._cqV.cle, JSON.stringify([...l])); else stock.retirer(this._cqV.cle); // stockage indisponible : le choix vaut pour cette page
       this._construire();
     };
     m.onkeydown = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); this._menuCalques(false); btn.focus(); } };
@@ -4596,9 +5039,17 @@ class MaquetteCard extends HTMLElement {
     m.querySelector("input")?.focus();
   }
 
+  // couleurs nommées : --mq-c-<nom> sur l'hôte (héritées dans le shadow DOM) ; les noms retirés de la palette perdent leur variable
+  _poserPalette(c) {
+    const l = palette(c), noms = new Set(l.map(([n]) => n));
+    for (const n of this._palNoms || []) if (!noms.has(n)) this.style.removeProperty(`--mq-c-${n}`);
+    for (const [n, v] of l) { paletteActive.add(n); this.style.setProperty(`--mq-c-${n}`, v); }
+    this._palNoms = noms;
+  }
   _construire() {
     this._squelette();
     const c = this._config, R = this.shadowRoot;
+    this._poserPalette(c);
     this._suivies = this._entites();
     this._prec = {};
     this._box = this._boxFige || this.bornes();
@@ -4623,11 +5074,17 @@ class MaquetteCard extends HTMLElement {
     // sous-zones (cuisine, douche…) : contour pointillé au-dessus des pièces, sans teinte ; en vue, le clic passe à la pièce dessous
     for (const [k, sz] of [["pieces", false], ["sous_zones", true]]) S[k] = trie(c.pieces).filter(([p]) => !!p.sous_zone === sz)
       .map(([p, i]) => `<polygon class="piece${p.dehors ? " dehors" : ""}${p.sous_zone ? " sous-zone" : ""}${em(p)}" data-p="${i}" points="${ptsSvg(p.poly)}"/>`).join("");
+    // lumière de l'ambiance (`ambiance.lumiere.lampes`) : un dégradé par halo, à la couleur de la lampe, fondus entre eux (écran)
+    // et coupés par la pièce de la lampe (celle où elle est posée si `piece` manque)
+    const LU = coucheLumiere((!ed || this._editeur?.vueAmbiance) && objetSimple(c.ambiance) ? c.ambiance : null), lampes = !!LU?.lampes;
     S.halos = (c.points || []).map((p, i) => {
       if (!p.halo || !garde(p)) return "";
-      const k = p.piece != null ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
+      let k = p.piece != null ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
+      if (k < 0 && lampes && point(p.pos)) k = c.pieces.findIndex((q) => !q.sous_zone && Array.isArray(q.poly) && q.poly.length > 2 && dansPoly(p.pos, q.poly));
+      const lc = lampes && (p.entite || "").startsWith("light.");
       return (k >= 0 ? `<clipPath id="cp${i}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>` : "")
-        + `<circle class="halo" data-h="${i}" cx="${p.pos[0]}" cy="${p.pos[1]}" r="${p.halo === true ? 130 : nb(p.halo)}" fill="url(#halo)" opacity="0"${k >= 0 ? ` clip-path="url(#cp${i})"` : ""}/>`;
+        + (lc ? `<radialGradient id="halo-${i}"><stop offset="0" stop-color="#ffd54f" stop-opacity=".75"/><stop offset="1" stop-color="#ffd54f" stop-opacity="0"/></radialGradient>` : "")
+        + `<circle class="halo${lc ? " lampe" : ""}" data-h="${i}" cx="${p.pos[0]}" cy="${p.pos[1]}" r="${p.halo === true ? 130 : nb(p.halo)}" fill="url(#halo${lc ? `-${i}` : ""})" opacity="0"${k >= 0 ? ` clip-path="url(#cp${i})"` : ""}/>`;
     }).join("");
     // meuble connecté : cliquable en vue, contour et teinte d'accent quand il est actif (mis à jour par _maj, sans reconstruction)
     const accent = (m) => { const k = couleurMeuble(m); return ` style="${k ? `--mb-couleur:${esc(k)};` : ""}${styleAnim(animDe(c, "meuble", m))}"`; };
@@ -4636,7 +5093,7 @@ class MaquetteCard extends HTMLElement {
     S.limites = c.limites?.length ? `<path class="limites" d="${chemin(c.limites)}"/>` : "";
     S.murs = `<path class="murs" d="${chemin(c.murs || [])}"/>`;
     S.ouvertures = trie(c.ouvertures || []).map(([o, i]) => {
-      const [a, b, d, e] = o.seg, [nx, ny] = o.dehors || [0, 0], ent = o.contact || o.entite || o.volet;
+      const [a, b, d, e] = o.seg, [nx, ny] = o.dehors || [0, 0], ent = entOuv(o) || o.volet;
       const { baie, traits } = traitsOuverture(o);
       const av = animDe(c, "volet", o, "animation_volet"), ao = animDe(c, "ouverture", o);
       const volet = o.volet ? `<path class="volet${classeAnim(av)}" style="${styleAnim(av)}" data-v="${i}" d="M${a + nx * 16} ${b + ny * 16}L${d + nx * 16} ${e + ny * 16}"/>` : "", mode = clicPorteur(o);
@@ -4650,19 +5107,24 @@ class MaquetteCard extends HTMLElement {
     // ambiance (pas en édition) : teinte de nuit (plus forte dehors), lumière du soleil et météo sur les extérieurs, sous les halos
     const A = (!ed || this._editeur?.vueAmbiance) && c.ambiance && typeof c.ambiance === "object" ? c.ambiance : null, b0 = this._box;
     const ext = c.pieces.filter((p) => p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2);
+    // pièces intérieures : la météo (nuages, brume, pluie…) n'y est jamais peinte, même sous un extérieur qui les recouvre
+    const int = c.pieces.filter((p) => !p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2);
     let amb = "";
     if (A) {
       const r = `x="${b0.x0}" y="${b0.y0}" width="${b0.W}" height="${b0.H}"`;
       amb = `<g class="amb" aria-hidden="true"><defs><linearGradient id="amb-g" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#ffb74d"/><stop offset="1" stop-color="#ffb74d" stop-opacity="0"/></linearGradient>
         <radialGradient id="amb-nuage"><stop offset="0" style="stop-color:var(--md-on-surface)" stop-opacity=".9"/><stop offset=".6" style="stop-color:var(--md-on-surface)" stop-opacity=".4"/><stop offset="1" style="stop-color:var(--md-on-surface)" stop-opacity="0"/></radialGradient>
-        ${ext.length ? `<clipPath id="cp-dehors">${ext.map((p) => `<polygon points="${ptsSvg(p.poly)}"/>`).join("")}</clipPath>` : ""}</defs>
+        ${ext.length ? `<clipPath id="cp-dehors">${ext.map((p) => `<polygon points="${ptsSvg(p.poly)}"/>`).join("")}</clipPath>` : ""}
+        ${ext.length && int.length ? `<mask id="m-dedans" maskUnits="userSpaceOnUse" ${r}><rect ${r} fill="#fff"/>${int.map((p) => `<polygon points="${ptsSvg(p.poly)}" fill="#000"/>`).join("")}</mask>` : ""}</defs>
         <rect class="amb-n amb-ni" ${r} fill="#0b1d4d" opacity="0"/>
-        ${ext.length ? `<g clip-path="url(#cp-dehors)"><rect class="amb-n amb-ne" ${r} fill="#0b1d4d" opacity="0"/><rect class="amb-sol" ${r} fill="url(#amb-g)" opacity="0"/><g class="amb-meteo"></g></g>` : ""}</g>`;
+        ${ext.length ? `<g clip-path="url(#cp-dehors)"><rect class="amb-n amb-ne" ${r} fill="#0b1d4d" opacity="0"/><rect class="amb-sol" ${r} fill="url(#amb-g)" opacity="0"/><g class="amb-meteo"${int.length ? ` mask="url(#m-dedans)"` : ""}></g></g>` : ""}</g>`;
+      if (LU && (LU.soleil || LU.lune)) amb += `<g class="lum" aria-hidden="true"></g>`;
     }
+    this._lumCle = null;
     this._meteoCle = null; this._fluxCle = null;
     for (const k of Q.svg) {
       if (k === "halos") svg += amb;
-      if (voir(k)) svg += `<g class="cq${k === "meubles" ? " meubles" : ""}${cq(k)}" data-cq="${k}"${k === "meubles" && !ed ? ` aria-hidden="true"` : ""}>${S[k]}</g>`;
+      if (voir(k)) svg += `<g class="cq${k === "meubles" ? " meubles" : ""}${k === "halos" && lampes ? " fondu" : ""}${cq(k)}" data-cq="${k}"${k === "meubles" && !ed ? ` aria-hidden="true"` : ""}>${S[k]}</g>`;
       if (k === "meubles" && A && coucheEnergie(A)) svg += `<g class="flux" aria-hidden="true"></g>`; // billes au-dessus des meubles
     }
     const vit = c.vitrine ? this._vitrine(pct, xy) : null;
@@ -4696,7 +5158,10 @@ class MaquetteCard extends HTMLElement {
         <b${EP.nom ? "" : ' class="cache"'}>${esc(p.nom)}</b><span class="val"></span></button>`;
     });
     const bs = classesPastilles(stylePastilles(c));
+    // appareil « seulement dans la vue de sa pièce » (`zoom_only`, sinon `badge_style.zoom_only`) : absent du plan entier, toujours là en édition
+    const zoomSeul = !ed && (c.points || []).some((p) => p.zoom_seul ?? c.style_pastilles?.zoom_seul);
     trie(c.points || []).forEach(([p, i]) => {
+      if (zoomSeul && (p.zoom_seul ?? c.style_pastilles?.zoom_seul) && !(iso && dansPoly(p.pos, iso.poly))) return;
       const ap = animDe(c, evenementPoint(p), p);
       H_.appareils += `<button class="pt${bs}${hors(p.pos)}${cq("appareils")}${em(p)}${classeAnim(ap)}" data-q="${i}" data-e="${esc(p.entite)}" ${xy(p.pos)} style="${pct(p.pos)};--pt-couleur:${couleurSure(p.couleur) || "var(--state-active-color,#fdd835)"};${styleAnim(ap)}"${clicPorteur(p) === "fiche" ? ` aria-haspopup="dialog"` : ""}>
         <ha-icon icon="${esc(p.icone || "mdi:circle")}"></ha-icon><span class="v"></span></button>`;
@@ -4748,7 +5213,7 @@ class MaquetteCard extends HTMLElement {
     zone.style.aspectRatio = `${this._box.W} / ${this._box.H}`;
     zone.classList.toggle("amb-glisse", ed && !!this._editeur?.vueAmbiance && !!A && !!couchePersonnes(A));
     const tc = coucheTraces(A)?.couleur;
-    zone.style.setProperty("--trace-c", tc && COULEUR_SURE.test(tc) ? tc : "var(--md-primary)");
+    zone.style.setProperty("--trace-c", couleurSure(tc) || "var(--md-primary)");
     poserHTML(R.querySelector(".zone"), `${svg}<div class="calque">${calque}</div>`);
     this._mbs = (c.meubles || []).map((m, i) => (estConnecte(m) ? { m, g: R.querySelector(`.zone svg [data-mb="${i}"]`), b: R.querySelector(`.calque>[data-mbq="${i}"]`) } : null)).filter((x) => x && (x.g || x.b));
     const deg = `linear-gradient(90deg,${PALIERS.map(([t, col]) => `${col} ${((t - 17) / 11 * 100).toFixed(0)}%`).join(",")})`;
@@ -4960,7 +5425,7 @@ class MaquetteCard extends HTMLElement {
   _enteteFiche(genre, o) {
     if (genre === "meuble") return { icone: ICONES_MEUBLE[o.type] || "mdi:sofa-outline", titre: o.fiche?.titre || o.nom || _t(MEUBLES[o.type]?.nom || _tk("Meuble")), etat: o.entite || o.valeur, bascule: o.entite, couleur: o.couleur, infos: o.entite || o.valeur };
     if (genre === "ouverture") {
-      const e = o.contact || o.entite;
+      const e = entOuv(o);
       return { icone: (ICONES_OUVERTURE[o.type] || ICONES_OUVERTURE.porte)[0], titre: o.fiche?.titre || o.baie || o.nom || (e || o.volet ? this._nom(e || o.volet) : _t(NOMS_OUVERTURE[o.type] || _tk("Ouverture"))), etat: e, bascule: e, infos: e || o.volet };
     }
     return { icone: o.icone || "mdi:circle", titre: o.fiche?.titre || o.nom || this._nom(o.entite) || _t("Appareil"), etat: o.entite, bascule: o.entite, couleur: o.couleur, infos: o.entite };
@@ -5006,7 +5471,7 @@ class MaquetteCard extends HTMLElement {
     const retour = { meuble: `.calque>[data-mbq="${i}"]`, point: `.calque>[data-q="${i}"]`, ouverture: `.zone svg [data-o="${i}"][tabindex]` }[genre];
     this._mf = { genre, i, retour: (retour && R.querySelector(retour)) || R.activeElement, html: null };
     const tc = genre === "meuble" ? couleurMeuble(o) : t.couleur;
-    d.style.cssText = tc && COULEUR_SURE.test(tc) ? `--mb-couleur:${tc}` : "";
+    d.style.cssText = couleurSure(tc) ? `--mb-couleur:${couleurSure(tc)}` : "";
     poserHTML(d, `<div class="mf-in"><header><span class="ic"><ha-icon icon="${esc(t.icone)}"></ha-icon></span>
         <div class="n"><h2 id="mf-titre">${esc(t.titre)}</h2><small class="etat"></small></div>
         ${t.bascule && BASCULES.includes(dom) && !o.protege ? `<input type="checkbox" class="bascule" role="switch" data-mf="basculer" aria-label="${_t("Marche / arrêt")}">` : ""}
@@ -5054,7 +5519,6 @@ class MaquetteCard extends HTMLElement {
     const remettre = () => this._majFiche();
     this._appeler(dom, on ? "turn_on" : "turn_off", { entity_id: e }, undefined, { forcer: o.confirmer === true, libelle: on ? _t("Allumer") : _t("Éteindre") }).then((fait) => { if (!fait) remettre(); }, remettre);
   }
-  _basculerMeuble(on) { return this._basculerFiche(on); } // nom d'origine (fiches des meubles)
 
   // mise à jour en direct de la fiche ouverte : en-tête modifié sur place (le focus reste), widgets réécrits seulement s'ils changent
   _majFiche() {
@@ -5065,11 +5529,14 @@ class MaquetteCard extends HTMLElement {
     let se = s;
     if (genre === "ouverture") {
       // baie à plusieurs vantaux : ouverte dès qu'un vantail l'est, état d'en-tête = le vantail ouvert (sinon le premier)
-      const vs = this._vantaux(o).map((x) => this._etat(x.contact || x.entite)).filter(Boolean);
-      se = vs.find((x) => ["on", "open"].includes(x.state)) || s;
+      const vs = this._vantaux(o).map((x) => this._etatOuverture(x)).filter(Boolean);
+      se = vs.find((x) => ["on", "open"].includes(x.state)) || this._etatOuverture(o) || s;
+      // plusieurs capteurs : mention discrète de ceux qui ne répondent pas (l'ouverture reste fermée ou ouverte d'après les autres)
+      const muets = contactsDe(o).filter((e) => { const x = this._etat(e); return !x || ETATS_MUETS.includes(x.state); }).length;
+      if (contactsDe(o).length > 1 && muets && se && !ETATS_MUETS.includes(se.state)) v = _t("{n} capteur indisponible|{n} capteurs indisponibles", { n: muets });
       ouvert = !!se && ["on", "open"].includes(se.state);
       const sv = this._etat(o.volet), pos = sv ? sv.attributes.current_position ?? (sv.state === "closed" ? 0 : 100) : null;
-      if (sv) v = _t("volet {n} %", { n: pos });
+      if (sv) v = [v, _t("volet {n} %", { n: pos })].filter(Boolean).join(" · ");
       ic.querySelector("ha-icon").setAttribute("icon", (ICONES_OUVERTURE[o.type] || ICONES_OUVERTURE.porte)[ouvert ? 1 : 0]);
     } else {
       v = this._texteValeur(o);
@@ -5083,7 +5550,11 @@ class MaquetteCard extends HTMLElement {
     if (b) { b.checked = on; b.disabled = !s || s.state === "unavailable"; }
     const r = d.querySelector('[data-mf="allumer"]');
     if (r) r.hidden = !(s && s.state === "off" && BASCULES.includes((t.bascule || "").split(".")[0]));
-    const l = o.fiche?.widgets || [];
+    const cs = genre === "ouverture" ? contactsDe(o) : [];
+    // plusieurs capteurs : une ligne par capteur en tête de la fiche
+    // (sauf si un widget de la fiche montre déjà tous les capteurs)
+    const fw = o.fiche?.widgets || [], dejaLa = cs.length > 1 && cs.every((e) => fw.some((w) => JSON.stringify(w ?? null).includes(JSON.stringify(e))));
+    const l = [...(cs.length > 1 && !dejaLa ? [{ type: "entites", titre: _t("Capteurs"), icone: "mdi:magnet", entites: cs }] : []), ...fw];
     // PC : la fiche s'élargit avec le nombre de widgets (1, 2, 3 colonnes) plutôt que de défiler
     const n = l.filter((w) => w?.type !== "separateur").length;
     d.classList.toggle("l2", n === 2); d.classList.toggle("l3", n >= 3);
@@ -5109,11 +5580,11 @@ class MaquetteCard extends HTMLElement {
         <span class="n"><span>${esc(p.nom || this._nom(p.entite))}</span><small>${esc(v ? `${v} · ${etat(s)}` : etat(s))}</small></span>
         ${BASCULES.includes(dom) && s ? this._interrupteur(p.entite, s, p) : ""}</div>`;
     });
-    const ouv = (c.ouvertures || []).filter((o) => !o.masque && (o.contact || o.entite || o.volet) && distBord([(o.seg[0] + o.seg[2]) / 2, (o.seg[1] + o.seg[3]) / 2], iso.poly) < 20)
+    const ouv = (c.ouvertures || []).filter((o) => !o.masque && (entOuv(o) || o.volet) && distBord([(o.seg[0] + o.seg[2]) / 2, (o.seg[1] + o.seg[3]) / 2], iso.poly) < 20)
       .filter((o, k, l) => !o.baie || l.findIndex((x) => x.baie === o.baie) === k).map((o) => { // une ligne par baie
-      const ent = o.contact || o.entite, sv = this._etat(o.volet);
-      const ss = this._vantaux(o).map((x) => this._etat(x.contact || x.entite)).filter(Boolean);
-      const s = ss.find((x) => ["on", "open"].includes(x.state)) || this._etat(ent);
+      const ent = entOuv(o), sv = this._etat(o.volet);
+      const ss = this._vantaux(o).map((x) => this._etatOuverture(x)).filter(Boolean);
+      const s = ss.find((x) => ["on", "open"].includes(x.state)) || this._etatOuverture(o);
       const ouvert = s && ["on", "open"].includes(s.state);
       const pos = sv ? sv.attributes.current_position ?? (sv.state === "closed" ? 0 : 100) : null;
       const txt = [ent ? (ouvert ? _t("Ouverte") : s ? _t("Fermée") : _t("indisponible")) : "", sv ? _t("volet {n} %", { n: pos }) : ""].filter(Boolean).join(" · ");
@@ -5246,7 +5717,7 @@ class MaquetteCard extends HTMLElement {
   }
 
   _widget(w, cote, i, suf = "") {
-    const id = `${cote}:${i}${suf}`, coul = couleurSure(w.couleur) ? `--w-couleur:${w.couleur}` : "";
+    const id = `${cote}:${i}${suf}`, coul = couleurSure(w.couleur) ? `--w-couleur:${couleurSure(w.couleur)}` : "";
     const ouvre = (inner) => `<div class="w" data-w="${id}" style="${coul}">${inner}</div>`;
     if (w.type === "separateur") return `<div class="w w-sep${w.titre ? "" : " vide"}" data-w="${id}"${w.espace ? ` style="margin:${+w.espace}px 0"` : ""}>${esc(w.titre || "")}</div>`;
     if (w.type === "tuile") {
@@ -5530,7 +6001,7 @@ class MaquetteCard extends HTMLElement {
   entitesPiece(pi) {
     const c = this._config, p = c.pieces[pi], l = new Set();
     for (const q of c.points || []) if (dansPoly(q.pos, p.poly)) [q.entite, q.actif, q.valeur].forEach((e) => e && l.add(e));
-    for (const o of c.ouvertures || []) if (distBord([(o.seg[0] + o.seg[2]) / 2, (o.seg[1] + o.seg[3]) / 2], p.poly) < 20) [o.contact, o.volet, o.entite].forEach((e) => e && l.add(e));
+    for (const o of c.ouvertures || []) if (distBord([(o.seg[0] + o.seg[2]) / 2, (o.seg[1] + o.seg[3]) / 2], p.poly) < 20) [...contactsDe(o), o.volet, o.entite].forEach((e) => e && l.add(e));
     entitesZone(this._hass, p.zone).forEach((e) => l.add(e));
     [p.temperature, p.humidite].forEach((e) => e && l.add(e));
     return [...l].filter((e) => e.includes(".") && this._hass.states[e]);
@@ -5705,10 +6176,7 @@ class MaquetteCard extends HTMLElement {
   }
 
   // « gauche:2 », « droite:0:3 » (pièce 3), « fiche:1:5 » (fiche du meuble 5), « fiche:1:5:ouverture » / « fiche:1:5:point » → sélection de l'éditeur
-  _selWidget(k) {
-    const [cote, i, x, g] = k.split(":");
-    return { type: "widget", cote, i: +i, ...(x != null ? (cote === "fiche" ? { [Object.hasOwn(GENRES_FICHE, g ?? "") ? g : "meuble"]: +x } : { piece: +x }) : {}) };
-  }
+  _selWidget(k) { return deCle(`widget:${k}`); }
 
   set preview(v) { this._preview = v; this._majCrayon(); }
   get preview() { return this._preview; }
@@ -5739,6 +6207,8 @@ class MaquetteCard extends HTMLElement {
   // en replay, l'état d'une entité à l'instant choisi (historique), sinon l'état en direct
   _etat(e) { if (!e) return undefined; const r = this._rp?.pret ? this._rpEtat(e) : undefined; return r ?? this._hass.states[e]; }
   _maintenant() { return this._rp?.pret ? this._rp.t : Date.now(); }
+  // état d'une ouverture : son contact, l'état combiné de ses contacts (ouverte dès que l'un l'est), ou son entité motorisée
+  _etatOuverture(o) { const l = contactsDe(o); return l.length > 1 ? etatCombine(l.map((e) => this._etat(e))) : this._etat(l[0] || o?.entite); }
   _nom(e) { const s = this._etat(e); return s ? s.attributes.friendly_name || e : e; }
   _num(e, attr) { const s = this._etat(e); const v = s ? parseFloat(attr ? s.attributes[attr] : s.state) : NaN; return isNaN(v) ? null : v; }
   // « actif » d'une pastille (ou d'un meuble connecté) : état de `actif` (ou de l'entité), d'un attribut, ou au-dessus d'un seuil
@@ -5775,8 +6245,8 @@ class MaquetteCard extends HTMLElement {
 
     (c.ouvertures || []).forEach((o, i) => {
       // ouverture masquée (élément ou calque) : pas de dessin, mais elle compte toujours dans le résumé
-      const g = R.querySelector(`[data-o="${i}"]`), ent = o.contact || o.entite;
-      const s = this._etat(ent), cl = g?.classList;
+      const g = R.querySelector(`[data-o="${i}"]`), ent = entOuv(o);
+      const s = this._etatOuverture(o), cl = g?.classList;
       cl?.remove("ouvert", "bouge", "inconnu");
       let txt = o.nom || "";
       if (ent) {
@@ -5809,6 +6279,10 @@ class MaquetteCard extends HTMLElement {
       if ((p.entite || "").startsWith("light.") && actif) lumieres++;
       const h = R.querySelector(`[data-h="${i}"]`);
       if (h) h.setAttribute("opacity", actif ? 1 : 0);
+      if (h?.classList.contains("lampe") && actif) {
+        const { rgb, force } = couleurLampe(s), col = rgb ? `rgb(${rgb.join(",")})` : "#ffd54f";
+        R.querySelectorAll(`#halo-${i} stop`).forEach((st, n) => { st.setAttribute("stop-color", col); if (!n) st.setAttribute("stop-opacity", (0.75 * force).toFixed(3)); });
+      }
       if (!b) return; // pastille masquée : elle compte toujours dans le résumé
       b.classList.toggle("actif", actif);
       b.classList.toggle("clair", actif && (p.clair ?? clairPour(p.couleur)));
@@ -5928,7 +6402,7 @@ class MaquetteCard extends HTMLElement {
     const R = this.shadowRoot, c = this._config, E = coucheEnergie(c.ambiance), g = R?.querySelector(".zone svg .flux");
     if (!E || !g) return;
     const M = c.meubles || [], src = typeof E.source === "number" ? M[E.source] : M.find((m) => m.type === (E.source || "tableau_elec"));
-    const l = [], seuil = +(E.seuil ?? 5), couleur = (x) => (x && COULEUR_SURE.test(x) ? x : null);
+    const l = [], seuil = +(E.seuil ?? 5), couleur = (x) => couleurSure(x);
     const ajoute = (o) => {
       if (!src?.pos || o === src || !Array.isArray(o.pos)) return;
       // puissance : la première de valeur / actif / entite exprimée en W ou kW
@@ -5955,7 +6429,7 @@ class MaquetteCard extends HTMLElement {
     const P = couchePersonnes(A);
     return this._listePersonnes(A).map((p) => {
       const s = this._etat(p.entite), nom = s?.attributes.friendly_name || p.entite.split(".")[1], pic = s?.attributes.entity_picture;
-      const ini = nom.trim().split(/[\s_]+/).map((w) => w[0] || "").join("").slice(0, 2).toUpperCase();
+      const ini = initiales(nom);
       // `avatar` : photo du profil HA si elle existe, sinon les initiales (défaut) ; `initiales` : toujours les initiales
       const url = affPersonne(P, p.entite).avatar === "photo" && typeof pic === "string" && /^\/(?![/\\])/.test(pic) ? (this._hass.hassUrl ? this._hass.hassUrl(pic) : pic) : null; // photo servie par HA seulement
       return `<button class="pers" data-pers="${esc(p.entite)}" data-e="${esc(p.entite)}" aria-label="${esc(nom)}"><span class="av">${url ? `<img src="${esc(url)}" alt="">` : esc(ini)}</span><small></small></button>`;
@@ -6037,7 +6511,7 @@ class MaquetteCard extends HTMLElement {
     (Array.isArray(c.alertes) ? c.alertes : []).forEach((r, i) => {
       if (!r || typeof r !== "object" || r.actif === false) return;
       if (r.si_absent && this._quelquun(r.presence) !== false) return;
-      const ents = r.type === "ouvertures" ? (c.ouvertures || []).map((o) => o.contact || o.entite) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
+      const ents = r.type === "ouvertures" ? (c.ouvertures || []).flatMap((o) => [...contactsDe(o), ...(contactsDe(o).length ? [] : [o.entite])]) : [...(Array.isArray(r.entites) ? r.entites : []), r.entite];
       const vide = (v) => v == null || v === "";
       const on = [...new Set(ents.filter((e) => typeof e === "string"))].filter((e) => {
         const s = this._etat(e);
@@ -6068,7 +6542,7 @@ class MaquetteCard extends HTMLElement {
     if (!bd) { bd = document.createElement("div"); bd.setAttribute("role", "alert"); plan.append(bd); }
     v.className = `alerte-voile ${a0.niv}`; bd.className = `bandeau-al ${a0.niv}`;
     plan.style.setProperty("--al-c", COUL[a0.niv]);
-    const nomDe = (e) => { const o = (this._config.ouvertures || []).find((x) => (x.contact || x.entite) === e); return o?.baie || o?.nom || this._nom(e); };
+    const nomDe = (e) => { const o = (this._config.ouvertures || []).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e)); return o?.baie || o?.nom || this._nom(e); };
     const html = `<ha-icon icon="${esc(a0.r.icone || NIVEAUX_ALERTE[a0.niv].icone)}"></ha-icon><span class="t"><b>${esc(a0.r.nom || _t("Alerte"))}</b>
       <small>${esc([...new Set(a0.on.map(nomDe))].join(", "))}${l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : ""}</small></span>
       <button class="ib" data-al="infos" title="${_t("Détails")}" aria-label="${_t("Détails")}"><ha-icon icon="mdi:information-outline"></ha-icon></button>
@@ -6077,6 +6551,8 @@ class MaquetteCard extends HTMLElement {
     for (const a of l) for (const e of a.on) {
       const els = [...R.querySelectorAll(".zone [data-e]")].filter((x) => x.dataset.e === e && !x.classList.contains("etq") && !x.classList.contains("pers"));
       (this._config.meubles || []).forEach((m, i) => { if (m.entite === e || m.valeur === e) els.push(R.querySelector(`.calque>[data-mbq="${i}"]`)); });
+      // ouverture à plusieurs capteurs : entourée aussi quand c'est un autre que le premier qui est ouvert
+      (this._config.ouvertures || []).forEach((o, i) => { if (contactsDe(o).length > 1 && contactsDe(o).includes(e)) els.push(R.querySelector(`.zone svg [data-o="${i}"]`)); });
       for (const x of els) if (x && !x.classList.contains("en-alerte")) { x.classList.add("en-alerte"); x.style.setProperty("--al-c", COUL[a.niv]); }
     }
   }
@@ -6193,7 +6669,7 @@ class MaquetteCard extends HTMLElement {
     const n = Math.round((rp.fin - rp.debut) / 60000), c = this._config, marques = [];
     const pos = (t) => (((t - rp.debut) / (rp.fin - rp.debut)) * 100).toFixed(2);
     const ajoute = (e, test, cls) => { let p = null; for (const x of rp.series[e] || []) { if (x.lu >= rp.debut && test(x.s) && !(p && test(p.s))) marques.push(`<i class="${cls}" style="left:${pos(x.lu)}%"></i>`); p = x; } };
-    for (const o of c.ouvertures || []) if (o.contact || o.entite) ajoute(o.contact || o.entite, (v) => v === "on" || v === "open", "m-ouv");
+    for (const o of c.ouvertures || []) for (const e of contactsDe(o).length ? contactsDe(o) : [o.entite].filter(Boolean)) ajoute(e, (v) => v === "on" || v === "open", "m-ouv");
     for (const p of c.points || []) if ((p.entite || "").startsWith("light.")) ajoute(p.entite, (v) => v === "on", "m-lum");
     // repères d'arrivée : pas pour une personne cachée à la maison comme dehors (elle n'apparaît jamais sur le plan)
     const PP = couchePersonnes(c.ambiance);
@@ -6274,10 +6750,10 @@ class MaquetteCard extends HTMLElement {
     if (!R) return;
     if (!tr) { R.querySelectorAll(".zone .trace:not(.vit-pt)").forEach((e) => { e.classList.remove("trace"); e.style.removeProperty("--t"); }); return; }
     const l = [];
-    (c.ouvertures || []).forEach((o, i) => l.push([R.querySelector(`.zone svg [data-o="${i}"]`), o.contact || o.entite || o.volet]));
+    (c.ouvertures || []).forEach((o, i) => l.push([R.querySelector(`.zone svg [data-o="${i}"]`), contactsDe(o).length > 1 ? o : entOuv(o) || o.volet]));
     (c.points || []).forEach((p, i) => l.push([R.querySelector(`.calque>[data-q="${i}"]`), p.entite]));
     (c.meubles || []).forEach((m, i) => l.push([R.querySelector(`.calque>[data-mbq="${i}"]`), m.entite]));
-    const t = l.map(([el, e]) => { const s = el && typeof e === "string" && !/^(sensor|weather|sun|zone)\./.test(e) ? this._etat(e) : null; return s && !["unavailable", "unknown"].includes(s.state) ? Date.parse(s.last_changed) : NaN; });
+    const t = l.map(([el, e]) => { const s = !el ? null : e && typeof e === "object" ? this._etatOuverture(e) : typeof e === "string" && !/^(sensor|weather|sun|zone)\./.test(e) ? this._etat(e) : null; return s && !["unavailable", "unknown"].includes(s.state) ? Date.parse(s.last_changed) : NaN; });
     const paquets = {}, ok = t.filter((x) => !isNaN(x));
     for (const x of ok) paquets[Math.round(x / 10000)] = (paquets[Math.round(x / 10000)] || 0) + 1;
     const seuil = Math.max(5, ok.length * 0.4), maint = this._maintenant(), d = tr.duree * 60000;
@@ -6332,6 +6808,161 @@ class MaquetteCard extends HTMLElement {
     if (zm && cle !== this._meteoCle) { this._meteoCle = cle; poserHTML(zm, w ? dessinMeteo(w, b, nord, I * borne(+(me.intensite ?? 1), 0, 2), this._sansBoucles(), "amb", 1, me.sens ?? 135) : ""); }
     // nuages : quasi invisibles la nuit (sinon, clairs sur fond sombre, on les prendrait pour des halos de lumière)
     zm?.querySelectorAll(".m-nuages").forEach((n) => { n.style.opacity = (+n.dataset.op * (1 - 0.85 * nuit)).toFixed(3); });
+    this._majLumiere(I, nord);
+  }
+
+  // entité de phase de la lune : celle choisie, sinon celle de l'intégration Moon (sensor.moon_phase, ancien nom sensor.moon)
+  _entiteLune(LU) { return LU.phase || ["sensor.moon_phase", "sensor.moon"].find((e) => this._etat(e)) || "sensor.moon_phase"; }
+
+  // lumière (`ambiance.lumiere`), par baie (vantaux contigus réunis) et coupée par la pièce :
+  // - lueur du ciel : par toutes les fenêtres non fermées, de jour (fondu au crépuscule), blanc froid, plus profonde pour une baie jusqu'au sol ;
+  // - soleil direct (baies qui le voient, temps clair) : tache au sol à bords flous (pénombre plus large loin de la baie), et lueur chaude
+  //   rediffusée autour de la tache, selon sa surface ; volet baissé = tache raccourcie, fermé = rien ;
+  // - lune la nuit : la même chose, froide et discrète (selon la phase).
+  // Redessinée seulement quand le soleil (1°), le temps, les volets, la phase ou le thème changent : couche statique, sans animation
+  _majLumiere(I, nord) {
+    const R = this.shadowRoot, c = this._config, A = c.ambiance, g = R?.querySelector(".zone svg .lum"), LU = coucheLumiere(A);
+    if (!g || !LU) return;
+    const so = this._etat(soleilDe(A)), e = so ? parseFloat(so.attributes.elevation) : NaN, az = so ? parseFloat(so.attributes.azimuth) : NaN;
+    const me = coucheMeteo(A), w = me && this._etat(me.entite), { ciel: ciel0, direct } = LUM_CIEL(e, w?.state, w?.attributes?.cloud_coverage), ciel = LU.soleil ? ciel0 : 0;
+    const jour = LU.soleil && !isNaN(az) && e > 0.5 && direct > 0.02, nuitL = LU.lune && !isNaN(e) ? borne((-e - 2) / 6, 0, 1) : 0;
+    // lune : position calculée (latitude / longitude de HA, heure de la carte) ; sans coordonnées, lueur dans l'axe de chaque fenêtre (d'origine)
+    const cf = this._hass?.config, PL = nuitL > 0 ? positionLune(this._maintenant(), nbOpt(cf?.latitude) ?? NaN, nbOpt(cf?.longitude) ?? NaN) : null;
+    const sl = LU.lune ? this._etat(this._entiteLune(LU)) : null, phase = sl ? PHASES_LUNE[sl.state] ?? 0.6 : PL ? Math.max(0.05, PL.fraction) : 0.6, sombre = this._sombre();
+    // part dégagée de chaque fenêtre (volet : position, fermé = 0 ; sans volet = 1)
+    const ouv = (c.ouvertures || []).map((o) => {
+      if (!vitrageDe(o) || o.masque) return null;
+      const sv = o.volet ? this._etat(o.volet) : null;
+      let pos = sv ? parseFloat(sv.attributes.current_position) : 100;
+      if (isNaN(pos)) pos = sv.state === "closed" ? 0 : 100;
+      return partLames(borne(pos / 100, 0, 1), sv && o.lames, parseFloat(sv?.attributes.current_tilt_position));
+    });
+    // part de lumière qui passe par chaque ouverture intérieure (porte ouverte, porte vitrée, verrière) : voir lumiereVoisins
+    const trans = (c.ouvertures || []).map((o, i) => {
+      if (!o || o.masque || !(o.type === "porte" || o.type === "fenetre")) return 0;
+      const st = contactsDe(o).length ? this._etatOuverture(o)?.state : null;
+      return passageLumiere(o, st == null || ETATS_MUETS.includes(st) ? null : st, LU.portes === "fermees", ouv[i] ?? 1);
+    });
+    const M = LU.mult, K = LU.kelvin, D = LU.diffusion;
+    const cle = [M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
+      PL ? `${Math.round(PL.az)},${Math.round(PL.haut)}` : "", trans.map((v) => v.toFixed(2)).join(",")].join("|");
+    if (cle === this._lumCle) return;
+    this._lumCle = cle;
+    const pieces = c.pieces.map((p, k) => [p, k]).filter(([p]) => !p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2);
+    // pièce derrière la baie : un point à 15 cm du milieu, côté intérieur
+    const salle = (o) => {
+      const [a, b, d, f] = o.seg, [nx, ny] = o.dehors, q = [(a + d) / 2 - nx * 15, (b + f) / 2 - ny * 15];
+      return pieces.find(([p]) => dansPoly(q, p.poly))?.[1] ?? -1;
+    };
+    // profondeur de la pièce vue de la baie (cm, le long de la normale vers l'intérieur)
+    const profondeur = (o, k) => { const [a, b] = o.seg, [nx, ny] = o.dehors; return Math.max(60, ...c.pieces[k].poly.map(([x, y]) => -((x - a) * nx + (y - b) * ny))); };
+    let defs = "", h = "", n = 0;
+    const clips = new Set(), f0 = (v) => v.toFixed(1);
+    const degrade = (id, col, stops) => `<radialGradient id="${id}">${stops.map(([o, a]) => `<stop offset="${o}" stop-color="${col}" stop-opacity="${a}"/>`).join("")}</radialGradient>`;
+    // lueur douce : ellipse (centre, demi-axes le long de la baie et vers l'intérieur) remplie d'un dégradé radial, coupée par la pièce
+    const lueur = (cls, k, [cx, cy], [vx, vy], rl, rp, col, op) => {
+      if (op < 0.004) return;
+      const id = `lum-l${n++}`, ang = (Math.atan2(vy, vx) * 180) / Math.PI;
+      defs += degrade(id, col, [[0, 1], [0.45, 0.42], [1, 0]]);
+      clips.add(k);
+      h += `<g class="lum-b" clip-path="url(#lum-cp${k})"><ellipse class="${cls}" cx="${f0(cx)}" cy="${f0(cy)}" rx="${f0(rl)}" ry="${f0(rp)}" transform="rotate(${ang.toFixed(1)} ${f0(cx)} ${f0(cy)})" fill="url(#${id})" opacity="${op.toFixed(3)}"/></g>`;
+    };
+    // tache directe : dégradé le long de la tache, bords flous (pénombre : plus large quand la tache s'éloigne de la baie)
+    const tache = (t, k, col, op, fin) => {
+      const id = `lum-g${n++}`, sd = borne(2 + t.loin * 0.02, 2, 10), xs = t.poly.map((p) => p[0]), ys = t.poly.map((p) => p[1]), m = sd * 3;
+      const x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m;
+      defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${t.de[0]}" y1="${t.de[1]}" x2="${t.vers[0]}" y2="${t.vers[1]}"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${col}" stop-opacity="${fin}"/></linearGradient>`
+        + `<filter id="${id}f" filterUnits="userSpaceOnUse" x="${f0(x0)}" y="${f0(y0)}" width="${f0(Math.max(...xs) + m - x0)}" height="${f0(Math.max(...ys) + m - y0)}"><feGaussianBlur stdDeviation="${f0(sd)}"/></filter>`;
+      clips.add(k);
+      h += `<polygon class="lum-tache lum-b" points="${ptsSvg(t.poly)}" fill="url(#${id})" filter="url(#${id}f)" opacity="${op.toFixed(3)}" clip-path="url(#lum-cp${k})"/>`;
+    };
+    // lumière du ciel : faisceau qui entre par la baie (trapèze qui s'évase vers l'intérieur), plus lumineux contre la vitre, fondu en
+    // profondeur, à bords doux ; dégradé linéaire de la baie (`de`) vers le fond du faisceau. Diffusion D (0 à 1) : faisceau plus évasé,
+    // découpé en profondeur en 3 copies (poids en triangle qui se recouvrent, somme = le dégradé d'origine), de plus en plus floues :
+    // presque net contre la vitre, flou large au fond, sans bord visible. D = 0 : une seule copie, le faisceau net d'origine
+    const faisceau = (k, B, p, col, op) => {
+      if (op < 0.004) return;
+      const [a, b, d, ff] = B.seg, [nx, ny] = B.dehors, L = Math.hypot(d - a, ff - b), vx = (d - a) / L, vy = (ff - b) / L, w = p * (0.35 + 0.4 * D);
+      const id = `lum-f${n++}`, m = [(a + d) / 2, (b + ff) / 2], sd = borne(4 + L * 0.03, 4, 14);
+      const poly = [[a, b], [d, ff], [d - nx * p + vx * w, ff - ny * p + vy * w], [a - nx * p - vx * w, b - ny * p - vy * w]];
+      const xs = poly.map((q) => q[0]), ys = poly.map((q) => q[1]), pts = ptsSvg(poly.map((q) => q.map((v) => +v.toFixed(1))));
+      const grad = (j, stops) => `<linearGradient id="${id}${j}" gradientUnits="userSpaceOnUse" x1="${f0(m[0])}" y1="${f0(m[1])}" x2="${f0(m[0] - nx * p)}" y2="${f0(m[1] - ny * p)}">${stops.map(([o, v]) => `<stop offset="${o}" stop-color="${col}"${v < 1 ? ` stop-opacity="${+v.toFixed(3)}"` : ""}/>`).join("")}</linearGradient>`;
+      const flou = (j, s) => `<filter id="${id}${j}b" filterUnits="userSpaceOnUse" x="${f0(Math.min(...xs) - s * 3)}" y="${f0(Math.min(...ys) - s * 3)}" width="${f0(Math.max(...xs) - Math.min(...xs) + s * 6)}" height="${f0(Math.max(...ys) - Math.min(...ys) + s * 6)}"><feGaussianBlur stdDeviation="${f0(s)}"/></filter>`;
+      const copie = (j, cls) => `<polygon class="${cls}" points="${pts}" fill="url(#${id}${j})" filter="url(#${id}${j}b)" opacity="${op.toFixed(3)}"/>`;
+      clips.add(k);
+      if (D <= 0) {
+        defs += grad("", [[0, 1], [0.3, 0.55], [1, 0]]) + flou("", sd);
+        h += `<g class="lum-b" clip-path="url(#lum-cp${k})">${copie("", "lum-ciel")}</g>`;
+        return;
+      }
+      // dégradé d'origine (1 → 0,55 à 30 % → 0) échantillonné aux nœuds U ; copie j = ce dégradé × triangle centré sur U[j]
+      const U = [0, 0.25, 0.6, 1], P = (u) => (u <= 0.3 ? 1 - (0.45 * u) / 0.3 : (0.55 * (1 - u)) / 0.7);
+      let g = "";
+      for (let j = 0; j < 3; j++) {
+        defs += grad(j, U.map((u, i) => [u, i === j ? P(u) : 0])) + flou(j, sd + D * U[j] * p * 0.45);
+        g += copie(j, j ? "lum-ciel-d" : "lum-ciel");
+      }
+      h += `<g class="lum-b" clip-path="url(#lum-cp${k})">${g}</g>`;
+    };
+    // lumière de fond de chaque pièce éclairée (toute la pièce, voir lumiereFond) : sous les faisceaux et les taches
+    const fonds = new Map();
+    const f = ((az + nord) * Math.PI) / 180, sx = Math.sin(f), sy = -Math.cos(f), dore = borne(1 - (e - 4) / 22, 0, 1);
+    // teintes : d'origine (auto), ou forcées par `ciel_kelvin` / `soleil_kelvin` (lueur rediffusée un peu plus chaude que la tache)
+    const kRgb = (k) => `rgb(${kelvinRgb(k).join(",")})`, op1 = (v) => Math.min(1, v);
+    // ciel : blanc légèrement chaud, fondu en écran (il éclaircit le sol, jamais un voile gris), un peu plus doré en thème clair pour rester visible
+    const cCiel = K.ciel ? kRgb(K.ciel) : sombre ? "#fff2da" : "#ffe3a6", cLune = sombre ? "#9fb4ff" : "#7986cb";
+    const cSoleil = K.soleil ? kRgb(K.soleil) : dore > 0.5 ? (sombre ? "#ffcc80" : "#ffb74d") : (sombre ? "#fff3b0" : "#ffd54f");
+    const cRediff = K.soleil ? kRgb(Math.max(1800, K.soleil - 400)) : dore > 0.5 ? (sombre ? "#ffb870" : "#ffa726") : (sombre ? "#ffe9a8" : "#ffca28");
+    for (const B of baiesFenetres(c.ouvertures, ouv)) {
+      if (B.ouvert <= 0.02) continue;
+      const k = salle(B);
+      if (k < 0) continue;
+      const [a, b, d, ff] = B.seg, [nx, ny] = B.dehors, mil = [(a + d) / 2, (b + ff) / 2], L = Math.hypot(d - a, ff - b), dir = [(d - a) / L, (ff - b) / L];
+      const prof = profondeur(B, k), [bas, haut] = vitrageBornes(B, B.largeur), sol = bas < 40, kv = borne((haut - bas) / 125, 0.35, 1.3);
+      // lumière du ciel : faisceau de la baie vers l'intérieur, plus profond pour une baie jusqu'au sol, plus court et plus faible pour
+      // une petite vitre haute, plus fort côté soleil ; et sa part de la lumière de fond de la pièce
+      if (ciel > 0 && M.ciel > 0) {
+        const expo = isNaN(az) ? 0 : Math.max(0, nx * sx + ny * sy), p = Math.min(prof, (sol ? 330 : haut - bas < 80 ? 170 : 230) * (0.55 + 0.45 * B.ouvert));
+        const k1 = M.ciel * I * ciel * (0.55 + 0.45 * expo) * (0.25 + 0.75 * B.ouvert);
+        faisceau(k, B, p, cCiel, op1(k1 * Math.sqrt(kv) * (sombre ? 0.75 : 0.85)));
+        fonds.set(k, [...(fonds.get(k) || []), [B.largeur * (haut - bas) * B.ouvert, k1]]);
+      }
+      const fl = PL ? ((PL.az + nord) * Math.PI) / 180 : 0;
+      const astre = jour ? [sx, sy, e, 900] : nuitL > 0 ? (PL ? (PL.haut > 0.5 ? [Math.sin(fl), -Math.cos(fl), PL.haut, 260] : null) : [nx, ny, 40, 260]) : null;
+      const t = astre && tacheLumiere(B, astre[0], astre[1], astre[2], 1, astre[3]);
+      // la nuit, fenêtre qui ne voit pas la lune (ou lune couchée) : seulement la lueur froide du ciel nocturne
+      if (!t && !jour && PL && nuitL > 0) faisceau(k, B, Math.min(prof, 150), cLune, op1(I * nuitL * (0.05 + 0.08 * phase) * (0.25 + 0.75 * B.ouvert)));
+      if (!t) continue;
+      // lueur rediffusée autour de la tache : rayon de l'ordre de la profondeur de la pièce, intensité selon la surface éclairée
+      const s = Math.sqrt(borne(t.aire / 30000, 0, 1)), rl = borne(prof * 0.75, 140, 600), c0 = [t.centre[0] + nx * t.loin * 0.15, t.centre[1] + ny * t.loin * 0.15];
+      if (jour) {
+        const k0 = I * direct * borne(e / 6, 0.35, 1);
+        if (M.soleil > 0) tache(t, k, cSoleil, op1(M.soleil * k0 * (0.3 + 0.4 * t.expo)), ".45");
+        lueur("lum-rediff", k, c0, dir, rl, rl * 0.85, cRediff, op1(M.rediffusion * k0 * 0.32 * s));
+      } else {
+        const k0 = I * nuitL * (0.2 + 0.4 * phase);
+        tache(t, k, cLune, k0, "0");
+        lueur("lum-rediff", k, c0, dir, rl * 0.7, rl * 0.6, cLune, op1(M.rediffusion * k0 * 0.25 * s));
+      }
+    }
+    let fh = "";
+    const F = new Map([...fonds].map(([k, l]) => [k, lumiereFond(l.map((x) => x[0]), aireDe(c.pieces[k].poly)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28)]));
+    for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
+    // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
+    for (const V of lumiereVoisins(pieces.map(([p, k]) => [p.poly, k]), c.ouvertures, trans, F)) {
+      fh += this._fondPiece(V.vers, V.fond, cCiel, "lum-voisin");
+      const [a, b, d, ff] = c.ouvertures[V.i].seg;
+      lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
+    }
+    const cp = [...clips].map((k) => `<clipPath id="lum-cp${k}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>`).join("");
+    poserHTML(g, h || fh ? `<defs>${cp}${defs}</defs>${fh}${h}` : "");
+  }
+
+  // lumière de fond d'une pièce (k = indice dans `pieces`) : toute la pièce légèrement éclaircie, en écran ; op = intensité (0 à 1), col = teinte.
+  // Réutilisable pour une pièce voisine éclairée par une porte intérieure ouverte (intensité réduite, même teinte)
+  _fondPiece(k, op, col, cls = "") {
+    const p = this._config.pieces[k];
+    return op >= 0.004 && Array.isArray(p?.poly) && p.poly.length > 2 ? `<polygon class="lum-fond lum-b${cls ? ` ${cls}` : ""}" data-p="${k}" points="${ptsSvg(p.poly)}" fill="${col}" opacity="${op.toFixed(3)}"/>` : "";
   }
 }
 
@@ -6403,8 +7034,9 @@ return module.exports; })();
  * panneau de propriétés, annuler/rétablir, raccourcis clavier, brouillon local, enregistrement dans la config du dashboard.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const fmt = (v, d = 1) => Number(v).toLocaleString(_loc(), { maximumFractionDigits: d });
-const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+// outils communs exposés par la carte (déjà définie quand l'éditeur se charge) : une seule définition
+const { dansPoly, distBord, entitesZone, esc, fmt, canon, GENRES_FICHE, porteurDe, deCle, BASCULES, NOMS_OUVERTURE, initiales, borne,
+  TAILLE_MEUBLE_MAX: MAX_TAILLE_MEUBLE, CHAMPS_ENTITE_WIDGET, stock, stockSession, cleRouvrir, cleVersions } = customElements.get("maquette-card").outils;
 // HTML posé via le filet de sécurité de la carte (balises, attributs, liens et styles contrôlés : voir « sécurité (2/3) »)
 const poserHTML = (el, h) => customElements.get("maquette-card").poserHTML(el, h);
 const ajouterHTML = (el, h) => customElements.get("maquette-card").ajouterHTML(el, h);
@@ -6414,6 +7046,10 @@ const sansClavier = () => !matchMedia("(any-pointer: fine)").matches;
 // bulle d'aide ⓘ (texte déjà traduit, non échappé) : remplace les aides permanentes ; comportement dans EditeurPlan._cablerAides
 const bulleI = (txt) => (txt ? `<button type="button" class="ed-i" data-aide="${esc(txt)}" aria-label="${esc(_t("Aide"))}" aria-description="${esc(txt)}" aria-expanded="false"><ha-icon icon="mdi:information-outline"></ha-icon></button>` : "");
 // action secondaire en icône (libellé en infobulle et pour les lecteurs d'écran)
+// types édités dans la modale (barre flottante sur le plan, plus de feuille latérale) ; les autres gardent la feuille pour l'instant
+const TYPES_MODALE = new Set(["piece", "ouverture", "point", "meuble", "texte", "mur", "limite", "widget", "puce"]);
+// champ glissière + valeur affichée : lib (HTML), attrs de l'input (data-k…), bornes, pas, valeur (déjà échappée), texte de la sortie
+const champCurseur = (lib, attrs, min, max, pas, val, sortie) => `<div class="ed-champ"><label>${lib}</label><div class="ed-curseur"><input type="range" min="${min}" max="${max}" step="${pas}" ${attrs} value="${val}"><output>${sortie}</output></div></div>`;
 const ibAct = (act, icone, lib, attrs = "") => `<button type="button" class="ib" data-act="${act}" title="${esc(lib)}" aria-label="${esc(lib)}" ${attrs}><ha-icon icon="${icone}"></ha-icon></button>`;
 
 // noms des couleurs : clés traduites à l'affichage (_t)
@@ -6520,7 +7156,7 @@ const CATALOGUE = {
     { nom: _t("Fenêtre oscillo-battante"), icone: "mdi:window-open-variant", desc: _t("Contact, un battant"), genre: "ouverture", objet: { type: "fenetre", battants: 1, ouvrant: "gauche" }, aCompleter: ["contact"], mots: "oscillo battant tilt turn" },
     { nom: _t("Porte + volet + contact"), icone: "mdi:door", desc: _t("Porte avec volet roulant"), genre: "ouverture", objet: { type: "porte" }, aCompleter: ["contact", "volet"], mots: "entree roulant store" },
     { nom: _t("Porte + contact"), icone: "mdi:door", desc: _t("À tracer sur un mur"), genre: "ouverture", objet: { type: "porte" }, aCompleter: ["contact"], mots: "entree" },
-    { nom: _t("Porte-fenêtre + volet + contact"), icone: "mdi:door-open", desc: _t("Deux battants"), genre: "ouverture", objet: { type: "porte", battants: 2, ouvrant: "gauche" }, aCompleter: ["contact", "volet"], mots: "porte fenetre roulant" },
+    { nom: _t("Porte-fenêtre + volet + contact"), icone: "mdi:door-open", desc: _t("Deux battants"), genre: "ouverture", objet: { type: "porte", battants: 2, ouvrant: "gauche", vitree: "toute" }, aCompleter: ["contact", "volet"], mots: "porte fenetre roulant vitree" },
     { nom: _t("Baie coulissante"), icone: "mdi:door-sliding", desc: _t("Contact + volet, deux vantaux"), genre: "ouverture", objet: { type: "fenetre", battants: 2, ouvrant: "coulissant" }, aCompleter: ["contact", "volet"], mots: "baie vitree coulissant galandage bay sliding" },
     { nom: _t("Porte intérieure"), icone: "mdi:door-open", desc: _t("Sans capteur"), genre: "ouverture", objet: { type: "porte" } },
     { nom: _t("Porte de garage"), icone: "mdi:garage-variant", desc: _t("Motorisée (cover)"), genre: "ouverture", objet: { type: "portail" }, aCompleter: ["entite"], chercher: ["contact"], pref: ["garage", "garage_door"], mots: "basculante sectionnelle" },
@@ -6728,8 +7364,7 @@ const TYPES_ATELIER = () => {
   return ["tuile", "jauge", "entites", "commande", "serrure", "thermostat", "climat", "periodes", "tarif", "ve", "separateur"].filter((t) => g[t])
     .map((t) => ({ id: t, nom: g[t].nom, icone: g[t].icone, desc: g[t].desc, detail: g[t].detail, objet: g[t].objet }));
 };
-// champs entité d'un widget (hors listes et colonnes) et leur nom dans les dialogues de choix
-const CHAMPS_ENTITE_WIDGET = { entite: 1, prix: 1, periode: 1, couleur_jour: 1, couleur_demain: 1, batterie: 1, autonomie: 1, puissance: 1, branche: 1, session_kwh: 1, session_cout: 1 };
+// nom des champs entité d'un widget (CHAMPS_ENTITE_WIDGET, carte) dans les dialogues de choix
 const NOMS_CHAMPS_AUTO = { batterie: _tk("Batterie"), autonomie: _tk("Autonomie"), puissance: _tk("Puissance de charge"), branche: _tk("Câble branché"), "colonnes.stat": _tk("Compteur") };
 const idModele = () => Math.random().toString(36).slice(2, 10);
 // ---------- ouvertures : capteurs cherchés dans la pièce (pré-remplissage à la pose, suggestions) ----------
@@ -6739,7 +7374,6 @@ const CRIT_OUV = { contact: K("binary_sensor", ["door", "window", "opening", "ga
 // classe d'appareil du contact préférée selon le type, et type proposé d'après la classe du contact
 const DC_TYPE_OUV = { fenetre: ["window"], porte: ["door"], portail: ["garage_door", "opening", "gate", "garage"] };
 const TYPE_DC_OUV = { window: "fenetre", door: "porte", garage_door: "portail", gate: "portail", garage: "portail" };
-const NOMS_TYPE_OUV = { fenetre: _tk("Fenêtre"), porte: _tk("Porte"), portail: _tk("Portail") };
 const OUVRANTS_ED = [["", _tk("Aucun##ouvrant")], ["gauche", _tk("Gauche")], ["droite", _tk("Droite")], ["coulissant", _tk("Coulissant")]];
 // ---------- meubles personnalisés : primitives proposées par « Créer un meuble » (coordonnées en % de la taille) ----------
 const PRIMITIVES = { rect: _tk("Rectangle"), arrondi: _tk("Arrondi##forme"), ellipse: _tk("Rond##forme"), trait: _tk("Trait"), polygone: _tk("Polygone") };
@@ -6754,8 +7388,10 @@ const FORMES_DEPART = () => [
   { id: "f:L", nom: _t("Forme en L"), taille: [200, 200], forme: [PRIM_DEFAUT.polygone] },
 ];
 // domaines à interrupteur marche / arrêt (comme la carte : fiche, vue de la pièce)
-const BASCULES_ED = ["light", "switch", "fan", "input_boolean", "humidifier"];
-const MAX_TAILLE_MEUBLE = 5000; // mêmes bornes que la carte (5 à 5000 cm)
+// côté d'un meuble dans l'éditeur : mêmes bornes que la carte (5 à 5000 cm), 60 si la valeur manque
+const tailleMeuble = (v) => Math.max(5, Math.min(MAX_TAILLE_MEUBLE, +v || 60));
+// couleur hexadécimale #rrggbb, sinon la couleur par défaut (sélecteur <input type=color>)
+const hexOu = (c, defaut) => (/^#[0-9a-f]{6}$/i.test(c || "") ? c : defaut);
 const PUCES = [["ouvertures", "mdi:window-open-variant", _tk("Ouvertures"), _tk("Fenêtres et portes ouvertes (rouge s'il y en a)")],
   ["lumieres", "mdi:lightbulb-on", _tk("Lumières allumées"), _tk("Lumières du plan allumées")], ["volets", "mdi:window-shutter", _tk("Volets baissés"), _tk("Volets du plan sous 50 %")],
   ["temperature", "mdi:home-thermometer-outline", _tk("Température intérieure"), _tk("Moyenne des pièces intérieures")],
@@ -6775,10 +7411,79 @@ const ecrirePersonnes = (k, defaut) => (d, v) => {
   d.ambiance.personnes = o;
 };
 const choixPersonne = (k, defaut, options, nom, aide) => ({ chemin: `ambiance.personnes.${k}`, type: "choix", nom, options, defaut, aide, si: avecPersonnes, ecrire: ecrirePersonnes(k, defaut) });
+// lumière de l'ambiance (`ambiance.lumiere`) : proposée quand l'ambiance est active ; activé (défaut) = clé retirée, l'ambiance
+// reste (pas de retrait des parents vides comme ecrireReglage) ; `lune` peut porter l'entité de phase
+const avecAmbiance = (d) => !!d.ambiance && typeof d.ambiance === "object";
+const objLumiere = (d) => (d.ambiance.lumiere && typeof d.ambiance.lumiere === "object" ? d.ambiance.lumiere : {});
+const finLumiere = (d, o) => { if (Object.keys(o).length) d.ambiance.lumiere = o; else delete d.ambiance.lumiere; };
+const ecrireLumiere = (k) => (d, v) => {
+  if (!avecAmbiance(d)) return;
+  // tout coupé (`lumiere: false`) : en rallumer un garde les autres coupés
+  const o = d.ambiance.lumiere === false ? { soleil: false, lune: false, lampes: false } : objLumiere(d);
+  if (v === false) o[k] = false; else if (typeof o[k] !== "string" && typeof o[k] !== "number") delete o[k];
+  finLumiere(d, o);
+};
+// réglages fins (`ciel`, `rediffusion`, `soleil` : 0 à 2 ; `ciel_kelvin`, `soleil_kelvin` : 1800 à 10000 K) : valeur par défaut = clé retirée
+const lumOn = (d) => avecAmbiance(d) && d.ambiance.lumiere !== false;
+const avecSoleil = (d) => lumOn(d) && objLumiere(d).soleil !== false, avecLune = (d) => lumOn(d) && objLumiere(d).lune !== false;
+const multLu = (v) => (v === false ? 0 : typeof v === "number" && Number.isFinite(v) ? Math.min(2, Math.max(0, v)) : 1);
+const ecrireFin = (k, defaut) => (d, v) => {
+  if (!lumOn(d)) return;
+  const o = objLumiere(d);
+  if (v == null || v === defaut) { if (k !== "soleil" || o.soleil !== false) delete o[k]; } else o[k] = v;
+  finLumiere(d, o);
+};
+// chemin propre (`intensite_…`) : `soleil` est aussi l'interrupteur ; la clé écrite reste `ciel`, `rediffusion` ou `soleil`
+const multLumiere = (k, libelle, aide, si) => ({ chemin: `ambiance.lumiere.intensite_${k}`, type: "curseur", libelle, aide, min: 0, max: 200, pas: 5, unite: "%", defaut: 100, si,
+  lire: (d) => Math.round(multLu(objLumiere(d)[k]) * 100), ecrire: (d, v) => ecrireFin(k, 1)(d, v == null ? null : Math.round(Math.min(200, Math.max(0, +v))) / 100) });
+const kelvinLumiere = (k, libelle, aide, defaut) => ({ chemin: `ambiance.lumiere.${k}`, type: "curseur", kelvin: true, auto: true, libelle, aide, min: 1800, max: 10000, pas: 100, unite: "K", defaut, si: avecSoleil,
+  lire: (d) => { const v = objLumiere(d)[k]; return typeof v === "number" && Number.isFinite(v) ? Math.min(10000, Math.max(1800, v)) : null; },
+  ecrire: (d, v) => ecrireFin(k, "auto")(d, v == null || v === "auto" ? null : Math.round(Math.min(10000, Math.max(1800, +v)))) });
+// piste d'un curseur de teinte : le vrai spectre (même fonction kelvin → rgb que le rendu)
+const pisteKelvin = (kv, a, b) => `linear-gradient(90deg,${Array.from({ length: 9 }, (_, i) => `rgb(${kv(a + ((b - a) * i) / 8).join(",")}) ${i * 12.5}%`).join(",")})`;
+const texteCurseur = (f, v) => (v == null ? _t("Auto") : f.unite === "%" ? `${fmt(v, 0)} %` : `${fmt(v, 0)} ${f.unite || ""}`.trim());
+const boolLumiere = (k, libelle, aide, si = avecAmbiance) => ({ chemin: `ambiance.lumiere.${k}`, type: "bool", libelle, aide, defaut: true, si,
+  lire: (d) => d.ambiance?.lumiere !== false && objLumiere(d)[k] !== false, ecrire: ecrireLumiere(k) });
+// élément de la modale Ambiance qui avait le focus : retrouvé après le rendu (refait à chaque modification) par son attribut data-
+const heureAp = (h) => `${String(Math.floor(h) % 24).padStart(2, "0")}:${String(Math.round((h % 1) * 60)).padStart(2, "0")}`;
+const cleFocusAmb = (el) => {
+  for (const k of ["par", "parAuto", "amb", "ambChk", "ambSet", "ambPers", "anim", "alk", "alkChk", "alAct", "ongletAmb", "act"]) {
+    const v = el?.dataset?.[k];
+    if (v != null) return `[data-${k.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}="${String(v).replace(/["\\]/g, "\\$&")}"]`;
+  }
+  return null;
+};
+const PARAMS_LUMIERE = [
+  { id: "lumiere", titre: _tk("Lumière"), icone: "mdi:white-balance-sunny", onglet: "affichage", champs: [
+    boolLumiere("soleil", _tk("Soleil par les fenêtres"), _tk("Lueur du jour par toutes les fenêtres, taches de soleil à bords doux selon l'azimut et la hauteur, raccourcies par les volets.")),
+    boolLumiere("lune", _tk("Lueur de la lune"), _tk("La nuit, par les mêmes fenêtres ; plus forte à la pleine lune.")),
+    { chemin: "ambiance.lumiere.phase", type: "entite", domaine: "sensor", libelle: _tk("Phase de la lune"), aide: _tk("Capteur de l'intégration Moon (sensor.moon_phase si vide)."),
+      si: (d) => avecAmbiance(d) && d.ambiance.lumiere !== false && objLumiere(d).lune !== false,
+      lire: (d) => (typeof objLumiere(d).lune === "string" ? objLumiere(d).lune : ""),
+      ecrire: (d, v) => { if (!avecAmbiance(d)) return; const o = objLumiere(d); if (typeof v === "string" && v) o.lune = v; else delete o.lune; finLumiere(d, o); } },
+    { chemin: "ambiance.lumiere.portes", type: "bool", libelle: _tk("Portes sans capteur ouvertes"), defaut: true, si: avecSoleil,
+      aide: _tk("La lumière du jour passe dans la pièce voisine par une porte intérieure ouverte ou une verrière ; une porte sans capteur compte comme ouverte."),
+      lire: (d) => objLumiere(d).portes !== "fermees",
+      ecrire: (d, v) => { if (!lumOn(d)) return; const o = objLumiere(d); if (v === false) o.portes = "fermees"; else delete o.portes; finLumiere(d, o); } },
+    boolLumiere("lampes", _tk("Halos colorés des lampes"), _tk("Couleur et luminosité de chaque lampe ; les halos voisins se mélangent.")),
+    { type: "intertitre", libelle: _tk("Intensités") },
+    multLumiere("ciel", _tk("Lumière du ciel"), _tk("Lueur douce du jour par toutes les fenêtres non fermées."), avecSoleil),
+    // diffusion du ciel (`ciel_diffusion`, 0 à 1, affichée de 0 à 100 %) : 0,6 par défaut = clé retirée
+    { chemin: "ambiance.lumiere.ciel_diffusion", type: "curseur", libelle: _tk("Diffusion"), aide: _tk("Flou de la lumière du ciel, de plus en plus large en profondeur ; 0 % = faisceau net."),
+      min: 0, max: 100, pas: 5, unite: "%", defaut: 60, si: (d) => avecSoleil(d) || avecLune(d),
+      lire: (d) => { const v = objLumiere(d).ciel_diffusion; return Math.round((typeof v === "number" && Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0.6) * 100); },
+      ecrire: (d, v) => ecrireFin("ciel_diffusion", 0.6)(d, v == null ? null : Math.round(Math.min(100, Math.max(0, +v))) / 100) },
+    multLumiere("rediffusion", _tk("Lumière rediffusée"), _tk("Lueur chaude renvoyée autour des taches de soleil (et de lune)."), (d) => avecSoleil(d) || avecLune(d)),
+    multLumiere("soleil", _tk("Soleil direct"), _tk("Taches de soleil au sol derrière les fenêtres qui le voient."), avecSoleil),
+    { type: "intertitre", libelle: _tk("Teintes"), si: avecSoleil },
+    kelvinLumiere("ciel_kelvin", _tk("Teinte du ciel"), _tk("Température de couleur de la lueur du ciel ; Auto = blanc froid d'origine."), 6500),
+    kelvinLumiere("soleil_kelvin", _tk("Teinte du soleil"), _tk("Température de couleur des taches de soleil ; Auto = teinte d'origine, dorée près du coucher."), 4000),
+  ] },
+];
 const PARAMS_PERSONNES_BULLES = [
   { id: "personnes", titre: _tk("Personnes sur le plan"), icone: "mdi:account-multiple-outline", champs: [
     choixPersonne("dehors", "direction", [["direction", _tk("Au bord")], ["zone", _tk("En bas")], ["cache", _tk("Masquées")]],
-      _tk("Personnes absentes"), _tk("Au bord : dans leur direction, avec la distance. En bas : en bas du plan, avec leur zone. Chaque personne peut avoir son propre réglage (panneau Ambiance).")),
+      _tk("Personnes absentes"), _tk("Au bord : dans leur direction, avec la distance. En bas : en bas du plan, avec leur zone. Chaque personne peut avoir son propre réglage (fenêtre Ambiance).")),
     choixPersonne("chez_soi", "groupe", [["groupe", _tk("Regroupées")], ["cache", _tk("Masquées")]], _tk("Personnes à la maison"), _tk("Regroupées au point de la maison.")),
     choixPersonne("avatar", "photo", [["photo", _tk("Photo")], ["initiales", _tk("Initiales")]], _tk("Avatar"), _tk("Photo du profil, sinon initiales.")),
   ] },
@@ -6794,6 +7499,8 @@ const PARAMS_PERSONNES_BULLES = [
     { chemin: "style_pastilles.valeurs", type: "choix", nom: _tk("Valeurs dans les pastilles"), defaut: "toujours",
       options: [["toujours", _tk("Toujours")], ["survol", _tk("Au survol")], ["jamais", _tk("Jamais")]],
       aide: _tk("Au survol : toujours affichées sur écran tactile.") },
+    { chemin: "style_pastilles.zoom_seul", type: "bool", nom: _tk("Seulement dans la vue de leur pièce"), defaut: false,
+      aide: _tk("Les pastilles n'apparaissent qu'en zoomant sur leur pièce. Chaque appareil peut avoir son propre réglage.") },
   ] },
 ];
 // interaction au toucher, tablette murale, niveau d'animation (`interaction`, `tablet`, `animation_level`)
@@ -6858,6 +7565,9 @@ const SECTIONS_PARAMETRES = [
     { chemin: "afficher_meubles", type: "choix", libelle: _tk("Meubles affichés"), aide: _tk("Grand écran : carte d'au moins 760 px de large."), defaut: true,
       options: [[true, _tk("Toujours")], ["pc", _tk("Grand écran")], [false, _tk("Jamais")]] },
     { chemin: "calques.bouton_vue", type: "bool", libelle: _tk("Bouton Calques pour les visiteurs"), aide: _tk("Chacun masque ce qu'il veut, sur son navigateur."), defaut: false },
+    { type: "intertitre", libelle: _tk("Couleurs nommées") },
+    { id: "palette", type: "palette", libelle: _tk("Palette du plan"),
+      aide: _tk("Proposées dans tous les champs couleur. Un élément qui utilise un nom suit la palette quand elle change ; une couleur retirée rend aux éléments leur couleur par défaut.") },
   ] },
   { id: "fonctions", titre: _tk("Fonctions"), icone: "mdi:puzzle-outline", champs: [
     { chemin: "replay", type: "bool", libelle: _tk("Revoir la journée"), aide: _tk("Bouton à côté du zoom : la journée rejouée en accéléré."), defaut: false },
@@ -6881,11 +7591,14 @@ const SECTIONS_PARAMETRES = [
       valider: (d, v) => (v <= (estNombre(d.teinte_temperature?.min) ? +d.teinte_temperature.min : 17) ? _tk("Le bleu doit être sous le rouge.") : null) },
     { chemin: "legende", type: "bool", libelle: _tk("Légende sous le plan"), defaut: true },
   ] },
+  { id: "lumiere", titre: _tk("Lumière"), icone: "mdi:white-balance-sunny", onglet: "affichage", champs: [
+    { id: "lumiere-ambiance", type: "action", si: avecAmbiance, icone: "mdi:white-balance-sunny", libelle: _tk("Lumière du jour, lune et lampes"), desc: _tk("Ambiance et animations › Lumière"), action: (ed) => ed.panneauAmbiance(true, "lumiere") },
+  ] },
   ...PARAMS_PERSONNES_BULLES,
   ...PARAMS_INTERACTION,
   // accès aux réglages sans bouton dans la barre (les autres panneaux ont le leur : pas de doublon)
   { id: "ailleurs", titre: _tk("Réglés ailleurs"), onglet: "fonctions", champs: [
-    { id: "alertes", type: "action", icone: "mdi:alarm-light-outline", libelle: _tk("Alertes plein plan"), desc: _tk("Panneau Ambiance"), action: (ed) => ed.panneauAmbiance(true, "alertes") },
+    { id: "alertes", type: "action", icone: "mdi:alarm-light-outline", libelle: _tk("Alertes plein plan"), desc: _tk("Fenêtre Ambiance"), action: (ed) => ed.panneauAmbiance(true, "alertes") },
     { id: "puces", type: "action", icone: "mdi:format-list-bulleted", libelle: _tk("Puces du résumé"),
       desc: (d, ed) => (ed._puces().length ? _tk("Modifier la première puce") : _tk("Aucune puce : « + Puce » au-dessus du plan en ajoute une")),
       action: (ed) => (ed._puces().length ? ed.selectionner({ type: "puce", i: 0 }) : ed.snack(_t("Clique une puce du résumé (au-dessus du plan) pour la modifier, ou « + Puce » pour en ajouter une."))) },
@@ -6895,7 +7608,7 @@ const estNombre = (v) => (typeof v === "number" ? Number.isFinite(v) : typeof v 
 // lecture et écriture d'un réglage par son chemin ; valeur par défaut ou vide = clé retirée, objets parents vides retirés (ou `true`, parentVide)
 const lireChemin = (o, chemin) => chemin.split(".").reduce((x, k) => (x && typeof x === "object" && !Array.isArray(x) ? x[k] : undefined), o);
 const memeValeur = (a, b) => JSON.stringify(a) === JSON.stringify(b);
-const champReglage = (k) => SECTIONS_PARAMETRES.flatMap((S) => S.champs || []).find((f) => (f.chemin || f.id) === k);
+const champReglage = (k) => [...SECTIONS_PARAMETRES, ...PARAMS_LUMIERE].flatMap((S) => S.champs || []).find((f) => (f.chemin || f.id) === k);
 const champDe = (c) => (typeof c === "string" ? champReglage(c) || { chemin: c } : c);
 // valeur effective d'un réglage : lecture personnalisée, sinon la clé, sinon la valeur par défaut
 const lireReglage = (d, f) => { if (f.lire) return f.lire(d); const v = lireChemin(d, f.chemin); return v === undefined ? f.defaut : v; };
@@ -6943,8 +7656,8 @@ function versYaml(v, ind = "") {
   }
   return ind + scal(v);
 }
-const CLES_ENTITES = ["entite", "actif", "valeur", "contact", "volet", "prix", "periode", "couleur_jour", "couleur_demain", "batterie", "autonomie", "puissance", "branche",
-  "session_kwh", "session_cout", "stat", "jour", "semaine", "mois", "annee", "temperature", "humidite", "clic"];
+// clés retirées d'un modèle (entités) : champs entité des widgets, puis ceux des éléments, colonnes et pièces
+const CLES_ENTITES = [...CHAMPS_ENTITE_WIDGET, "actif", "valeur", "contact", "volet", "stat", "jour", "semaine", "mois", "annee", "temperature", "humidite", "clic"];
 function sansEntites(o) {
   if (Array.isArray(o)) return o.map(sansEntites);
   if (!o || typeof o !== "object") return o;
@@ -6953,30 +7666,9 @@ function sansEntites(o) {
   return r;
 }
 // fiches : portées par un meuble connecté, une ouverture ou une pastille ; un widget de fiche porte { meuble | ouverture | point: i }
-const GENRES_FICHE = { meuble: "meubles", ouverture: "ouvertures", point: "points" };
-const porteur = (s) => { const g = s && Object.keys(GENRES_FICHE).find((k) => s[k] != null); return g ? { genre: g, i: s[g] } : null; };
 // widget : « widget:<côté>:<i>[:<pièce>] », « widget:fiche:<i>:<meuble> » (fiche d'un meuble), « widget:fiche:<i>:<n>:ouverture | point »
-const cle = (s) => { const pf = s.type === "widget" && s.cote === "fiche" ? porteur(s) : null;
+const cle = (s) => { const pf = s.type === "widget" && s.cote === "fiche" ? porteurDe(s) : null;
   return s.type === "widget" ? `widget:${s.cote}:${s.i}${s.piece != null ? `:${s.piece}` : pf ? `:${pf.i}${pf.genre === "meuble" ? "" : `:${pf.genre}`}` : ""}` : `${s.type}:${s.i}`; };
-const deCle = (k) => { const [type, a, b, c, g] = k.split(":"); return type === "widget" ? { type, cote: a, i: +b, ...(c != null ? (a === "fiche" ? { [Object.hasOwn(GENRES_FICHE, g ?? "") ? g : "meuble"]: +c } : { piece: +c }) : {}) } : { type, i: +a }; };
-function entitesZone(hass, zone) {
-  if (!zone) return [];
-  const l = [];
-  for (const [id, e] of Object.entries(hass.entities || {})) {
-    if (e.hidden || e.entity_category || !hass.states[id]) continue;
-    if ((e.area_id || hass.devices?.[e.device_id]?.area_id) === zone) l.push(id);
-  }
-  return l;
-}
-function distBord([x, y], poly) {
-  let d = Infinity;
-  for (let i = 0; i < poly.length; i++) {
-    const [ax, ay] = poly[i], [bx, by] = poly[(i + 1) % poly.length], dx = bx - ax, dy = by - ay;
-    const k = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy || 1)));
-    d = Math.min(d, Math.hypot(x - ax - k * dx, y - ay - k * dy));
-  }
-  return d;
-}
 const SERVICES = ["light.turn_off", "light.turn_on", "light.toggle", "switch.turn_off", "switch.turn_on", "cover.open_cover", "cover.close_cover", "cover.stop_cover",
   "scene.turn_on", "script.turn_on", "climate.set_temperature", "climate.set_hvac_mode", "media_player.turn_off", "media_player.media_play_pause", "fan.toggle",
   "vacuum.start", "vacuum.return_to_base", "homeassistant.turn_off", "homeassistant.toggle", "automation.trigger", "input_boolean.toggle", "button.press"];
@@ -6995,6 +7687,9 @@ function poserChemin(o, chemin, v) {
   else x[k] = v;
 }
 const clone = (o) => JSON.parse(JSON.stringify(o));
+// contacts d'une ouverture (une entité ou une liste) et liste réécrite : vide → retiré, une seule → une chaîne, comme avant
+const contactsOuv = (o) => (Array.isArray(o?.contact) ? o.contact : [o?.contact]).filter((e) => typeof e === "string" && e.includes("."));
+const poserContacts = (o, l) => { const u = [...new Set(l.filter((e) => typeof e === "string" && e.includes(".")))].slice(0, 8); if (!u.length) delete o.contact; else o.contact = u.length === 1 ? u[0] : u; };
 // langue de la carte (`language`) appliquée sans recharger quand la config éditée en change ; true si l'interface a changé de langue
 function suivreLangue(carte, cfg) {
   if ((cfg.langue ?? null) === (carte._lgOpt ?? null)) return false;
@@ -7017,12 +7712,21 @@ const OUV_EN = { fenetre: "window", porte: "door", portail: "gate" };
 const versMoteur = (d) => ({
   rooms: (d.pieces || []).map((p) => ({ name: p?.nom ?? null, poly: p?.poly, outside: !!p?.dehors, sub_area: !!p?.sous_zone })),
   walls: d.murs || [],
-  openings: (d.ouvertures || []).map((o) => ({ type: OUV_EN[o?.type] || o?.type, seg: o?.seg, name: o?.nom, shutter_only: !!o?.volet_seul })),
+  openings: (d.ouvertures || []).map((o) => ({ type: OUV_EN[o?.type] || o?.type, seg: o?.seg, name: o?.nom, shutter_only: !!o?.volet_seul,
+    ...(o?.dehors ? { outside: o.dehors } : {}), ...(o?.vitree ? { glazed: true } : {}), ...(o?.volet ? { shutter: o.volet } : {}) })),
 });
 function depuisMoteur(d, c) {
   const meme = (a, b) => JSON.stringify(a) === JSON.stringify(b);
   return { pieces: (d.pieces || []).map((p, i) => (meme(p?.poly, c.rooms[i]?.poly) ? p : { ...p, poly: c.rooms[i].poly })),
-    ouvertures: (d.ouvertures || []).map((o, i) => (meme(o?.seg, c.openings[i]?.seg) ? o : { ...o, seg: c.openings[i].seg })), murs: c.walls || [] };
+    ouvertures: (d.ouvertures || []).map((o, i) => {
+      const n = c.openings[i];
+      if (!o || !n) return o;
+      // contrôles des ouvertures : côté dehors posé, lien de volet retiré (volet inexistant, « volet seul » relié à rien)
+      const r = { ...o, ...(meme(o.seg, n.seg) ? {} : { seg: n.seg }), ...(!o.dehors && n.outside ? { dehors: n.outside } : {}) };
+      if (o.volet && !n.shutter) delete r.volet;
+      if (o.volet_seul && !n.shutter_only) delete r.volet_seul;
+      return meme(r, o) ? o : r;
+    }), murs: c.walls || [] };
 }
 // options du dialogue (dans l'ordre d'affichage) : [clé du moteur, libellé, précision]
 const OPTIONS_NET = [["aimanter", _tk("Aimanter murs et ouvertures aux pièces"), _tk("Trous et décalages jusqu'à 12 cm.")],
@@ -7032,9 +7736,12 @@ const OPTIONS_NET = [["aimanter", _tk("Aimanter murs et ouvertures aux pièces")
   ["manquants", _tk("Ajouter les murs manquants"), _tk("Côté extérieur, d'après le contour des pièces.")],
   ["passages", _tk("Fermer les passages entre pièces"), _tk("Arêtes communes sans mur.")],
   ["sommets", _tk("Aimanter les sommets presque confondus"), _tk("Jusqu'à 6 cm : change la forme des pièces.")],
-  ["arrondir", _tk("Arrondir à 5 cm"), _tk("Sommets, murs et ouvertures : plan relevé sur une image.")]];
+  ["arrondir", _tk("Arrondir à 5 cm"), _tk("Sommets, murs et ouvertures : plan relevé sur une image.")],
+  ["dehors", _tk("Poser le côté dehors des fenêtres"), _tk("Fenêtres et portes vitrées sans côté dehors : pas de lumière du jour.")],
+  ["volets", _tk("Retirer les volets reliés à rien"), _tk("Volet sans entité, ou entité qui n'existe pas.")]];
 const PAR_PIECE = new Set(["manquants", "passages"]);
 const NOM_OUV_NET = { door: _tk("Porte"), window: _tk("Fenêtre"), gate: _tk("Portail") };
+const nomOuvNet = (o) => (NOM_OUV_NET[o] ? _t(NOM_OUV_NET[o]) : o || _t("Fenêtre"));
 // une ligne par défaut ou correction (détail chiffré du moteur, traduit ici)
 function texteNet(x) {
   const n = x.detail?.longueur ?? x.detail?.ecart, m = fmt((x.detail?.longueur || 0) / 100, 2);
@@ -7049,6 +7756,9 @@ function texteNet(x) {
     case "absent": return x.detail.sansMurs ? _t("Pièce sans murs : {m} m de contour", { m }) : _t("Mur absent sur {m} m", { m });
     case "passage": return _t("Passage ouvert de {m} m", { m });
     case "sommet": return _t("Sommets écartés de {n} cm", { n });
+    case "sans_dehors": return _t("« {nom} » sans côté dehors", { nom: nomOuvNet(x.detail.ouverture) });
+    case "volet_vide": return _t("Volet de « {nom} » relié à rien", { nom: nomOuvNet(x.detail.ouverture) });
+    case "volet_inconnu": return _t("Volet de « {nom} » : {e} n'existe pas", { nom: nomOuvNet(x.detail.ouverture), e: x.detail.entite });
     default: return _t("Cote hors grille de 5 cm");
   }
 }
@@ -7083,20 +7793,10 @@ function cadreNet(c, marge = 60) {
 // anciens exports (clés françaises) : refusés avec un message clair, jamais convertis en silence
 const CLES_FR = ["pieces", "murs", "limites", "ouvertures", "points", "textes", "meubles", "titre", "resume", "panneaux", "calques", "ambiance", "alertes", "groupes", "modeles", "vitrine", "plein_ecran", "afficher_meubles"];
 const nbr = (v, d = 0) => (Number.isFinite(+v) ? +v : d);
-// JSON indépendant de l'ordre des clés (HA et setConfig ne gardent pas toujours le même ordre)
-const canon = (o) => JSON.stringify(o, (k, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map((x) => [x, v[x]])) : v));
 const arr = (n) => Math.round(n * 10) / 10;
 // formes des meubles personnalisés : % de la taille au centième (1 cm reste 1 cm, même sur un grand meuble)
 const pc = (n) => Math.round(n * 100) / 100;
 
-function dansPoly([x, y], poly) {
-  let dedans = false;
-  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-    const [xi, yi] = poly[i], [xj, yj] = poly[j];
-    if ((yi > y) !== (yj > y) && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi) dedans = !dedans;
-  }
-  return dedans;
-}
 const centre = (poly) => [arr(poly.reduce((s, p) => s + p[0], 0) / poly.length), arr(poly.reduce((s, p) => s + p[1], 0) / poly.length)];
 
 function iconeEntite(hass, e) {
@@ -7137,37 +7837,11 @@ ha-card.ed-etroit .ed-fin .ed-btn{padding:0 10px;min-width:44px;justify-content:
 .ed-snack.erreur{background:var(--md-error);color:#fff}
 svg .ed-rect{fill:color-mix(in srgb,var(--md-primary) 12%,transparent)}
 .ed-terminer{position:absolute;left:50%;bottom:16px;transform:translateX(-50%);z-index:5;box-shadow:0 2px 6px #0005}
-.panneau-hote{display:flex;flex-direction:column;gap:8px}
-.panneau-hote>*,.ed-panneau>*{flex-shrink:0}
-/* panneau latéral : seulement quand il a un contenu (sélection, Calques, Ambiance) ; au repos, le plan prend toute la largeur.
-   PC : feuille latérale détachée (MD3) à droite, posée au-dessus de la vue sans la réduire : rien ne bouge sous le pointeur à la
-   sélection (2e clic sur un groupe ou une sous-zone au même endroit). Widget choisi (colonnes) : le panneau reprend sa place à côté
-   de la vue réduite, pour que le widget modifié et les deux colonnes (glisser-déposer) restent visibles. */
-.corps>.panneau-hote.vide{display:none}
-ha-card:not(.ed-etroit) .corps{position:relative}
-ha-card:not(.ed-etroit) .corps>.panneau-hote{position:absolute;top:0;right:0;width:360px;max-height:100%;z-index:6;border-radius:16px;
-  box-shadow:0 4px 8px 3px #00000026,0 1px 3px #0000004d}
-ha-card:not(.ed-etroit) .corps>.panneau-hote.reserve{position:static;box-shadow:none;border-radius:0}
-/* poignée de la feuille du bas (téléphone seulement) */
-.ed-replier{display:none;align-items:center;gap:4px;border:none;background:var(--md-surface-container);color:var(--md-on-surface-variant);cursor:pointer;font:500 13px/18px var(--ha-font-family-body,Roboto,sans-serif)}
-.ed-replier ha-icon{--mdc-icon-size:18px}
-ha-card.ed-etroit .panneau-hote.replie>.ed-panneau{display:none}
-/* téléphone : feuille en bas de l'écran, barre d'outils collante */
+/* plus de panneau latéral : téléphone, barre d'outils collante */
 ha-card.ed-etroit{overflow:visible}
 ha-card.ed-etroit .ed-barre{position:sticky;top:0;z-index:7;box-shadow:0 2px 6px #0004}
-ha-card.ed-etroit .corps>.panneau-hote{position:fixed;left:0;right:0;bottom:0;z-index:8;max-height:55vh;margin:0;gap:0;background:var(--md-surface-container);
-  border-radius:28px 28px 0 0;box-shadow:0 -4px 16px #0006;overflow:auto;width:auto;max-width:none}
-ha-card.ed-etroit .panneau-hote>.ed-replier{display:flex;position:sticky;top:0;align-self:stretch;justify-content:center;border-radius:28px 28px 0 0;height:40px;padding:0;z-index:1;background:inherit}
-ha-card.ed-etroit .panneau-hote>.ed-replier::before{content:"";position:absolute;top:8px;width:32px;height:4px;border-radius:2px;background:var(--md-on-surface-variant);opacity:.4}
-ha-card.ed-etroit .panneau-hote>.ed-replier ha-icon{transform:rotate(90deg);margin-top:10px}
-ha-card.ed-etroit .panneau-hote>.ed-replier span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
-ha-card.ed-etroit .panneau-hote>.ed-panneau{position:static;max-height:none;border-radius:0;padding-top:4px}
-ha-card.ed-etroit .panneau-hote.replie{max-height:none}
-ha-card.ed-etroit{padding-bottom:calc(55vh + 16px)}
 ha-card.ed-etroit .ed-terminer{position:fixed;bottom:136px;z-index:9}
 ha-card.ed-etroit .ed-snack{bottom:56px}
-ha-card.ed-etroit .corps>.panneau-hote.replie~*,ha-card.ed-etroit:has(.panneau-hote.replie){padding-bottom:56px}
-ha-card.ed-etroit:has(.panneau-hote.vide){padding-bottom:16px}
 .ed-avance{border-top:1px solid var(--md-outline-variant);padding-top:8px;display:flex;flex-direction:column;gap:14px}
 .ed-avance>summary{cursor:pointer;color:var(--md-primary);font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);list-style:none;display:flex;align-items:center;gap:6px;min-height:32px}
 .ed-avance>summary::before{content:"▸";transition:transform .2s}
@@ -7214,11 +7888,7 @@ ha-card.ed-etroit:has(.panneau-hote.vide){padding-bottom:16px}
 .ed-btn:disabled,.ib:disabled{opacity:.38;cursor:default}
 .ed-btn.plein:disabled{background:color-mix(in srgb,var(--md-on-surface) 12%,transparent);color:var(--md-on-surface)}
 .ed-info{font:400 12px/16px var(--ha-font-family-body,Roboto,sans-serif);color:var(--md-on-surface-variant);font-variant-numeric:tabular-nums;margin-left:auto;padding:0 8px}
-.ed-panneau{background:var(--md-surface-container);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;
-  font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);color:var(--md-on-surface);max-height:calc(100vh - 160px);overflow:auto;position:sticky;top:8px}
-.ed-panneau h3 .ib{margin-left:auto;width:32px;height:32px}
-.ed-panneau h3{margin:0;font:500 16px/24px var(--ha-font-family-body,Roboto,sans-serif);display:flex;align-items:center;gap:8px}
-.ed-panneau h4{margin:4px 0 0;font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);letter-spacing:.5px;text-transform:uppercase;color:var(--md-on-surface-variant)}
+.ed-medit h4{margin:4px 0 0;font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);letter-spacing:.5px;text-transform:uppercase;color:var(--md-on-surface-variant)}
 .ed-aide{color:var(--md-on-surface-variant);font-size:13px;line-height:19px}
 .ed-aide kbd{font:500 11px/1 ui-monospace,monospace;border:1px solid var(--md-outline-variant);border-radius:4px;padding:2px 5px;background:var(--md-surface)}
 .ed-champ{display:flex;flex-direction:column;gap:4px}
@@ -7256,6 +7926,13 @@ ha-card.ed-etroit:has(.panneau-hote.vide){padding-bottom:16px}
 .ed-couleurs button{width:28px;height:28px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
 .ed-couleurs button.on{outline:2px solid var(--md-on-surface);outline-offset:2px}
 .ed-couleurs input[type=color]{width:32px;height:32px;border:none;background:none;padding:0;cursor:pointer}
+.ed-couleurs .ed-pal-pastille{border-radius:8px}
+.ed-palette{display:flex;flex-direction:column;gap:4px}
+.ed-pal{display:flex;align-items:center;gap:12px;min-height:48px}
+.ed-pal input[type=color]{width:36px;height:36px;border:none;background:none;padding:0;cursor:pointer;flex:none}
+.ed-pal .n{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-pal .n small{display:block;color:var(--md-on-surface-variant)}
+.ed-pal-ajout input[type=text]{flex:1;min-width:0}
 .ed-inter{display:flex;align-items:center;justify-content:space-between;gap:12px;cursor:pointer}
 .ed-inter input{appearance:none;width:52px;height:32px;border-radius:16px;border:2px solid var(--md-outline);background:var(--md-surface-container-high);position:relative;cursor:pointer;flex:none;margin:0;transition:background .2s}
 .ed-inter input::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--md-outline);top:6px;left:6px;transition:all .2s var(--md-sys-motion)}
@@ -7269,6 +7946,7 @@ ha-card.ed-etroit:has(.panneau-hote.vide){padding-bottom:16px}
 .ed-liste button{display:flex;align-items:center;gap:12px;min-height:48px;padding:4px 8px;border:none;border-radius:12px;background:none;color:var(--md-on-surface);cursor:pointer;text-align:left;font:inherit}
 .ed-liste button ha-icon{color:var(--md-on-surface-variant);--mdc-icon-size:22px;flex:none}
 .ed-liste button span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-liste button .ed-elt-verrou{margin-left:auto;--mdc-icon-size:18px}
 .ed-liste small{display:block;color:var(--md-on-surface-variant);font-size:12px}
 .ed-dir{display:inline-grid;grid-template-columns:repeat(3,36px);grid-template-rows:repeat(3,36px);gap:2px}
 .ed-dir button{border:1px solid var(--md-outline-variant);border-radius:8px;background:var(--md-surface);color:var(--md-on-surface);cursor:pointer;display:grid;place-items:center}
@@ -7293,6 +7971,9 @@ ha-card.ed-etroit:has(.panneau-hote.vide){padding-bottom:16px}
 .ed-resultats small{color:var(--md-on-surface-variant);font-size:12px}
 .ed-resultats .etat{color:var(--md-on-surface-variant);font-size:12px;white-space:nowrap}
 .ed-resultats .deja{opacity:.55}
+.ed-choix-l{display:flex;align-items:center}
+.ed-resultats .ed-choix-l>.ed-coche{width:48px;min-height:48px;flex:none;justify-content:center;padding:0}
+.ed-resultats .ed-coche[aria-pressed=true] ha-icon{color:var(--md-primary)}
 .ed-dialogue footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 24px 20px}
 .ed-snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10;background:var(--md-on-surface);color:var(--md-surface);
   border-radius:4px;padding:6px 8px 6px 16px;display:flex;align-items:center;gap:8px;min-height:40px;box-shadow:0 3px 6px #0004;
@@ -7445,7 +8126,6 @@ ha-card.ed-etroit .ed-at-mb .ed-prim{scroll-margin-top:calc(var(--ed-ap-h,0px) +
 .ed-puces{display:flex;flex-wrap:wrap;gap:6px}
 .ed-puces button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--md-outline-variant);background:none;color:var(--md-on-surface-variant);cursor:pointer;font:500 13px/18px var(--ha-font-family-body,Roboto,sans-serif)}
 .ed-puces button.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container);border-color:transparent}
-.ed-acompleter{background:var(--md-error-container);color:var(--md-on-error-container);border-radius:8px;padding:8px 12px;font-size:13px}
 svg .ed-cadre{fill:color-mix(in srgb,var(--md-primary) 12%,transparent);stroke:var(--md-primary);stroke-dasharray:6 4;pointer-events:none}
 .edition .zone.espace{cursor:grab}
 svg .ed-cible{stroke:transparent;fill:none;cursor:pointer;pointer-events:stroke}
@@ -7498,7 +8178,6 @@ svg .ed-curseur-pt{fill:none;stroke:var(--md-primary);pointer-events:none}
 .ed-confirme .ed-actions{justify-content:flex-end}
 .ed-liste button .chevron{margin-left:auto;--mdc-icon-size:20px}
 .ed-par-sec .ed-liste button span{white-space:normal}
-.ed-panneau h3:focus{outline:none}
 /* barre d'outils : commande du pas de la grille, menus déroulants */
 .ed-menu-btn{height:40px;padding:0 6px 0 10px;border-radius:20px;border:1px solid var(--md-outline-variant);background:none;color:var(--md-on-surface);cursor:pointer;
   display:inline-flex;align-items:center;gap:6px;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -7569,6 +8248,68 @@ ha-card.ed-etroit .ed-onglets button{min-height:32px;height:32px;padding:0 16px;
 ha-card.ed-etroit .ed-onglets button[aria-selected=true]{border-color:transparent}
 ha-card.ed-etroit .ed-onglets button ha-icon{display:none}
 ha-card.ed-etroit .ed-mcontenu{border-left:none;padding:8px 16px 24px}
+/* modale Ambiance : même modèle que ⚙ Paramètres, plus large, aperçu fictif à droite (téléphone : bandeau au-dessus des réglages) */
+.ed-mvoile[hidden]{display:none}
+.ed-modale-amb{width:min(1040px,calc(100vw - 48px))}
+.ed-modale-amb .ed-onglets{width:216px}
+.ed-amb-apercu{flex:none;width:300px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;padding:4px 20px 20px;border-left:1px solid var(--md-outline-variant);overflow:auto}
+.ed-amb-apercu:empty{display:none}
+.ed-ap-titre{display:flex;align-items:center;gap:4px;margin:6px 0 0;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);color:var(--md-primary)}
+.ed-ap-plan{border-radius:16px;overflow:hidden;background:var(--md-surface-container-lowest,#0002);min-height:120px}
+.ed-ap-plan .ed-ap-carte{display:block;pointer-events:none}
+.ed-ap-ctl{display:flex;flex-direction:column;gap:10px;min-width:0}
+ha-card.ed-etroit .ed-ap-titre{display:none}
+ha-card.ed-etroit .ed-ap-plan{flex:none;width:132px;min-height:0}
+ha-card.ed-etroit .ed-ap-ctl{flex:1;gap:6px}
+ha-card.ed-etroit .ed-ap-ctl .ed-champ label{font-size:12px;line-height:16px}
+ha-card.ed-etroit .ed-modale-amb{width:100vw}
+ha-card.ed-etroit .ed-amb-apercu{order:1;width:auto;flex-direction:row;align-items:center;gap:12px;padding:8px 16px;border-left:none;border-bottom:1px solid var(--md-outline-variant);overflow:hidden}
+ha-card.ed-etroit .ed-modale-amb .ed-mcontenu{order:2}
+/* modale d'édition d'un élément (pièce, ouverture) : onglets, réglages, aperçu dans sa pièce (à droite ; en haut sur téléphone), pied d'actions */
+.ed-modale-elt{width:min(1080px,calc(100vw - 48px));height:min(720px,92vh)}
+.ed-modale-elt .ed-onglets{width:240px}
+.ed-elt-apercu{flex:none;width:340px;box-sizing:border-box;display:flex;flex-direction:column;gap:10px;padding:4px 20px 20px;border-left:1px solid var(--md-outline-variant);overflow:auto}
+.ed-elt-apercu .ed-ap-plan{min-height:0}
+.ed-medit details.ed-plein>summary{list-style:none;pointer-events:none;padding-left:0;color:var(--md-primary)}
+.ed-medit details.ed-plein>summary::-webkit-details-marker{display:none}
+.ed-medit details.ed-plein>summary::before{display:none}
+.ed-medit>section>.ed-actions{margin-top:0}
+.ed-mpied{flex:none;display:flex;align-items:center;gap:4px;padding:10px 20px 16px;border-top:1px solid var(--md-outline-variant)}
+.ed-mpied .ed-esp{flex:1}
+.ed-mpied .ib.danger,.ed-bf .ib.danger{color:var(--md-error,#b3261e)}
+ha-card.ed-etroit .ed-modale-elt{width:100vw}
+ha-card.ed-etroit .ed-elt-apercu{order:-1;width:auto;padding:8px 16px;border-left:none;border-bottom:1px solid var(--md-outline-variant);overflow:hidden}
+ha-card.ed-etroit .ed-elt-apercu .ed-ap-plan{width:100%;max-height:24vh}
+ha-card.ed-etroit .ed-mpied{padding:8px 12px calc(8px + env(safe-area-inset-bottom));flex-wrap:wrap;row-gap:4px}
+.ed-mpied>*{flex-shrink:0}
+ha-card.ed-etroit .ed-mpied>.ed-btn.plein{margin-left:auto}
+.ed-modale>header>.ed-retour{margin:-4px 0 0 -8px}
+/* aperçu d'un widget ou d'une puce du résumé : l'élément lui-même, rendu par la carte, non cliquable */
+.ed-ap-w{display:flex;flex-direction:column;min-width:0}
+.ed-ap-w.ed-ap-puce{flex-direction:row;padding:8px 0}
+ha-card.ed-etroit .ed-ap-w{width:100%;max-height:24vh;overflow:hidden}
+/* modale Calques : une colonne, plus étroite */
+.ed-modale-cq{width:min(560px,calc(100vw - 48px))}
+.ed-modale-cq .ed-mcontenu{border-left:none}
+ha-card.ed-etroit .ed-modale-cq{width:100vw}
+/* barre flottante près de l'élément sélectionné (MD3 : barre d'outils flottante, surface élevée, boutons icônes) */
+.ed-bf{position:absolute;z-index:5;display:flex;width:max-content;align-items:center;gap:2px;padding:4px;border-radius:28px;background:var(--md-surface-container-high);color:var(--md-on-surface);
+  box-shadow:0 2px 6px 2px #00000026,0 1px 2px #0000004d;max-width:calc(100% - 8px);box-sizing:border-box}
+.ed-bf[hidden]{display:none}
+.ed-bf .ed-bf-mod{height:40px;padding:0 16px 0 12px;border-radius:20px;margin-right:2px}
+.ed-bf .ed-bf-sep{width:1px;height:24px;margin:0 2px;background:var(--md-outline-variant)}
+ha-card.ed-etroit .ed-bf .ed-bf-mod{padding:0 10px}
+ha-card.ed-etroit .ed-bf .ed-bf-mod span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+/* curseurs des réglages (MD3) : valeur affichée ; teinte : piste au vrai spectre, « Auto » = teinte d'origine */
+.ed-par-curseur .ed-curseur{gap:10px}
+.ed-par-curseur .ed-curseur output{min-width:60px}
+.ed-par-curseur .ed-btn{flex:none;min-width:0;padding:0 12px}
+.ed-par-curseur.kelvin input[type=range]{-webkit-appearance:none;appearance:none;height:12px;border-radius:6px;background:var(--piste);margin:0;cursor:pointer}
+.ed-par-curseur.kelvin input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--md-primary);border:3px solid var(--md-surface-container-high);box-shadow:0 1px 3px #0006}
+.ed-par-curseur.kelvin input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--md-primary);border:3px solid var(--md-surface-container-high);box-shadow:0 1px 3px #0006}
+.ed-par-curseur.kelvin input[type=range]:focus-visible{outline:2px solid var(--md-primary);outline-offset:4px}
+.ed-par-curseur.auto input[type=range]{opacity:.6}
+.ed-par-curseur.auto output{color:var(--md-primary)}
 /* aide aux raccourcis clavier */
 .ed-dialogue.ed-dlg-touches{width:min(880px,100%)}
 .ed-dlg-touches header{padding-bottom:0}
@@ -7590,8 +8331,6 @@ ha-card.ed-etroit .ed-mcontenu{border-left:none;padding:8px 16px 24px}
   box-shadow:0 2px 6px 2px #00000026,0 1px 2px #0000004d;animation:ed-tip .12s var(--md-sys-motion,ease-out)}
 @keyframes ed-tip{from{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.ed-tip{animation:none}}
-.ed-panneau h3 .ed-i{margin-left:0}
-.ed-panneau h3 .ed-i+.ib{margin-left:auto}
 /* aide courte sous le titre d'un panneau (surface, sommets, compte d'une sélection) */
 .ed-resume{color:var(--md-on-surface-variant);font-size:13px;line-height:19px;font-variant-numeric:tabular-nums}
 /* actions secondaires en icônes (premier plan, dupliquer, modèle…) : texte en infobulle ; « Supprimer » garde son libellé */
@@ -7754,23 +8493,7 @@ class EditeurPlan {
     this.barre = document.createElement("div");
     this.barre.className = "ed-barre";
     card.insertBefore(this.barre, R.querySelector(".tete"));
-    this.panneau = document.createElement("aside");
-    this.panneau.className = "ed-panneau";
-    // panneau affiché seulement quand il a un contenu (sélection, Calques, Ambiance) : PC à droite, téléphone en feuille du bas,
-    // repliable par sa poignée (téléphone seulement : repliée au départ, elle se déplie à la sélection)
-    this.replie = this.carte.clientWidth < 760;
-    this.poignee = document.createElement("button");
-    this.poignee.className = "ed-replier";
-    // le « clic » du même toucher qui a déplié la feuille arrive ensuite sur sa poignée : on l'ignore
-    this.poignee.onclick = () => { if (Date.now() - (this._depliee || 0) > 600) this.replier(!this.replie); };
-    const hote = R.querySelector(".panneau-hote");
-    hote.append(this.poignee, this.panneau);
-    hote.classList.add("vide");
-    // téléphone : la feuille se déplie sous le doigt au toucher d'un élément du plan ; les événements souris émulés du même toucher
-    // (mousedown → focus d'un champ, click → poignée, choix d'entité…) arrivent ensuite sur ce qui vient d'apparaître : on les ignore
-    const fantome = (e) => { if (Date.now() - (this._depliee || 0) < 600 && R.querySelector("ha-card")?.classList.contains("ed-etroit")) { e.preventDefault(); e.stopPropagation(); } };
-    for (const t of ["mousedown", "mouseup", "click"]) hote.addEventListener(t, fantome, true);
-    this._etatRepli();
+    // pas de panneau latéral : chaque élément s'édite dans sa modale (barre flottante › Modifier, double-clic, Entrée)
     this._barre();
     this.zone = R.querySelector(".zone");
     this._pd = (e) => this._pointeurBas(e);
@@ -7816,7 +8539,8 @@ class EditeurPlan {
       <button class="ed-btn tonal" data-a="ajouter" title="${tactile() ? _t("Ajouter un objet ou un widget") : _t("Ajouter un objet ou un widget (A)")}" aria-label="${_t("Ajouter")}"><ha-icon icon="mdi:plus"></ha-icon><span class="lib">${_t("Ajouter")}</span></button>
       <span class="ed-info"></span>
       <button class="ed-btn texte" data-a="quitter" title="${_t("Quitter l'éditeur")}" aria-label="${_t("Quitter l'éditeur")}"><ha-icon icon="mdi:exit-to-app"></ha-icon><span class="lib">${_t("Quitter")}</span></button>
-      <button class="ed-btn plein${this.modifie ? " modifie" : ""}" data-a="enregistrer" ${this.modifie ? "" : "disabled"} title="${tactile() ? _t("Enregistrer") : _t("Enregistrer (Ctrl+S)")}" aria-label="${this.modifie ? _t("Enregistrer (modifications non enregistrées)") : _t("Enregistrer")}"><ha-icon icon="mdi:content-save-outline"></ha-icon><span class="lib">${_t("Enregistrer")}</span></button>
+      <button class="ed-btn texte ed-pc" data-a="appliquer" ${this.modifie ? "" : "disabled"} title="${tactile() ? _t("Appliquer : enregistrer sans quitter l'éditeur") : _t("Appliquer : enregistrer sans quitter l'éditeur (Ctrl+S)")}" aria-label="${_t("Appliquer : enregistrer sans quitter l'éditeur")}"><ha-icon icon="mdi:check"></ha-icon><span class="lib">${_t("Appliquer")}</span></button>
+      <button class="ed-btn plein${this.modifie ? " modifie" : ""}" data-a="enregistrer" ${this.modifie ? "" : "disabled"} title="${_t("Enregistrer et quitter l'éditeur")}" aria-label="${this.modifie ? _t("Enregistrer (modifications non enregistrées)") : _t("Enregistrer")}"><ha-icon icon="mdi:content-save-outline"></ha-icon><span class="lib">${_t("Enregistrer")}</span></button>
       <span class="ed-saut"></span></div>`);
     // indice de défilement quand tous les outils ne tiennent pas
     const df = this.barre.querySelector(".ed-defile"), indice = () => df.classList.toggle("deborde", df.scrollWidth > df.clientWidth + 2 && df.scrollLeft + df.clientWidth < df.scrollWidth - 2);
@@ -7826,7 +8550,7 @@ class EditeurPlan {
       const b = ev.composedPath().find((n) => n instanceof HTMLElement && (n.dataset.a || n.dataset.outil));
       if (!b || b.disabled) return;
       if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
-      else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(),
+      else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
         quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
         parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
     };
@@ -7843,7 +8567,9 @@ class EditeurPlan {
     const b = this.barre.querySelector('[data-a="plus"]');
     if (!b) return;
     // le pas de la grille a son propre bouton à côté : pas de doublon dans ce menu
-    this._menu(b, [{ icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
+    // Appliquer (enregistrer sans quitter) : dans ce menu sur téléphone, la barre garde ses deux rangées
+    this._menu(b, [...(this.modifie ? [{ icone: "mdi:check", libelle: _t("Appliquer : enregistrer sans quitter l'éditeur"), action: () => this.appliquer() }, { sep: true }] : []),
+      { icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
       { icone: "mdi:layers-outline", libelle: _t("Calques"), action: () => this.panneauCalques(!this.vueCalques) },
       { icone: "mdi:weather-partly-cloudy", libelle: _t("Ambiance et animations"), action: () => this.panneauAmbiance(!this.vueAmbiance) },
       { icone: "mdi:auto-fix", libelle: _t("Nettoyer le plan"), action: () => this.nettoyerPlan() },
@@ -7916,7 +8642,6 @@ class EditeurPlan {
     this._fermerAide();
     this._finirTrace();
     this._info("");
-    if (o !== "selection" && !this.replie && this.R.querySelector("ha-card")?.classList.contains("ed-etroit")) this.replier(true);
     this.outil = o; this.aPlacer = null;
     if (!garderModele) { this.modeleOuverture = null; this.aCompleter = null; this.chercherOuv = null; this.prefOuv = null; }
     if (o !== "piece" && o !== "rectangle") this.zoneEnAttente = null;
@@ -7942,14 +8667,14 @@ class EditeurPlan {
   annuler() { if (!this.histo.length) return; this.refaire.push(JSON.stringify(this.d)); this._applique(this.histo.pop()); this._valide(); this._apres(true); }
   retablir() { if (!this.refaire.length) return; this.histo.push(JSON.stringify(this.d)); this._applique(this.refaire.pop()); this._valide(); this._apres(true); }
   _valide() {
-    const n = { point: this.d.points, texte: this.d.textes, piece: this.d.pieces, mur: this.d.murs, limite: this.d.limites, ouverture: this.d.ouvertures, meuble: this.d.meubles };
+    const n = this._listes();
     if (this.sel?.type === "widget") { if (!this._wl(this.sel)?.[this.sel.i]) this.sel = null; return; }
     if (this.sel?.type === "puce") { if (!this._puces()[this.sel.i]) this.sel = null; return; }
     if (this.sel && !(n[this.sel.type] || [])[this.sel.i]) this.sel = null;
   }
   _wl(s, creer = false) {
     if (s.cote === "fiche") {
-      const pf = porteur(s), m = pf && this.d[GENRES_FICHE[pf.genre]]?.[pf.i];
+      const pf = porteurDe(s), m = pf && this.d[GENRES_FICHE[pf.genre]]?.[pf.i];
       if (!m) return null;
       if (creer) { if (!m.fiche || typeof m.fiche !== "object") m.fiche = {}; return (m.fiche.widgets ||= []); }
       return m.fiche?.widgets || null;
@@ -7959,10 +8684,14 @@ class EditeurPlan {
     if (creer) { base.panneaux ||= {}; return (base.panneaux[s.cote] ||= []); }
     return base.panneaux?.[s.cote] || null;
   }
+  // élément verrouillé (`locked: true`) : sélectionnable et modifiable dans son panneau, mais immobile à la souris et au clavier
+  _verrouille(k) { const o = this._elt(k); return !!o && !Array.isArray(o) && o.verrouille === true; }
+  // listes du plan par type d'élément
+  _listes(d = this.d) { return { point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles }; }
   _elt(k) {
     const [ty, a, b] = k.split(":"), d = this.d;
     if (ty === "widget") { const s = deCle(k); return this._wl(s)?.[s.i]; }
-    return ({ point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles, puce: this._puces() }[ty] || [])[+a];
+    return ({ ...this._listes(d), puce: this._puces() }[ty] || [])[+a];
   }
   _apres(sansHisto) {
     this.multi = new Set([...this.multi].filter((k) => this._elt(k)));
@@ -7970,9 +8699,9 @@ class EditeurPlan {
     if (this.d.groupes || this._toutesCles().some((k) => this._gr(k))) this._nettoyerGroupes();
     this.modifie = JSON.stringify(this.d) !== JSON.stringify(this.original);
     this._boite();
-    try { if (this.modifie) localStorage.setItem(this._cle(), JSON.stringify(this.d)); else localStorage.removeItem(this._cle()); } catch (e) { /* stockage indisponible */ }
+    if (this.modifie) stock.ecrire(this._cle(), JSON.stringify(this.d)); else stock.retirer(this._cle());
     // langue de la carte changée (panneau Paramètres, annuler / rétablir) : carte et éditeur passent tout de suite dans la nouvelle langue
-    if (suivreLangue(this.carte, this.d)) this._etatRepli();
+    suivreLangue(this.carte, this.d);
     this.carte._construire();
     this._barre();
     this._panneau();
@@ -7986,10 +8715,10 @@ class EditeurPlan {
 
   _proposerBrouillon() {
     let b = null;
-    try { b = localStorage.getItem(this._cle()); } catch (e) { /* stockage indisponible */ }
+    b = stock.lire(this._cle());
     if (b && b !== JSON.stringify(this.original)) {
       this.snack(_t("Un brouillon non enregistré existe."), [[_t("Reprendre"), () => { this._instantane(); this._applique(this._relire(b)); this._valide(); this._apres(); }],
-        [_t("Supprimer"), () => { try { localStorage.removeItem(this._cle()); } catch (e) { /* stockage indisponible */ } this.snack(_t("Brouillon supprimé.")); }]], 20000);
+        [_t("Supprimer"), () => { stock.retirer(this._cle()); this.snack(_t("Brouillon supprimé.")); }]], 20000);
     }
   }
 
@@ -8010,8 +8739,9 @@ class EditeurPlan {
     if (libre("murs")) (d.murs || []).forEach((s, i) => { h += cible("mur", i, s); });
     if (libre("limites")) (d.limites || []).forEach((s, i) => { h += cible("limite", i, s); });
     if (libre("ouvertures")) (d.ouvertures || []).forEach((o, i) => { h += cible("ouverture", i, o.seg); });
-    const poignee = (x, y, ref, r = 7) => `<circle class="ed-poignee" data-poignee="${ref}" cx="${x}" cy="${y}" r="${r * k}" stroke-width="${2.5 * k}"/>`;
-    const s = this.multi.size > 1 ? null : this.sel;
+    const s = this.multi.size > 1 ? null : this.sel, fige = !!s && this._verrouille(cle(s));
+    // élément verrouillé : cadre de sélection sans poignées
+    const poignee = (x, y, ref, r = 7) => (fige ? "" : `<circle class="ed-poignee" data-poignee="${ref}" cx="${x}" cy="${y}" r="${r * k}" stroke-width="${2.5 * k}"/>`);
     if (this.multi.size > 1) for (const kk of this.multi) {
       const m = deCle(kk);
       if (["mur", "limite", "ouverture"].includes(m.type)) { const sg = m.type === "ouverture" ? d.ouvertures[m.i].seg : this._liste(m.type)[m.i]; h += `<path class="ed-sel" d="M${sg[0]} ${sg[1]}L${sg[2]} ${sg[3]}" stroke-width="${4 * k}"/>`; }
@@ -8037,7 +8767,7 @@ class EditeurPlan {
     if (s && s.type === "piece") {
       const poly = d.pieces[s.i].poly;
       h += `<polygon class="ed-poly-sel" points="${poly.map((p) => p.join(",")).join(" ")}" stroke-width="${2.5 * k}"/>`;
-      poly.forEach((p, j) => {
+      if (!fige) poly.forEach((p, j) => {
         const q = poly[(j + 1) % poly.length];
         h += `<circle class="ed-milieu" data-poignee="milieu:${s.i}:${j}" cx="${(p[0] + q[0]) / 2}" cy="${(p[1] + q[1]) / 2}" r="${5 * k}"><title>${_t("Ajouter un sommet")}</title></circle>`;
       });
@@ -8069,6 +8799,7 @@ class EditeurPlan {
       this.R.querySelector(".plan").append(fin);
     } else if (!montrer) fin?.remove();
     if (!this._panneauFait) { this._panneauFait = true; this._panneau(); }
+    this._majBarreFlottante();
   }
 
   _liste(type) { return { mur: (this.d.murs ||= []), limite: (this.d.limites ||= []) }[type]; }
@@ -8138,13 +8869,6 @@ class EditeurPlan {
 
   _pointeurBas(ev) {
     if (ev.button !== 0) return;
-    // geste en cours (jusqu'au relâchement) : l'affichage ou le retrait du panneau attend la fin (voir _majHote)
-    this._geste = true;
-    const fin = () => {
-      window.removeEventListener("pointerup", fin); window.removeEventListener("pointercancel", fin);
-      setTimeout(() => { this._geste = false; if (this._hoteEnAttente) { this._hoteEnAttente = false; this._majHote(); } });
-    };
-    window.addEventListener("pointerup", fin); window.addEventListener("pointercancel", fin);
     const p = this.carte.cm(ev);
     if (this.aPlacerMeuble) {
       const m = { ...this.aPlacerMeuble, pos: this._grille(p, ev) }, pre = this._meublePre;
@@ -8152,7 +8876,6 @@ class EditeurPlan {
       this._fermerAide();
       this.commit(() => { (this.d.meubles ||= []).push(m); this.sel = { type: "meuble", i: this.d.meubles.length - 1 }; });
       if (pre) this._preRemplirMeuble(this.d.meubles.length - 1, pre);
-      this._deplier();
       this.zone.classList.remove("dessin");
       return;
     }
@@ -8160,7 +8883,7 @@ class EditeurPlan {
       const pos = this.aimante(p, ev);
       const pt = { ...this.aPlacer, pos }, aFaire = this.aCompleter;
       this.aPlacer = null; this.aCompleter = null;
-      if (aFaire?.length) setTimeout(() => this.snack(_t("À compléter dans le panneau : {l}.", { l: aFaire.map((x) => (A_COMPLETER[x] ? _t(A_COMPLETER[x]) : x)).join(", ") })), 50);
+      if (aFaire?.length) setTimeout(() => { this.editerSelection(); this.snack(_t("À compléter dans la fenêtre d'édition : {l}.", { l: aFaire.map((x) => (A_COMPLETER[x] ? _t(A_COMPLETER[x]) : x)).join(", ") })); }, 50);
       if (aFaire?.length) this._aFaire = { cle: `point:${this.d.points?.length || 0}`, champs: new Set(aFaire) };
       this.commit(() => { (this.d.points ||= []).push(pt); this._rattacher(pt); this.sel = { type: "point", i: this.d.points.length - 1 }; });
       this.zone.classList.remove("dessin");
@@ -8169,20 +8892,41 @@ class EditeurPlan {
     if (this.outil !== "selection") { ev.preventDefault(); this._clicDessin(p, ev); return; }
     const chemin = ev.composedPath();
     if (this.espace) { ev.preventDefault(); this.carte.debutPan(ev); return; }
-    const el = chemin.find((n) => n.dataset && (n.dataset.poignee || n.dataset.q || n.dataset.t || n.dataset.l || n.dataset.c || n.dataset.o || n.dataset.mb || n.dataset.p));
+    const cibleDe = (n) => n?.dataset && (n.dataset.poignee || n.dataset.q || n.dataset.t || n.dataset.l || n.dataset.c || n.dataset.o || n.dataset.mb || n.dataset.p);
+    let el = chemin.find(cibleDe);
     const mod = ev.ctrlKey || ev.metaKey || ev.shiftKey;
     if (!el) { ev.preventDefault(); if (!mod) this.selectionner(null); return this._cadre(ev, mod); }
+    const selDe = (ds) => {
+      if (ds.q != null) return { type: "point", i: +ds.q };
+      if (ds.t != null) return { type: "texte", i: +ds.t };
+      if (ds.l != null) return { type: "piece", i: +ds.l };
+      if (ds.c) { const [type, i] = ds.c.split(":"); return { type, i: +i }; }
+      if (ds.o != null) return { type: "ouverture", i: +ds.o };
+      if (ds.mb != null) return { type: "meuble", i: +ds.mb };
+      if (ds.p != null) return { type: "piece", i: +ds.p };
+      return null;
+    };
+    // élément verrouillé : le clic passe au premier élément non verrouillé dessous (le verrouillé reste choisi s'il n'y a rien dessous,
+    // ou depuis Calques › Éléments du plan)
+    const s0 = !el.dataset.poignee && selDe(el.dataset);
+    if (s0 && !mod && this._verrouille(cle(s0))) {
+      const dessous = (this.R.elementsFromPoint?.(ev.clientX, ev.clientY) || []).map((n) => (cibleDe(n) ? n : n.closest?.("[data-q],[data-t],[data-l],[data-c],[data-o],[data-mb],[data-p]")))
+        .find((n) => n && n !== el && !n.dataset.poignee && (() => { const x = selDe(n.dataset); return x && cle(x) !== cle(s0) && !this._verrouille(cle(x)); })());
+      if (dessous) el = dessous;
+    }
     const ds = el.dataset;
     ev.preventDefault();
+    // double appui sur l'élément sélectionné (seul : dans un groupe, le 2e appui entre dans le groupe) : sa modale d'édition (le plan est redessiné au premier appui, le « dblclick » natif ne vient pas)
+    if (!ds.poignee && !mod) {
+      const s1 = selDe(ds), av = this._appuiPrec, k1 = s1 && cle(s1);
+      this._appuiPrec = s1 ? { t: ev.timeStamp, x: ev.clientX, y: ev.clientY, k: k1 } : null;
+      if (s1 && av && av.k === k1 && ev.timeStamp - av.t < 300 && Math.hypot(ev.clientX - av.x, ev.clientY - av.y) < 8 && this.multi.size <= 1 && this._enModale(this.sel) && cle(this.sel) === k1) {
+        this._appuiPrec = null;
+        return this.editerSelection();
+      }
+    }
     if (!ds.poignee) {
-      let s = null;
-      if (ds.q != null) s = { type: "point", i: +ds.q };
-      else if (ds.t != null) s = { type: "texte", i: +ds.t };
-      else if (ds.l != null) s = { type: "piece", i: +ds.l };
-      else if (ds.c) { const [type, i] = ds.c.split(":"); s = { type, i: +i }; }
-      else if (ds.o != null) s = { type: "ouverture", i: +ds.o };
-      else if (ds.mb != null) s = { type: "meuble", i: +ds.mb };
-      else if (ds.p != null) s = { type: "piece", i: +ds.p };
+      const s = selDe(ds);
       if (s && mod) return this.basculerSel(s);
       // élément d'un groupe : le premier clic prend tout le groupe (glisser = déplacer le groupe), un clic sans glisser sur le groupe déjà pris entre dedans
       const gr = s && this._gr(cle(s));
@@ -8195,6 +8939,7 @@ class EditeurPlan {
     }
     if (ds.poignee) {
       const [genre, a, b, c] = ds.poignee.split(":");
+      if (this._verrouille(`piece:${a}`) && genre !== "bout" && genre !== "coin") return;
       if (genre === "milieu") {
         const i = +a, j = +b, poly = this.d.pieces[i].poly, q = poly[(j + 1) % poly.length];
         this.commit(() => poly.splice(j + 1, 0, [arr((poly[j][0] + q[0]) / 2), arr((poly[j][1] + q[1]) / 2)]));
@@ -8220,6 +8965,10 @@ class EditeurPlan {
   }
 
   _glisser(ev, g) {
+    // élément verrouillé (ou poignée d'un élément verrouillé) : le clic sélectionne, le glisser ne bouge rien
+    const cleG = { html: g.type === "etiquette" ? `piece:${g.i}` : `${g.type}:${g.i}`, segment: `${g.type}:${g.i}`, bout: `${g.type}:${g.i}`, meuble: `meuble:${g.i}`,
+      coin: `meuble:${g.i}`, piece: `piece:${g.i}`, sommet: `piece:${g.i}` }[g.genre];
+    if (cleG && this._verrouille(cleG)) g = { genre: "fige", surClic: g.surClic };
     const debut = this.carte.cm(ev), avant = JSON.stringify(this.d);
     let bouge = false, raf = 0;
     const origine = clone(this.d);
@@ -8229,6 +8978,7 @@ class EditeurPlan {
       const p = this.carte.cm(e);
       const dx = p[0] - debut[0], dy = p[1] - debut[1];
       if (!bouge && Math.hypot(dx, dy) * this.echelle < 3) return;
+      if (g.genre === "fige") return;
       bouge = true;
       if (g.genre === "groupe") {
         const pas = e.altKey ? 0 : this.grille, ddx = pas ? Math.round(dx / pas) * pas : dx, ddy = pas ? Math.round(dy / pas) * pas : dy;
@@ -8320,7 +9070,8 @@ class EditeurPlan {
   _double(ev) {
     const el = ev.composedPath().find((n) => n.dataset?.poignee);
     if (this.outil !== "selection") { this._finirTrace(); return; }
-    if (!el) return;
+    // double-clic sur une pièce ou une ouverture (hors poignée) : sa modale d'édition
+    if (!el) { if (this._enModale(this.sel)) this.editerSelection(); return; }
     const [genre, a, b] = el.dataset.poignee.split(":");
     if (genre === "sommet" && this.d.pieces[+a].poly.length > 3) this.commit(() => this.d.pieces[+a].poly.splice(+b, 1));
   }
@@ -8344,7 +9095,7 @@ class EditeurPlan {
       this.commit(() => { (this.d.textes ||= []).push(infos ? { t: _t("Informations"), pos: q, infos: [] } : { t: _t("Texte"), pos: q }); this.sel = { type: "texte", i: this.d.textes.length - 1 }; });
       this.choisirOutil("selection");
       if (infos) setTimeout(() => this._action("info-ajout"), 50);
-      else setTimeout(() => this.panneau.querySelector('input[data-k="t"]')?.select(), 50);
+      else setTimeout(() => { this.editerSelection(); this.R.querySelector('.ed-edit input[data-k="t"]')?.select(); }, 50);
       return;
     }
     if (o === "rectangle" && dep) {
@@ -8377,7 +9128,9 @@ class EditeurPlan {
         const r = aFaire?.length || chercher?.length ? await this._preRemplirOuverture(ob, { champs: aFaire || [], chercher: chercher || [], pref }) : { manquants: new Set(), relies: [] };
         if (r.manquants.size) this._aFaire = { cle: `ouverture:${this.d.ouvertures?.length || 0}`, champs: r.manquants };
         this.commit(() => { (this.d.ouvertures ||= []).push(ob); this.sel = { type: "ouverture", i: this.d.ouvertures.length - 1 }; });
-        if (r.manquants.size) this.snack(_t("À compléter dans le panneau : {l}.", { l: [...r.manquants].map((x) => (A_COMPLETER[x] ? _t(A_COMPLETER[x]) : x)).join(", ") }));
+        // capteur à compléter : la modale s'ouvre sur l'onglet Capteurs, le champ surligné
+        if (r.manquants.size) this.editerSelection("capteurs");
+        if (r.manquants.size) this.snack(_t("À compléter dans la fenêtre d'édition : {l}.", { l: [...r.manquants].map((x) => (A_COMPLETER[x] ? _t(A_COMPLETER[x]) : x)).join(", ") }));
         else if (r.relies.length) this.snack(_t("Relié : {l}.", { l: r.relies.map((e) => this.carte._nom(e)).join(", ") }));
       })();
       return;
@@ -8430,12 +9183,14 @@ class EditeurPlan {
     return { pos: [arr(x), arr(y)], mur };
   }
 
-  _panneauMeuble(o, supprimer) {
+  _ongletsMeuble(o) {
     const perso = o.type === "forme", L = MEUBLES(), def = L[o.type] || { nom: perso ? _t("Meuble personnalisé") : _t("Type inconnu ({t})", { t: o.type }), taille: [60, 60] }, [w, h] = o.taille || def.taille, rot = nbr(o.rotation);
     const nomDef = L[o.type] ? _t(def.nom) : def.nom; // nom du catalogue (traduit) ; o.nom est celui de l'utilisateur
     const mode = tactile() ? _t("Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.") : _t("Glisse-le pour le déplacer (il se colle aux murs proches, Alt pour l'en empêcher), tire un coin pour changer sa taille (Maj : proportions gardées).");
-    return `<h3><ha-icon icon="mdi:sofa-outline"></ha-icon>${esc(o.nom || nomDef)}${bulleI(def.aide ? `${_t(def.aide)}. ${mode}` : mode)}</h3>
-      ${this._champTexte(o.type === "espace" ? _t("Nom affiché") : _t("Nom (infobulle)"), "nom", o.nom, nomDef)}
+    const anim = o.entite || o.valeur || o.fiche ? this._sectionAnimation(o, "meuble", "animation", _t("Animation (actif)")) : "";
+    return { icone: "mdi:sofa-outline", titre: o.nom || nomDef, resume: nomDef, aide: def.aide ? `${_t(def.aide)}. ${mode}` : mode,
+      actions: `${perso || o.type === "espace" ? "" : ibAct("atelier-meuble", "mdi:shape-outline", _t("Personnaliser la forme (atelier)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : garder ce meuble à ces dimensions dans « Mes modèles »"))}`,
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(o.type === "espace" ? _t("Nom affiché") : _t("Nom (infobulle)"), "nom", o.nom, nomDef)}
       ${perso ? `<button type="button" class="ed-btn tonal ed-plein" data-act="atelier-meuble"><ha-icon icon="mdi:shape-outline"></ha-icon>${_t("Modifier la forme")}</button>`
         : `<div class="ed-champ"><label>${_t("Type")}</label><select data-k="type">${Object.entries(L).map(([t, x]) => `<option value="${esc(t)}" ${t === o.type ? "selected" : ""}>${esc(_t(x.cat))} · ${esc(_t(x.nom))}</option>`).join("")}${L[o.type] ? "" : `<option selected value="${esc(o.type)}">${esc(o.type)}</option>`}</select></div>`}
       ${def.rond ? this._champNombre(_t("Diamètre (cm)"), "_diametre", w, 1) : `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "taille.0", w, 1)}${this._champNombre(_t("Profondeur (cm)"), "taille.1", h, 1)}</div>`}
@@ -8449,11 +9204,10 @@ class EditeurPlan {
         </div></div>
       <details class="ed-avance"><summary>${_t("Position")}</summary>
       ${this._champNombre(_t("Angle (°, 0 à 359)"), "_angle", rot, 1)}
-      <div class="ed-ligne">${this._champNombre("x (cm)", "pos.0", o.pos[0], 1)}${this._champNombre("y (cm)", "pos.1", o.pos[1], 1)}</div></details>
-      ${this._sectionConnecte(o, def)}
-      ${o.entite || o.valeur || o.fiche ? this._sectionAnimation(o, "meuble", "animation", _t("Animation (actif)")) : ""}
-      ${this._calqueNiveau(o)}
-      <div class="ed-actions">${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${perso || o.type === "espace" ? "" : ibAct("atelier-meuble", "mdi:shape-outline", _t("Personnaliser la forme (atelier)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : garder ce meuble à ces dimensions dans « Mes modèles »"))}${supprimer}</div>`;
+      ${this._champXY(o)}</details>
+      ${this._calqueNiveau(o)}`],
+        ["connecte", _t("Connecté"), "mdi:lightning-bolt-outline", this._sectionConnecte(o, def)],
+        ...(anim ? [["animation", _t("Animation"), "mdi:animation-play-outline", anim]] : [])] };
   }
 
   // ---------- calques ----------
@@ -8464,10 +9218,24 @@ class EditeurPlan {
   }
   // élément sur un calque masqué ou verrouillé : ni cadre de sélection ni Ctrl+A
   _bloque(k, Q = this.carte._calques()) { const c = this._calqueDe(k); return !!c && (Q.masques.has(c) || Q.verrous.has(c)); }
+  // couleurs nommées du plan (⚙ Paramètres › Couleurs) proposées dans les champs couleur : l'élément garde le nom et suit la palette
+  // attrs(n) : attributs du bouton (par défaut data-couleur, lu par le panneau ; Ambiance et atelier ont les leurs)
+  // nuancier : pastilles de la palette de base (COULEURS) puis couleurs nommées du plan ; attrs(c) : attributs d'une pastille de base,
+  // attrsPal(nom) : ceux d'une couleur nommée (par défaut data-couleur)
+  _pastilles(val, attrs = (c) => `data-couleur="${c}"`, attrsPal) {
+    const v = (val || "").toLowerCase();
+    return COULEURS.map(([n, c]) => `<button type="button" ${attrs(c)} title="${_t(n)}" aria-label="${_t(n)}" class="${v === c ? "on" : ""}" style="background:${c}"></button>`).join("") + this._nuancierPalette(val, "", attrsPal);
+  }
+  _nuancierPalette(val, k = "", attrs = (n) => `data-couleur="${esc(n)}"${k ? ` data-ck="${esc(k)}"` : ""}`) {
+    const l = Object.entries(this.d.palette || {}).filter(([, c]) => this.carte.constructor.couleurSure(c));
+    return l.map(([n, c]) => `<button type="button" ${attrs(n)} class="ed-pal-pastille${val === n ? " on" : ""}" title="${esc(_t("Couleur nommée « {nom} »", { nom: n }))}" aria-label="${esc(_t("Couleur nommée « {nom} »", { nom: n }))}" aria-pressed="${val === n}" style="background:${esc(c)}"></button>`).join("");
+  }
   _calqueNiveau(o) {
+    const v = o.verrouille === true, lv = v ? _t("Déverrouiller") : _t("Verrouiller : ni déplacé ni redimensionné à la souris");
     return `${this._inter(_t("Masquer en vue"), "masque", o.masque, _t("Visible ici en transparence."))}
-      <div class="ed-champ"><label>${_t("Ordre dans son calque")}${o.niveau ? ` · ${_t("niveau {n}", { n: esc(o.niveau) })}` : ""}</label><div class="ed-actions">
-        ${ibAct("niveau:haut", "mdi:arrange-bring-to-front", _t("Premier plan"))}${ibAct("niveau:bas", "mdi:arrange-send-to-back", _t("Arrière-plan"))}</div></div>`;
+      <div class="ed-champ"><label>${_t("Ordre dans son calque")}${o.niveau ? ` · ${_t("niveau {n}", { n: esc(o.niveau) })}` : ""}${v ? ` · ${_t("verrouillé")}` : ""}</label><div class="ed-actions">
+        ${ibAct("niveau:haut", "mdi:arrange-bring-to-front", _t("Premier plan"))}${ibAct("niveau:bas", "mdi:arrange-send-to-back", _t("Arrière-plan"))}
+        ${Array.isArray(o) ? "" : `<button type="button" class="ib ed-verrou${v ? " on" : ""}" data-act="verrou" title="${esc(lv)}" aria-label="${esc(lv)}" aria-pressed="${v}"><ha-icon icon="mdi:${v ? "lock-outline" : "lock-open-variant-outline"}"></ha-icon></button>`}</div></div>`;
   }
   // premier plan / arrière-plan : juste au-dessus (au-dessous) des autres éléments de son calque ; niveau par défaut = clé retirée
   _niveau(haut) {
@@ -8482,13 +9250,30 @@ class EditeurPlan {
   }
   panneauCalques(oui) {
     this.vueCalques = oui;
-    if (oui && this.vueParametres) this._fermerParametres(); // panneau latéral demandé : la modale ⚙ se ferme (comme ses raccourcis)
-    if (oui && this.vueAmbiance) { this.vueAmbiance = false; this.carte._construire(); }
-    if (oui) { this.sel = null; this.multi.clear(); this.carte._construire(); if (this.replie) { this._depliee = Date.now(); this.replier(false); } }
+    if (oui && this.vueParametres) this._fermerParametres(); // une seule modale à la fois : ⚙, Ambiance et l'édition d'un élément se ferment
+    if (oui && this.vueAmbiance) { this.vueAmbiance = false; this._fermerAmbiance(); this.carte._construire(); }
+    if (oui && this.vueEdition) this.fermerEdition();
+    if (oui) { this.sel = null; this.multi.clear(); this.carte._construire(); }
     this._barre();
     this._panneau();
+    if (oui) this.R.querySelector(".ed-cq-modale [data-act=cq-fermer]")?.focus({ preventScroll: true });
   }
+  // modale Calques : ordre, œil et cadenas des calques, puis les éléments du plan par catégorie (un clic ouvre la modale de l'élément,
+  // Échap y revient) ; masquée pendant l'édition d'un élément, ⚙ ou Ambiance
   _panneauCalques() {
+    let V = this.R.querySelector(".ed-mvoile.ed-cq-modale");
+    if (!this.vueCalques) { V?.remove(); return; }
+    if (!V) {
+      V = this._mvoile("ed-cq-modale");
+      V.onpointerdown = (ev) => { this._basVoileCq = ev.target === V; };
+      V.addEventListener("click", (ev) => { if (ev.target === V && this._basVoileCq) this.panneauCalques(false); });
+      this._clavierModale(V);
+    }
+    V.hidden = !!(this.sel || this.multi.size || this.vueEdition || this.vueParametres || this.vueAmbiance);
+    if (V.hidden) return;
+    const actif = this.R.activeElement, ds = V.contains(actif) ? actif.dataset || {} : {};
+    const garde = ds.act ? `[data-act="${ds.act}"]` : ds.actChk ? `[data-act-chk="${ds.actChk}"]` : ds.cqGlisse ? `[data-cq-glisse="${ds.cqGlisse}"]` : null;
+    const defile = V.querySelector(".ed-mcontenu")?.scrollTop || 0;
     const d = this.d, q = d.calques || {}, Q = this.carte._calques(), { noms, icones } = this.carte.constructor.CALQUES;
     const P = d.points || [], M = d.meubles || [], sz = d.pieces.filter((p) => p.sous_zone);
     const elts = { pieces: d.pieces.filter((p) => !p.sous_zone), sous_zones: sz, halos: P.filter((p) => p.halo), meubles: M, limites: d.limites || [], murs: d.murs || [],
@@ -8501,16 +9286,22 @@ class EditeurPlan {
         <button class="ib${m ? " on" : ""}" data-act="cq-oeil:${k}" title="${m ? _t("Afficher en vue") : _t("Masquer en vue")}" aria-label="${m ? _t("Afficher en vue") : _t("Masquer en vue")}" aria-pressed="${m}"><ha-icon icon="mdi:${m ? "eye-off-outline" : "eye-outline"}"></ha-icon></button>
         <button class="ib${v ? " on" : ""}" data-act="cq-verrou:${k}" title="${v ? _t("Déverrouiller") : _t("Cliquer à travers")}" aria-label="${v ? _t("Déverrouiller") : _t("Cliquer à travers")}" aria-pressed="${v}"><ha-icon icon="mdi:${v ? "lock-outline" : "lock-open-variant-outline"}"></ha-icon></button></div>`;
     };
-    poserHTML(this.panneau, `<h3><ha-icon icon="mdi:layers-outline"></ha-icon>${_t("Calques")}${bulleI(_t("En haut d'une liste : au premier plan. Œil : masqué en vue (ici en transparence et non cliquable). Cadenas : on clique à travers pendant l'édition. Ce qui est « au-dessus du dessin » reste toujours au-dessus du dessin."))}<button class="ib" data-act="cq-fermer" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></h3>
+    poserHTML(V, `<div class="ed-modale ed-modale-cq" role="dialog" aria-modal="true" aria-labelledby="ed-cq-titre">
+      <header><ha-icon icon="mdi:layers-outline"></ha-icon><div><h2 id="ed-cq-titre">${_t("Calques")}</h2><div class="ed-version">${bulleI(_t("En haut d'une liste : au premier plan. Œil : masqué en vue (ici en transparence et non cliquable). Cadenas : on clique à travers pendant l'édition. Ce qui est « au-dessus du dessin » reste toujours au-dessus du dessin."))}</div></div>
+        <button class="ib" data-act="cq-fermer" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></header>
+      <div class="ed-mcontenu ed-medit"><section>
       <h4>${_t("Au-dessus du dessin")}</h4><div class="ed-cqs" data-groupe="html">${[...Q.html].reverse().map(ligne).join("")}</div>
       <h4>${_t("Dessin")}</h4><div class="ed-cqs" data-groupe="svg">${[...Q.svg].reverse().map(ligne).join("")}</div>
       ${d.afficher_meubles === "pc" ? `<div class="ed-aide">${_t("Meubles : affichés en vue sur grand écran seulement (show_furniture: desktop).")}</div>` : ""}
       <div class="ed-actions"><button class="ed-btn contour" data-act="cq-reinit" ${q.ordre_svg || q.ordre_html ? "" : "disabled"}><ha-icon icon="mdi:restore"></ha-icon>${_t("Réinitialiser l'ordre")}</button></div>
       <label class="ed-inter"><span>${_t("Bouton Calques pour les visiteurs")}${bulleI(_t("Chacun masque ce qu'il veut, sur son navigateur."))}</span><input type="checkbox" data-act-chk="cq-bouton" ${q.bouton_vue ? "checked" : ""}></label>
-      ${this._listesElements()}`);
-    this._cablerPanneau();
+      ${this._listesElements()}</section></div></div>`);
+    const boite = V.querySelector(".ed-modale");
+    this._cablerPanneau(boite);
+    V.querySelector(".ed-mcontenu").scrollTop = defile;
+    if (garde) boite.querySelector(garde)?.focus({ preventScroll: true });
     // glisser une poignée (souris ou doigt) ou flèches haut / bas : nouvel ordre dans son groupe
-    this.panneau.querySelectorAll("[data-cq-glisse]").forEach((h) => {
+    boite.querySelectorAll("[data-cq-glisse]").forEach((h) => {
       const ligne = h.closest(".ed-cq"), liste = ligne.parentElement, groupe = liste.dataset.groupe, k = h.dataset.cqGlisse;
       h.onkeydown = (ev) => {
         const pas = { ArrowUp: -1, ArrowDown: 1 }[ev.key];
@@ -8519,7 +9310,7 @@ class EditeurPlan {
         const j = [...liste.children].indexOf(ligne) + pas;
         if (j < 0 || j >= liste.children.length) return;
         this._deplacerCalque(groupe, k, j);
-        this.panneau.querySelector(`[data-cq-glisse="${k}"]`)?.focus();
+        this.R.querySelector(`.ed-cq-modale [data-cq-glisse="${k}"]`)?.focus();
       };
       h.onpointerdown = (ev) => {
         if (ev.button > 0) return;
@@ -8546,16 +9337,16 @@ class EditeurPlan {
       };
     });
   }
-  // éléments du plan par catégorie (repliables) : un clic sélectionne l'élément et ouvre son panneau (Échap : retour aux calques)
+  // éléments du plan par catégorie (repliables) : un clic sélectionne l'élément et ouvre sa modale (Échap : retour aux calques)
   _listesElements() {
-    const d = this.d, nomP = (p) => p.nom || this.carte._nom(p.entite), item = (k, ic, nom, sous) => `<button data-choix="${k}"><ha-icon icon="${esc(ic)}"></ha-icon><span>${esc(nom)}<small>${esc(sous)}</small></span></button>`;
+    const d = this.d, nomP = (p) => p.nom || this.carte._nom(p.entite), item = (k, ic, nom, sous) => `<button data-choix="${k}"><ha-icon icon="${esc(ic)}"></ha-icon><span>${esc(nom)}<small>${esc(sous)}</small></span>${this._verrouille(k) ? `<ha-icon class="ed-elt-verrou" icon="mdi:lock-outline" title="${_t("Verrouillé")}" aria-label="${_t("Verrouillé")}"></ha-icon>` : ""}</button>`;
     const nomMeuble = (m) => m.nom || (MEUBLES()[m.type] ? _t(MEUBLES()[m.type].nom) : m.type);
     const widgets = ["gauche", "droite"].flatMap((c) => (d.panneaux?.[c] || []).map((w, i) => item(`widget:${c}:${i}`, w.icone || "mdi:view-dashboard-outline", w.titre || typeWidgetEn(w.type), `${typeWidgetEn(w.type)} · ${c === "gauche" ? _t("panneau gauche") : _t("panneau droit")}`)));
     const cats = [
       [_t("Pièces ({n})", { n: d.pieces.length }), d.pieces.map((p, i) => item(`piece:${i}`, p.dehors ? "mdi:pine-tree" : "mdi:floor-plan", p.nom || _t("Pièce"), p.temperature || _t("sans capteur")))],
       [_t("Appareils ({n})", { n: (d.points || []).length }), (d.points || []).map((p, i) => item(`point:${i}`, p.icone || "mdi:circle", nomP(p), p.entite))],
       [_t("Ouvertures ({n})", { n: (d.ouvertures || []).length }), (d.ouvertures || []).map((o, i) => item(`ouverture:${i}`, o.type === "fenetre" ? "mdi:window-closed-variant" : o.type === "portail" ? "mdi:garage-variant" : "mdi:door",
-        o.nom || (o.contact ? this.carte._nom(o.contact) : _t("Ouverture sans capteur")), o.contact || o.volet || o.entite || "—"))],
+        o.nom || (contactsOuv(o).length ? this.carte._nom(contactsOuv(o)[0]) : _t("Ouverture sans capteur")), contactsOuv(o).join(", ") || o.volet || o.entite || "—"))],
       [_t("Meubles ({n})", { n: (d.meubles || []).length }), (d.meubles || []).map((m, i) => item(`meuble:${i}`, "mdi:sofa-outline", nomMeuble(m), MEUBLES()[m.type]?.cat ? _t(MEUBLES()[m.type].cat) : ""))],
       [_t("Textes ({n})", { n: (d.textes || []).length }), (d.textes || []).map((t, i) => item(`texte:${i}`, Array.isArray(t.infos) ? "mdi:card-text-outline" : "mdi:format-text", t.t || (Array.isArray(t.infos) ? _t("Zone d'informations") : _t("Texte")), ""))],
       [_t("Widgets ({n})", { n: widgets.length }), widgets],
@@ -8600,12 +9391,16 @@ class EditeurPlan {
     this._confParam = null;
     const avant = !!this.vueParametres;
     this.vueParametres = oui;
+    // une seule modale à la fois : ⚙ Paramètres ferme Ambiance et l'édition d'un élément
+    if (oui && this.vueEdition) this.fermerEdition();
+    if (oui && this.vueAmbiance) { this.vueAmbiance = false; this._fermerAmbiance(); this.carte._construire(); }
     if (oui) { this._fermerMenu(); this._rendreParametres(); if (!avant || onglet) this.R.querySelector(".ed-onglets [aria-selected=true]")?.focus({ preventScroll: true }); }
-    else this.R.querySelector(".ed-mvoile")?.remove();
+    else this.R.querySelector(".ed-mvoile.ed-par")?.remove();
     this._barre();
+    this._panneauCalques(); // Calques ouvert : masqué le temps de ⚙ (une seule modale à la fois), de retour ensuite
     if (!oui && avant) this._rendreFocusParametres();
   }
-  _fermerParametres() { this.vueParametres = false; this._confParam = null; this.R.querySelector(".ed-mvoile")?.remove(); }
+  _fermerParametres() { this.vueParametres = false; this._confParam = null; this.R.querySelector(".ed-mvoile.ed-par")?.remove(); }
   // focus rendu au bouton ⚙ (au bouton « Plus » sur téléphone, où ⚙ est dans son menu)
   _rendreFocusParametres() {
     const b = [this.barre.querySelector('[data-a="parametres"]'), this.barre.querySelector('[data-a="plus"]')].find((x) => x && x.getClientRects().length);
@@ -8628,7 +9423,7 @@ class EditeurPlan {
     return l;
   }
   ongletParametres(id) {
-    const v = this.R.querySelector(".ed-mvoile");
+    const v = this.R.querySelector(".ed-mvoile.ed-par");
     if (!v || !v.querySelector(`[data-onglet-par="${id}"]`)) return;
     this._ongletPar = id;
     v.querySelectorAll("[data-onglet-par]").forEach((b) => { const on = b.dataset.ongletPar === id; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
@@ -8639,53 +9434,15 @@ class EditeurPlan {
   _rendreParametres() {
     const d = this.d, hass = this.hass;
     if (this._tip?.b.closest(".ed-mvoile")) this._cacherAide();
-    let V = this.R.querySelector(".ed-mvoile");
-    if (!V) {
-      V = document.createElement("div");
-      V.className = "ed-mvoile";
-      this.R.querySelector("ha-card").append(V);
-      this._cablerModaleParametres(V);
-    }
+    let V = this.R.querySelector(".ed-mvoile.ed-par");
+    if (!V) this._cablerModaleParametres(V = this._mvoile("ed-par"));
     // élément qui avait le focus et défilement (rendu refait à chaque modification) : ils sont retrouvés ensuite
     const actif = this.R.activeElement, dans = V.contains(actif);
     const garde = !dans ? null : actif.dataset?.par || (actif.dataset?.parConf ? "conf" : actif.dataset?.ongletPar ? `onglet:${actif.dataset.ongletPar}` : actif.dataset?.parAction ? `action:${actif.dataset.parAction}` : actif.dataset?.parFermer ? "fermer" : null);
     const defile = V.querySelector(".ed-mcontenu")?.scrollTop || 0;
     const onglets = this._ongletsParametres(d);
     if (!onglets.some((o) => o.id === this._ongletPar)) this._ongletPar = onglets[0]?.id;
-    const valeur = (f) => lireReglage(d, f);
-    // aide d'un réglage : bulle ⓘ après son libellé (plus de texte permanent sous le champ)
-    const aide = (f) => (f.aide ? bulleI(_t(f.aide)) : "");
-    const rendu = (f) => {
-      const k = esc(f.chemin || f.id || ""), lib = esc(_t(f.libelle ?? f.nom ?? "")), v = f.chemin ? valeur(f) : undefined;
-      if (f.type === "intertitre") return `<div class="ed-par-inter">${lib}</div>`;
-      if (f.type === "bool") {
-        const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
-        return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
-          ${conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
-            <p id="ed-conf-d">${esc(_t(conf.texte))}</p><div class="ed-actions"><button class="ed-btn texte" data-par-conf="non">${_t("Annuler")}</button>
-            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : ""}</div>`;
-      }
-      if (f.type === "choix") {
-        // valeur inconnue des options (ex. `language: auto`) : affichée comme la valeur par défaut
-        const connue = f.options.some(([val]) => memeValeur(val, v)), opts = f.options.map(([val, l, brut], j) => ({ j, on: memeValeur(val, connue ? v : f.defaut), l: brut ? l : _t(l) }));
-        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span></div>`;
-        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select></div>`;
-      }
-      if (f.type === "nombre") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><div class="ed-unite"><input type="number" id="par-${k}" data-par="${k}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.pas || 1}" value="${esc(v ?? "")}" placeholder="${esc(f.defaut ?? "")}">${f.unite ? `<span aria-hidden="true">${esc(f.unite)}</span>` : ""}</div></div>`;
-      if (f.type === "texte") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><input type="text" id="par-${k}" data-par="${k}" value="${esc(v ?? "")}" placeholder="${esc(f.placeholder ? _t(f.placeholder) : "")}"></div>`;
-      if (f.type === "entite") {
-        // zone Maison par défaut : son nom plutôt que l'identifiant technique en titre (l'identifiant reste en sous-titre)
-        const s = v && hass.states[v], def = memeValeur(v, f.defaut), nom = s ? s.attributes.friendly_name || v : v === "zone.home" ? _t("Maison") : v || "";
-        return `<div class="ed-champ"><label>${lib}${aide(f)}</label><button class="ed-entite" data-par="${k}" aria-label="${lib} : ${esc(nom || _t("Choisir…"))}">
-          ${v ? `<ha-icon icon="${esc(iconeEntite(hass, v))}"></ha-icon><span class="n">${esc(nom)}<small>${esc(v)}${def ? ` · ${_t("par défaut")}` : ""}${s ? ` · ${esc(hass.formatEntityState?.(s) ?? s.state)}` : def ? "" : _t(" · introuvable")}</small></span>` : `<span class="n vide">${_t("Choisir…")}</span>`}
-          ${def || f.defaut == null && !v ? "" : `<span class="ib x" data-par-effacer="${k}" title="${_t("Valeur par défaut")}"><ha-icon icon="mdi:close"></ha-icon></span>`}</button></div>`;
-      }
-      if (f.type === "action") {
-        const ds = typeof f.desc === "function" ? f.desc(d, this) : f.desc;
-        return `<button data-par-action="${k}"><ha-icon icon="${esc(f.icone || "mdi:open-in-app")}"></ha-icon><span>${lib}${ds ? `<small>${esc(_t(ds))}</small>` : ""}</span><ha-icon class="chevron" icon="mdi:chevron-right"></ha-icon></button>`;
-      }
-      return "";
-    };
+    const rendu = (f) => this._htmlChamp(f);
     const champs = (l) => {
       let h = "";
       for (let i = 0; i < l.length;) {
@@ -8707,23 +9464,10 @@ class EditeurPlan {
       <header><ha-icon icon="mdi:cog-outline"></ha-icon><div><h2><span id="ed-par-titre">${_t("Paramètres")}</span>${bulleI(_t("Un réglage remis à sa valeur par défaut est retiré de la configuration."))}</h2>
         <div class="ed-version">Maquette ${esc(customElements.get("maquette-card").VERSION)} · <button type="button" data-par-lien="doc">${_t("Documentation")}</button> · <button type="button" data-par-lien="bug">${_t("Signaler un problème")}</button></div></div>
         <button class="ib" data-par-fermer="1" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></header>
-      <div class="ed-mcorps"><nav class="ed-onglets" role="tablist" aria-label="${_t("Sections des paramètres")}" aria-orientation="${this._etroit() ? "horizontal" : "vertical"}">${onglets.map((o) => { const on = o.id === this._ongletPar;
-        return `<button type="button" role="tab" id="par-tab-${esc(o.id)}" aria-controls="par-pan-${esc(o.id)}" aria-selected="${on}" tabindex="${on ? 0 : -1}" data-onglet-par="${esc(o.id)}"><ha-icon icon="${esc(o.icone)}"></ha-icon><span>${esc(_t(o.titre))}</span></button>`; }).join("")}</nav>
+      <div class="ed-mcorps">${this._navOnglets("par", _t("Sections des paramètres"), onglets.map((o) => [o.id, _t(o.titre), o.icone]), this._ongletPar)}
         <div class="ed-mcontenu">${panneaux}</div></div></div>`);
-    V.querySelectorAll("input[data-par],select[data-par]").forEach((inp) => {
-      const f = this._champParametre(inp.dataset.par);
-      inp.onchange = () => {
-        if (f.type === "bool") return this._ecrireParametre(f, inp.checked);
-        if (f.type === "choix") return this._ecrireParametre(f, f.options[+inp.value][0]);
-        if (f.type === "texte") return this._ecrireParametre(f, inp.value.trim());
-        if (f.type !== "nombre") return;
-        if (inp.value.trim() === "") return this._ecrireParametre(f, undefined);
-        // hors bornes ou incohérente : refusée avec un message, jamais corrigée en silence
-        const v = +inp.value, hors = !Number.isFinite(v) || (f.min != null && v < f.min) || (f.max != null && v > f.max), refus = hors ? null : f.valider?.(this.d, v);
-        if (hors || refus) { this.snack(hors ? _t("Valeur refusée : de {min} à {max} {unite}.", { min: fmt(f.min), max: fmt(f.max), unite: f.unite || "" }).replace(/ \./, ".") : _t(refus)); this._rendreParametres(); return V.querySelector(`[data-par="${f.chemin}"]`)?.focus(); }
-        return this._ecrireParametre(f, v);
-      };
-    });
+    this._cablerChamps(V);
+    V.querySelectorAll("[data-pal-coul]").forEach((inp) => { inp.onchange = () => this.commit(() => { (this.d.palette ||= {})[inp.dataset.palCoul] = inp.value; }); });
     const c = V.querySelector(".ed-mcontenu");
     if (c) c.scrollTop = defile;
     this._indiceDefilement(V.querySelector(".ed-onglets"));
@@ -8732,6 +9476,110 @@ class EditeurPlan {
     else if (garde?.startsWith("action:")) V.querySelector(`[data-par-action="${garde.slice(7)}"]`)?.focus({ preventScroll: true });
     else if (garde === "fermer") V.querySelector("[data-par-fermer]")?.focus({ preventScroll: true });
     else if (garde) (V.querySelector(`button[data-par="${garde}"].on`) || V.querySelector(`[data-par="${garde}"]`))?.focus({ preventScroll: true });
+  }
+  // champ d'un réglage déclaratif (modales ⚙ Paramètres et Ambiance) : interrupteur, choix, nombre, curseur, texte, entité, palette, action
+  _htmlChamp(f) {
+    const d = this.d, hass = this.hass, valeur = (f) => lireReglage(d, f);
+    // aide d'un réglage : bulle ⓘ après son libellé (plus de texte permanent sous le champ)
+    const aide = (f) => (f.aide ? bulleI(_t(f.aide)) : "");
+      const k = esc(f.chemin || f.id || ""), lib = esc(_t(f.libelle ?? f.nom ?? "")), v = f.chemin ? valeur(f) : undefined;
+      if (f.type === "intertitre") return `<div class="ed-par-inter">${lib}</div>`;
+      if (f.type === "bool") {
+        const conf = f.confirmer && this._confParam === f.chemin ? f.confirmer : null;
+        return `<div class="ed-par"><label class="ed-inter"><span>${lib}${aide(f)}</span><input type="checkbox" data-par="${k}" ${v ? "checked" : ""}></label>
+          ${conf ? `<div class="ed-confirme" role="alertdialog" aria-labelledby="ed-conf-t" aria-describedby="ed-conf-d"><b id="ed-conf-t"><ha-icon icon="mdi:alert-outline"></ha-icon>${esc(_t(conf.titre))}</b>
+            <p id="ed-conf-d">${esc(_t(conf.texte))}</p><div class="ed-actions"><button class="ed-btn texte" data-par-conf="non">${_t("Annuler")}</button>
+            <button class="ed-btn danger" data-par-conf="oui">${esc(_t(conf.bouton))}</button></div></div>` : ""}</div>`;
+      }
+      if (f.type === "choix") {
+        // valeur inconnue des options (ex. `language: auto`) : affichée comme la valeur par défaut
+        const connue = f.options.some(([val]) => memeValeur(val, v)), opts = f.options.map(([val, l, brut], j) => ({ j, on: memeValeur(val, connue ? v : f.defaut), l: brut ? l : _t(l) }));
+        if (opts.length <= 4) return `<div class="ed-champ"><span class="ed-par-lib"><span id="par-${k}">${lib}</span>${aide(f)}</span><span class="ed-seg petit plein" role="group" aria-labelledby="par-${k}">${opts.map((o) => `<button type="button" data-par="${k}" data-val="${o.j}" class="${o.on ? "on" : ""}" aria-pressed="${o.on}">${esc(o.l)}</button>`).join("")}</span></div>`;
+        return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><select id="par-${k}" data-par="${k}">${opts.map((o) => `<option value="${esc(o.j)}" ${o.on ? "selected" : ""}>${esc(o.l)}</option>`).join("")}</select></div>`;
+      }
+      if (f.type === "nombre") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><div class="ed-unite"><input type="number" id="par-${k}" data-par="${k}" min="${f.min ?? ""}" max="${f.max ?? ""}" step="${f.pas || 1}" value="${esc(v ?? "")}" placeholder="${esc(f.defaut ?? "")}">${f.unite ? `<span aria-hidden="true">${esc(f.unite)}</span>` : ""}</div></div>`;
+      if (f.type === "curseur") {
+        // curseur MD3 avec la valeur affichée ; `auto` : bouton « Auto » (valeur null) ; `kelvin` : piste au vrai spectre (corps noir)
+        const auto = !!f.auto && v == null, val = v ?? f.defaut, piste = f.kelvin ? ` style="--piste:${esc(pisteKelvin(this.carte.constructor.LUMIERE.kelvin, f.min, f.max))}"` : "";
+        return `<div class="ed-champ ed-par-curseur${f.kelvin ? " kelvin" : ""}${auto ? " auto" : ""}"><label for="par-${k}">${lib}${aide(f)}</label><div class="ed-curseur">
+          <input type="range" id="par-${k}" data-par="${k}" min="${f.min}" max="${f.max}" step="${f.pas || 1}" value="${esc(val)}"${piste} aria-valuetext="${esc(texteCurseur(f, auto ? null : val))}"><output>${esc(texteCurseur(f, auto ? null : val))}</output>
+          ${f.auto && !auto ? `<button type="button" class="ed-btn texte" data-par-auto="${k}" title="${esc(_t("Teinte d'origine"))}" aria-label="${esc(_t("Teinte d'origine"))}">${_t("Auto")}</button>` : ""}</div></div>`;
+      }
+      if (f.type === "texte") return `<div class="ed-champ"><label for="par-${k}">${lib}${aide(f)}</label><input type="text" id="par-${k}" data-par="${k}" value="${esc(v ?? "")}" placeholder="${esc(f.placeholder ? _t(f.placeholder) : "")}"></div>`;
+      if (f.type === "entite") {
+        // zone Maison par défaut : son nom plutôt que l'identifiant technique en titre (l'identifiant reste en sous-titre)
+        const s = v && hass.states[v], def = memeValeur(v, f.defaut), nom = s ? s.attributes.friendly_name || v : v === "zone.home" ? _t("Maison") : v || "";
+        return `<div class="ed-champ"><label>${lib}${aide(f)}</label><button class="ed-entite" data-par="${k}" aria-label="${lib} : ${esc(nom || _t("Choisir…"))}">
+          ${v ? `<ha-icon icon="${esc(iconeEntite(hass, v))}"></ha-icon><span class="n">${esc(nom)}<small>${esc(v)}${def ? ` · ${_t("par défaut")}` : ""}${s ? ` · ${esc(hass.formatEntityState?.(s) ?? s.state)}` : def ? "" : _t(" · introuvable")}</small></span>` : `<span class="n vide">${_t("Choisir…")}</span>`}
+          ${def || f.defaut == null && !v ? "" : `<span class="ib x" data-par-effacer="${k}" title="${_t("Valeur par défaut")}"><ha-icon icon="mdi:close"></ha-icon></span>`}</button></div>`;
+      }
+      if (f.type === "palette") {
+        const l = Object.entries(d.palette || {}), hex = (c) => hexOu(c, "#808080");
+        return `<div class="ed-palette" role="group" aria-label="${lib}">${aide(f)}${l.map(([n, c]) => `<div class="ed-pal"><input type="color" data-pal-coul="${esc(n)}" value="${esc(hex(c))}" aria-label="${esc(_t("Couleur de « {nom} »", { nom: n }))}">
+            <span class="n">${esc(n)}<small>${esc(c)}</small></span><button type="button" class="ib" data-pal-suppr="${esc(n)}" title="${esc(_t("Retirer « {nom} »", { nom: n }))}" aria-label="${esc(_t("Retirer « {nom} »", { nom: n }))}"><ha-icon icon="mdi:delete-outline"></ha-icon></button></div>`).join("")}
+          ${l.length ? "" : `<div class="ed-aide">${_t("Aucune couleur nommée.")}</div>`}
+          <div class="ed-pal ed-pal-ajout"><input type="color" data-pal-nouv value="#1a73e8" aria-label="${_t("Nouvelle couleur")}"><input type="text" data-pal-nom maxlength="31" placeholder="${_t("Nom, ex. accent")}" aria-label="${_t("Nom de la nouvelle couleur")}">
+            <button type="button" class="ed-btn tonal" data-pal-ajout="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter")}</button></div></div>`;
+      }
+      if (f.type === "action") {
+        const ds = typeof f.desc === "function" ? f.desc(d, this) : f.desc;
+        return `<button data-par-action="${k}"><ha-icon icon="${esc(f.icone || "mdi:open-in-app")}"></ha-icon><span>${lib}${ds ? `<small>${esc(_t(ds))}</small>` : ""}</span><ha-icon class="chevron" icon="mdi:chevron-right"></ha-icon></button>`;
+      }
+      return "";
+  }
+  // événements des champs d'une modale (après chaque rendu) ; un curseur montre son effet en direct sur le plan pendant le glisser
+  // (valeur posée sans historique), puis l'écrit au relâchement (une seule étape d'annulation)
+  _cablerChamps(V) {
+    V.querySelectorAll("input[data-par],select[data-par]").forEach((inp) => {
+      const f = this._champParametre(inp.dataset.par);
+      if (f?.type === "curseur") {
+        inp.oninput = () => {
+          const v = +inp.value, o = inp.parentElement.querySelector("output");
+          if (this._glisse?.f !== f) this._glisse = { f, v0: lireReglage(this.d, f) };
+          if (o) o.textContent = texteCurseur(f, v);
+          inp.setAttribute("aria-valuetext", texteCurseur(f, v));
+          inp.closest(".ed-par-curseur")?.classList.remove("auto");
+          f.ecrire(this.d, v);
+          this._apercuDirect();
+        };
+        inp.onchange = () => {
+          const g = this._glisse;
+          this._glisse = null;
+          if (g?.f === f) f.ecrire(this.d, g.v0); // valeur d'avant : l'annulation y revient
+          this._ecrireParametre(f, +inp.value);
+        };
+        return;
+      }
+      inp.onchange = () => {
+        if (f.type === "bool") return this._ecrireParametre(f, inp.checked);
+        if (f.type === "choix") return this._ecrireParametre(f, f.options[+inp.value][0]);
+        if (f.type === "texte") return this._ecrireParametre(f, inp.value.trim());
+        if (f.type !== "nombre") return;
+        if (inp.value.trim() === "") return this._ecrireParametre(f, undefined);
+        // hors bornes ou incohérente : refusée avec un message, jamais corrigée en silence
+        const v = +inp.value, hors = !Number.isFinite(v) || (f.min != null && v < f.min) || (f.max != null && v > f.max), refus = hors ? null : f.valider?.(this.d, v);
+        if (hors || refus) { this.snack(hors ? _t("Valeur refusée : de {min} à {max} {unite}.", { min: fmt(f.min), max: fmt(f.max), unite: f.unite || "" }).replace(/ \./, ".") : _t(refus)); this._panneau(); return V.querySelector(`[data-par="${f.chemin}"]`)?.focus(); }
+        return this._ecrireParametre(f, v);
+      };
+    });
+  }
+  // aperçu en direct pendant un glisser : plan (et aperçu de la modale Ambiance) redessinés au plus une fois par image
+  _apercuDirect() {
+    if (this._rafApercu) return;
+    this._rafApercu = requestAnimationFrame(() => { this._rafApercu = 0; this.carte._majAmbiance?.(); if (this.vueAmbiance) this._majApercuAmb(); });
+  }
+  // clic sur un champ d'une modale (choix, entité, effacer, Auto) : true si traité
+  async _clicChamp(ch) {
+    const el = (k) => ch.find((n) => n instanceof HTMLElement && n.dataset?.[k] != null);
+    const ef = el("parEffacer");
+    if (ef) { this._ecrireParametre(this._champParametre(ef.dataset.parEffacer), undefined); return true; }
+    const au = el("parAuto");
+    if (au) { this._ecrireParametre(this._champParametre(au.dataset.parAuto), null); return true; }
+    const b = ch.find((n) => n instanceof HTMLButtonElement && n.dataset.par);
+    const f = b && this._champParametre(b.dataset.par);
+    if (f?.type === "choix") { this._ecrireParametre(f, f.options[+b.dataset.val][0]); return true; }
+    if (f?.type === "entite") { const e = await this.choisirEntite({ titre: _t(f.libelle ?? f.nom ?? ""), domaine: f.domaine || "" }); if (e) this._ecrireParametre(f, e); return true; }
+    return false;
   }
   // événements de la modale (posés une fois : le voile reste, son contenu est redessiné) : clics, onglets au clavier, focus piégé
   _cablerModaleParametres(V) {
@@ -8747,22 +9595,39 @@ class EditeurPlan {
       if (og) return this.ongletParametres(og.dataset.ongletPar);
       const c = el("parConf");
       if (c) { const f = this._champParametre(this._confParam); this._confParam = null; if (c.dataset.parConf === "oui" && f) return this._ecrireParametre(f, false, true); this._rendreParametres(); return V.querySelector(`[data-par="${f?.chemin}"]`)?.focus(); }
-      const ef = el("parEffacer");
-      if (ef) { ev.stopPropagation(); return this._ecrireParametre(this._champParametre(ef.dataset.parEffacer), undefined); }
+      if (el("parEffacer")) ev.stopPropagation();
+      if (el("parEffacer") || el("parAuto")) return this._clicChamp(ch);
       // raccourci : la modale se ferme, puis le panneau (ou le dialogue) visé s'ouvre
+      const ps = el("palSuppr");
+      if (ps) return this.commit(() => { delete this.d.palette?.[ps.dataset.palSuppr]; if (this.d.palette && !Object.keys(this.d.palette).length) delete this.d.palette; });
+      if (el("palAjout")) return this.ajouterCouleurNommee(V.querySelector("[data-pal-nom]")?.value, V.querySelector("[data-pal-nouv]")?.value);
       const a = el("parAction");
       if (a) { const f = this._champParametre(a.dataset.parAction); this.panneauParametres(false); return f?.action(this); }
-      const b = ch.find((n) => n instanceof HTMLButtonElement && n.dataset.par);
-      const f = b && this._champParametre(b.dataset.par);
-      if (f?.type === "choix") return this._ecrireParametre(f, f.options[+b.dataset.val][0]);
-      if (f?.type === "entite") { const e = await this.choisirEntite({ titre: _t(f.libelle ?? f.nom ?? ""), domaine: f.domaine || "" }); if (e) this._ecrireParametre(f, e); }
+      return this._clicChamp(ch);
     };
+    this._clavierModale(V, "ongletPar", (o) => this.ongletParametres(o));
+  }
+  // modale persistante (Paramètres, Ambiance, édition, Calques) : voile « ed-mvoile » ajouté à la carte, redessiné ensuite
+  _mvoile(classe) {
+    const V = document.createElement("div");
+    V.className = `ed-mvoile ${classe}`;
+    this.R.querySelector("ha-card").append(V);
+    return V;
+  }
+  // onglets d'une modale (verticaux, en ligne sur écran étroit) : [id, titre traduit, icône] ; ids « <pre>-tab-<id> », data-onglet-<pre>
+  _navOnglets(pre, lib, onglets, actif) {
+    return `<nav class="ed-onglets" role="tablist" aria-label="${lib}" aria-orientation="${this._etroit() ? "horizontal" : "vertical"}">${onglets.map(([id, t, ic]) => { const on = id === actif;
+      return `<button type="button" role="tab" id="${pre}-tab-${esc(id)}" aria-controls="${pre}-pan-${esc(id)}" aria-selected="${on}" tabindex="${on ? 0 : -1}" data-onglet-${pre}="${esc(id)}"><ha-icon icon="${esc(ic)}"></ha-icon><span>${esc(t)}</span></button>`; }).join("")}</nav>`;
+  }
+  // clavier d'une modale : flèches, Début et Fin d'un onglet à l'autre (onglet : clé dataset des onglets), Tab gardé dans la modale
+  _clavierModale(V, onglet, ouvrir) {
+    const attr = onglet && `[data-${onglet.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`)}]`;
     V.onkeydown = (ev) => {
-      const tab = ev.composedPath().find((n) => n instanceof HTMLElement && n.dataset?.ongletPar != null);
+      const tab = onglet && ev.composedPath().find((n) => n instanceof HTMLElement && n.dataset?.[onglet] != null);
       if (tab) {
-        const l = [...V.querySelectorAll("[data-onglet-par]")], i = l.indexOf(tab), n = l.length;
+        const l = [...V.querySelectorAll(attr)], i = l.indexOf(tab), n = l.length;
         const j = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[ev.key];
-        if (j != null) { ev.preventDefault(); const t = l[(j + n) % n]; this.ongletParametres(t.dataset.ongletPar); t.focus(); return; }
+        if (j != null) { ev.preventDefault(); const t = l[(j + n) % n]; ouvrir(t.dataset[onglet]); t.focus(); return; }
       }
       if (ev.key === "Tab") this._pieger(ev, V.querySelector(".ed-modale"));
     };
@@ -8777,6 +9642,14 @@ class EditeurPlan {
     else if (!ev.shiftKey && (i === l.length - 1 || i < 0)) { ev.preventDefault(); l[0].focus(); }
   }
   // écriture d'un réglage : confirmation d'abord si le champ en demande une, puis historique (Ctrl+Z) et aperçu en direct
+  // nom : minuscules sans accents, espaces en « _ » ; refusé s'il est vide, invalide ou déjà pris (message, jamais corrigé en silence)
+  ajouterCouleurNommee(nom, couleur) {
+    const n = String(nom || "").trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "").replace(/\s+/g, "_");
+    if (!/^[a-z][a-z0-9_-]{0,30}$/.test(n)) return this.snack(_t("Nom refusé : une lettre d'abord, puis lettres, chiffres, « _ » ou « - » (31 au plus)."));
+    if (this.d.palette?.[n]) return this.snack(_t("« {nom} » existe déjà dans la palette.", { nom: n }));
+    if (!this.carte.constructor.couleurSure(couleur) || !/^#/.test(couleur)) return;
+    this.commit(() => { (this.d.palette ||= {})[n] = couleur; });
+  }
   _ecrireParametre(f, v, confirme = false) {
     if (!f) return;
     if (f.confirmer && !confirme && f.confirmer.quand(v)) {
@@ -8789,16 +9662,107 @@ class EditeurPlan {
   }
 
   // ---------- ambiance et animations ----------
-  // panneau ouvert = aperçu de l'ambiance sur le plan (sinon l'ambiance n'est jamais dessinée pendant l'édition)
-  // ancre : section à montrer à l'ouverture (« alertes »)
+  // modale ouverte = aperçu de l'ambiance sur le plan derrière le voile (sinon l'ambiance n'est jamais dessinée pendant l'édition)
+  // ancre : onglet à montrer à l'ouverture (« lumiere », « alertes »…). Échap, la croix ou un clic sur le voile la ferment.
   panneauAmbiance(oui, ancre = null) {
+    oui = !!oui;
+    const avant = !!this.vueAmbiance;
     this.vueAmbiance = oui;
+    this._ambCachee = false;
     if (oui && this.vueParametres) this._fermerParametres();
-    if (oui) { this.vueCalques = false; this.sel = null; this.multi.clear(); if (this.replie) { this._depliee = Date.now(); this.replier(false); } }
+    if (oui && this.vueEdition) this.fermerEdition();
+    if (oui) { this.vueCalques = false; this.sel = null; this.multi.clear(); if (ancre) this._ongletAmb = ancre; }
+    else this._fermerAmbiance();
     this.carte._construire();
     this._barre();
     this._panneau();
-    if (oui && ancre) this.panneau.querySelector(`[data-ancre="${ancre}"]`)?.scrollIntoView({ block: "start" });
+    if (oui && (!avant || ancre)) this.R.querySelector(".ed-amb .ed-onglets [aria-selected=true]")?.focus({ preventScroll: true });
+    if (!oui && avant) [this.barre.querySelector('[data-a="ambiance"]'), this.barre.querySelector('[data-a="plus"]')].find((x) => x && x.getClientRects().length)?.focus({ preventScroll: true });
+  }
+  _fermerAmbiance() { this._ambCachee = false; this.R.querySelector(".ed-mvoile.ed-amb")?.remove(); this._finApercuAmb(); }
+  // aperçu de la modale Ambiance : une pièce fictive (baie avec volet au sud, fenêtre à l'est, lampe, jardin) dessinée par une
+  // carte Maquette, même moteur que le plan ; heure et météo fictives (états simulés), réglages lus en direct dans this.d.
+  // Ses contrôles n'écrivent rien dans la configuration.
+  _apercuAmb(aside) {
+    if (!aside) return;
+    const ap = (this._ap ||= { h: 15, meteo: "sunny" }), C = this.carte.constructor;
+    if (!this._apCarte) {
+      this._apCarte = document.createElement("maquette-card");
+      this._apCarte.className = "ed-ap-carte";
+      this._apCarte.setAttribute("aria-hidden", "true");
+      this._apCarte.setConfig(C.versAnglais(this._configApercu()));
+    }
+    poserHTML(aside, `<h4 class="ed-ap-titre">${_t("Aperçu")}${bulleI(_t("Pièce fictive : baie avec volet au sud, fenêtre à l'est, lampe. Heure et météo de l'aperçu seulement : rien n'est enregistré."))}</h4>
+      <div class="ed-ap-plan"></div>
+      <div class="ed-ap-ctl"><div class="ed-champ"><label for="ed-ap-heure">${_t("Heure de l'aperçu")}</label><div class="ed-curseur"><input type="range" id="ed-ap-heure" data-ap-heure min="0" max="24" step="0.25" value="${ap.h}" aria-valuetext="${heureAp(ap.h)}"><output>${heureAp(ap.h)}</output></div></div>
+      <span class="ed-seg petit plein" role="group" aria-label="${_t("Météo de l'aperçu")}">${[["sunny", _t("Clair")], ["cloudy", _t("Couvert")], ["rainy", _t("Pluie")]].map(([v, n]) => `<button type="button" data-ap-meteo="${v}" class="${ap.meteo === v ? "on" : ""}" aria-pressed="${ap.meteo === v}">${n}</button>`).join("")}</span></div>`);
+    aside.querySelector(".ed-ap-plan").append(this._apCarte);
+    const h = aside.querySelector("[data-ap-heure]");
+    h.oninput = () => { ap.h = +h.value; h.nextElementSibling.textContent = heureAp(ap.h); h.setAttribute("aria-valuetext", heureAp(ap.h)); this._apercuDirect(); };
+    aside.querySelectorAll("[data-ap-meteo]").forEach((b) => { b.onclick = (ev) => {
+      ev.stopPropagation();
+      ap.meteo = b.dataset.apMeteo;
+      aside.querySelectorAll("[data-ap-meteo]").forEach((x) => { const on = x === b; x.classList.toggle("on", on); x.setAttribute("aria-pressed", String(on)); });
+      this._majApercuAmb();
+    }; });
+    this._majApercuAmb(true);
+  }
+  // pièce fictive (cm) ; l'ambiance est celle de l'éditeur, sauf nord, météo, personnes, traces et énergie (propres à l'aperçu)
+  _configApercu() {
+    const d = this.d, A = d.ambiance && typeof d.ambiance === "object" ? clone(d.ambiance) : null;
+    if (A) {
+      Object.assign(A, { nord: 0, meteo: "weather.apercu", traces: false });
+      delete A.personnes; delete A.energie;
+      if (A.lumiere && typeof A.lumiere === "object" && A.lumiere.lune !== false) A.lumiere.lune = "sensor.apercu_lune";
+      else if (A.lumiere !== false) A.lumiere = { ...(A.lumiere || {}), lune: "sensor.apercu_lune" };
+    }
+    return { id: "apercu-ambiance", ...(d.langue ? { langue: d.langue } : {}), marge: 10, plein_ecran: false, edition: false, legende: false, resume: false, teinte_temperature: false,
+      etiquettes_pieces: { nom: false, temperature: false, humidite: false }, interaction: { vue_figee: true, clic_piece: "aucun" },
+      pieces: [{ nom: _t("Séjour"), poly: [[0, 0], [500, 0], [500, 400], [0, 400]] },
+        { nom: _t("Jardin"), dehors: true, zoom: false, poly: [[0, 400], [500, 400], [500, 0], [620, 0], [620, 560], [0, 560]] }],
+      ouvertures: [{ type: "fenetre", nom: _t("Baie"), seg: [110, 400, 390, 400], dehors: [0, 1], volet: "cover.apercu" }, { type: "fenetre", nom: _t("Fenêtre"), seg: [500, 130, 500, 250], dehors: [1, 0] },
+        { type: "porte", nom: _t("Porte vitrée"), seg: [0, 220, 0, 310], dehors: [-1, 0], vitree: "toute" }],
+      points: [{ entite: "light.apercu", pos: [80, 80], icone: "mdi:floor-lamp", couleur: "#f6c445", halo: 150, piece: _t("Séjour") }],
+      ...(A ? { ambiance: A } : {}) };
+  }
+  // états simulés de l'aperçu : soleil selon l'heure (lever 6 h à l'est, midi au sud, coucher 18 h à l'ouest), météo, volet ouvert, lampe allumée le soir
+  _hassApercu() {
+    const ap = this._ap, h = ap.h, e = 55 * Math.sin((Math.PI * (h - 6)) / 12), az = (((90 + (h - 6) * 15) % 360) + 360) % 360, t = new Date().toISOString();
+    const st = (id, state, attributes = {}) => [id, { entity_id: id, state, attributes, last_changed: t, last_updated: t }];
+    const states = Object.fromEntries([st("sun.sun", e > 0 ? "above_horizon" : "below_horizon", { elevation: +e.toFixed(2), azimuth: +az.toFixed(2) }),
+      st("weather.apercu", ap.meteo === "sunny" && e <= 0 ? "clear-night" : ap.meteo, { cloud_coverage: ap.meteo === "sunny" ? 5 : 95, wind_speed: 12, wind_bearing: 220 }),
+      st("cover.apercu", "open", { current_position: 100 }), st("sensor.apercu_lune", "full_moon"),
+      st("light.apercu", e < 4 ? "on" : "off", { color_temp_kelvin: 2700, brightness: 200 })]);
+    const w = Object.create(this.hass);
+    w.states = states;
+    w.callService = () => Promise.resolve();
+    w.callWS = () => Promise.reject(new Error("aperçu"));
+    return w;
+  }
+  // aperçu redessiné : réglages de l'éditeur (config de la pièce fictive refaite seulement si l'ambiance a changé hors lumière), puis états
+  _majApercuAmb(force = false) {
+    const ap = this._apCarte;
+    if (!ap || !ap.isConnected) return;
+    const cfg = this._configApercu(), cle = JSON.stringify({ ...cfg.ambiance, lumiere: null }), lu = cfg.ambiance?.lumiere;
+    if (force || cle !== this._apCle || !ap._config || !ap._ok) {
+      this._apCle = cle;
+      ap.setConfig(this.carte.constructor.versAnglais(cfg));
+    } else if (ap._config.ambiance) {
+      // glisser d'un curseur de lumière : la couche lumière seule (clé interne déjà normalisée)
+      if (lu === undefined) delete ap._config.ambiance.lumiere; else ap._config.ambiance.lumiere = clone(lu);
+    }
+    ap.hass = this._hassApercu();
+    ap._majAmbiance?.();
+  }
+  _finApercuAmb() { this._apCarte?.remove(); this._apCarte = null; this._apCle = null; }
+  ongletAmbiance(id) {
+    const V = this.R.querySelector(".ed-mvoile.ed-amb");
+    if (!V || !V.querySelector(`[data-onglet-amb="${id}"]`)) return;
+    this._ongletAmb = id;
+    V.querySelectorAll("[data-onglet-amb]").forEach((b) => { const on = b.dataset.ongletAmb === id; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    V.querySelectorAll(".ed-mcontenu>section").forEach((p) => { p.hidden = p.dataset.onglet !== id; });
+    V.querySelector(".ed-mcontenu").scrollTop = 0;
+    V.querySelector(`[data-onglet-amb="${id}"]`).scrollIntoView?.({ block: "nearest", inline: "nearest" });
   }
   _panneauAmbiance() {
     const d = this.d, A = d.ambiance && typeof d.ambiance === "object" ? d.ambiance : null, C = this.carte.constructor, AN = C.ANIMATIONS, EV = C.EVENEMENTS_ANIM;
@@ -8825,11 +9789,15 @@ class EditeurPlan {
       // type en pleine largeur (l'animation par défaut reste lisible), couleur et durée sur la ligne du dessous
       return `<div class="ed-champ ed-anim-ev"><label for="ed-anim-${ev}">${esc(_t(EV[ev].nom))}</label>
         <select id="ed-anim-${ev}" data-anim="${ev}.type"><option value="">${_t("Défaut ({nom})", { nom: esc(_t(AN[def.type]).split(" (")[0]) })}</option>${Object.entries(AN).map(([k, n]) => `<option value="${esc(k)}" ${a.type === k ? "selected" : ""}>${esc(_t(n))}</option>`).join("")}</select>
-        <div class="ed-ligne"><span class="ed-couleur-anim"><input type="color" data-anim="${ev}.couleur" value="${esc(/^#[0-9a-f]{6}$/i.test(a.couleur || "") ? a.couleur : "#f4b400")}" title="${_t("Couleur (sinon celle de l'élément)")}" aria-label="${_t("Couleur")}">${a.couleur ? `<button class="ib" data-anim-effacer="${ev}.couleur" title="${_t("Couleur de l'élément")}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</span>
+        <div class="ed-ligne"><span class="ed-couleur-anim ed-couleurs">${this._nuancierPalette(a.couleur, "", (n) => `data-anim-pal="${ev}.couleur" data-couleur="${esc(n)}"`)}<input type="color" data-anim="${ev}.couleur" value="${esc(hexOu(a.couleur, "#f4b400"))}" title="${_t("Couleur (sinon celle de l'élément)")}" aria-label="${_t("Couleur")}">${a.couleur ? `<button class="ib" data-anim-effacer="${ev}.couleur" title="${_t("Couleur de l'élément")}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</span>
         <input type="number" step="0.1" min="0.2" max="20" data-anim="${ev}.duree" data-num="1" value="${esc(a.duree ?? "")}" placeholder="${def.duree} s" aria-label="${_t("Durée d'un cycle (s)")}" title="${_t("Durée d'un cycle (s)")}"></div></div>`;
     };
-    poserHTML(this.panneau, `<h3><ha-icon icon="mdi:weather-partly-cloudy"></ha-icon>${_t("Ambiance et animations")}<button class="ib" data-act="amb-fermer" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></h3>
-      <label class="ed-inter"><span>${_t("Ambiance du plan")}${bulleI(_t("Jour / nuit, météo, traces. Ce panneau ouvert, le plan la montre telle qu'elle sera en vue."))}</span><input type="checkbox" data-amb-chk="actif" ${A ? "checked" : ""}></label>
+    // modale à onglets (comme ⚙ Paramètres) : chaque onglet garde ses champs (data-amb…) ; aperçu fictif à droite (téléphone : au-dessus)
+    const sansA = `<div class="ed-aide">${_t("Active d'abord l'ambiance du plan (onglet Général).")}</div>`;
+    const LU = PARAMS_LUMIERE[0].champs.filter((f) => !f.si || f.si(d, this));
+    const champsLu = LU.map((f) => (f.type === "intertitre" ? `<div class="ed-par-inter">${esc(_t(f.libelle))}</div>` : this._htmlChamp(f))).join("");
+    const onglets = [
+      ["general", _t("Général"), "mdi:weather-partly-cloudy", `      <label class="ed-inter"><span>${_t("Ambiance du plan")}${bulleI(_t("Jour / nuit, météo, traces. Cette fenêtre ouverte, le plan la montre telle qu'elle sera en vue."))}</span><input type="checkbox" data-amb-chk="actif" ${A ? "checked" : ""}></label>
       ${A ? `<div class="ed-champ"><label>${_t("Intensité")}</label><span class="ed-seg petit">${[["discret", _t("Discrète")], ["normal", _t("Normale")], ["fort", _t("Marquée")]].map(([v, n]) => `<button data-amb-set="intensite:${v}" class="${I === v ? "on" : ""}">${n}</button>`).join("")}</span></div>
       <div class="ed-champ"><label>${_t("Nord du plan (°)")}${bulleI(_t("Degrés, sens horaire depuis le haut ; 45 = en haut à droite."))}</label><input type="number" step="5" data-amb="nord" data-num="1" value="${esc(A.nord ?? "")}" placeholder="0"></div>
       <h4>${_t("Jour et nuit")}</h4>
@@ -8838,32 +9806,56 @@ class EditeurPlan {
       <h4>${_t("Météo")}</h4>
       ${ext ? "" : `<div class="ed-aide">${_t("Aucune pièce « extérieur » : météo et soleil n'ont rien à dessiner.")}</div>`}
       <div class="ed-champ"><label>${_t("Météo peinte sur les extérieurs")}</label><select data-amb="meteo"><option value="">${_t("— aucune —")}</option>${meteos.map((e) => `<option value="${esc(e)}" ${e === met ? "selected" : ""}>${esc(this.carte._nom(e))}</option>`).join("")}</select></div>
+` : ""}
+`],
+      ["lumiere", _t("Lumière"), "mdi:white-balance-sunny", A ? `<div class="ed-par-sec" data-sec="lumiere">${champsLu}</div>` : sansA],
+      ["personnes", _t("Personnes"), "mdi:account-multiple-outline", A ? `      <h4>${_t("Personnes")}</h4>
+      <label class="ed-inter"><span>${_t("Personnes sur le plan")}${bulleI(_t("À la maison, ou au bord dans leur direction réelle avec la distance."))}</span><input type="checkbox" data-amb-chk="personnes" ${pe ? "checked" : ""}></label>
+      ${pe ? `<div class="ed-champ"><label>${_t("Où se rangent les personnes à la maison")}${bulleI(_t("« Placer sur le plan » : glisse les avatars à l'endroit voulu."))}</label><select data-amb="personnes.maison"><option value="">${_t("Au centre de la maison")}</option>${d.pieces.filter((p) => !p.sous_zone && p.nom).map((p) => `<option ${pe.maison === p.nom ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}${Array.isArray(pe.maison) ? `<option value="__perso" selected>${_t("Position personnalisée ({pos} cm)", { pos: esc(pe.maison.join(", ")) })}</option>` : ""}</select></div>
+        <div class="ed-actions"><button class="ed-btn texte" data-act="amb-placer"><ha-icon icon="mdi:cursor-move"></ha-icon>${_t("Placer sur le plan")}</button></div>
+        ${this._lignesPersonnes(d)}` : ""}
       <h4>${_t("Traces")}</h4>
-      <div class="ed-champ"><label>${_t("Durée des traces")}${bulleI(_t("Ce qui vient de changer garde un liseré qui s'estompe."))}</label><div class="ed-curseur"><input type="range" min="0" max="240" step="5" data-amb="traces" value="${esc(tr)}"><output>${tr ? `${tr} min` : _t("aucune")}</output></div></div>
-      <h4>${_t("Flux d'énergie")}</h4>
+      ${champCurseur(`${_t("Durée des traces")}${bulleI(_t("Ce qui vient de changer garde un liseré qui s'estompe."))}`, 'data-amb="traces"', 0, 240, 5, esc(tr), tr ? `${tr} min` : _t("aucune"))}
+` : sansA],
+      ["energie", _t("Énergie"), "mdi:flash-outline", A ? `      <h4>${_t("Flux d'énergie")}</h4>
       <label class="ed-inter"><span>${_t("Billes vers les appareils mesurés")}${bulleI(_t("Du tableau électrique vers chaque appareil mesuré ; vitesse selon la puissance."))}</span><input type="checkbox" data-amb-chk="energie" ${en ? "checked" : ""}></label>
       ${en ? `<div class="ed-champ"><label>${_t("Départ")}</label><select data-amb="energie.source" data-num="1"><option value="">${_t("Tableau électrique")}</option>${(d.meubles || []).map((m, i) => (m.type === "espace" ? "" : `<option value="${esc(i)}" ${en.source === i ? "selected" : ""}>${esc(m.nom || (MEUBLES()[m.type] ? _t(MEUBLES()[m.type].nom) : m.type))}</option>`)).join("")}</select></div>
         <div class="ed-champ"><label>${_t("À partir de (W)")}</label><input type="number" step="1" min="0" data-amb="energie.seuil" data-num="1" value="${esc(en.seuil ?? "")}" placeholder="5"></div>` : ""}
-      <h4>${_t("Personnes")}</h4>
-      <label class="ed-inter"><span>${_t("Personnes sur le plan")}${bulleI(_t("À la maison, ou au bord dans leur direction réelle avec la distance."))}</span><input type="checkbox" data-amb-chk="personnes" ${pe ? "checked" : ""}></label>
-      ${pe ? `<div class="ed-champ"><label>${_t("Où se rangent les personnes à la maison")}${bulleI(_t("Glisse les avatars sur le plan pour les placer."))}</label><select data-amb="personnes.maison"><option value="">${_t("Au centre de la maison")}</option>${d.pieces.filter((p) => !p.sous_zone && p.nom).map((p) => `<option ${pe.maison === p.nom ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}${Array.isArray(pe.maison) ? `<option value="__perso" selected>${_t("Position personnalisée ({pos} cm)", { pos: esc(pe.maison.join(", ")) })}</option>` : ""}</select></div>
-        ${this._lignesPersonnes(d)}` : ""}` : ""}
-      <h4>${_t("Animations par événement")}${bulleI(_t("Type, couleur et durée d'un cycle. Chaque élément peut avoir la sienne (section « Animation » de son panneau)."))}</h4>
+` : sansA],
+      ["animations", _t("Animations"), "mdi:animation-play-outline", `      <h4>${_t("Animations par événement")}${bulleI(_t("Type, couleur et durée d'un cycle. Chaque élément peut avoir la sienne (onglet « Animation » de sa fenêtre d'édition)."))}</h4>
       ${Object.keys(EV).map(ligneEv).join("")}
       <div class="ed-actions"><button class="ed-btn contour" data-act="amb-reinit" ${d.animations ? "" : "disabled"}><ha-icon icon="mdi:restore"></ha-icon>${_t("Animations par défaut")}</button></div>
-      <h4 data-ancre="alertes">${_t("Alertes plein plan")}${bulleI(_t("Le plan entier s'allume (voile, bandeau, éléments entourés) tant que l'alerte dure ; « Masquer » la cache jusqu'au prochain changement."))}</h4>
+`],
+      ["alertes", _t("Alertes"), "mdi:alarm-light-outline", `      <h4 data-ancre="alertes">${_t("Alertes plein plan")}${bulleI(_t("Le plan entier s'allume (voile, bandeau, éléments entourés) tant que l'alerte dure ; « Masquer » la cache jusqu'au prochain changement."))}</h4>
       ${AL.map((r, i) => (r && typeof r === "object" ? regle(r, i) : "")).join("")}
       <div class="ed-actions"><button class="ed-btn tonal" data-al-act="nouvelle"><ha-icon icon="mdi:plus"></ha-icon>${_t("Alerte sur des entités")}</button>
-        <button class="ed-btn contour" data-al-act="intrusion"><ha-icon icon="mdi:door-open"></ha-icon>${_t("Ouverture, maison vide")}</button></div>`);
-    const P = this.panneau;
+        <button class="ed-btn contour" data-al-act="intrusion"><ha-icon icon="mdi:door-open"></ha-icon>${_t("Ouverture, maison vide")}</button></div>
+`],
+    ];
+    if (!onglets.some((o) => o[0] === this._ongletAmb)) this._ongletAmb = "general";
+    let V = this.R.querySelector(".ed-mvoile.ed-amb");
+    V ||= this._mvoile("ed-amb");
+    V.hidden = !!this._ambCachee;
+    const actif = this.R.activeElement, garde = V.contains(actif) ? cleFocusAmb(actif) : null, defile = V.querySelector(".ed-mcontenu")?.scrollTop || 0;
+    poserHTML(V, `<div class="ed-modale ed-modale-amb" role="dialog" aria-modal="true" aria-labelledby="ed-amb-titre">
+      <header><ha-icon icon="mdi:weather-partly-cloudy"></ha-icon><div><h2><span id="ed-amb-titre">${_t("Ambiance et animations")}</span>${bulleI(_t("Jour / nuit, météo, lumière, traces. Fenêtre ouverte, le plan derrière la montre telle qu'elle sera en vue."))}</h2></div>
+        <button class="ib" data-act="amb-fermer" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></header>
+      <div class="ed-mcorps">${this._navOnglets("amb", _t("Sections de l'ambiance"), onglets, this._ongletAmb)}
+        <div class="ed-mcontenu">${onglets.map(([id, t, , h]) => `<section role="tabpanel" id="amb-pan-${id}" aria-labelledby="amb-tab-${id}" data-onglet="${id}" tabindex="0" ${id === this._ongletAmb ? "" : "hidden"}><h3 class="ed-mtitre">${esc(t)}</h3>${h}</section>`).join("")}</div>
+        <aside class="ed-amb-apercu" aria-label="${_t("Aperçu")}"></aside></div></div>`);
+    const P = V;
+    this._cablerChamps(V);
+    this._apercuAmb(V.querySelector(".ed-amb-apercu"));
     P.onclick = (ev) => {
-      const el = ev.composedPath().find((n) => n.dataset && (n.dataset.act || n.dataset.ambSet || n.dataset.animEffacer));
+      const el = ev.composedPath().find((n) => n.dataset && (n.dataset.act || n.dataset.ambSet || n.dataset.animEffacer || n.dataset.animPal));
       if (!el) return;
       const ds = el.dataset;
       if (ds.act === "amb-fermer") return this.panneauAmbiance(false);
       if (ds.act === "amb-reinit") return this._majAmb((d) => { delete d.animations; });
       if (ds.ambSet) { const [k, v] = ds.ambSet.split(":"); return this._majAmb((d) => { if (v === "discret") delete d.ambiance[k]; else d.ambiance[k] = v; }); }
       if (ds.animEffacer) return this._majAmb((d) => poserChemin((d.animations ||= {}), ds.animEffacer, ""));
+      // couleur nommée de la palette : l'animation garde le nom et suit la palette
+      if (ds.animPal) return this._majAmb((d) => { const an = (d.animations ||= {}), [e] = ds.animPal.split("."); if (typeof an[e] === "string") an[e] = { type: an[e] }; poserChemin(an, ds.animPal, ds.couleur); });
     };
     const clicAl = P.onclick;
     P.onclick = async (ev) => {
@@ -8921,7 +9913,26 @@ class EditeurPlan {
         poserChemin(an, inp.dataset.anim, inp.dataset.num ? (inp.value === "" ? "" : Math.min(20, Math.max(0.2, +inp.value))) : inp.value);
       });
     });
+    // modale : voile (clic = fermer), onglets, champs déclaratifs (Lumière), « Placer sur le plan » (personnes)
+    const clicAmb = P.onclick;
+    P.onpointerdown = (ev) => { this._basVoileAmb = ev.target === P; };
+    P.onclick = async (ev) => {
+      if (ev.target === P) { if (this._basVoileAmb) this.panneauAmbiance(false); return; }
+      const ch = ev.composedPath(), og = ch.find((n) => n.dataset?.ongletAmb);
+      if (og) return this.ongletAmbiance(og.dataset.ongletAmb);
+      if (ch.some((n) => n.dataset?.act === "amb-placer")) {
+        this._ambCachee = true; P.hidden = true;
+        return this.snack(_t("Glisse les avatars sur le plan, puis Échap pour revenir à l'ambiance."));
+      }
+      if (ch.some((n) => n.dataset && (n.dataset.parAuto != null || n.dataset.parEffacer != null || (n instanceof HTMLButtonElement && n.dataset.par)))) return this._clicChamp(ch);
+      return clicAmb(ev);
+    };
+    this._clavierModale(P, "ongletAmb", (o) => this.ongletAmbiance(o));
     this._cablerIcones(P);
+    const cont = P.querySelector(".ed-mcontenu");
+    if (cont) cont.scrollTop = defile;
+    this._indiceDefilement?.(P.querySelector(".ed-onglets"));
+    if (garde) P.querySelector(garde)?.focus({ preventScroll: true });
   }
   // panneau Ambiance ouvert : glisser les avatars à la maison déplace leur point de rassemblement (ambiance.personnes.maison,
   // en cm, sur la grille sauf Alt) ; le résumé des personnes n'est pas redessiné pendant le glisser
@@ -8970,7 +9981,7 @@ class EditeurPlan {
     const N = { direction: _t("Direction et distance"), zone: _t("Zone"), cache: _t("Masquée") }, g = N[o.dehors] ? o.dehors : "direction";
     return `<div class="ed-champ ed-pers"><label>${_t("Quand elle est dehors")}</label><div class="ed-aide">${_t("Réglage commun (⚙ Paramètres) : {mode}", { mode: N[g] })}</div>${l.map(({ entite: e }) => {
       const nom = this.carte._nom(e) === e ? e.split(".")[1] : this.carte._nom(e), v = o.par_personne?.[e]?.dehors;
-      const ini = nom.trim().split(/[\s_]+/).map((w) => w[0] || "").join("").slice(0, 2).toUpperCase();
+      const ini = initiales(nom);
       return `<div class="ed-pers-l"><span><i aria-hidden="true">${esc(ini)}</i>${esc(nom)}</span><select data-amb-pers="${esc(e)}" aria-label="${esc(_t("{nom} : quand elle est dehors", { nom }))}">
         <option value="">${_t("Comme les autres")}</option>${Object.entries(N).map(([k, n]) => `<option value="${esc(k)}" ${v === k ? "selected" : ""}>${n}</option>`).join("")}</select></div>`;
     }).join("")}</div>`;
@@ -8994,7 +10005,7 @@ class EditeurPlan {
     return `<details class="ed-avance"${o[cle] ? " open" : ""}><summary>${esc(titre)}${a.type && AN[a.type] ? ` · ${esc(_t(AN[a.type]))}` : ""}</summary>
       <div class="ed-aide">${_t("Par défaut : celle du plan ({anim}).", { anim: esc(_t(AN[base.type]).split(" (")[0]) })}</div>
       <div class="ed-champ"><label>${_t("Type")}</label><select data-k="${cle}.type"><option value="">${_t("Celle du plan")}</option>${Object.entries(AN).map(([k, n]) => `<option value="${esc(k)}" ${a.type === k ? "selected" : ""}>${esc(_t(n))}</option>`).join("")}</select></div>
-      <div class="ed-ligne"><div class="ed-champ"><label>${a.couleur ? _t("Couleur") : _t("Couleur (celle de l'élément)")}</label><span class="ed-couleur-anim"><input type="color" data-k="${cle}.couleur" value="${esc(/^#[0-9a-f]{6}$/i.test(a.couleur || "") ? a.couleur : "#f4b400")}">${a.couleur ? `<button class="ib" data-effacer="${cle}.couleur" title="${_t("Couleur de l'élément")}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</span></div>
+      <div class="ed-ligne"><div class="ed-champ"><label>${a.couleur ? _t("Couleur") : _t("Couleur (celle de l'élément)")}</label><span class="ed-couleur-anim ed-couleurs">${this._nuancierPalette(a.couleur, `${cle}.couleur`)}<input type="color" data-k="${cle}.couleur" value="${esc(hexOu(a.couleur, "#f4b400"))}">${a.couleur ? `<button class="ib" data-effacer="${cle}.couleur" title="${_t("Couleur de l'élément")}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</span></div>
         ${this._champNombre(_t("Durée d'un cycle (s)"), `${cle}.duree`, a.duree, 0.1, `${base.duree}`)}</div>
       <div class="ed-ligne">${this._champNombre(_t("Intensité (0,2 à 2)"), `${cle}.intensite`, a.intensite, 0.1, "1")}
         ${ev === "meuble" ? `<div class="ed-champ"><label>${_t("Forme de l'onde")}</label><select data-k="${cle}.forme"><option value="">${_t("Cercle")}</option><option value="contour" ${a.forme === "contour" ? "selected" : ""}>${_t("Contour du meuble")}</option></select></div>` : ""}</div></details>`;
@@ -9016,12 +10027,11 @@ class EditeurPlan {
     if (!lie) return h;
     const parType = this.carte.constructor.COULEURS_TYPE?.[o.type];
     h += `${this._champEntite(_t("Valeur affichée sur le meuble"), "valeur", o.valeur, true, "sensor")}
-      <div class="ed-champ"><label>${_t("Couleur sur le plan")}</label><div class="ed-couleurs">${COULEURS.map(([n, c]) => `<button data-couleur="${c}" title="${_t(n)}" class="${(o.couleur || "").toLowerCase() === c ? "on" : ""}" style="background:${c}"></button>`).join("")}
-          <input type="color" data-k="couleur" value="${esc(/^#[0-9a-f]{6}$/i.test(o.couleur || parType || "") ? o.couleur || parType : "#1a73e8")}" title="${_t("Autre couleur")}">
+      <div class="ed-champ"><label>${_t("Couleur sur le plan")}</label><div class="ed-couleurs">${this._pastilles(o.couleur)}
+          <input type="color" data-k="couleur" value="${esc(hexOu(o.couleur || parType, "#1a73e8"))}" title="${_t("Autre couleur")}">
           ${o.couleur ? `<button class="ed-btn texte" data-effacer="couleur">${parType ? _t("Couleur du type") : _t("Accent du thème")}</button>` : ""}</div></div>
       ${this._interInv(_t("Toujours teinté"), "teinte", o.teinte !== false, _t("Sinon seulement quand il est actif."))}
-      <div class="ed-champ"><label>${_t("Au toucher, en vue")}</label><select data-k="clic"><option value="">${_t("Par défaut ({d})", { d: defaut })}</option>
-        ${[["fiche", _t("Ouvrir sa fiche")], ["infos", _t("Ouvrir la fiche HA (plus d'infos)")], ["aucun", _t("Rien (pas cliquable)")]].map(([v, n]) => `<option value="${esc(v)}" ${o.clic === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
+      ${this._champClic(o, defaut, _t("Rien (pas cliquable)"))}
       ${this._champsInterrupteur(o, dom)}
       <details class="ed-avance" ${o.actif || o.actif_attribut || o.seuil != null || o.unite || o.decimales != null ? "open" : ""}><summary>${_t("Réglages avancés")}</summary>
         <h4>${_t("Quand le meuble est « actif » (contour coloré)")}${bulleI(_t("Par défaut : quand l'entité est allumée, ouverte ou en marche."))}</h4>
@@ -9037,17 +10047,23 @@ class EditeurPlan {
 
   // interrupteur marche / arrêt de l'élément (fiche, vue de la pièce) : protection (pas d'arrêt) et confirmation forcée (`confirm`)
   _champsInterrupteur(o, dom) {
-    if (!BASCULES_ED.includes(dom)) return "";
+    if (!BASCULES.includes(dom)) return "";
     return `${this._inter(_t("Protégé (sans bouton d'arrêt)"), "protege", o.protege, _t("Pas de bouton d'arrêt dans la fiche (frigo, congélateur…)."))}
       ${this._inter(_t("Toujours demander confirmation"), "confirmer", o.confirmer, _t("Marche et arrêt confirmés avant chaque appel (fiche, vue de la pièce), ex. une porte de garage commandée par un switch."))}`;
   }
+  // « Au toucher, en vue » : défaut (texte), fiche, plus d'infos ou rien (libellé selon l'élément)
+  _champClic(o, defaut, rien) {
+    return `<div class="ed-champ"><label>${_t("Au toucher, en vue")}</label><select data-k="clic"><option value="">${_t("Par défaut ({d})", { d: defaut })}</option>
+        ${[["fiche", _t("Ouvrir sa fiche")], ["infos", _t("Ouvrir la fiche HA (plus d'infos)")], ["aucun", rien]].map(([v, n]) => `<option value="${esc(v)}" ${o.clic === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>`;
+  }
+  // position x / y d'un élément (cm)
+  _champXY(o) { return `<div class="ed-ligne">${this._champNombre(_t("x (cm)"), "pos.0", o.pos[0], 1)}${this._champNombre(_t("y (cm)"), "pos.1", o.pos[1], 1)}</div>`; }
   // fiche d'une ouverture ou d'une pastille : comportement au toucher, protection, widgets (mêmes outils que pour un meuble)
   _sectionFiche(o, genre) {
-    const e = genre === "ouverture" ? o.contact || o.entite : o.entite, dom = (e || "").split(".")[0];
-    const defaut = o.fiche ? _t("la fiche") : (genre === "ouverture" ? o.contact || o.entite || o.volet : o.entite) ? _t("la fiche HA") : _t("rien");
-    const titre = o.nom || (e || o.volet ? this.carte._nom(e || o.volet) : { fenetre: _t("Fenêtre"), porte: _t("Porte"), portail: _t("Portail") }[o.type] || _t("Ouverture"));
-    return `<div class="ed-champ"><label>${_t("Au toucher, en vue")}</label><select data-k="clic"><option value="">${_t("Par défaut ({d})", { d: defaut })}</option>
-        ${[["fiche", _t("Ouvrir sa fiche")], ["infos", _t("Ouvrir la fiche HA (plus d'infos)")], ["aucun", _t("Rien")]].map(([v, n]) => `<option value="${esc(v)}" ${o.clic === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
+    const e = genre === "ouverture" ? contactsOuv(o)[0] || o.entite : o.entite, dom = (e || "").split(".")[0];
+    const defaut = o.fiche ? _t("la fiche") : (genre === "ouverture" ? e || o.volet : o.entite) ? _t("la fiche HA") : _t("rien");
+    const titre = o.nom || (e || o.volet ? this.carte._nom(e || o.volet) : _t(NOMS_OUVERTURE[o.type] || _tk("Ouverture")));
+    return `${this._champClic(o, defaut, _t("Rien"))}
       ${this._champsInterrupteur(o, dom)}
       ${this._listeFiche(o, genre, titre, genre === "ouverture" ? _t("Sans widget, la fiche montre l'état du contact (et du volet) ; « commande » pour piloter un volet ou un portail.") : _t("Sans widget, la fiche montre l'état et, pour une lumière ou une prise, le bouton marche / arrêt."))}`;
   }
@@ -9102,7 +10118,7 @@ class EditeurPlan {
   _proposerFiche(m) {
     const hass = this.hass, ents = this._entitesAppareil(m.entite).filter((e) => e !== m.entite || !["switch", "light", "fan", "input_boolean"].includes(e.split(".")[0]));
     const st = (e) => hass.states[e], dc = (e) => st(e)?.attributes.device_class, u = (e) => String(st(e)?.attributes.unit_of_measurement || ""), dom = (e) => e.split(".")[0];
-    const txt = (e) => `${e} ${st(e)?.attributes.friendly_name || ""}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const txt = (e) => sansAccent(`${e} ${st(e)?.attributes.friendly_name || ""}`);
     const capteur = (e) => dom(e) === "sensor";
     const souscrit = (e) => /souscri|subscri|abonnement/.test(txt(e));
     const G = {
@@ -9157,7 +10173,7 @@ class EditeurPlan {
     return { widgets: W, reglages, n: ents.length };
   }
   // entités de référence d'une ouverture ou d'une pastille (contact, volet, entité motorisée ; entité de la pastille)
-  _sources(genre, o) { return (genre === "ouverture" ? [o.contact, o.volet, o.entite] : genre === "point" ? [o.entite] : [o.entite]).filter((e) => typeof e === "string" && e.includes(".")); }
+  _sources(genre, o) { return (genre === "ouverture" ? [...contactsOuv(o), o.volet, o.entite] : genre === "point" ? [o.entite] : [o.entite]).filter((e) => typeof e === "string" && e.includes(".")); }
   // propositions selon le genre de l'élément ; rien n'est écrit ici
   _proposer(genre, o) {
     if (genre === "meuble") return this._proposerFiche(o);
@@ -9166,7 +10182,7 @@ class EditeurPlan {
   // capteurs d'un appareil de contact : batterie, manipulation (tamper), compteurs du jour (« ouvertures », « aération »)
   _capteursContact(ents) {
     const hass = this.hass, st = (e) => hass.states[e], dc = (e) => st(e)?.attributes.device_class, dom = (e) => e.split(".")[0];
-    const txt = (e) => `${e} ${st(e)?.attributes.friendly_name || ""}`.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const txt = (e) => sansAccent(`${e} ${st(e)?.attributes.friendly_name || ""}`);
     const compteurs = ents.filter((e) => dom(e) === "sensor" && /ouvertures|aeration|openings|times opened|airing|ventilation/.test(txt(e)));
     let batterie = ents.filter((e) => dom(e) === "sensor" && (dc(e) === "battery" || (/batter/.test(txt(e)) && st(e)?.attributes.unit_of_measurement === "%")));
     if (!batterie.length) batterie = ents.filter((e) => dom(e) === "binary_sensor" && dc(e) === "battery");
@@ -9185,15 +10201,15 @@ class EditeurPlan {
       // capteurs liés : ceux des mêmes appareils (hors diagnostic, sauf la batterie), le contact s'il y en a un
       const diag = (e) => hass.entities?.[e]?.entity_category === "diagnostic";
       const autres = ents.filter((e) => ["binary_sensor", "sensor"].includes(dom(e)) && (!diag(e) || batterie.includes(e)));
-      const l = [o.contact, ...autres].filter(Boolean);
+      const l = [...contactsOuv(o), ...autres].filter(Boolean);
       if (l.length) W.push({ type: "entites", titre: _t("Capteurs"), icone: "mdi:gate", entites: lignes(l) });
       return { widgets: W, reglages: {}, n: ents.length + src.length };
     }
     if (cover(o.volet)) W.push({ type: "commande", titre: _t("Volet"), entite: o.volet });
     if (cover(o.entite)) W.push({ type: "commande", titre: o.nom || hass.states[o.entite]?.attributes.friendly_name || _t("Ouverture motorisée"), entite: o.entite });
-    const capteur = [o.contact, ...batterie, ...tamper].filter(Boolean);
-    // le contact seul n'apporte rien de plus que l'en-tête de la fiche, sauf à côté d'un volet
-    if (capteur.length > (o.contact ? 1 : 0) || (o.contact && W.length)) W.push({ type: "entites", titre: _t("Capteur"), icone, entites: lignes(capteur) });
+    const nc = contactsOuv(o).length, capteur = [...contactsOuv(o), ...batterie, ...tamper].filter(Boolean);
+    // le contact seul n'apporte rien de plus que l'en-tête de la fiche, sauf à côté d'un volet ; plusieurs contacts : déjà listés en tête de la fiche
+    if (capteur.length > nc || (nc === 1 && W.length)) W.push({ type: "entites", titre: _t("Capteur"), icone, entites: lignes(capteur) });
     if (compteurs.length) W.push({ type: "entites", titre: _t("Aujourd'hui"), icone: "mdi:counter", entites: lignes(compteurs) });
     return { widgets: W, reglages: {}, n: ents.length + src.length };
   }
@@ -9228,17 +10244,15 @@ class EditeurPlan {
     carte._sansBascule = true;
     try { apercu = widgets.map((w, j) => { try { return carte._widget(w, "apercu", j); } catch (e) { return ""; } }).join("").replace(/ data-w="[^"]*"/g, ""); } finally { carte._sansBascule = false; }
     const NOMS = { valeur: _t("Valeur affichée"), actif: _t("Actif selon"), seuil: _t("au-dessus de") };
-    const voile = document.createElement("div");
-    voile.className = "ed-voile";
-    poserHTML(voile, `<div class="ed-dialogue large" role="dialog" aria-modal="true" aria-label="${_t("Remplir la fiche depuis l'appareil")}"><header><h2>${_t("Remplir la fiche depuis l'appareil")}</h2>
+    const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue large" role="dialog" aria-modal="true" aria-label="${_t("Remplir la fiche depuis l'appareil")}"><header><h2>${_t("Remplir la fiche depuis l'appareil")}</h2>
         <div class="ed-aide">${_t("« {nom} » : {n} entité. Widgets proposés.|« {nom} » : {n} entités. Widgets proposés.", { nom: esc(dev?.name_by_user || dev?.name || this.carte._nom(e0)), n })}</div></header>
       <div class="ed-cat"><div class="ed-apercu-fiche">${apercu}</div>
         ${Object.keys(reglages).length ? `<h4>${s.type === "meuble" ? _t("Réglages du meuble") : _t("Réglages de l'élément")}</h4><div class="ed-aide">${Object.entries(reglages).map(([k, v]) => `${NOMS[k]} : ${esc(k === "seuil" ? `${v}` : this.carte._nom(v))}`).join(" · ")}</div>` : ""}</div>
       <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-r="">${_t("Annuler")}</button>
         ${deja ? `<button class="ed-btn texte" data-r="remplacer">${_t("Remplacer la fiche ({n} widget)|Remplacer la fiche ({n} widgets)", { n: deja })}</button>` : ""}
-        <button class="ed-btn plein" data-r="ajouter"><ha-icon icon="mdi:check"></ha-icon>${deja ? _t("Ajouter à la fiche") : _t("Ajouter")}</button></footer></div>`);
+        <button class="ed-btn plein" data-r="ajouter"><ha-icon icon="mdi:check"></ha-icon>${deja ? _t("Ajouter à la fiche") : _t("Ajouter")}</button></footer></div>`, { echap: () => fermer(null) });
     const fermer = (r) => {
-      voile.remove(); window.removeEventListener("keydown", echap, true);
+      retirer();
       if (!r) return;
       this.commit(() => {
         const l = this._wl({ cote: "fiche", [s.type]: s.i }, true);
@@ -9249,11 +10263,8 @@ class EditeurPlan {
       });
       this.snack(_t("Fiche remplie : {n} widget. Clique-les dans l'aperçu pour les modifier.|Fiche remplie : {n} widgets. Clique-les dans l'aperçu pour les modifier.", { n: widgets.length }), _t("Annuler##defaire"), this._annulation(), 10000);
     };
-    const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer(null); } };
-    window.addEventListener("keydown", echap, true);
     // l'aperçu n'est pas éditable : ses clics ne vont pas à la carte (sélection d'un widget, plus d'infos…)
     voile.onclick = (ev) => { ev.stopPropagation(); const b = ev.composedPath().find((x) => x.dataset?.r != null); if (ev.target === voile || b) fermer(b?.dataset.r || null); };
-    R.querySelector("ha-card").append(voile);
     voile.querySelector("[data-r=ajouter]").focus();
   }
   // fiche vide (ni titre ni widget) : clé retirée, le YAML reste minimal
@@ -9282,7 +10293,7 @@ class EditeurPlan {
   }
   _toutesCles() {
     const d = this.d, l = [];
-    for (const [ty, liste] of Object.entries({ point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles })) (liste || []).forEach((_, i) => l.push(`${ty}:${i}`));
+    for (const [ty, liste] of Object.entries(this._listes(d))) (liste || []).forEach((_, i) => l.push(`${ty}:${i}`));
     return l;
   }
   _membres(g) { return this._toutesCles().filter((k) => this._gr(k) === g); }
@@ -9330,7 +10341,6 @@ class EditeurPlan {
       this.sousZoneEnAttente = null;
       this.commit(() => { this.d.pieces.push({ nom: sz.nom, sous_zone: true, poly, etiquette: [x + w / 2, y + h / 2] }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
       this.choisirOutil("selection");
-      this._deplier();
       return;
     }
     (opt.silencieux ? (f) => f() : (f) => this.commit(f))(() => {
@@ -9342,7 +10352,7 @@ class EditeurPlan {
     if (opt.silencieux) return this.d.pieces.length - 1;
     this.choisirOutil("selection");
     if (z) { this.integrer(this.d.pieces.length - 1); return; }
-    setTimeout(() => this.panneau.querySelector('input[data-k="nom"]')?.select(), 50);
+    setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
   }
 
   // nouvelle largeur / hauteur d'une pièce rectangle (bords droit et bas déplacés) : seuls SES murs, limites et
@@ -9391,15 +10401,12 @@ class EditeurPlan {
     const zones = Object.values(hass.areas || {}).filter((z) => !deja.has(z.area_id)).sort((a, b) => a.name.localeCompare(b.name, _loc()));
     if (!zones.length) return this.snack(Object.keys(hass.areas || {}).length ? _t("Toutes les pièces HA sont déjà sur le plan.") : _t("Aucune pièce dans Home Assistant : crée-les dans Paramètres → Pièces, ou dessine-les ici."));
     const choix = await new Promise((fin) => {
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${_t("Démarrer avec mes pièces")}</h2>
+      const { voile } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${_t("Démarrer avec mes pièces")}</h2>
           <div class="ed-aide">${_t("Chaque pièce cochée devient un rectangle 4 × 3 m, à ajuster ensuite.")}</div></header>
         <div class="ed-resultats">${zones.map((z) => { const n = entitesZone(hass, z.area_id).length;
           return `<label class="ed-coche"><input type="checkbox" value="${esc(z.area_id)}" ${n ? "checked" : ""}><ha-icon icon="${esc(z.icon || "mdi:floor-plan")}"></ha-icon><span class="n"><span>${esc(z.name)}</span><small>${_t("{n} entité|{n} entités", { n })}</small></span></label>`; }).join("")}</div>
         <footer><button class="ed-btn texte" data-r="0">${_t("Annuler")}</button><button class="ed-btn plein" data-r="1"><ha-icon icon="mdi:home-import-outline"></ha-icon>${_t("Créer les pièces")}</button></footer></div>`);
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) { const l = [...voile.querySelectorAll("input:checked")].map((x) => x.value); voile.remove(); fin(b?.dataset.r === "1" ? l : null); } };
-      this.R.querySelector("ha-card").append(voile);
     });
     if (!choix?.length) return;
     const b = this.d.pieces.length ? this.carte.bornes() : null, x0 = b ? b.x0 + b.W + 100 : 0, y0 = b ? b.y0 : 0;
@@ -9428,7 +10435,7 @@ class EditeurPlan {
       this.commit(() => { this.d.pieces.push({ nom: z ? this.hass.areas?.[z]?.name || z : _t("Nouvelle pièce"), poly: t, etiquette: centre(t), ...(z ? { zone: z } : {}) }); this.sel = { type: "piece", i: this.d.pieces.length - 1 }; });
       this.choisirOutil("selection");
       if (z) { this.integrer(this.d.pieces.length - 1); return; }
-      setTimeout(() => this.panneau.querySelector('input[data-k="nom"]')?.select(), 50);
+      setTimeout(() => this.R.querySelector('.ed-edit input[data-k="nom"]')?.select(), 50);
       return;
     }
     this.carte._construire();
@@ -9438,29 +10445,8 @@ class EditeurPlan {
   selectionner(s) {
     this.sel = s;
     this.multi = new Set(s ? [cle(s)] : []);
-    // au doigt, la feuille du bas se déplie pour montrer les propriétés de ce qu'on vient de toucher
-    if (s) this._deplier();
     this.carte._construire();
     this._panneau();
-  }
-
-  // au doigt, la feuille du bas se déplie pour montrer les propriétés de ce qu'on vient de toucher ou de poser
-  _deplier() {
-    if (!this.replie) return;
-    this._depliee = Date.now(); this.replier(false);
-  }
-  // feuille du bas (téléphone) repliée sur sa poignée ou dépliée ; l'état n'est pas gardé d'une session à l'autre (2e argument des anciens appels ignoré)
-  replier(oui) {
-    this.replie = oui;
-    this._etatRepli();
-    this.carte._mise();
-  }
-  _etatRepli() {
-    const hote = this.R.querySelector(".panneau-hote");
-    hote.classList.toggle("replie", this.replie);
-    this.poignee.title = this.replie ? _t("Afficher le panneau d'édition") : _t("Replier le panneau d'édition");
-    this.poignee.setAttribute("aria-expanded", String(!this.replie));
-    poserHTML(this.poignee, `<ha-icon icon="mdi:${this.replie ? "chevron-left" : "chevron-right"}"></ha-icon><span>${this.replie ? _t("Propriétés") : _t("Replier")}</span>`);
   }
 
   basculerSel(s) {
@@ -9484,10 +10470,11 @@ class EditeurPlan {
   }
 
   _translater(k, dx, dy, src) {
+    if (this._verrouille(k)) return; // verrouillé : reste en place, même dans un groupe ou une sélection multiple
     const [ty, a] = k.split(":"), i = +a, d = this.d, T = ([x, y]) => [arr(x + dx), arr(y + dy)];
     const S = (s) => [arr(s[0] + dx), arr(s[1] + dy), arr(s[2] + dx), arr(s[3] + dy), ...s.slice(4)];
     if (ty === "meuble") d.meubles[i].pos = T(src.meubles[i].pos);
-    if (ty === "piece") this._meublesDans(src.pieces[i].poly, src).forEach((j) => { if (!this.multi.has(`meuble:${j}`)) d.meubles[j].pos = T(src.meubles[j].pos); });
+    if (ty === "piece") this._meublesDans(src.pieces[i].poly, src).forEach((j) => { if (!this.multi.has(`meuble:${j}`) && !d.meubles[j].verrouille) d.meubles[j].pos = T(src.meubles[j].pos); });
     if (ty === "piece") this._sousZonesDans(i, src).forEach((j) => { if (!this.multi.has(`piece:${j}`)) this._bougerZone(j, T, src); });
     if (ty === "point") d.points[i].pos = T(src.points[i].pos);
     else if (ty === "texte") d.textes[i].pos = T(src.textes[i].pos);
@@ -9547,8 +10534,9 @@ class EditeurPlan {
     return { point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, meuble: d.meubles }[s.type]?.[s.i] ?? null;
   }
 
-  _panneauMulti() {
-    const keys = [...this.multi], cnt = {}, d = this.d;
+  // sélection multiple : modale avec les réglages communs (aligner, groupe, masquer) et les actions groupées (grouper, verrou, dupliquer, supprimer)
+  _ongletsMulti() {
+    const keys = [...this.multi], cnt = {};
     keys.forEach((k) => { const ty = k.split(":")[0]; cnt[ty] = (cnt[ty] || 0) + 1; });
     const NOMS = { point: (n) => _t("{n} appareil|{n} appareils", { n }), texte: (n) => _t("{n} texte|{n} textes", { n }), piece: (n) => _t("{n} pièce|{n} pièces", { n }), mur: (n) => _t("{n} mur|{n} murs", { n }),
       limite: (n) => _t("{n} limite|{n} limites", { n }), ouverture: (n) => _t("{n} ouverture|{n} ouvertures", { n }), meuble: (n) => _t("{n} meuble|{n} meubles", { n }) };
@@ -9556,124 +10544,111 @@ class EditeurPlan {
     const pos = keys.filter((k) => /^(point|texte|meuble):/.test(k));
     const nom = (k) => { const m = deCle(k), o = this._elt(k); return m.type === "point" ? (o.nom || this.carte._nom(o.entite)) : m.type === "texte" ? o.t : m.type === "piece" ? o.nom : m.type === "ouverture" ? (o.nom || _t("Ouverture")) : m.type === "meuble" ? (o.nom || (MEUBLES()[o.type] ? _t(MEUBLES()[o.type].nom) : _t("Meuble"))) : m.type === "mur" ? _t("Mur") : _t("Limite"); };
     const ic = { point: "mdi:circle-medium", texte: "mdi:format-text", piece: "mdi:vector-square", mur: "mdi:wall", limite: "mdi:fence", ouverture: "mdi:window-closed-variant", meuble: "mdi:sofa-outline" };
-    poserHTML(this.panneau, `<h3><ha-icon icon="mdi:${this._groupeSel() ? "group" : "select-group"}"></ha-icon>${this._groupeSel() ? esc(this._groupeSel().nom) + " · " : ""}${_t("{n} éléments", { n: keys.length })}<button class="ib" data-act="deselection" title="${_t("Tout désélectionner (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></h3>
-      <div class="ed-resume">${Object.entries(cnt).map(([ty, n]) => NOMS[ty](n)).join(", ")}${bulleI(tactile() ? _t("Glisse l'un d'eux pour tout déplacer ; un cadre tracé dans le vide sélectionne plusieurs éléments.") : _t("Glisse l'un d'eux pour tout déplacer, flèches pour ajuster, Ctrl+clic pour ajouter ou retirer."))}</div>
-      ${pos.length >= 2 ? `<div class="ed-champ"><label>${_t("Aligner (appareils, textes et meubles)")}</label><div class="ed-icones">${[["g", "mdi:align-horizontal-left", _t("À gauche")], ["ch", "mdi:align-horizontal-center", _t("Centrer horizontalement")], ["d", "mdi:align-horizontal-right", _t("À droite")],
-        ["h", "mdi:align-vertical-top", _t("En haut")], ["cv", "mdi:align-vertical-center", _t("Centrer verticalement")], ["b", "mdi:align-vertical-bottom", _t("En bas")]].map(([v, i2, ti]) => `<button data-act="aligner:${v}" title="${ti}"><ha-icon icon="${i2}"></ha-icon></button>`).join("")}
-        ${pos.length >= 3 ? `<button data-act="repartir:0" title="${_t("Répartir horizontalement")}"><ha-icon icon="mdi:distribute-horizontal-center"></ha-icon></button><button data-act="repartir:1" title="${_t("Répartir verticalement")}"><ha-icon icon="mdi:distribute-vertical-center"></ha-icon></button>` : ""}</div></div>` : ""}
-      ${(() => { const g = this._groupeSel(); return g ? `<div class="ed-champ"><label>${_t("Nom du groupe")}</label><input type="text" data-groupe="${esc(g.id)}" value="${esc(g.nom)}"></div>` : ""; })()}
-      <div class="ed-actions">${this._groupeSel() ? `<button class="ed-btn contour" data-act="degrouper" title="${tactile() ? _t("Dégrouper") : _t("Ctrl+Maj+G")}"><ha-icon icon="mdi:ungroup"></ha-icon>${_t("Dégrouper")}</button>`
+    const g = this._groupeSel(), objs = this._objetsMulti(), tousM = objs.length > 0 && objs.every((o) => o.masque), tousV = objs.length > 0 && objs.every((o) => o.verrouille === true);
+    const lv = tousV ? _t("Déverrouiller") : _t("Verrouiller : ni déplacé ni redimensionné à la souris");
+    return { icone: `mdi:${g ? "group" : "select-group"}`, titre: `${g ? `${g.nom} · ` : ""}${_t("{n} éléments", { n: keys.length })}`, resume: Object.entries(cnt).map(([ty, n]) => NOMS[ty](n)).join(", "),
+      aide: tactile() ? _t("Glisse l'un d'eux pour tout déplacer ; un cadre tracé dans le vide sélectionne plusieurs éléments.") : _t("Glisse l'un d'eux pour tout déplacer, flèches pour ajuster, Ctrl+clic pour ajouter ou retirer."),
+      actions: `${g ? `<button class="ed-btn contour" data-act="degrouper" title="${tactile() ? _t("Dégrouper") : _t("Ctrl+Maj+G")}"><ha-icon icon="mdi:ungroup"></ha-icon>${_t("Dégrouper")}</button>`
         : `<button class="ed-btn tonal" data-act="grouper" title="${tactile() ? _t("Se sélectionnent et se déplacent ensemble") : _t("Ctrl+G : se sélectionnent et se déplacent ensemble")}"><ha-icon icon="mdi:group"></ha-icon>${_t("Grouper")}</button>`}
-        ${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}
-        <button class="ed-btn danger" data-act="supprimer"><ha-icon icon="mdi:delete-outline"></ha-icon>${_t("Supprimer")}</button></div>
-      <h4>${_t("Sélection")}</h4><div class="ed-liste">${keys.map((k) => `<button data-choix="${k}"><ha-icon icon="${ic[k.split(":")[0]]}"></ha-icon><span>${esc(nom(k))}<small>${NOM1[k.split(":")[0]]}</small></span></button>`).join("")}</div>`);
-    this._cablerPanneau();
+        ${objs.length ? `<button type="button" class="ib ed-verrou${tousV ? " on" : ""}" data-act="verrou" title="${esc(lv)}" aria-label="${esc(lv)}" aria-pressed="${tousV}"><ha-icon icon="mdi:${tousV ? "lock-outline" : "lock-open-variant-outline"}"></ha-icon></button>` : ""}`,
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${pos.length >= 2 ? `<div class="ed-champ"><label>${_t("Aligner (appareils, textes et meubles)")}</label><div class="ed-icones">${[["g", "mdi:align-horizontal-left", _t("À gauche")], ["ch", "mdi:align-horizontal-center", _t("Centrer horizontalement")], ["d", "mdi:align-horizontal-right", _t("À droite")],
+        ["h", "mdi:align-vertical-top", _t("En haut")], ["cv", "mdi:align-vertical-center", _t("Centrer verticalement")], ["b", "mdi:align-vertical-bottom", _t("En bas")]].map(([v, i2, ti]) => `<button data-act="aligner:${v}" title="${ti}" aria-label="${ti}"><ha-icon icon="${i2}"></ha-icon></button>`).join("")}
+        ${pos.length >= 3 ? `<button data-act="repartir:0" title="${_t("Répartir horizontalement")}" aria-label="${_t("Répartir horizontalement")}"><ha-icon icon="mdi:distribute-horizontal-center"></ha-icon></button><button data-act="repartir:1" title="${_t("Répartir verticalement")}" aria-label="${_t("Répartir verticalement")}"><ha-icon icon="mdi:distribute-vertical-center"></ha-icon></button>` : ""}</div></div>` : ""}
+        ${g ? `<div class="ed-champ"><label>${_t("Nom du groupe")}</label><input type="text" data-groupe="${esc(g.id)}" value="${esc(g.nom)}"></div>` : ""}
+        ${objs.length ? `<label class="ed-inter"><span>${_t("Masquer en vue")}${bulleI(_t("Visible ici en transparence."))}</span><input type="checkbox" data-act-chk="multi-masque" ${tousM ? "checked" : ""}></label>` : ""}`],
+        ["selection", _t("Sélection"), "mdi:format-list-bulleted", `<div class="ed-liste">${keys.map((k) => `<button data-choix="${k}"><ha-icon icon="${ic[k.split(":")[0]]}"></ha-icon><span>${esc(nom(k))}<small>${NOM1[k.split(":")[0]]}</small></span></button>`).join("")}</div>`]] };
   }
+  // objets de la sélection multiple qui portent un verrou ou un masque (pas les murs ni les limites)
+  _objetsMulti() { return [...this.multi].map((k) => this._elt(k)).filter((o) => o && typeof o === "object" && !Array.isArray(o)); }
 
-  // panneau latéral (feuille du bas sur téléphone) : affiché seulement avec un contenu ; la modale ⚙ ouverte suit aussi les changements
+  // plus de panneau latéral : chaque élément (et la sélection multiple) s'édite dans sa modale, Calques est une modale ;
+  // les modales ouvertes (⚙, Ambiance, édition, Calques) suivent les changements, la barre flottante suit la sélection
   _panneau() {
     if (this._tip && !this._tip.b.closest(".ed-voile")) this._cacherAide();
-    // désélection pendant un geste (PC) : l'ancien contenu reste jusqu'au relâchement plutôt qu'un panneau vide
-    if (!this._aContenu() && this._geste && !this._etroit() && !this.R.querySelector(".panneau-hote")?.classList.contains("vide")) { this._hoteEnAttente = true; return; }
-    this._panneauContenu();
-    this._majHote();
+    this._panneauCalques();
     if (this.vueParametres) this._rendreParametres();
+    if (this.vueAmbiance) this._panneauAmbiance();
+    if (this.vueEdition) this._rendreEdition();
+    this._majBarreFlottante();
   }
-  _aContenu() { return !!(this.sel || this.multi.size || this.vueCalques || this.vueAmbiance); }
   _etroit() { return !!this.R.querySelector("ha-card")?.classList.contains("ed-etroit"); }
-  // largeur prise par le panneau à côté de la vue, pour sa réduction : 0 quand il flotte au-dessus (au repos, plan, calques, ambiance)
-  largeurPanneau() { const h = this.R.querySelector(".panneau-hote"); return h && !h.classList.contains("vide") && h.classList.contains("reserve") ? 376 : 0; }
-  _majHote() {
-    const hote = this.R.querySelector(".panneau-hote"), vide = !this._aContenu();
-    if (!hote) return;
-    // widget choisi dans une colonne (PC) : le panneau prend sa place à côté de la vue (rien n'est caché de ce qu'on modifie)
-    const reserve = !vide && !this._etroit() && !!this.R.querySelector(".col .w.sel");
-    if (hote.classList.contains("vide") === vide && hote.classList.contains("reserve") === reserve) return;
-    // PC : pendant un geste sur le plan (glisser, cadre de sélection), le panneau n'apparaît ou ne disparaît qu'au relâchement
-    if (this._geste && !this._etroit()) { this._hoteEnAttente = true; return; }
-    hote.classList.toggle("reserve", reserve);
-    hote.classList.toggle("vide", vide);
-    if (vide) this.panneau.replaceChildren();
-    this.carte._mise();
-  }
-  _panneauContenu() {
-    const s = this.sel, P = this.panneau;
-    if (this.multi.size > 1) return this._panneauMulti();
-    if (!s) return this.vueCalques ? this._panneauCalques() : this.vueAmbiance ? this._panneauAmbiance() : this.panneau.replaceChildren();
-    const o = this._objet(), hass = this.hass;
-    let h = "";
-    const supprimer = `<button class="ed-btn danger" data-act="supprimer"><ha-icon icon="mdi:delete-outline"></ha-icon>${_t("Supprimer")}</button>`;
-    if (s.type === "point") {
-      const dom = o.entite.split(".")[0];
-      const icones = [...new Set([o.icone, ...(ICONES[dom] || []), ...ICONES._])].filter(Boolean).slice(0, 12);
-      h = `<h3><ha-icon icon="${esc(o.icone || "mdi:circle")}"></ha-icon>${esc(o.nom || this.carte._nom(o.entite))}</h3>
-        ${this._champEntite(_t("Entité"), "entite", o.entite, false)}
+
+  // ---------- onglets des éléments (hors pièce et ouverture) : le contenu de l'ancien panneau, réparti ----------
+  _ongletsPoint(o) {
+    const dom = o.entite.split(".")[0];
+    const icones = [...new Set([o.icone, ...(ICONES[dom] || []), ...ICONES._])].filter(Boolean).slice(0, 12);
+    const halo = champCurseur(dom === "light" ? _t("Halo quand elle est allumée") : _t("Halo lumineux"), 'data-k="halo"', 0, 400, 10, +o.halo || 0, o.halo ? `${o.halo} cm` : _t("aucun"));
+    return { icone: o.icone || "mdi:circle", titre: o.nom || this.carte._nom(o.entite), resume: o.entite, aide: "",
+      actions: ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser cette pastille (Ajouter › Mes modèles)")),
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champEntite(_t("Entité"), "entite", o.entite, false)}
         ${this._champTexte(_t("Nom affiché (infobulle)"), "nom", o.nom, this.carte._nom(o.entite))}
         <div class="ed-champ"><label>${_t("Icône")}</label><div class="ed-icones">${icones.map((ic) => `<button data-icone="${esc(ic)}" class="${ic === o.icone ? "on" : ""}" title="${esc(ic)}" aria-label="${esc(ic)}"><ha-icon icon="${esc(ic)}"></ha-icon></button>`).join("")}</div>
           <input type="text" data-k="icone" value="${esc(o.icone || "")}" placeholder="mdi:…" aria-label="${_t("Icône")}"></div>
-        <div class="ed-champ"><label>${_t("Couleur quand actif")}</label><div class="ed-couleurs">${COULEURS.map(([n, c]) => `<button data-couleur="${c}" title="${_t(n)}" class="${(o.couleur || "").toLowerCase() === c ? "on" : ""}" style="background:${c}"></button>`).join("")}
-          <input type="color" data-k="couleur" value="${esc(/^#[0-9a-f]{6}$/i.test(o.couleur || "") ? o.couleur : "#f6c445")}" title="${_t("Autre couleur")}"></div></div>
-        ${dom === "light" ? `<div class="ed-champ"><label>${_t("Halo quand elle est allumée")}</label><div class="ed-curseur"><input type="range" min="0" max="400" step="10" data-k="halo" value="${+o.halo || 0}"><output>${o.halo ? `${o.halo} cm` : _t("aucun")}</output></div></div>` : ""}
+        <div class="ed-champ"><label>${_t("Couleur quand actif")}</label><div class="ed-couleurs">${this._pastilles(o.couleur)}
+          <input type="color" data-k="couleur" value="${esc(hexOu(o.couleur, "#f6c445"))}" title="${_t("Autre couleur")}" aria-label="${_t("Autre couleur")}"></div></div>
+        ${dom === "light" ? halo : ""}
         ${this._champEntite(_t("Valeur affichée sur la pastille"), "valeur", o.valeur, true)}
         ${this._inter(_t("Clignote quand actif"), "alerte", o.alerte)}
-        ${this._sectionFiche(o, "point")}
-        ${this._sectionAnimation(o, this.carte.constructor.evenementPoint(o))}
-        <details class="ed-avance" ${o.actif || o.actif_attribut || o.seuil != null || o.attribut || o.unite || o.decimales != null || this._aCompleter("actif") ? "open" : ""}><summary>${_t("Réglages avancés")}</summary>
-        <h4>${_t("Quand la pastille est « active » (colorée)")}${bulleI(_t("Par défaut : quand l'entité est allumée, ouverte ou en marche."))}</h4>
+        <label class="ed-inter"><span>${_t("Seulement dans la vue de sa pièce")}${bulleI(_t("Absent du plan entier : il apparaît quand on zoome sur sa pièce. Réglage par défaut : ⚙ Paramètres › Pastilles d'appareils."))}</span><input type="checkbox" data-act-chk="zoom-seul" ${o.zoom_seul ?? this.d.style_pastilles?.zoom_seul ? "checked" : ""}></label>
+        ${this._calqueNiveau(o)}`],
+        ["avance", _t("Réglages avancés"), "mdi:cog-outline", `<h4>${_t("Quand la pastille est « active » (colorée)")}${bulleI(_t("Par défaut : quand l'entité est allumée, ouverte ou en marche."))}</h4>
         ${this._champEntite(_t("Selon une autre entité"), "actif", o.actif, true)}
         <div class="ed-ligne">${this._champTexte(_t("ou selon l'attribut"), "actif_attribut", o.actif_attribut, _t("ex. hvac_action"))}${this._champNombre(_t("Active au-dessus de"), "seuil", o.seuil, 1, _t("ex. 20 (W)"))}</div>
         <h4>${_t("Valeur affichée")}</h4>
         <div class="ed-ligne trois">${this._champTexte(_t("ou un attribut"), "attribut", o.attribut, _t("option"))}${this._champTexte(_t("Unité"), "unite", o.unite, "auto")}${this._champNombre(_t("Décimales"), "decimales", o.decimales, 1, "0")}</div>
-        ${dom === "light" ? "" : `<h4>${_t("Halo lumineux")}</h4>
-        <div class="ed-champ"><div class="ed-curseur"><input type="range" min="0" max="400" step="10" data-k="halo" value="${+o.halo || 0}"><output>${o.halo ? `${o.halo} cm` : _t("aucun")}</output></div></div>`}
+        ${dom === "light" ? "" : halo}
         <div class="ed-champ"><label>${_t("Halo limité à la pièce")}</label><select data-k="piece"><option value="">${_t("— aucune —")}</option>${this.d.pieces.map((p) => `<option ${p.nom === o.piece ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select></div>
-        <div class="ed-ligne">${this._champNombre(_t("x (cm)"), "pos.0", o.pos[0], 1)}${this._champNombre(_t("y (cm)"), "pos.1", o.pos[1], 1)}</div></details>
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser cette pastille (Ajouter › Mes modèles)"))}${supprimer}</div>`;
-    } else if (s.type === "widget") {
-      h = this._panneauWidget(o, supprimer);
-    } else if (s.type === "puce") {
-      h = this._panneauPuce(o, supprimer);
-    } else if (s.type === "meuble") {
-      h = this._panneauMeuble(o, supprimer);
-    } else if (s.type === "texte" && Array.isArray(o.infos)) {
-      h = `<h3><ha-icon icon="mdi:card-text-outline"></ha-icon>${_t("Zone d'informations")}</h3>
-        ${this._champTexte(_t("Titre"), "t", o.t, _t("sans titre"))}
+        ${this._champXY(o)}`],
+        ["fiche", _t("Fiche"), "mdi:card-text-outline", this._sectionFiche(o, "point")],
+        ["animation", _t("Animation"), "mdi:animation-play-outline", this._sectionAnimation(o, this.carte.constructor.evenementPoint(o))]] };
+  }
+  _ongletsTexte(o) {
+    const taille = champCurseur(_t("Taille"), 'data-k="taille"', 0.6, 2.4, 0.05, esc(o.taille || 1), `${fmt(o.taille || 1, 2)}×`);
+    const position = this._champXY(o);
+    if (!Array.isArray(o.infos)) return { icone: "mdi:format-text", titre: o.t || _t("Texte"), resume: _t("Texte"), aide: "", actions: "",
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(_t("Texte"), "t", o.t)}${taille}${position}${this._calqueNiveau(o)}`]] };
+    return { icone: "mdi:card-text-outline", titre: o.t || _t("Zone d'informations"), resume: _t("Zone d'informations"), aide: "", actions: "",
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(_t("Titre"), "t", o.t, _t("sans titre"))}
         <div class="ed-champ"><label>${_t("Style")}</label><select data-k="style"><option value="">${_t("Encadré")}</option><option value="discret" ${o.style === "discret" ? "selected" : ""}>${_t("Discret (sans fond)")}</option></select></div>
-        <div class="ed-champ"><label>${_t("Taille")}</label><div class="ed-curseur"><input type="range" min="0.6" max="2.4" step="0.05" data-k="taille" value="${esc(o.taille || 1)}"><output>${fmt(o.taille || 1, 2)}×</output></div></div>
-        <h4>${_t("Entités ({n})", { n: o.infos.length })}</h4>
-        ${o.infos.map((l, j) => `<div class="ed-al">${this._champEntite(_t("Entité"), `infos.${j}.entite`, l.entite, false)}
+        ${taille}${position}${this._calqueNiveau(o)}`],
+        ["infos", _t("Entités ({n})", { n: o.infos.length }), "mdi:format-list-bulleted", `${o.infos.map((l, j) => `<div class="ed-al">${this._champEntite(_t("Entité"), `infos.${j}.entite`, l.entite, false)}
           ${this._champTexte(_t("Nom"), `infos.${j}.nom`, l.nom, "auto")}${this._champTexte(_t("Icône"), `infos.${j}.icone`, l.icone, "auto")}
           <div class="ed-ligne trois">${this._champTexte(_t("Attribut"), `infos.${j}.attribut`, l.attribut, _t("état"))}${this._champTexte(_t("Unité"), `infos.${j}.unite`, l.unite, "auto")}${this._champNombre(_t("Décimales"), `infos.${j}.decimales`, l.decimales, 1, "auto")}</div>
           <div class="ed-actions">${j ? ibAct(`info-haut:${j}`, "mdi:arrow-up", _t("Monter")) : ""}<button class="ed-btn danger" data-act="info-suppr:${j}"><ha-icon icon="mdi:delete-outline"></ha-icon>${_t("Retirer")}</button></div></div>`).join("")}
-        <div class="ed-actions"><button class="ed-btn tonal" data-act="info-ajout"><ha-icon icon="mdi:plus"></ha-icon>${_t("Entité")}</button></div>
-        <div class="ed-ligne">${this._champNombre(_t("x (cm)"), "pos.0", o.pos[0], 1)}${this._champNombre(_t("y (cm)"), "pos.1", o.pos[1], 1)}</div>
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${supprimer}</div>`;
-    } else if (s.type === "texte") {
-      h = `<h3><ha-icon icon="mdi:format-text"></ha-icon>${_t("Texte")}</h3>
-        ${this._champTexte(_t("Texte"), "t", o.t)}
-        <div class="ed-champ"><label>${_t("Taille")}</label><div class="ed-curseur"><input type="range" min="0.6" max="2.4" step="0.05" data-k="taille" value="${esc(o.taille || 1)}"><output>${fmt(o.taille || 1, 2)}×</output></div></div>
-        <div class="ed-ligne">${this._champNombre(_t("x (cm)"), "pos.0", o.pos[0], 1)}${this._champNombre(_t("y (cm)"), "pos.1", o.pos[1], 1)}</div>
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${supprimer}</div>`;
-    } else if (s.type === "piece") {
+        <div class="ed-actions"><button class="ed-btn tonal" data-act="info-ajout"><ha-icon icon="mdi:plus"></ha-icon>${_t("Entité")}</button></div>`]] };
+  }
+  _ongletsSegment(s, seg) {
+    const mur = s.type === "mur";
+    return { icone: mur ? "mdi:wall" : "mdi:fence", titre: mur ? _t("Mur") : _t("Limite"), resume: `${fmt(Math.hypot(seg[2] - seg[0], seg[3] - seg[1]) / 100, 2)} m`, aide: _t("Glisse le trait pour le déplacer, ses extrémités pour l'allonger."),
+      sansDupliquer: true, actions: `${ibAct("convertir", "mdi:swap-horizontal", mur ? _t("En limite") : _t("En mur"))}${ibAct("couper", "mdi:content-cut", _t("Couper en deux"))}`,
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `<div class="ed-aide">${_t("Se verrouille avec son calque (Calques).")}</div>
+        <div class="ed-ligne">${this._champNombre(_t("x départ"), "seg.0", seg[0], 1)}${this._champNombre(_t("y départ"), "seg.1", seg[1], 1)}</div>
+        <div class="ed-ligne">${this._champNombre(_t("x arrivée"), "seg.2", seg[2], 1)}${this._champNombre(_t("y arrivée"), "seg.3", seg[3], 1)}</div>`]] };
+  }
+
+  // ---------- modale d'édition d'un élément (ou de la sélection multiple) : onglets + aperçu dans sa pièce ----------
+  // contenu de la modale : titre, icône, résumé, onglets [id, titre, icône, html] et actions du pied
+  _ongletsElement(s, o) {
+    if (this.multi.size > 1) return this._ongletsMulti();
+    if (s.type === "widget") return this._ongletsWidget(o);
+    if (s.type === "puce") return this._ongletsPuce(o);
+    if (s.type === "meuble") return this._ongletsMeuble(o);
+    if (s.type === "point") return this._ongletsPoint(o);
+    if (s.type === "texte") return this._ongletsTexte(o);
+    if (s.type === "mur" || s.type === "limite") return this._ongletsSegment(s, o);
+    const hass = this.hass, plein = (h) => h.replace(/^\s*<details class="ed-avance"( open)?>/, '<details class="ed-avance ed-plein" open>');
+    if (s.type === "piece") {
       const surf = Math.abs(o.poly.reduce((a, p, j) => { const q = o.poly[(j + 1) % o.poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2) / 10000;
-      // mode d'emploi des poignées : en bulle ⓘ, sans « double-clic » sur écran tactile
       const poignees = tactile() ? _t("Glisse les poignées pour déformer, les points pleins pour ajouter un sommet ; retouche la pièce sélectionnée et glisse pour la déplacer.")
         : _t("Glisse les poignées pour déformer, les points pleins pour ajouter un sommet, double-clic sur une poignée pour la retirer ; reclique la pièce sélectionnée et glisse pour la déplacer.");
-      if (o.sous_zone) h = `<h3><ha-icon icon="mdi:selection-drag"></ha-icon>${esc(o.nom)}</h3>
-        <div class="ed-resume">${_t("Sous-zone · {s} m² · {n} sommets", { s: fmt(surf, 1), n: o.poly.length })}${bulleI(`${_t("Contour nommé dans une pièce, sans murs ; en vue, toucher la sous-zone ouvre la pièce qui la contient.")} ${poignees}`)}</div>
-        ${this._champTexte(_t("Nom"), "nom", o.nom)}
-        ${(() => { const r = rectDe(o.poly); return r ? `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "_largeur", r[2], 1)}${this._champNombre(_t("Hauteur (cm)"), "_hauteur", r[3], 1)}</div>` : ""; })()}
+      const taille = (() => { const r = rectDe(o.poly); return r ? `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "_largeur", r[2], 1)}${this._champNombre(_t("Hauteur (cm)"), "_hauteur", r[3], 1)}</div>` : ""; })();
+      if (o.sous_zone) return { icone: "mdi:selection-drag", titre: o.nom, resume: _t("Sous-zone · {s} m² · {n} sommets", { s: fmt(surf, 1), n: o.poly.length }), aide: `${_t("Contour nommé dans une pièce, sans murs ; en vue, toucher la sous-zone ouvre la pièce qui la contient.")} ${poignees}`,
+        onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(_t("Nom"), "nom", o.nom)}${taille}
         ${this._inter(_t("Sous-zone"), "sous_zone", true, _t("Contour pointillé dans une pièce, sans murs (cuisine, douche…)."))}
-        ${this._inter(_t("Afficher le nom"), "_etiquette", !!o.etiquette)}
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${supprimer}</div>`;
-      else h = `<h3><ha-icon icon="mdi:vector-square"></ha-icon>${esc(o.nom)}</h3>
-        <div class="ed-resume">${_t("{s} m² · {n} sommets", { s: fmt(surf, 1), n: o.poly.length })}${bulleI(poignees)}</div>
-        ${this._champTexte(_t("Nom"), "nom", o.nom)}
-        ${(() => { const r = rectDe(o.poly); return r ? `<div class="ed-ligne">${this._champNombre(_t("Largeur (cm)"), "_largeur", r[2], 1)}${this._champNombre(_t("Hauteur (cm)"), "_hauteur", r[3], 1)}</div>` : ""; })()}
+        ${this._inter(_t("Afficher le nom"), "_etiquette", !!o.etiquette)}${this._calqueNiveau(o)}`]], actions: "" };
+      const aPlacer = this._ouverturesAPlacer(s.i);
+      return { icone: "mdi:vector-square", titre: o.nom, resume: _t("{s} m² · {n} sommets", { s: fmt(surf, 1), n: o.poly.length }), aide: poignees, actions: "",
+        onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._champTexte(_t("Nom"), "nom", o.nom)}${taille}
         ${this._champEntite(_t("Température"), "temperature", o.temperature, true, "sensor")}
         ${this._champEntite(_t("Humidité"), "humidite", o.humidite, true, "sensor")}
         <details class="ed-avance" ${o.attribut_temperature || o.attribut_humidite || o.clic ? "open" : ""}><summary>${_t("Réglages avancés")}</summary>
@@ -9682,12 +10657,12 @@ class EditeurPlan {
         ${this._inter(_t("Extérieur"), "dehors", o.dehors, _t("Sans teinte de température ; la météo s'y dessine."))}
         ${this._inter(_t("Sous-zone"), "sous_zone", o.sous_zone, _t("Contour pointillé dans une pièce, sans murs ni vue propre (cuisine, douche…)."))}
         ${this._interInv(_t("Vue de la pièce au toucher"), "zoom", o.zoom !== false, _t("Zoom sur la pièce ; à décocher pour les extérieurs."))}
-        ${this._inter(_t("Afficher l'étiquette"), "_etiquette", !!o.etiquette)}
-        <h4>${_t("Pièce Home Assistant")}${o.zone ? "" : bulleI(_t("Lier la pièce à HA ajoute ses appareils, ses scènes et ses automatisations à sa vue."))}</h4>
-        <div class="ed-champ"><select data-k="zone"><option value="">${_t("— aucune —")}</option>${Object.values(hass.areas || {}).sort((a, b) => a.name.localeCompare(b.name, _loc())).map((z) => `<option value="${esc(z.area_id)}" ${z.area_id === o.zone ? "selected" : ""}>${esc(z.name)}${this.d.pieces.some((p, j) => j !== s.i && p.zone === z.area_id) ? ` (${_t("déjà liée")})` : ""}</option>`).join("")}</select></div>
-        ${o.zone ? `<button class="ed-btn tonal" data-act="integrer"><ha-icon icon="mdi:import"></ha-icon>${_t("Intégrer les appareils de la pièce")}</button>` : ""}
-        ${(() => { const l = this._ouverturesAPlacer(s.i); return l.length ? `<div class="ed-champ"><label>${_t("À placer sur les murs")}</label><div class="ed-liste">${l.map((e) => `<button data-act="placer-ouv:${esc(e)}"><ha-icon icon="${esc(iconeEntite(hass, e))}"></ha-icon><span>${esc(hass.states[e].attributes.friendly_name || e)}<small>${esc(e)} · ${_t("clique puis trace-la sur un mur")}</small></span></button>`).join("")}</div></div>` : ""; })()}
-        <h4>${_t("Vue de la pièce")}${bulleI(_t("Ce qui s'affiche quand on touche la pièce."))}</h4>
+        ${this._inter(_t("Afficher l'étiquette"), "_etiquette", !!o.etiquette)}${this._calqueNiveau(o)}`],
+        ["ha", _t("Pièce Home Assistant"), "mdi:home-assistant", `${o.zone ? "" : `<div class="ed-aide">${_t("Lier la pièce à HA ajoute ses appareils, ses scènes et ses automatisations à sa vue.")}</div>`}
+        <div class="ed-champ"><select data-k="zone" aria-label="${_t("Pièce Home Assistant")}"><option value="">${_t("— aucune —")}</option>${Object.values(hass.areas || {}).sort((a, b) => a.name.localeCompare(b.name, _loc())).map((z) => `<option value="${esc(z.area_id)}" ${z.area_id === o.zone ? "selected" : ""}>${esc(z.name)}${this.d.pieces.some((p, j) => j !== s.i && p.zone === z.area_id) ? ` (${_t("déjà liée")})` : ""}</option>`).join("")}</select></div>
+        ${o.zone ? `<div class="ed-actions"><button class="ed-btn tonal" data-act="integrer"><ha-icon icon="mdi:import"></ha-icon>${_t("Intégrer les appareils de la pièce")}</button></div>` : ""}
+        ${aPlacer.length ? `<div class="ed-champ"><label>${_t("À placer sur les murs")}</label><div class="ed-liste">${aPlacer.map((e) => `<button data-act="placer-ouv:${esc(e)}"><ha-icon icon="${esc(iconeEntite(hass, e))}"></ha-icon><span>${esc(hass.states[e].attributes.friendly_name || e)}<small>${esc(e)} · ${_t("clique puis trace-la sur un mur")}</small></span></button>`).join("")}</div></div>` : ""}`],
+        ["vue", _t("Vue de la pièce"), "mdi:view-dashboard-outline", `<div class="ed-aide">${_t("Ce qui s'affiche quand on touche la pièce.")}</div>
         ${["gauche", "droite"].map((c) => `<div class="ed-champ"><label>${c === "gauche" ? _t("Panneau gauche") : _t("Panneau droit")}</label><div class="ed-liste">${(o.panneaux?.[c] || []).map((w, j) => `<button data-choix="widget:${c}:${j}:${s.i}"><ha-icon icon="${esc(w.icone || "mdi:view-dashboard-outline")}"></ha-icon><span>${esc(w.titre || typeWidgetEn(w.type))}<small>${esc(typeWidgetEn(w.type))}</small></span></button>`).join("")}</div>
           <button class="ed-btn contour" data-act="ajouter-widget:${c}"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter un widget")}</button></div>`).join("")}
         ${this._interInv(_t("Boutons automatiques"), "auto_actions", o.auto_actions !== false, _t("Allumer, ouvrir et fermer les lumières et volets de la pièce."))}
@@ -9701,69 +10676,360 @@ class EditeurPlan {
             ${a.cible === "piece" ? "" : this._champEntite(_t("Cible : entité"), `actions.${j}.cible`, a.cible, true)}
             ${this._inter(_t("Toujours demander confirmation"), `actions.${j}.confirmer`, a.confirmer, _t("Un service sensible (déverrouiller, ouvrir un garage ou un portail, désarmer, lancer un script…) est confirmé dans tous les cas."))}
             <details class="ed-avance" ${a.donnees ? "open" : ""}><summary>${_t("Données de l'action")}</summary>${this._champTexte(_t("Données (JSON)"), `actions.${j}.donnees`, a.donnees ? JSON.stringify(a.donnees) : "", '{"brightness_pct": 30}')}</details></div>`).join("")}
-          <button class="ed-btn contour" data-act="ajouter-action"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter un bouton")}</button></div>
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${supprimer}</div>`;
-    } else if (["mur", "limite"].includes(s.type)) {
-      const seg = this._liste(s.type)[s.i];
-      h = `<h3><ha-icon icon="${s.type === "mur" ? "mdi:wall" : "mdi:fence"}"></ha-icon>${s.type === "mur" ? _t("Mur") : _t("Limite")} · ${fmt(Math.hypot(seg[2] - seg[0], seg[3] - seg[1]) / 100, 2)} m</h3>
-        <div class="ed-aide">${_t("Glisse le trait pour le déplacer, ses extrémités pour l'allonger.")}</div>
-        <div class="ed-ligne">${this._champNombre(_t("x départ"), "seg.0", seg[0], 1)}${this._champNombre(_t("y départ"), "seg.1", seg[1], 1)}</div>
-        <div class="ed-ligne">${this._champNombre(_t("x arrivée"), "seg.2", seg[2], 1)}${this._champNombre(_t("y arrivée"), "seg.3", seg[3], 1)}</div>
-        <div class="ed-actions">${ibAct("convertir", "mdi:swap-horizontal", s.type === "mur" ? _t("En limite") : _t("En mur"))}${ibAct("couper", "mdi:content-cut", _t("Couper en deux"))}${supprimer}</div>`;
-    } else if (s.type === "ouverture") {
-      const dir = (v, ic, t) => `<button data-dehors="${v.join(",")}" class="${(o.dehors || []).join(",") === v.join(",") ? "on" : ""}" title="${t}"><ha-icon icon="${ic}"></ha-icon></button>`;
-      h = `<h3><ha-icon icon="${o.type === "fenetre" ? "mdi:window-closed-variant" : o.type === "portail" ? "mdi:garage-variant" : "mdi:door"}"></ha-icon>${esc(o.nom || _t("Ouverture"))} · ${fmt(Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]) / 100, 2)} m</h3>
-        ${this._htmlSuggestions(this._suggestionsOuverture(o, s.i))}
+          <button class="ed-btn contour" data-act="ajouter-action"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter un bouton")}</button></div>`]] };
+    }
+    // ouverture
+    const dir = (v, ic, t) => `<button data-dehors="${v.join(",")}" class="${(o.dehors || []).join(",") === v.join(",") ? "on" : ""}" title="${t}" aria-label="${t}"><ha-icon icon="${ic}"></ha-icon></button>`;
+    const lum = (o.type === "fenetre" && !o.volet_seul) || o.type === "porte", anim = (o.contact || o.entite ? this._sectionAnimation(o, "ouverture", "animation", _t("Animation (ouverte)")) : "") + (o.volet ? this._sectionAnimation(o, "volet", "animation_volet", _t("Animation du volet (en mouvement)")) : "");
+    return { icone: o.type === "fenetre" ? "mdi:window-closed-variant" : o.type === "portail" ? "mdi:garage-variant" : "mdi:door", titre: o.nom || _t("Ouverture"),
+      resume: `${fmt(Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]) / 100, 2)} m`, aide: "",
+      actions: `${ibAct("atelier-ouv", "mdi:tune-variant", _t("Modifier dans l'atelier (préréglage, capteurs, aperçu)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser cette ouverture (Ajouter › Mes modèles)"))}`,
+      onglets: [["general", _t("Général"), "mdi:tune-variant", `${this._htmlSuggestions(this._suggestionsOuverture(o, s.i))}
         ${this._champTexte(_t("Nom"), "nom", o.nom, _t("ex. Baie salon"))}
         ${this._champTexte(_t("Baie (vantaux regroupés)"), "baie", o.baie, _t("ex. Baie du séjour"), _t("Même nom sur chaque vantail : une seule fiche."))}
         <div class="ed-champ"><label>${_t("Type")}</label><span class="ed-seg petit">${[["fenetre", _t("Fenêtre")], ["porte", _t("Porte")], ["portail", _t("Portail")]].map(([v, n]) => `<button data-type="${v}" class="${o.type === v ? "on" : ""}">${n}</button>`).join("")}</span></div>
         <div class="ed-ligne"><div class="ed-champ"><label>${_t("Vantaux")}</label><select data-k="battants" data-num="1"><option value="">1</option><option value="2" ${+o.battants === 2 ? "selected" : ""}>2</option></select></div>
           <div class="ed-champ"><label>${_t("Ouverture##battants")}${bulleI(_t("Dessin des battants : côté des gonds vu de l'intérieur, ou coulissant."))}</label><select data-k="ouvrant">${OUVRANTS_ED.map(([v, n]) => `<option value="${esc(v)}" ${(o.ouvrant || "") === v ? "selected" : ""}>${esc(_t(n))}</option>`).join("")}</select></div></div>
         ${o.ouvrant === "gauche" || o.ouvrant === "droite" ? this._inter(_t("Ouvre vers l'extérieur"), "vers_dehors", o.vers_dehors) : ""}
-        ${this._champEntite(_t("Contact (ouvert / fermé)"), "contact", o.contact, true, "binary_sensor")}
-        ${this._champEntite(_t("Volet"), "volet", o.volet, true, "cover")}
-        ${this._champEntite(_t("Ou entité motorisée (portail)"), "entite", o.entite, true, "cover")}
-        ${this._inter(_t("Volet seul (pas de trait de fenêtre)"), "volet_seul", o.volet_seul)}
         <div class="ed-champ"><label>${_t("Côté extérieur (volet dessiné de ce côté)")}</label><div class="ed-dir">
           <span></span>${dir([0, -1], "mdi:arrow-up", _t("Haut"))}<span></span>${dir([-1, 0], "mdi:arrow-left", _t("Gauche"))}<span></span>${dir([1, 0], "mdi:arrow-right", _t("Droite"))}<span></span>${dir([0, 1], "mdi:arrow-down", _t("Bas"))}<span></span></div></div>
-        ${this._sectionFiche(o, "ouverture")}
-        ${o.contact || o.entite ? this._sectionAnimation(o, "ouverture", "animation", _t("Animation (ouverte)")) : ""}${o.volet ? this._sectionAnimation(o, "volet", "animation_volet", _t("Animation du volet (en mouvement)")) : ""}
         <details class="ed-avance"><summary>${_t("Position")}</summary>
         <div class="ed-ligne">${this._champNombre(_t("x départ"), "seg.0", o.seg[0], 1)}${this._champNombre(_t("y départ"), "seg.1", o.seg[1], 1)}</div>
         <div class="ed-ligne">${this._champNombre(_t("x arrivée"), "seg.2", o.seg[2], 1)}${this._champNombre(_t("y arrivée"), "seg.3", o.seg[3], 1)}</div></details>
-        ${this._calqueNiveau(o)}
-        <div class="ed-actions">${ibAct("atelier-ouv", "mdi:tune-variant", _t("Modifier dans l'atelier (préréglage, capteurs, aperçu)"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser cette ouverture (Ajouter › Mes modèles)"))}${supprimer}</div>`;
+        ${this._calqueNiveau(o)}`],
+      ["capteurs", _t("Capteurs"), "mdi:leak", `${this._champsContact(o)}
+        ${this._champEntite(_t("Volet"), "volet", o.volet, true, "cover")}
+        ${this._champEntite(_t("Ou entité motorisée (portail)"), "entite", o.entite, true, "cover")}
+        ${this._inter(_t("Volet seul (pas de trait de fenêtre)"), "volet_seul", o.volet_seul)}`],
+      ...(lum ? [["lumiere", _t("Lumière"), "mdi:white-balance-sunny", plein(this._sectionLumiereOuv(o))]] : []),
+      ["fiche", _t("Fiche"), "mdi:card-text-outline", this._sectionFiche(o, "ouverture")],
+      ...(anim ? [["animation", _t("Animation"), "mdi:animation-play-outline", anim]] : [])] };
+  }
+  _enModale(s) { return this.multi.size > 1 || (!!s && TYPES_MODALE.has(s.type)); }
+  // objet édité : celui de la sélection (mur et limite : leur segment) ; sélection multiple : celui du dernier élément pris
+  _objetEd() {
+    const s = this.sel;
+    if (this.multi.size > 1) return this._objet() || {};
+    if (!s) return null;
+    if (s.type === "mur" || s.type === "limite") return this._liste(s.type)?.[s.i] ?? null;
+    return this._objet();
+  }
+  // la modale a un retour (← et Échap) : élément ouvert depuis la modale d'un autre, widget d'une pièce ou d'une fiche (vers son porteur)
+  _aRetour() {
+    const s = this.sel;
+    return this.multi.size <= 1 && !!s && ((!!this._retourEd && this._retourEd !== this._edCle) || (s.type === "widget" && (s.piece != null || s.cote === "fiche")));
+  }
+  _cleEd() { return this.multi.size > 1 ? "multi" : this.sel ? cle(this.sel) : null; }
+  // ouvre la modale d'édition de l'élément sélectionné (une seule modale à la fois : ⚙ Paramètres et Ambiance se ferment)
+  editerSelection(onglet = null) {
+    if (!this._enModale(this.sel) || !this._objetEd()) return;
+    if (this.vueParametres) { this._fermerParametres(); this._barre(); }
+    if (this.vueAmbiance) { this.vueAmbiance = false; this._fermerAmbiance(); this.carte._construire(); this._barre(); }
+    this._fermerMenu?.();
+    this._retourEd = null;
+    const avant = !!this.vueEdition;
+    this.vueEdition = true; this._edCle = this._cleEd(); this._edCachee = false;
+    if (onglet) this._ongletEd = onglet;
+    // champs « à compléter » (orange) : la modale s'ouvre sur leur onglet
+    else if (this._aFaire && this.sel && this._aFaire.cle === cle(this.sel)) this._edCompleter = true;
+    this._rendreEdition();
+    this._majBarreFlottante();
+    if (!avant) (this.R.querySelector(".ed-edit .ed-onglets [aria-selected=true]") || this.R.querySelector(".ed-edit [data-act=ed-fermer]"))?.focus({ preventScroll: true });
+  }
+  // ferme la modale ; la sélection reste (barre flottante), le focus revient au plan
+  fermerEdition() {
+    if (!this.vueEdition) return;
+    const a = this.R.activeElement;
+    if (a instanceof HTMLInputElement && a.type !== "checkbox" && a.type !== "range" && this.R.querySelector(".ed-edit")?.contains(a)) a.blur(); // « change » d'abord : la saisie en cours est gardée
+    this.vueEdition = false; this._edCachee = false; this._edCle = null; this._retourEd = null;
+    this.R.querySelector(".ed-mvoile.ed-edit")?.remove();
+    this._edObs?.disconnect(); this._edObs = null;
+    this._edCarte?.remove(); this._edCarte = null; this._edApCle = null;
+    // élément ouvert depuis Calques : retour à Calques
+    if (this.vueCalques) {
+      if (this.sel || this.multi.size) { this.sel = null; this.multi.clear(); this.carte._construire(); }
+      this._panneauCalques();
+      this.R.querySelector(".ed-cq-modale [data-act=cq-fermer]")?.focus({ preventScroll: true });
+      return;
     }
-    poserHTML(P, h.replace("</h3>", `<button class="ib" data-act="deselection" title="${_t("Retour à la liste (Échap)")}" aria-label="${_t("Retour à la liste (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></h3>`));
-    this._cablerPanneau();
+    this._majBarreFlottante();
+    this.R.querySelector(".ed-bf [data-bf=modifier]")?.focus({ preventScroll: true });
+  }
+  ongletEdition(id) {
+    const V = this.R.querySelector(".ed-mvoile.ed-edit");
+    if (!V || !V.querySelector(`[data-onglet-ed="${id}"]`)) return;
+    this._ongletEd = id;
+    V.querySelectorAll("[data-onglet-ed]").forEach((b) => { const on = b.dataset.ongletEd === id; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1; });
+    V.querySelectorAll(".ed-mcontenu>section").forEach((p) => { p.hidden = p.dataset.onglet !== id; });
+    V.querySelector(".ed-mcontenu").scrollTop = 0;
+  }
+  _rendreEdition() {
+    const s = this.sel, o = this._objetEd();
+    // sélection perdue (annuler, suppression) ou changée pendant que la modale était masquée (placement sur le plan) : elle se ferme
+    if (!this._enModale(s) || !o || (this._edCachee && this._cleEd() !== this._edCle)) return this.fermerEdition();
+    this._edCle = this._cleEd();
+    let V = this.R.querySelector(".ed-mvoile.ed-edit");
+    // bouton pressé (Fermer, Appliquer, une action) juste après une saisie : la saisie part au « change » et redessine la modale ;
+    // le rendu attend le relâchement, sinon le bouton serait remplacé avant son « click » (deux clics nécessaires)
+    if (V && this._edPresse) { this._edDiffere = true; return; }
+    if (this._tip?.b.closest(".ed-mvoile")) this._cacherAide();
+    if (!V) {
+      V = this._mvoile("ed-edit");
+      V.onpointerdown = (ev) => {
+        this._basVoileEd = ev.target === V;
+        this._edPresse = true;
+        const fin = () => {
+          window.removeEventListener("pointerup", fin, true); window.removeEventListener("pointercancel", fin, true);
+          setTimeout(() => { this._edPresse = false; if (this._edDiffere) { this._edDiffere = false; if (this.vueEdition) this._rendreEdition(); } });
+        };
+        window.addEventListener("pointerup", fin, true); window.addEventListener("pointercancel", fin, true);
+      };
+      V.addEventListener("click", (ev) => {
+        if (ev.target === V) { if (this._basVoileEd) this.fermerEdition(); return; }
+        const og = ev.composedPath().find((n) => n.dataset?.ongletEd);
+        if (og) this.ongletEdition(og.dataset.ongletEd);
+      });
+      this._clavierModale(V, "ongletEd", (o) => this.ongletEdition(o));
+    }
+    V.hidden = !!this._edCachee;
+    // focus et défilement gardés d'un rendu à l'autre (chaque modification redessine la modale)
+    const actif = this.R.activeElement, dans = V.contains(actif), ds = dans ? actif.dataset || {} : {};
+    const garde = !dans ? null : ds.k ? `[data-k="${ds.k}"]` : ds.entite ? `[data-entite="${ds.entite}"]` : ds.act ? `[data-act="${ds.act}"]` : ds.actChk ? `[data-act-chk="${ds.actChk}"]` : ds.ongletEd ? `[data-onglet-ed="${ds.ongletEd}"]` : ds.type ? `[data-type="${ds.type}"]` : ds.dehors ? `[data-dehors="${ds.dehors}"]` : null;
+    const defile = V.querySelector(".ed-mcontenu")?.scrollTop || 0;
+    const E = this._ongletsElement(s, o), l = E.onglets;
+    if (this._edCompleter) { this._edCompleter = false; const t = l.find((x) => x[3].includes("a-completer")); if (t) this._ongletEd = t[0]; }
+    if (!l.some((x) => x[0] === this._ongletEd)) this._ongletEd = l[0][0];
+    const plusieurs = l.length > 1, verrou = this.multi.size <= 1 && o.verrouille === true;
+    const retour = this._aRetour() ? `<button class="ib ed-retour" data-act="deselection" title="${_t("Retour à la liste (Échap)")}" aria-label="${_t("Retour à la liste (Échap)")}"><ha-icon icon="mdi:arrow-left"></ha-icon></button>` : "";
+    poserHTML(V, `<div class="ed-modale ed-modale-elt${E.apercu ? ` ed-ap-${E.apercu}` : ""}" role="dialog" aria-modal="true" aria-labelledby="ed-elt-titre">
+      <header>${retour || `<ha-icon icon="${esc(E.icone)}"></ha-icon>`}<div><h2><span id="ed-elt-titre">${esc(E.titre)}</span></h2><div class="ed-version ed-resume">${E.resumeH ?? esc(E.resume)}${verrou ? ` · ${_t("verrouillé")}` : ""}${E.aide ? bulleI(E.aide) : ""}</div></div>
+        <button class="ib" data-act="ed-fermer" title="${_t("Fermer (Échap)")}" aria-label="${_t("Fermer (Échap)")}"><ha-icon icon="mdi:close"></ha-icon></button></header>
+      <div class="ed-mcorps">${plusieurs ? this._navOnglets("ed", _t("Réglages"), l, this._ongletEd) : ""}
+        <div class="ed-mcontenu ed-medit">${l.map(([id, t, , h]) => `<section ${plusieurs ? `role="tabpanel" id="ed-pan-${id}" aria-labelledby="ed-tab-${id}"` : ""} data-onglet="${id}" tabindex="0" ${id === this._ongletEd ? "" : "hidden"}>${plusieurs ? `<h3 class="ed-mtitre">${esc(t)}</h3>` : ""}${h}</section>`).join("")}</div>
+        <aside class="ed-elt-apercu" aria-label="${_t("Aperçu")}"></aside></div>
+      <footer class="ed-mpied">${E.sansDupliquer ? "" : ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${E.actions}<button class="ib danger" data-act="supprimer" title="${_t("Supprimer")}" aria-label="${_t("Supprimer")}"><ha-icon icon="mdi:delete-outline"></ha-icon></button>
+        <span class="ed-esp"></span><button class="ed-btn plein" data-act="ed-appliquer"><ha-icon icon="mdi:check"></ha-icon>${_t("Appliquer")}</button></footer></div>`);
+    this._cablerPanneau(V.querySelector(".ed-modale"));
+    const c = V.querySelector(".ed-mcontenu");
+    if (c) c.scrollTop = defile;
+    this._indiceDefilement?.(V.querySelector(".ed-onglets"));
+    this._apercuEdition(V.querySelector(".ed-elt-apercu"));
+    if (garde) { try { V.querySelector(garde)?.focus({ preventScroll: true }); } catch (e) { /* sélecteur invalide : focus laissé */ } }
+  }
+  // aperçu : une carte Maquette (même moteur que le plan) avec la vraie config, recadrée sur la pièce de l'élément, élément mis en évidence ;
+  // widget et puce du résumé : l'aperçu est le widget (la puce) lui-même, rendu par la carte
+  _apercuEdition(aside) {
+    if (!aside) return;
+    const s = this.sel, un = this.multi.size <= 1;
+    if (un && (s?.type === "widget" || s?.type === "puce")) {
+      let h = "";
+      if (s.type === "widget") { try { h = this.carte._widget(this._objet(), "apercu", 0); } catch (e) { h = ""; } }
+      poserHTML(aside, `<h4 class="ed-ap-titre">${_t("Aperçu")}</h4><div class="ed-ap-w${s.type === "puce" ? " ed-ap-puce" : ""}">${h}</div>`);
+      aside.querySelector(".ed-ap-w").inert = true;
+      if (s.type === "puce") {
+        const c = this.R.querySelector(`.tete .chip[data-puce="${s.i}"]`)?.cloneNode(true);
+        if (c) { c.classList.remove("sel"); aside.querySelector(".ed-ap-w").append(c); }
+      }
+      return;
+    }
+    if (!this._edCarte) {
+      this._edCarte = document.createElement("maquette-card");
+      this._edCarte.className = "ed-ap-carte";
+      this._edCarte.setAttribute("aria-hidden", "true");
+    }
+    poserHTML(aside, `<h4 class="ed-ap-titre">${_t("Aperçu")}${bulleI(_t("La pièce de l'élément, telle qu'elle sera en vue ; elle suit chaque réglage."))}</h4><div class="ed-ap-plan"></div>`);
+    aside.querySelector(".ed-ap-plan").append(this._edCarte);
+    this._majApercuEdition();
+  }
+  // éléments édités : la sélection multiple ou l'élément seul
+  _clesEd() { return this.multi.size > 1 ? [...this.multi] : this.sel ? [cle(this.sel)] : []; }
+  // points (cm) qui situent un élément du plan : contour d'une pièce, bouts d'un segment, position d'un appareil, d'un texte, d'un meuble
+  _ptsElt(k) {
+    const m = deCle(k), d = this.d;
+    if (m.type === "piece") return d.pieces[m.i]?.poly || null;
+    if (m.type === "ouverture" || m.type === "mur" || m.type === "limite") { const g = m.type === "ouverture" ? d.ouvertures?.[m.i]?.seg : this._liste(m.type)?.[m.i]; return g ? [[g[0], g[1]], [g[2], g[3]]] : null; }
+    const o = { point: d.points, texte: d.textes, meuble: d.meubles }[m.type]?.[m.i];
+    if (!o?.pos) return null;
+    if (m.type !== "meuble") return [o.pos];
+    const [w, h] = Array.isArray(o.taille) && o.taille.length === 2 ? o.taille : MEUBLES()[o.type]?.taille || [60, 60], th = (nbr(o.rotation) * Math.PI) / 180;
+    return [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([sx, sy]) => { const lx = (sx * w) / 2, ly = (sy * h) / 2; return [o.pos[0] + lx * Math.cos(th) - ly * Math.sin(th), o.pos[1] + lx * Math.sin(th) + ly * Math.cos(th)]; });
+  }
+  // cadre de l'aperçu (cm) : la pièce de l'élément (ouverture : la pièce du côté intérieur ; appareil, texte, meuble : la pièce qui le
+  // contient ; mur, limite : autour du trait ; sélection multiple : tous les éléments), avec une marge, aux proportions de l'aperçu
+  _cadreEdition() {
+    const d = this.d, dans = (pt) => d.pieces.find((p) => !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2 && dansPoly(pt, p.poly)), cles = this._clesEd();
+    let pts = [];
+    for (const k of cles) {
+      const m = deCle(k), q = this._ptsElt(k);
+      if (!q) continue;
+      if (m.type === "piece" || cles.length > 1) { pts.push(...q); continue; }
+      if (m.type === "ouverture") {
+        const o = d.ouvertures[m.i], [a, b, c, e] = o.seg, [nx, ny] = o.dehors || [0, 0], mi = [(a + c) / 2, (b + e) / 2];
+        const p = dans([mi[0] - nx * 40, mi[1] - ny * 40]) || dans([mi[0] + 40, mi[1]]) || dans([mi[0] - 40, mi[1]]) || dans([mi[0], mi[1] + 40]) || dans([mi[0], mi[1] - 40]);
+        pts.push(...(p ? p.poly : [[a - 150, b - 150], [c + 150, e + 150]]), [a, b], [c, e]);
+        continue;
+      }
+      const ctr = [q.reduce((x, p) => x + p[0], 0) / q.length, q.reduce((x, p) => x + p[1], 0) / q.length], p = m.type === "mur" || m.type === "limite" ? null : dans(ctr);
+      pts.push(...q, ...(p ? p.poly : [[ctr[0] - 150, ctr[1] - 150], [ctr[0] + 150, ctr[1] + 150]]));
+    }
+    if (!pts.length) pts = d.pieces.flatMap((p) => p.poly || []);
+    if (!pts.length) pts = [[0, 0], [400, 300]];
+    const xs = pts.map((p) => p[0]), ys = pts.map((p) => p[1]);
+    let x0 = Math.min(...xs), y0 = Math.min(...ys), W = Math.max(...xs) - x0, H = Math.max(...ys) - y0;
+    const mg = Math.max(60, 0.12 * Math.max(W, H)), r = this._etroit() ? 2.2 : 1.3;
+    x0 -= mg; y0 -= mg; W += 2 * mg; H += 2 * mg;
+    if (W / H < r) { const w = H * r; x0 -= (w - W) / 2; W = w; } else { const h = W / r; y0 -= (h - H) / 2; H = h; }
+    return { x0, y0, W, H };
+  }
+  // mise en évidence dans l'aperçu : règles de style (pièces, ouvertures) et formes dessinées par-dessus (le reste)
+  _surlignage(box, pr) {
+    let css = "", formes = "";
+    const f = (v) => Math.round(v * 10) / 10, r = f(Math.max(30, box.W * 0.075)); // autour de la pastille (dessinée par-dessus le plan, ≈ 24 px dans la vignette)
+    for (const k of this._clesEd()) {
+      const m = deCle(k), q = this._ptsElt(k);
+      if (m.type === "piece") css += `.zone svg polygon[data-p="${m.i}"]{fill:color-mix(in srgb,${pr} 22%,transparent)!important;stroke:${pr}!important;stroke-width:4px!important;vector-effect:non-scaling-stroke}`;
+      else if (m.type === "ouverture") css += `.zone svg g.ouv[data-o="${m.i}"]{filter:drop-shadow(0 0 3px ${pr}) drop-shadow(0 0 6px ${pr})}.zone svg g.ouv[data-o="${m.i}"] *{stroke:${pr}!important}`;
+      else if (!q) continue;
+      else if (m.type === "mur" || m.type === "limite") formes += `<line class="seg" x1="${f(q[0][0])}" y1="${f(q[0][1])}" x2="${f(q[1][0])}" y2="${f(q[1][1])}"/>`;
+      else if (m.type === "meuble") formes += `<polygon points="${q.map((p) => `${f(p[0])},${f(p[1])}`).join(" ")}"/>`;
+      else formes += `<circle cx="${f(q[0][0])}" cy="${f(q[0][1])}" r="${r}"/>`;
+    }
+    return { css, formes };
+  }
+  _majApercuEdition() {
+    const ap = this._edCarte, s = this.sel;
+    if (!ap || !ap.isConnected || !this._enModale(s)) return;
+    const cfg = clone(this.d);
+    for (const k of ["panneaux", "titre", "ambiance", "tablette", "legende_entites"]) delete cfg[k];
+    Object.assign(cfg, { id: "apercu-element", marge: 0, plein_ecran: false, edition: false, legende: false, resume: false,
+      interaction: { vue_figee: true, clic_piece: "aucun" } });
+    const box = this._cadreEdition(), cleAp = JSON.stringify([cfg, box]);
+    if (cleAp !== this._edApCle) {
+      this._edApCle = cleAp;
+      ap._boxFige = box;
+      ap.setConfig(this.carte.constructor.versAnglais(cfg));
+    }
+    if (ap.hass !== this.hass) ap.hass = this.hass;
+    // élément mis en évidence : une règle de style dans la carte de l'aperçu (gardée d'un rendu à l'autre) et des formes posées sur son plan
+    const R = ap.shadowRoot;
+    if (!R) return;
+    let st = R.querySelector("style.ed-ap-hl");
+    if (!st) { st = document.createElement("style"); st.className = "ed-ap-hl"; R.append(st); }
+    const pr = "var(--md-primary,var(--primary-color,#6750a4))", { css, formes } = this._surlignage(box, pr);
+    // carte de l'aperçu sans cadre ni marges : le plan remplit la vignette
+    st.textContent = "ha-card{padding:0!important;margin:0!important;background:none!important;box-shadow:none!important;border:none!important}.plan{padding:0!important;background:none!important}.zoom,.legende,.tete,.barre{display:none!important}"
+      + `g.ed-ap-formes *{fill:color-mix(in srgb,${pr} 14%,transparent);stroke:${pr};stroke-width:3px;vector-effect:non-scaling-stroke;pointer-events:none}g.ed-ap-formes .seg{fill:none;stroke-width:8px;stroke-linecap:round;opacity:.75}` + css;
+    // formes redessinées si la carte de l'aperçu reconstruit son plan
+    const poser = () => {
+      const svg = R.querySelector(".zone svg");
+      if (!svg) return;
+      let g = svg.querySelector(":scope>g.ed-ap-formes");
+      if (!formes) { g?.remove(); return; }
+      if (!g) { g = document.createElementNS("http://www.w3.org/2000/svg", "g"); g.setAttribute("class", "ed-ap-formes"); svg.append(g); }
+      if (g.dataset.f !== formes) { g.dataset.f = formes; poserHTML(g, formes); }
+    };
+    poser();
+    if (this._edObs?.R !== R) { this._edObs?.disconnect(); this._edObs = new MutationObserver(() => this._edPoser?.()); this._edObs.observe(R, { childList: true, subtree: true }); this._edObs.R = R; }
+    this._edPoser = poser;
   }
 
-  _panneauWidget(w, supprimer) {
+  // ---------- barre flottante (MD3) près de l'élément sélectionné : Modifier, Dupliquer, Verrou, Ordre, Supprimer ----------
+  // hors de l'élément (au-dessus, sinon dessous), dans la partie visible du plan ; suit le zoom, le défilement et les modifications
+  _majBarreFlottante() {
+    const plan = this.R.querySelector(".plan"), svg = this.R.querySelector(".zone svg"), s = this.sel, multi = this.multi.size > 1;
+    let b = this.R.querySelector(".ed-bf");
+    const o = this._objetEd();
+    const montrer = !!o && this._enModale(s) && !this.vueEdition && !this.vueParametres && !this.vueAmbiance && this.outil === "selection" && !this.aPlacer && !this.aPlacerMeuble && !this.trace.length && !!plan && !!svg;
+    if (!montrer) { if (b) b.hidden = true; return; }
+    if (!b) {
+      b = document.createElement("div");
+      b.className = "ed-bf";
+      b.setAttribute("role", "toolbar");
+      b.addEventListener("pointerdown", (ev) => ev.stopPropagation());
+      b.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const x = ev.composedPath().find((n) => n.dataset?.bf);
+        if (!x) return;
+        if (x.dataset.bf === "modifier") return this.editerSelection();
+        this._action(x.dataset.bf);
+      });
+    }
+    if (b.parentNode !== plan) plan.append(b);
+    b.hidden = false;
+    b.setAttribute("aria-label", _t("Actions de la sélection"));
+    // verrou et ordre : éléments du plan qui en ont (pas les murs, limites, widgets ni puces) ; sélection multiple : verrou de tous
+    const objs = multi ? this._objetsMulti() : [], plat = !multi && ["mur", "limite"].includes(s.type), hors = !multi && ["widget", "puce"].includes(s.type);
+    const v = multi ? objs.length > 0 && objs.every((x) => x.verrouille === true) : o.verrouille === true, lv = v ? _t("Déverrouiller") : _t("Verrouiller : ni déplacé ni redimensionné à la souris");
+    const ib = (a, ic, t, cl = "") => `<button type="button" class="ib${cl}" data-bf="${a}" title="${esc(t)}" aria-label="${esc(t)}"><ha-icon icon="${ic}"></ha-icon></button>`;
+    poserHTML(b, `<button type="button" class="ed-btn tonal ed-bf-mod" data-bf="modifier" title="${tactile() ? _t("Modifier") : _t("Modifier (Entrée ou double-clic)")}"><ha-icon icon="mdi:pencil-outline"></ha-icon><span>${_t("Modifier")}</span></button>
+      ${plat ? "" : ib("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${plat || hors || (multi && !objs.length) ? "" : ib("verrou", `mdi:${v ? "lock-outline" : "lock-open-variant-outline"}`, lv, v ? " on" : "")}
+      ${plat || hors || multi ? "" : `${ib("niveau:haut", "mdi:arrange-bring-to-front", _t("Premier plan"))}${ib("niveau:bas", "mdi:arrange-send-to-back", _t("Arrière-plan"))}`}<span class="ed-bf-sep"></span>${ib("supprimer", "mdi:delete-outline", _t("Supprimer"), " danger")}`);
+    b.querySelector('[data-bf="verrou"]')?.setAttribute("aria-pressed", String(v));
+    this._placerBarreFlottante();
+    // zoom animé ou vue déplacée sans reconstruction : la barre suit le viewBox
+    if (this._bfObs?.svg !== svg) {
+      this._bfObs?.disconnect();
+      this._bfObs = new MutationObserver(() => this._placerBarreFlottante());
+      this._bfObs.observe(svg, { attributes: true, attributeFilter: ["viewBox"] });
+      this._bfObs.svg = svg;
+    }
+  }
+  // rectangle à l'écran de la sélection (px) : élément rendu (pastille, texte, meuble, widget, puce), sinon ses points (pièce, segment)
+  _ecranSel() {
+    const svg = this.R.querySelector(".zone svg"), m = svg?.getScreenCTM(), b = [];
+    for (const k of this._clesEd()) {
+      const s = deCle(k);
+      const dom = { widget: ".w.sel", puce: ".tete .chip.sel", point: `.calque>[data-q="${s.i}"]`, texte: `.calque>[data-t="${s.i}"],.calque [data-t="${s.i}"]`, meuble: `.zone svg [data-mb="${s.i}"]` }[s.type];
+      const el = dom && this.R.querySelector(dom), r = el?.getBoundingClientRect();
+      if (r && (r.width || r.height)) { b.push([r.left, r.top, r.right, r.bottom]); continue; }
+      const pts = this._ptsElt(k);
+      if (!pts || !m) continue;
+      const e = pts.map(([x, y]) => [m.a * x + m.c * y + m.e, m.b * x + m.d * y + m.f]);
+      b.push([Math.min(...e.map((p) => p[0])), Math.min(...e.map((p) => p[1])), Math.max(...e.map((p) => p[0])), Math.max(...e.map((p) => p[1]))]);
+    }
+    if (!b.length) return null;
+    return { g: Math.min(...b.map((x) => x[0])), h: Math.min(...b.map((x) => x[1])), d: Math.max(...b.map((x) => x[2])), b: Math.max(...b.map((x) => x[3])) };
+  }
+  _placerBarreFlottante() {
+    const b = this.R.querySelector(".ed-bf"), plan = this.R.querySelector(".plan"), zone = this.R.querySelector(".zone"), s = this.sel;
+    if (!b || b.hidden || !plan || !zone || !this._enModale(s)) return;
+    const ex = this._ecranSel();
+    if (!ex) return;
+    // partie visible : la zone du plan (widget, puce : la carte), coupée par la fenêtre
+    const P = plan.getBoundingClientRect(), Z = (this.multi.size <= 1 && ["widget", "puce"].includes(s.type) ? this.R.querySelector("ha-card") : zone).getBoundingClientRect();
+    const vis = { g: Math.max(Z.left, 0), h: Math.max(Z.top, 0), d: Math.min(Z.right, innerWidth), b: Math.min(Z.bottom, innerHeight) };
+    const bw = b.offsetWidth, bh = b.offsetHeight, ec = 12, bord = 4;
+    let x = (Math.max(ex.g, vis.g) + Math.min(ex.d, vis.d)) / 2 - bw / 2, y = ex.h - bh - ec;
+    if (y < vis.h + bord) y = ex.b + ec <= vis.b - bh - bord ? ex.b + ec : vis.h + bord; // pas de place au-dessus : dessous, sinon en haut de la partie visible
+    x = Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord));
+    y = Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
+    b.style.left = `${Math.round(x - P.left)}px`; b.style.top = `${Math.round(y - P.top)}px`;
+  }
+
+  _ongletsWidget(w) {
     for (const cle of ["lignes", "entites"]) if (Array.isArray(w[cle])) w[cle] = w[cle].map((x) => (typeof x === "string" ? { entite: x } : x));
     const NOMS = { tuile: _t("Tuile + courbe"), jauge: _t("Jauge"), entites: _t("Liste d'entités"), tarif: _t("Tarif en direct"), ve: _t("Véhicule électrique"), periodes: _t("Périodes"), separateur: _t("Séparateur"), climat: _t("Climat des pièces"), thermostat: _t("Thermostat"), commande: _t("Commande"), serrure: _t("Serrure") };
     const E = (label, k, dom = "") => this._champEntite(label, k, k.split(".").reduce((x, p) => x?.[p], w), true, dom);
     // où est le widget, en court : « Panneau gauche · 1/3 » (le titre et l'aperçu disent le reste)
     const ou = _t("{ou} · {n}/{total}", { ou: this._ouWidget(), n: this.sel.i + 1, total: this._wl(this.sel).length });
-    let h = `<h3><ha-icon icon="${esc(w.icone || "mdi:view-dashboard-outline")}"></ha-icon>${esc(w.titre || NOMS[w.type] || _t("Widget"))}</h3>
-      <div class="ed-resume">${ou}</div>
-      ${this._champTexte(_t("Titre"), "titre", w.titre)}
+    let tete = [w.icone || "mdi:view-dashboard-outline", w.titre || NOMS[w.type] || _t("Widget")];
+    let h = `${this._champTexte(_t("Titre"), "titre", w.titre)}
       ${this._champTexte(_t("Icône"), "icone", w.icone, "mdi:…")}${this._champTexte(_t("Couleur d'accent"), "couleur", w.couleur, "#1a73e8")}
-      <div class="ed-couleurs">${COULEURS.map(([n, c]) => `<button data-couleur="${c}" title="${_t(n)}" class="${(w.couleur || "").toLowerCase() === c ? "on" : ""}" style="background:${c}"></button>`).join("")}</div>`;
+      <div class="ed-couleurs">${this._pastilles(w.couleur)}</div>`;
     const lignes = (cle = "lignes", titre = _t("Lignes")) => `<div class="ed-champ${!(w[cle] || []).length && this._aCompleter(cle) ? " a-completer" : ""}"><label>${titre}${!(w[cle] || []).length && this._aCompleter(cle) ? _t(" · à compléter") : ""}</label>${(w[cle] || []).map((l, j) => `<div class="ed-sous">
         ${this._champEntite("", `${cle}.${j}.entite`, l.entite, false)}
         ${this._champTexte(_t("Nom"), `${cle}.${j}.nom`, l.nom, "auto")}${this._champTexte(_t("Icône"), `${cle}.${j}.icone`, l.icone, "auto")}
         <div class="ed-ligne">${this._champNombre(_t("Décimales"), `${cle}.${j}.decimales`, l.decimales, 1, "auto")}<button class="ed-btn texte" data-act="retirer:${cle}:${j}" style="align-self:end">${_t("Retirer")}</button></div></div>`).join("")}
       <button class="ed-btn contour" data-act="ajouter-ligne:${cle}"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter une ligne")}</button></div>`;
     if (w.type === "tuile") h += `${E(_t("Valeur principale"), "entite")}<div class="ed-ligne">${this._champTexte(_t("Unité"), "unite", w.unite, "auto")}${this._champNombre(_t("Décimales"), "decimales", w.decimales, 1, "auto")}</div>
-      <div class="ed-champ"><label>${_t("Courbe des dernières heures")}</label><div class="ed-curseur"><input type="range" min="0" max="72" step="1" data-k="historique" data-suf="h" value="${+w.historique || 0}"><output>${w.historique ? `${w.historique} h` : _t("aucune")}</output></div></div>${lignes()}`;
+      ${champCurseur(_t("Courbe des dernières heures"), 'data-k="historique" data-suf="h"', 0, 72, 1, +w.historique || 0, w.historique ? `${w.historique} h` : _t("aucune"))}${lignes()}`;
     if (w.type === "jauge") h += `${E(_t("Valeur"), "entite")}<div class="ed-ligne trois">${this._champNombre(_t("Minimum"), "min", w.min, "any", "0")}${this._champNombre(_t("Maximum"), "max", w.max, "any", "100")}${this._champNombre(_t("Décimales"), "decimales", w.decimales, 1, "auto")}</div>
       ${this._champTexte(_t("Unité"), "unite", w.unite, "auto")}
       <details class="ed-avance" ${w.seuils ? "open" : ""}><summary>${_t("Couleur selon la valeur")}</summary>
         <div class="ed-ligne trois">${this._champNombre(_t("Vert dès"), "seuils.vert", w.seuils?.vert, "any", "—")}${this._champNombre(_t("Orange dès"), "seuils.jaune", w.seuils?.jaune, "any", "—")}${this._champNombre(_t("Rouge dès"), "seuils.rouge", w.seuils?.rouge, "any", "—")}</div>
         <div class="ed-aide">${_t("Chaque couleur vaut à partir de sa valeur (ex. CO₂ : 0, 800, 1200).")}</div></details>${lignes()}`;
     // case « Toujours demander confirmation » : widgets qui appellent un service (listes, thermostat, lignes à interrupteur ou « Activer »)
-    const agit = (l) => (Array.isArray(l) ? l : []).some((x) => { const d = String((typeof x === "string" ? x : x?.entite) || "").split(".")[0]; return BASCULES_ED.includes(d) || ["scene", "script", "button", "input_button"].includes(d); });
+    const agit = (l) => (Array.isArray(l) ? l : []).some((x) => { const d = String((typeof x === "string" ? x : x?.entite) || "").split(".")[0]; return BASCULES.includes(d) || ["scene", "script", "button", "input_button"].includes(d); });
     const confirmer = () => this._inter(_t("Toujours demander confirmation"), "confirmer", w.confirmer === true, _t("Chaque appel de ce widget (interrupteurs, « Activer », consigne) est confirmé. Un service sensible est confirmé dans tous les cas."));
     if (["tuile", "jauge", "tarif", "ve"].includes(w.type) && (w.confirmer === true || agit(w.lignes))) h += confirmer();
     if (w.type === "serrure") h += `${E(_t("Serrure (lock)"), "entite", "lock")}
@@ -9805,20 +11071,17 @@ class EditeurPlan {
         }).join("")}<button class="ed-btn contour" data-act="ajouter-colonne"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter une colonne")}</button></div>
         ${this._champTexte(_t("Note sous le tableau"), "note", w.note)}`;
     }
-    if (w.type === "separateur") h = `<h3><ha-icon icon="mdi:minus"></ha-icon>${esc(w.titre || _t("Séparateur"))}</h3>
-      <div class="ed-resume">${ou}</div>
-      ${this._champTexte(_t("Titre de section (option)"), "titre", w.titre, _t("sans titre : simple trait"))}${this._champNombre(_t("Espace au-dessus et au-dessous (px)"), "espace", w.espace, 1, "0")}`;
+    if (w.type === "separateur") tete = ["mdi:minus", w.titre || _t("Séparateur")], h = `${this._champTexte(_t("Titre de section (option)"), "titre", w.titre, _t("sans titre : simple trait"))}${this._champNombre(_t("Espace au-dessus et au-dessous (px)"), "espace", w.espace, 1, "0")}`;
     const n = this._wl(this.sel).length;
-    h += `<div class="ed-actions">
-      ${ibAct("w-monter", "mdi:arrow-up", _t("Monter"), this.sel.i ? "" : "disabled")}${ibAct("w-descendre", "mdi:arrow-down", _t("Descendre"), this.sel.i < n - 1 ? "" : "disabled")}
+    return { icone: tete[0], titre: tete[1], resumeH: ou, aide: "", apercu: "widget", onglets: [["general", _t("Général"), "mdi:tune-variant", h]],
+      actions: `${ibAct("w-monter", "mdi:arrow-up", _t("Monter"), this.sel.i ? "" : "disabled")}${ibAct("w-descendre", "mdi:arrow-down", _t("Descendre"), this.sel.i < n - 1 ? "" : "disabled")}
       ${this.sel.cote === "fiche" ? "" : ibAct("w-cote", this.sel.cote === "gauche" ? "mdi:arrow-right" : "mdi:arrow-left", this.sel.cote === "gauche" ? _t("Vers le panneau droit") : _t("Vers le panneau gauche"))}
-      ${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser ce widget (Ajouter › Mes modèles)"))}${supprimer}</div>`;
-    return h;
+      ${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser ce widget (Ajouter › Mes modèles)"))}` };
   }
 
   // où est le widget sélectionné, en court (texte déjà échappé) : « Panneau gauche », « Panneau droit · Séjour », « Fiche · Borne »
   _ouWidget() {
-    const s = this.sel, pf = s.cote === "fiche" ? porteur(s) : null;
+    const s = this.sel, pf = s.cote === "fiche" ? porteurDe(s) : null;
     if (pf) return _t("Fiche · {nom}", { nom: esc(this._nomElement(pf)) });
     const cote = s.cote === "gauche" ? _t("Panneau gauche") : _t("Panneau droit");
     return s.piece != null ? `${cote} · ${esc(this.d.pieces[s.piece].nom)}` : cote;
@@ -9828,7 +11091,7 @@ class EditeurPlan {
   _nomElement(pf) {
     const o = this.d[GENRES_FICHE[pf.genre]]?.[pf.i];
     if (pf.genre === "meuble") return o?.nom || (MEUBLES()[o?.type] ? _t(MEUBLES()[o.type].nom) : _t("Meuble"));
-    if (pf.genre === "ouverture") return o?.nom || (o?.contact || o?.entite || o?.volet ? this.carte._nom(o.contact || o.entite || o.volet) : _t("Ouverture"));
+    if (pf.genre === "ouverture") { const e = contactsOuv(o)[0] || o?.entite || o?.volet; return o?.nom || (e ? this.carte._nom(e) : _t("Ouverture")); }
     return o?.nom || this.carte._nom(o?.entite) || _t("Appareil");
   }
 
@@ -9848,6 +11111,22 @@ class EditeurPlan {
   _champTexte(label, k, v, ph = "", aide = "") {
     return `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="text" data-k="${k}" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
   }
+  // repli « Lumière » d'une fenêtre ou d'une porte : vitrage d'une porte (pleine, vitrée sur toute la hauteur, petite vitre en haut),
+  // allège et haut du vitrage (vide = auto), avancée de toit au-dessus (profondeur, hauteur au-dessus du haut)
+  _sectionLumiereOuv(o) {
+    const vt = o.type === "porte" ? (o.vitree === true ? "toute" : o.vitree || "") : "fenetre", larg = Math.hypot(o.seg[2] - o.seg[0], o.seg[3] - o.seg[1]);
+    const ouvert = o.allege != null || o.hauteur != null || o.avancee != null || !!o.lames || (o.type === "porte" && !!vt);
+    // lames du volet (`lames`) : pleines = volet de base (défaut), orientables = selon l'inclinaison du volet, ajourées = filets volet fermé
+    const lames = o.volet ? `<div class="ed-champ"><label>${_t("Lames du volet")}${bulleI(_t("Orientables : la lumière passe selon l'inclinaison du volet (current_tilt_position). Ajourées : un volet fermé laisse passer des filets de lumière."))}</label><select data-k="lames">${[["", _t("Pleines (volet de base)")], ["orientables", _t("Orientables")], ["ajourees", _t("Ajourées")]].map(([v, n]) => `<option value="${v}" ${(o.lames || "") === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
+    const choix = o.type === "porte" ? `<div class="ed-champ"><label>${_t("Vitrage de la porte")}${bulleI(_t("Une porte vitrée laisse entrer la lumière du jour, comme une fenêtre ; son volet est pris en compte."))}</label><select data-k="vitree">${[["", _t("Porte pleine")], ["toute", _t("Vitrée sur toute la hauteur")], ["haut", _t("Petite vitre en haut")]].map(([v, n]) => `<option value="${v}" ${vt === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>` : "";
+    if (o.type === "porte" && !vt) return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}</details>`;
+    const [bas, haut] = vt === "haut" ? ["150", "200"] : vt === "toute" || larg >= 180 ? ["0", "215"] : ["90", "215"];
+    return `<details class="ed-avance"${ouvert ? " open" : ""}><summary>${_t("Lumière")}</summary>${choix}${lames}
+      <div class="ed-aide">${o.type === "porte" ? _t("Vide = auto : 0 à 215 cm, ou 150 à 200 cm pour une petite vitre.") : _t("Vide = auto : 90 cm, ou 0 dès 1,80 m de baie.")}</div>
+      <div class="ed-ligne">${this._champNombre(_t("Allège (cm)"), "allege", o.allege, 1, bas, _t("Hauteur du bas du vitrage ; 0 = jusqu'au sol."))}${this._champNombre(_t("Haut (cm)"), "hauteur", o.hauteur, 1, haut, _t("Hauteur du haut du vitrage."))}</div>
+      <div class="ed-ligne">${this._champNombre(_t("Avancée de toit (cm)"), "avancee", o.avancee, 1, "0", _t("Profondeur de l'avancée au-dessus : elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver)."))}${this._champNombre(_t("Au-dessus du haut (cm)"), "avancee_hauteur", o.avancee_hauteur, 1, "0", _t("Hauteur de l'avancée au-dessus du haut du vitrage."))}</div></details>`;
+  }
+
   _champNombre(label, k, v, step = 1, ph = "", aide = "") {
     return `<div class="ed-champ"><label>${esc(label)}${bulleI(aide)}</label><input type="number" step="${esc(step)}" data-k="${k}" data-num="1" value="${esc(v ?? "")}" placeholder="${esc(ph)}"></div>`;
   }
@@ -9860,6 +11139,13 @@ class EditeurPlan {
   // champs laissés à compléter après un objet du catalogue (ex. contact d'une fenêtre) : surlignés tant qu'ils sont vides
   _aCompleter(k) { return !!this._aFaire && this.sel && this._aFaire.cle === cle(this.sel) && this._aFaire.champs.has(k); }
 
+  // contact(s) d'une ouverture : un champ par capteur (ouverte dès que l'un l'est), « Ajouter un capteur » jusqu'à 8
+  _champsContact(o) {
+    const l = contactsOuv(o);
+    const champs = l.length > 1 ? l.map((e, j) => this._champEntite(j ? "" : _t("Contacts (ouverte dès que l'un l'est)"), `contact.${j}`, e, true, "binary_sensor")).join("")
+      : this._champEntite(_t("Contact (ouvert / fermé)"), "contact", l[0], true, "binary_sensor");
+    return champs + (l.length && l.length < 8 ? `<button class="ed-btn texte ed-ajout-contact" data-entite="contact.${l.length}" data-dom="binary_sensor"><ha-icon icon="mdi:plus"></ha-icon>${_t("Ajouter un capteur")}</button>` : "");
+  }
   _champEntite(label, k, v, effacable, domaine = "", aide = "") {
     const s = v && this.hass.states[v], af = !v && this._aCompleter(k);
     return `<div class="ed-champ${af ? " a-completer" : ""}"><label>${esc(label)}${af ? _t(" · à compléter") : ""}${bulleI(aide)}</label><button class="ed-entite" data-entite="${k}" data-dom="${domaine}">
@@ -9905,6 +11191,8 @@ class EditeurPlan {
     }, 0);
     const o = ["mur", "limite"].includes(s.type) ? { seg: this._liste(s.type)[s.i] } : this._objet();
     if (!o) return;
+    // contact n° j d'une ouverture à plusieurs capteurs (ou le suivant, ajouté) : vide = retiré
+    if (s.type === "ouverture" && /^contact\.\d+$/.test(k)) return this.commit(() => { const l = contactsOuv(o), j = +k.slice(8); if (v) l[j] = v; else l.splice(j, 1); poserContacts(o, l); });
     if (k === "confirmer" && s.type === "widget") return this.commit(() => { if (v === "oui" || v === "non" || v === true) o.confirmer = v === "oui" || v === true; else delete o.confirmer; });
     this.commit(() => {
       if (k === "_etiquette") { if (v) o.etiquette = centre(o.poly); else delete o.etiquette; return; }
@@ -9973,10 +11261,9 @@ class EditeurPlan {
     return [...new Set(l.filter((x) => typeof x === "string" && /^mdi:[\w-]+$/.test(x)).map((x) => x.slice(4)))];
   }
 
-  _cablerPanneau() {
-    const P = this.panneau;
-    // les sections « avancées » restent ouvertes ou fermées comme l'utilisateur les a laissées, d'un rendu à l'autre
-    P.querySelectorAll("details.ed-avance").forEach((dt, j) => {
+  _cablerPanneau(P) {
+    // les sections « avancées » restent ouvertes ou fermées comme l'utilisateur les a laissées, d'un rendu à l'autre (onglet entier : toujours ouvert)
+    P.querySelectorAll("details.ed-avance:not(.ed-plein)").forEach((dt, j) => {
       const k = `${this.sel ? cle(this.sel) : "-"}:${j}`;
       if (this._avance?.[k] != null) dt.open = this._avance[k];
       dt.ontoggle = () => { (this._avance ||= {})[k] = dt.open; };
@@ -9986,8 +11273,15 @@ class EditeurPlan {
       const el = chemin.find((n) => n.dataset && (n.dataset.effacer || n.dataset.entite || n.dataset.icone || n.dataset.couleur || n.dataset.act || n.dataset.type || n.dataset.dehors || n.dataset.choix || n.dataset.groupeChoix));
       if (!el) return;
       const ds = el.dataset;
-      if (ds.choix) return this.selectionner(deCle(ds.choix));
-      if (ds.groupeChoix) { const l = this._membres(ds.groupeChoix); if (!l.length) return; this.sel = deCle(l[0]); this.multi = new Set(l); this.carte._construire(); return this._panneau(); }
+      // élément choisi dans une liste (Calques, sélection multiple, widgets d'une pièce ou d'une fiche) : sa modale ; Échap ou ← revient d'où l'on vient
+      if (ds.choix) {
+        const r = this.vueEdition && this.multi.size <= 1 ? this._edCle : null;
+        this.selectionner(deCle(ds.choix));
+        if (!this.vueEdition) this.editerSelection();
+        if (r && this.vueEdition && r !== this._edCle) { this._retourEd = r; this._rendreEdition(); }
+        return;
+      }
+      if (ds.groupeChoix) { const l = this._membres(ds.groupeChoix); if (!l.length) return; this.sel = deCle(l[0]); this.multi = new Set(l); this.carte._construire(); this._panneau(); if (!this.vueEdition) this.editerSelection(); return; }
       if (ds.effacer) { ev.stopPropagation(); return this._modif(ds.effacer, ""); }
       if (ds.entite) {
         const e = await this.choisirEntite({ titre: _t("Choisir une entité"), domaine: ds.dom });
@@ -9995,7 +11289,7 @@ class EditeurPlan {
         return;
       }
       if (ds.icone) return this._modif("icone", ds.icone);
-      if (ds.couleur) return this._modif("couleur", ds.couleur);
+      if (ds.couleur) return this._modif(ds.ck || "couleur", ds.couleur);
       if (ds.type) return this._modif("type", ds.type);
       if (ds.dehors) return this._modif("dehors", ds.dehors.split(",").map(Number));
       if (ds.act) this._action(ds.act);
@@ -10036,20 +11330,40 @@ class EditeurPlan {
       if (op === "info-haut" && +j > 0) return this.commit(() => { [o.infos[+j - 1], o.infos[+j]] = [o.infos[+j], o.infos[+j - 1]]; });
       return;
     }
-    if (a === "deselection") { const pf = s?.type === "widget" && s.cote === "fiche" ? porteur(s) : null; return this.selectionner(s?.type === "widget" && s.piece != null ? { type: "piece", i: s.piece } : pf ? { type: pf.genre, i: pf.i } : null); }
+    if (a === "ed-fermer" || a === "ed-appliquer") return this.fermerEdition();
+    if (a === "deselection") {
+      const pf = s?.type === "widget" && s.cote === "fiche" ? porteurDe(s) : null, r = this._retourEd;
+      this.selectionner(s?.type === "widget" && s.piece != null ? { type: "piece", i: s.piece } : pf ? { type: pf.genre, i: pf.i } : null);
+      // widget ou fiche ouverts depuis la modale d'une pièce ou d'une ouverture : retour à cette modale
+      if (r && this.sel && cle(this.sel) === r) this.editerSelection();
+      return;
+    }
     if (a.startsWith("ajouter-widget:")) return this.ouvrirCatalogue({ widgets: true, cote: a.split(":")[1], piece: s?.type === "piece" ? s.i : s?.piece ?? null });
     if (a === "fiche-ajouter") return this.ouvrirCatalogue({ widgets: true, cote: "fiche", [s.type]: s.i });
     if (a === "fiche-modele") return this.enregistrerFiche();
     if (a === "fiche-remplir") return this.remplirFiche();
     if (a.startsWith("fusion:")) return this.fusionner(+a.slice(7));
     if (a === "integrer") return this.integrer(s.i);
-    if (a.startsWith("placer-ouv:")) return this.placerOuverture(a.slice(11));
+    // « Placer sur le plan » : la modale se masque le temps du clic sur le plan (Échap la rouvre)
+    if (a.startsWith("placer-ouv:")) { if (this.vueEdition) { this._edCachee = true; const V = this.R.querySelector(".ed-mvoile.ed-edit"); if (V) V.hidden = true; } return this.placerOuverture(a.slice(11)); }
     if (/^(sugg|sugg-type|sugg-ign|sugg-choisir|atelier-ouv)(:|$)/.test(a)) return this._actionOuvertureSel(a);
-    if (a === "atelier-meuble" && s?.type === "meuble") return this.modifierMeuble({ i: s.i, retour: this.panneau?.querySelector("[data-act=atelier-meuble]") });
+    if (a === "atelier-meuble" && s?.type === "meuble") return this.modifierMeuble({ i: s.i, retour: this.R.querySelector(".ed-edit [data-act=atelier-meuble]") });
     if (a === "ajouter-action") return this.commit(() => (this._objet().actions ||= []).push({ nom: _t("Action"), icone: "mdi:gesture-tap", action: "light.turn_off", cible: "piece" }));
     if (a.startsWith("cible-piece:")) { const j = +a.split(":")[1], ac = this._objet().actions[j]; return this.commit(() => { if (ac.cible === "piece") delete ac.cible; else ac.cible = "piece"; }); }
     if (a.startsWith("cq-")) return this._actionCalque(a);
     if (a.startsWith("niveau:") && this.multi.size <= 1) return this._niveau(a === "niveau:haut");
+    // sélection multiple : verrou et masque posés (ou retirés) sur tous ses éléments qui en ont
+    if (this.multi.size > 1 && (a === "verrou" || a === "multi-masque")) {
+      const ch = a === "verrou" ? "verrouille" : "masque", l = this._objetsMulti(), tous = l.length > 0 && l.every((o) => o[ch] === true);
+      if (!l.length) return;
+      return this.commit(() => l.forEach((o) => { if (tous) delete o[ch]; else o[ch] = true; }));
+    }
+    if (a === "verrou") { const o = this._objet(); if (!o || Array.isArray(o)) return; return this.commit(() => { if (o.verrouille) delete o.verrouille; else o.verrouille = true; }); }
+    // appareil visible seulement dans la vue de sa pièce : la clé n'est écrite que si elle diffère du réglage global
+    if (a === "zoom-seul" && s?.type === "point") {
+      const o = this._objet(), g = !!d.style_pastilles?.zoom_seul, v = !(o.zoom_seul ?? g);
+      return this.commit(() => { if (v === g) delete o.zoom_seul; else o.zoom_seul = v; });
+    }
     if (a === "grouper") return this.grouper();
     if (a === "degrouper") return this.degrouper();
     if (a.startsWith("climat-piece:")) {
@@ -10062,7 +11376,7 @@ class EditeurPlan {
       if (a === "dupliquer") {
         const nouv = [];
         return this.commit(() => {
-          const L = { point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles };
+          const L = this._listes(d);
           for (const k of [...this.multi]) { const m = deCle(k); if (!L[m.type]) continue; L[m.type].push(clone(L[m.type][m.i])); nouv.push(`${m.type}:${L[m.type].length - 1}`); }
           // les copies d'un groupe forment un nouveau groupe (sinon cliquer la copie prendrait aussi l'original)
           const ids = {};
@@ -10118,6 +11432,13 @@ class EditeurPlan {
       if (a === "dupliquer") return this.commit(() => { l.splice(s.i + 1, 0, clone(l[s.i])); this.sel = { ...s, i: s.i + 1 }; });
     }
     if (a === "supprimer") return this.supprimer();
+    // pièce copiée en décalé (sans sa pièce HA, déjà liée à l'original) ; ouverture copiée à la suite, sur le même mur
+    if (a === "dupliquer" && (s?.type === "piece" || s?.type === "ouverture")) {
+      const L = s.type === "piece" ? d.pieces : d.ouvertures, c = clone(L[s.i]);
+      if (s.type === "piece") { c.poly = c.poly.map(([x, y]) => [x + 40, y + 40]); if (Array.isArray(c.etiquette)) c.etiquette = [c.etiquette[0] + 40, c.etiquette[1] + 40]; c.nom = _t("{nom} (copie)", { nom: c.nom }); delete c.zone; }
+      else { const [x0, y0, x1, y1] = c.seg, n = Math.hypot(x1 - x0, y1 - y0) || 1, k = (n + 20) / n; c.seg = [x0 + (x1 - x0) * k, y0 + (y1 - y0) * k, x1 + (x1 - x0) * k, y1 + (y1 - y0) * k, ...c.seg.slice(4)].map((v, j) => (j < 4 ? arr(v) : v)); }
+      return this.commit(() => { L.push(c); this.sel = { type: s.type, i: L.length - 1 }; });
+    }
     if (a === "dupliquer" && s.type === "meuble") {
       const c = clone(d.meubles[s.i]); c.pos = [c.pos[0] + 40, c.pos[1] + 40];
       return this.commit(() => { d.meubles.push(c); this.sel = { type: "meuble", i: d.meubles.length - 1 }; });
@@ -10154,18 +11475,18 @@ class EditeurPlan {
       const par = {};
       [...this.multi].forEach((k) => { const m = deCle(k); if (m.type !== "widget") (par[m.type] ||= []).push(m.i); });
       return this.commit(() => {
-        const L = { point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles };
+        const L = this._listes(d);
         for (const [ty, l] of Object.entries(par)) l.sort((x, y) => y - x).forEach((i) => L[ty].splice(i, 1));
         this.sel = null; this.multi.clear();
       }), this.snack(_t("{n} éléments supprimés.", { n: Object.values(par).flat().length }), _t("Annuler"), this._annulation(), 10000);
     }
     if (!s) return;
     if (s.type === "widget" && s.cote === "fiche") {
-      const pf = porteur(s);
+      const pf = porteurDe(s);
       this.commit(() => { this._wl(s).splice(s.i, 1); this._nettoyerFiche(d[GENRES_FICHE[pf.genre]][pf.i]); this.sel = { type: pf.genre, i: pf.i }; });
       return this.snack(_t("Widget retiré de la fiche."), _t("Annuler"), this._annulation(), 8000);
     }
-    const listes = { point: d.points, texte: d.textes, piece: d.pieces, ouverture: d.ouvertures, mur: d.murs, limite: d.limites, meuble: d.meubles, widget: s.type === "widget" ? this._wl(s) : null,
+    const listes = { ...this._listes(d), widget: s.type === "widget" ? this._wl(s) : null,
       puce: s.type === "puce" ? this._puces(true) : null };
     const dedans = s.type === "piece" ? this._meublesDans(d.pieces[s.i].poly) : [];
     const zones = s.type === "piece" ? this._sousZonesDans(s.i).map((j) => d.pieces[j]) : [];
@@ -10183,6 +11504,7 @@ class EditeurPlan {
       return this.commit(() => { const snap = clone(this.d); for (const k of this.multi) if (!k.startsWith("widget:")) this._translater(k, dx, dy, snap); });
     }
     if (!s || s.type === "widget" || s.type === "puce") return;
+    if (o?.verrouille) return this.snack(_t("Élément verrouillé : déverrouille-le (cadenas de sa barre d'actions) pour le déplacer."));
     this.commit(() => {
       const t = (p) => [arr(p[0] + dx), arr(p[1] + dy)];
       if (s.type === "point" || s.type === "texte" || s.type === "meuble") { o.pos = t(o.pos); if (s.type === "point") this._rattacher(o); }
@@ -10195,8 +11517,8 @@ class EditeurPlan {
   _touche(ev) {
     const saisie = ev.composedPath().some((n) => n instanceof HTMLElement && (["INPUT", "TEXTAREA", "SELECT"].includes(n.tagName) || n.isContentEditable));
     const ctrl = ev.ctrlKey || ev.metaKey, k = ev.key.toLowerCase();
-    if (ctrl && k === "s") { ev.preventDefault(); ev.stopPropagation(); this.enregistrer(); return; }
-    const interrupteur = ev.composedPath().some((n) => n instanceof HTMLInputElement && (n.type === "checkbox" || n.type === "radio"));
+    if (ctrl && k === "s") { ev.preventDefault(); ev.stopPropagation(); this.appliquer(); return; }
+    const interrupteur = ev.composedPath().some((n) => n instanceof HTMLInputElement && (n.type === "checkbox" || n.type === "radio" || n.type === "range"));
     if (this._menuOuvert) return; // menu déroulant ouvert : il gère ses touches (flèches, Échap)
     // modale ⚙ Paramètres : Échap la ferme (après validation du champ en cours), Ctrl+Z / Ctrl+Y annulent et rétablissent, les autres raccourcis attendent
     if (this.vueParametres && !this.R.querySelector(".ed-voile")) {
@@ -10211,12 +11533,42 @@ class EditeurPlan {
       if (ctrl && (k === "z" || k === "y") && (!saisie || interrupteur)) { ev.preventDefault(); if (k === "y" || ev.shiftKey) this.retablir(); else this.annuler(); }
       return;
     }
+    // modale d'édition d'un élément : mêmes règles ; masquée pour un clic sur le plan (« Placer sur le plan ») : Échap annule le placement et la rouvre
+    if (this.vueEdition && !this.R.querySelector(".ed-voile")) {
+      if (this._edCachee) {
+        if (k === "escape") {
+          ev.preventDefault(); ev.stopPropagation();
+          this.aPlacer = null; this.trace = []; this.modeleOuverture = null;
+          if (this.outil !== "selection") this.choisirOutil("selection");
+          this._edCachee = false; this._panneau();
+          this.R.querySelector(".ed-edit .ed-onglets [aria-selected=true]")?.focus({ preventScroll: true });
+          return;
+        }
+      } else {
+        if (k === "escape") { ev.preventDefault(); ev.stopPropagation(); if (this._aRetour()) this._action("deselection"); else this.fermerEdition(); return; }
+        if (ctrl && (k === "z" || k === "y") && (!saisie || interrupteur)) { ev.preventDefault(); if (k === "y" || ev.shiftKey) this.retablir(); else this.annuler(); }
+        return;
+      }
+    }
+    // modale Ambiance : mêmes règles ; masquée pour placer les personnes sur le plan : Échap la rouvre
+    if (this.vueAmbiance && !this.R.querySelector(".ed-voile")) {
+      if (k === "escape") {
+        ev.preventDefault(); ev.stopPropagation();
+        if (this._ambCachee) { this._ambCachee = false; this._panneau(); this.R.querySelector(".ed-amb .ed-onglets [aria-selected=true]")?.focus({ preventScroll: true }); return; }
+        const a = this.R.activeElement;
+        if (a instanceof HTMLInputElement && !interrupteur) a.blur();
+        this.panneauAmbiance(false);
+        return;
+      }
+      if (ctrl && (k === "z" || k === "y") && (!saisie || interrupteur)) { ev.preventDefault(); if (k === "y" || ev.shiftKey) this.retablir(); else this.annuler(); }
+      if (!this._ambCachee) return;
+    }
     if ((saisie && !(interrupteur && ((ctrl && (k === "z" || k === "y")) || k === "escape"))) || this.R.querySelector(".ed-voile")) return;
     if ((k === "arrowup" || k === "arrowdown") && ev.composedPath().some((n) => n.dataset?.cqGlisse)) return; // ordre des calques au clavier
     if (ctrl && k === "z") { ev.preventDefault(); ev.shiftKey ? this.retablir() : this.annuler(); return; }
     if (ctrl && k === "y") { ev.preventDefault(); this.retablir(); return; }
     if (ctrl && k === "a") { ev.preventDefault(); ev.stopPropagation(); this.toutSelectionner(); return; }
-    if (ctrl && k === "d") { ev.preventDefault(); if (this.multi.size > 1 || this.sel?.type === "point" || this.sel?.type === "meuble") this._action("dupliquer"); return; }
+    if (ctrl && k === "d") { ev.preventDefault(); if (this.multi.size > 1 || ["point", "meuble", "piece", "ouverture"].includes(this.sel?.type)) this._action("dupliquer"); return; }
     if (ctrl && k === "g") { ev.preventDefault(); ev.stopPropagation(); if (ev.shiftKey) this.degrouper(); else this.grouper(); return; }
     if (ctrl || ev.altKey) return;
     if (ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); this.aideClavier(); return; }
@@ -10230,6 +11582,7 @@ class EditeurPlan {
     if (k === "escape") { if (this.trace.length || this.outil !== "selection" || this.aPlacer || this.aPlacerMeuble) { this.aPlacer = null; this.aPlacerMeuble = null; this.trace = []; this.choisirOutil("selection"); } else if (!this.sel && this.vueCalques) this.panneauCalques(false); else if (!this.sel && this.vueAmbiance) this.panneauAmbiance(false);
       else this.selectionner(null); return; }
     if (k === "enter" && this.trace.length) { this._finirTrace(); return; }
+    if (k === "enter" && this._enModale(this.sel)) { this.editerSelection(); return; }
     if ((k === "delete" || k === "backspace") && this.sel) { ev.preventDefault(); this.supprimer(); return; }
     const pas = this.grille * (ev.shiftKey ? 10 : 1);
     const fl = { arrowleft: [-pas, 0], arrowright: [pas, 0], arrowup: [0, -pas], arrowdown: [0, pas] }[k];
@@ -10246,8 +11599,8 @@ class EditeurPlan {
     const K = (...t) => t.map((x) => `<kbd>${esc(x)}</kbd>`).join("+"), ou = (...l) => l.map((x) => `<span>${x}</span>`).join(" / ");
     const ctrl = _t("Ctrl"), maj = _t("Maj");
     const groupes = [
-      [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer")],
-        [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer un panneau")]]],
+      [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer sans quitter l'éditeur")],
+        [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer une fenêtre")]]],
       [_t("Outils"), OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))])],
       [_t("Sélection"), [[_t("Clic"), _t("Sélectionner")], [`${K(ctrl)}+${_t("clic")}`, _t("Ajouter à la sélection ou en retirer")], [_t("Glisser dans le vide"), _t("Cadre de sélection")],
         [K(ctrl, "A"), _t("Tout sélectionner")], [K(_t("Flèches")), _t("Déplacer d'un pas de grille (avec Maj : ×10)")], [K(_t("Suppr")), _t("Retirer")],
@@ -10255,22 +11608,14 @@ class EditeurPlan {
       [_t("Vue et dessin"), [[ou(`${K(_t("Espace##touche"))}+${_t("glisser")}`, _t("clic molette")), _t("Déplacer la vue")], [`${K("Alt")} ${_t("maintenu")}`, _t("Sans magnétisme")],
         [K(maj), _t("Angle libre en dessin")], [ou(K(_t("Entrée##touche")), _t("clic droit")), _t("Finir un tracé")]]],
     ];
-    const voile = document.createElement("div");
-    voile.className = "ed-voile ed-aide-clavier";
-    poserHTML(voile, `<div class="ed-dialogue large ed-dlg-touches" role="dialog" aria-modal="true" aria-labelledby="ed-clavier-t"><header><h2 id="ed-clavier-t">${_t("Raccourcis clavier")}</h2></header>
+    const { voile, fermer: retirer } = this._voile("ed-aide-clavier", `<div class="ed-dialogue large ed-dlg-touches" role="dialog" aria-modal="true" aria-labelledby="ed-clavier-t"><header><h2 id="ed-clavier-t">${_t("Raccourcis clavier")}</h2></header>
       <div class="ed-touches">${groupes.map(([t, l]) => `<section><h3>${t}</h3><dl>${l.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join("")}</dl></section>`).join("")}</div>
-      <footer><button class="ed-btn texte" data-fermer="1">${_t("Fermer")}</button></footer></div>`);
-    this.R.querySelector("ha-card").append(voile);
+      <footer><button class="ed-btn texte" data-fermer="1">${_t("Fermer")}</button></footer></div>`, { echap: () => fermer(), touches: ["?"], defaut: true, pieger: true });
     const fermer = () => {
-      voile.remove(); window.removeEventListener("keydown", touche, true);
+      retirer();
       const b = retour?.isConnected ? retour : this.barre.querySelector('[data-a="aide"]');
       if (b?.getClientRects().length) b.focus({ preventScroll: true });
     };
-    const touche = (ev) => {
-      if (ev.key === "Escape" || ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); fermer(); }
-      else if (ev.key === "Tab") this._pieger(ev, voile.querySelector(".ed-dialogue"));
-    };
-    window.addEventListener("keydown", touche, true);
     voile.onpointerdown = (ev) => { voile._bas = ev.target === voile; };
     voile.onclick = (ev) => { if ((ev.target === voile && voile._bas) || ev.composedPath().some((n) => n.dataset?.fermer)) fermer(); };
     voile.querySelector("[data-fermer]").focus();
@@ -10311,48 +11656,70 @@ class EditeurPlan {
   }
 
   // petite liste d'entités proposées : Entrée / clic = choisir ; « Autre entité… » = sélecteur complet ; Échap / « Ignorer » = null
-  choisirParmi({ titre, liste, ctx = {}, domaine = "" }) {
+  // `plusieurs` (contacts d'une ouverture) : une case à côté de chaque ligne, « Relier » rend la liste cochée ; un clic sur la ligne
+  // la choisit aussitôt (avec celles déjà cochées) ; le résultat est alors toujours une liste
+  choisirParmi({ titre, liste, ctx = {}, domaine = "", plusieurs = false }) {
     return new Promise((fin) => {
+      const coches = new Set();
       const hass = this.hass, nomZone = ctx.zone && (hass.areas?.[ctx.zone]?.name || ctx.zone);
       const ici = liste.filter((c) => c.ici), ailleurs = liste.filter((c) => !c.ici);
       const ligne = (c) => { const s = hass.states[c.e];
-        return `<button data-r="${esc(c.e)}"><ha-icon icon="${esc(iconeEntite(hass, c.e))}"></ha-icon><span class="n"><span>${esc(c.nom)}</span><small>${esc(c.e)}</small></span><span class="etat">${esc(s ? hass.formatEntityState?.(s) ?? s.state : "")}</span></button>`; };
-      const voile = document.createElement("div"), id = `ed-cp-${Math.random().toString(36).slice(2, 8)}`;
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue ed-choix-parmi" role="dialog" aria-modal="true" aria-labelledby="${id}"><header><h2 id="${id}">${esc(titre)}</h2>
-          <div class="ed-aide">${_t("{n} entités correspondent.", { n: liste.length })}</div></header>
+        const b = `<button data-r="${esc(c.e)}"><ha-icon icon="${esc(iconeEntite(hass, c.e))}"></ha-icon><span class="n"><span>${esc(c.nom)}</span><small>${esc(c.e)}</small></span><span class="etat">${esc(s ? hass.formatEntityState?.(s) ?? s.state : "")}</span></button>`;
+        return plusieurs ? `<div class="ed-choix-l">${b}<button class="ed-coche" data-coche="${esc(c.e)}" aria-pressed="false" title="${_t("Cocher (plusieurs capteurs)")}" aria-label="${esc(_t("Cocher (plusieurs capteurs)"))} : ${esc(c.nom)}"><ha-icon icon="mdi:checkbox-blank-outline"></ha-icon></button></div>` : b; };
+      const id = `ed-cp-${Math.random().toString(36).slice(2, 8)}`;
+      const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue ed-choix-parmi" role="dialog" aria-modal="true" aria-labelledby="${id}"><header><h2 id="${id}">${esc(titre)}</h2>
+          <div class="ed-aide">${_t("{n} entités correspondent.", { n: liste.length })}${plusieurs ? ` ${_t("Plusieurs capteurs sur cette ouverture : coche-les puis « Relier ».")}` : ""}</div></header>
         <div class="ed-resultats">${ici.length && nomZone ? `<h4>${_t("Dans « {piece} »", { piece: esc(nomZone) })}</h4>${ici.map(ligne).join("")}${ailleurs.length ? `<h4>${_t("Ailleurs")}</h4>` : ""}` : ""}${ailleurs.map(ligne).join("")}</div>
-        <footer><button class="ed-btn texte" data-r="autre"><ha-icon icon="mdi:magnify"></ha-icon>${_t("Autre entité…")}</button><span class="ed-espace"></span><button class="ed-btn texte" data-r="">${_t("Ignorer")}</button></footer></div>`);
-      this.R.querySelector("ha-card").append(voile);
+        <footer><button class="ed-btn texte" data-r="autre"><ha-icon icon="mdi:magnify"></ha-icon>${_t("Autre entité…")}</button><span class="ed-espace"></span><button class="ed-btn texte" data-r="">${_t("Ignorer")}</button>${plusieurs ? `<button class="ed-btn" data-relier disabled>${_t("Relier")}</button>` : ""}</footer></div>`, { echap: () => fermer(null), defaut: true, pieger: true, dessus: true });
       const avant = this.R.activeElement;
-      const fermer = (v) => { voile.remove(); window.removeEventListener("keydown", touche, true); if (avant?.isConnected) avant.focus(); fin(v); };
-      const touche = (ev) => {
-        if (!this._dessus(voile)) return;
-        if (ev.key === "Escape") { ev.preventDefault(); ev.stopPropagation(); fermer(null); }
-        else if (ev.key === "Tab") this._pieger(ev, voile.querySelector(".ed-dialogue"));
-      };
-      window.addEventListener("keydown", touche, true);
+      const fermer = (v) => { retirer(); if (avant?.isConnected) avant.focus(); fin(v); };
       voile.onclick = async (ev) => {
         ev.stopPropagation();
         if (ev.target === voile) return fermer(null);
-        const b = ev.composedPath().find((n) => n.dataset?.r != null);
+        const chemin = ev.composedPath(), co = chemin.find((n) => n.dataset?.coche != null);
+        if (co) {
+          const on = !coches.delete(co.dataset.coche) && !!coches.add(co.dataset.coche);
+          co.setAttribute("aria-pressed", String(on)); co.querySelector("ha-icon").setAttribute("icon", on ? "mdi:checkbox-marked" : "mdi:checkbox-blank-outline");
+          voile.querySelector("[data-relier]").disabled = !coches.size;
+          return;
+        }
+        if (chemin.some((n) => n.dataset?.relier != null)) return fermer(coches.size ? [...coches] : null);
+        const b = chemin.find((n) => n.dataset?.r != null);
         if (!b) return;
-        if (b.dataset.r !== "autre") return fermer(b.dataset.r || null);
+        if (b.dataset.r !== "autre") return fermer(b.dataset.r ? (plusieurs ? [...new Set([...coches, b.dataset.r])] : b.dataset.r) : null);
         const e = await this.choisirEntite({ titre, domaine });
-        if (e) fermer(e);
+        if (e) fermer(plusieurs ? [...coches, e] : e);
       };
       setTimeout(() => voile.querySelector(".ed-resultats button")?.focus(), 30);
     });
   }
   // un dialogue (voile) est-il au premier plan ? (les touches Échap / Tab ne vont qu'à lui)
   _dessus(voile) { const l = this.R.querySelectorAll(".ed-voile"); return l[l.length - 1] === voile; }
+  // squelette commun des dialogues : voile (classe « ed-voile » + classe), HTML posé puis voile ajouté à la carte (html null : le
+  // dialogue le remplit et l'ajoute lui-même). Clavier en capture sur la fenêtre, retiré par fermer() : o.echap() sur Échap (et o.touches),
+  // o.defaut : preventDefault en plus, o.pieger : Tab gardé dans le dialogue, o.dessus : seulement au premier plan, o.touche : gestion libre
+  _voile(classe, html, o = {}) {
+    const voile = document.createElement("div");
+    voile.className = `ed-voile${classe ? ` ${classe}` : ""}`;
+    const touche = (ev) => {
+      if (o.dessus && !this._dessus(voile)) return;
+      if (o.touche) return o.touche(ev);
+      if (o.echap && (ev.key === "Escape" || o.touches?.includes(ev.key))) { if (o.defaut) ev.preventDefault(); ev.stopPropagation(); o.echap(); }
+      else if (o.pieger && ev.key === "Tab") this._pieger(ev, voile.querySelector(".ed-dialogue"));
+    };
+    const clavier = !!(o.echap || o.touche || o.pieger);
+    if (clavier) window.addEventListener("keydown", touche, true);
+    const fermer = () => { voile.remove(); if (clavier) window.removeEventListener("keydown", touche, true); };
+    if (html != null) { poserHTML(voile, html); this.R.querySelector("ha-card").append(voile); }
+    return { voile, fermer };
+  }
 
   // contexte de pré-remplissage d'un widget : pièce visée (sa pièce HA), ou appareil et pièce de l'élément qui porte la fiche
   _contexteWidget(piece, pf) {
     const d = this.d, hass = this.hass, ctx = { exclure: new Set(), preferer: new Set() };
     if (piece != null) ctx.zone = d.pieces[piece]?.zone || null;
     if (pf) {
-      const o = d[GENRES_FICHE[pf.genre]]?.[pf.i], e = o && (o.entite || o.contact || o.volet || o.valeur), r = e && hass.entities?.[e];
+      const o = d[GENRES_FICHE[pf.genre]]?.[pf.i], e = o && (o.entite || contactsOuv(o)[0] || o.volet || o.valeur), r = e && hass.entities?.[e];
       if (r?.device_id) ctx.device = r.device_id;
       ctx.zone ||= r?.area_id || hass.devices?.[r?.device_id]?.area_id || null;
     }
@@ -10385,7 +11752,7 @@ class EditeurPlan {
 
   // chemins des champs entité d'un widget (modèles : `demander` = ceux à choisir à chaque ajout)
   _cheminsEntites(o) {
-    const l = Object.keys(CHAMPS_ENTITE_WIDGET).filter((k) => typeof o[k] === "string" && o[k]);
+    const l = CHAMPS_ENTITE_WIDGET.filter((k) => typeof o[k] === "string" && o[k]);
     for (const k of ["entites", "lignes"]) if (Array.isArray(o[k]) && o[k].some((x) => x?.entite || typeof x === "string")) l.push(k);
     (o.colonnes || []).forEach((c, j) => { for (const k of ["stat", "jour", "semaine", "mois", "annee"]) if (c?.[k]) l.push(`colonnes.${j}.${k}`); });
     return l;
@@ -10405,8 +11772,8 @@ class EditeurPlan {
   //   api : objet(), remplacer(o, focus), rendre(focus), maj() (aperçu seul) ; action(a, o) peut rendre le sélecteur à refocaliser.
   //   Dans l'aperçu, l'élément focalisé (data-foc) le reste quand l'aperçu est redessiné.
   ouvrirAtelier(spec) {
-    const voile = document.createElement("div"), id = `ed-at-${Math.random().toString(36).slice(2, 8)}`;
-    voile.className = "ed-voile ed-at-voile ed-plein-tel";
+    const id = `ed-at-${Math.random().toString(36).slice(2, 8)}`;
+    const { voile, fermer: retirer } = this._voile("ed-at-voile ed-plein-tel", null, { dessus: true, touche: (ev) => touche(ev) });
     let etape = "type", type = null, o = null, dest = spec.dest ?? spec.destinations?.[0]?.[0], modele = false, demander = true, minuteur = 0;
     if (spec.initial) { o = clone(spec.initial); etape = "reglages"; type = spec.typeInitial ?? null; }
     const avant = spec.retour || this.R.activeElement;
@@ -10456,13 +11823,12 @@ class EditeurPlan {
     const api = { objet: () => o, remplacer: (n, focus) => { o = n; rendre(focus); }, rendre: (focus) => rendre(focus), maj: () => majApercu() };
     const choisirType = (tid) => { const t = spec.types.find((x) => x.id === tid); if (!t) return; if (type !== tid) o = spec.fusion ? spec.fusion(t, o) : clone(t.objet || {}); type = tid; etape = "reglages"; rendre(".ed-at-form input, .ed-at-form button"); };
     const fermer = (ok) => {
-      clearTimeout(minuteur); voile.remove(); window.removeEventListener("keydown", touche, true); this._atelierObjet = null;
+      clearTimeout(minuteur); retirer(); this._atelierObjet = null;
       if (spec.dessous) spec.dessous.style.visibility = "";
       if (ok) spec.valider({ o, type, dest, modele, demander });
       else if (avant?.isConnected) avant.focus();
     };
     const touche = (ev) => {
-      if (!this._dessus(voile)) return;
       if (etape === "reglages" && spec.touche?.(ev)) return;
       if (ev.key === "Escape") { if (ev.composedPath().some((n) => n.classList?.contains("ed-ic") && !n.querySelector(".ed-ic-menu")?.hidden)) return; ev.preventDefault(); ev.stopPropagation(); fermer(false); }
       else if (ev.key === "Tab") this._pieger(ev, voile.querySelector(".ed-dialogue"));
@@ -10472,7 +11838,6 @@ class EditeurPlan {
         else if (etape === "reglages" && !(t?.tagName === "BUTTON" || t?.tagName === "TEXTAREA" || t?.closest?.(".ed-ic"))) { ev.preventDefault(); t?.dispatchEvent?.(new Event("change")); fermer(true); }
       }
     };
-    window.addEventListener("keydown", touche, true);
     voile.addEventListener("pointerdown", (ev) => { voile._bas = ev.target === voile; });
     voile.addEventListener("click", async (ev) => {
       ev.stopPropagation(); // l'aperçu n'est pas la carte : aucun clic ne lui revient
@@ -10502,7 +11867,7 @@ class EditeurPlan {
 
   // « Créer un widget » : l'atelier avec les types de widgets ; ajout au panneau (ou à la fiche) d'où vient la modale
   creerWidget(opt = {}) {
-    const pf = opt.cote === "fiche" ? porteur(opt) : null, carte = this.carte;
+    const pf = opt.cote === "fiche" ? porteurDe(opt) : null, carte = this.carte;
     const types = TYPES_ATELIER();
     this.ouvrirAtelier({
       titre: _t("Créer un widget"), types, modele: true, demander: true, retour: opt.retour, dessous: opt.dessous,
@@ -10606,23 +11971,24 @@ class EditeurPlan {
   // une entité d'après la pièce (même règle pour les ouvertures et les meubles connectés) : une seule dans la pièce → prise d'office ;
   // plusieurs → petite liste (la pièce d'abord, « Autre entité… », « Ignorer ») ; aucune → null (champ « à compléter »).
   // Pièce inconnue : la seule entité qui correspond, sinon la liste. Sans dialogue (`dialogue: false`) : seulement le cas « une seule ».
-  async _entitePourPiece({ titre, liste, zones, dialogue = true, domaine = "" }) {
+  async _entitePourPiece({ titre, liste, zones, dialogue = true, domaine = "", plusieurs = false }) {
     const ici = liste.filter((c) => c.ici);
     if (ici.length === 1) return ici[0].e;
     if (!dialogue) return null;
-    if (ici.length > 1 || (!zones.length && liste.length > 1)) return this.choisirParmi({ titre, liste: liste.slice(0, 30), ctx: { zone: zones[0] }, domaine });
+    if (ici.length > 1 || (!zones.length && liste.length > 1)) return this.choisirParmi({ titre, liste: liste.slice(0, 30), ctx: { zone: zones[0] }, domaine, plusieurs });
     return !zones.length && liste.length === 1 ? liste[0].e : null;
   }
   // pré-remplissage d'une ouverture à la pose : `champs` voulus (contact, volet, entite), `chercher` repris seulement s'il n'y en a
   // qu'un dans la pièce ; rend les champs restés vides (« à compléter ») et les entités reliées
   async _preRemplirOuverture(o, { champs = [], chercher = [], pref = null, dialogue = true } = {}) {
     const zones = this._zonesDuSeg(o.seg), exclure = this._utilisees(), manquants = new Set(), relies = [];
-    const nomOuv = o.nom || _t(NOMS_TYPE_OUV[o.type] || _tk("Ouverture"));
+    const nomOuv = o.nom || _t(NOMS_OUVERTURE[o.type] || _tk("Ouverture"));
     for (const ch of [...new Set([...champs, ...chercher])]) {
       if (o[ch] || !CRIT_OUV[ch]) continue;
       const oblig = champs.includes(ch), liste = this._candidatsOuverture(ch, o, zones, exclure, pref);
-      const e = await this._entitePourPiece({ titre: `${nomOuv} · ${_t(A_COMPLETER[ch])}`, liste, zones, dialogue: dialogue && oblig, domaine: CRIT_OUV[ch].d });
-      if (e) { o[ch] = e; exclure.add(e); relies.push(e); } else if (oblig) manquants.add(ch);
+      const e = await this._entitePourPiece({ titre: `${nomOuv} · ${_t(A_COMPLETER[ch])}`, liste, zones, dialogue: dialogue && oblig, domaine: CRIT_OUV[ch].d, plusieurs: ch === "contact" });
+      const l = (Array.isArray(e) ? e : [e]).filter(Boolean);
+      if (l.length) { if (ch === "contact") poserContacts(o, l); else o[ch] = l[0]; l.forEach((x) => { exclure.add(x); relies.push(x); }); } else if (oblig) manquants.add(ch);
     }
     return { manquants, relies };
   }
@@ -10636,8 +12002,8 @@ class EditeurPlan {
     if (this.d.meubles?.[i] !== m) return;
     if (e) return this.commit(() => { m.entite = e; });
     this._aFaire = { cle: `meuble:${i}`, champs: new Set(["entite"]) };
-    this._panneau();
-    this.snack(_t("À compléter dans le panneau : {l}.", { l: _t("Entité") }));
+    if (this.vueEdition) this._panneau(); else if (this.sel && cle(this.sel) === `meuble:${i}`) this.editerSelection();
+    this.snack(_t("À compléter dans la fenêtre d'édition : {l}.", { l: _t("Entité") }));
   }
   // entités d'une liste situées dans l'une des pièces HA données : `ici`, en tête
   _marquerIci(l, zones) {
@@ -10659,9 +12025,9 @@ class EditeurPlan {
       if (ici.length === 1) out.push({ k: `${i}:${ch}`, ic: iconeEntite(hass, ici[0].e), txt: _t(TXT[ch][0], { nom: esc(ici[0].nom) }), act: `sugg:${ch}:${ici[0].e}`, bouton: _t("Relier") });
       else if (ici.length > 1) out.push({ k: `${i}:${ch}`, ic: iconeEntite(hass, ici[0].e), txt: _t(TXT[ch][1], { n: ici.length, piece: esc(nomZone) }), act: `sugg-choisir:${ch}`, bouton: _t("Choisir") });
     }
-    const t = TYPE_DC_OUV[hass.states[o.contact]?.attributes.device_class];
+    const t = TYPE_DC_OUV[hass.states[contactsOuv(o)[0]]?.attributes.device_class];
     if (t && t !== o.type && !(o.type === "portail" && t === "porte") && !ign.has(`${i}:type`))
-      out.push({ k: `${i}:type`, ic: t === "fenetre" ? "mdi:window-closed-variant" : t === "portail" ? "mdi:garage-variant" : "mdi:door", txt: _t("Type d'après le contact : {type}", { type: esc(_t(NOMS_TYPE_OUV[t])) }), act: `sugg-type:${t}`, bouton: _t("Appliquer") });
+      out.push({ k: `${i}:type`, ic: t === "fenetre" ? "mdi:window-closed-variant" : t === "portail" ? "mdi:garage-variant" : "mdi:door", txt: _t("Type d'après le contact : {type}", { type: esc(_t(NOMS_OUVERTURE[t])) }), act: `sugg-type:${t}`, bouton: _t("Appliquer") });
     return out;
   }
   _htmlSuggestions(l) {
@@ -10678,8 +12044,8 @@ class EditeurPlan {
     if (op === "sugg-ign") { this._suggIgn.add(`${ch}:${r.join(":")}`); return this._panneau(); }
     if (op === "sugg-choisir") {
       const zones = this._zonesDuSeg(o.seg), liste = this._candidatsOuverture(ch, o, zones);
-      const e = await this.choisirParmi({ titre: `${o.nom || _t(NOMS_TYPE_OUV[o.type] || _tk("Ouverture"))} · ${_t(A_COMPLETER[ch])}`, liste: liste.slice(0, 30), ctx: { zone: zones[0] }, domaine: CRIT_OUV[ch].d });
-      if (e && this._objet() === o) this.commit(() => { o[ch] = e; });
+      const e = await this.choisirParmi({ titre: `${o.nom || _t(NOMS_OUVERTURE[o.type] || _tk("Ouverture"))} · ${_t(A_COMPLETER[ch])}`, liste: liste.slice(0, 30), ctx: { zone: zones[0] }, domaine: CRIT_OUV[ch].d, plusieurs: ch === "contact" });
+      if (e && this._objet() === o) this.commit(() => { if (ch === "contact") poserContacts(o, Array.isArray(e) ? e : [e]); else o[ch] = e; });
       return;
     }
     if (op === "atelier-ouv") return this.modifierOuverture(s.i);
@@ -10735,10 +12101,10 @@ class EditeurPlan {
   modifierOuverture(i) {
     const cur = this.d.ouvertures?.[i];
     if (!cur) return;
-    const types = this._typesOuverture(), PROPRES = ["type", "battants", "ouvrant", "vers_dehors", "volet_seul"];
+    const types = this._typesOuverture(), PROPRES = ["type", "battants", "ouvrant", "vers_dehors", "volet_seul", "vitree"];
     this.ouvrirAtelier(this._specOuverture({
       titre: _t("Modifier l'ouverture"), types, initial: { ...clone(cur), _avec: Object.fromEntries(["contact", "volet", "entite"].filter((c) => cur[c]).map((c) => [c, true])) },
-      libelleOk: _t("Appliquer"), retour: this.panneau?.querySelector("[data-act=atelier-ouv]"),
+      libelleOk: _t("Appliquer"), retour: this.R.querySelector(".ed-edit [data-act=atelier-ouv]"),
       // autre préréglage : son type, ses battants et ses capteurs ; les entités déjà reliées restent
       fusion: (t, o) => { const n = { ...o }; for (const k of PROPRES) delete n[k]; Object.assign(n, clone(t.objet)); n._avec = { ...(o._avec || {}), ...(t.objet._avec || {}) }; return n; },
       valider: async ({ o, type }) => {
@@ -10747,7 +12113,8 @@ class EditeurPlan {
         if (this.d.ouvertures?.[i] !== cur) return;
         if (r.manquants.size) this._aFaire = { cle: `ouverture:${i}`, champs: r.manquants };
         this.commit(() => { for (const k of [...PROPRES, "contact", "volet", "entite", "nom", "animation"]) delete cur[k]; Object.assign(cur, objet); this.sel = { type: "ouverture", i }; });
-        this.snack(r.manquants.size ? _t("À compléter dans le panneau : {l}.", { l: [...r.manquants].map((x) => _t(A_COMPLETER[x])).join(", ") }) : _t("Ouverture modifiée."));
+        if (r.manquants.size) this.editerSelection("capteurs");
+        this.snack(r.manquants.size ? _t("À compléter dans la fenêtre d'édition : {l}.", { l: [...r.manquants].map((x) => _t(A_COMPLETER[x])).join(", ") }) : _t("Ouverture modifiée."));
       },
     }));
   }
@@ -10840,7 +12207,7 @@ class EditeurPlan {
   // catégorie proposée pour un meuble du catalogue (sa catégorie), sinon « Formes et espaces »
   _catMeuble(type) { const C = this.carte.constructor, c = MEUBLES()[type]?.cat; return Object.entries(C.CATS_MEUBLES).find(([, n]) => n === c)?.[0] || "formes"; }
   _specMeuble(extra) {
-    const borner = (v) => Math.max(5, Math.min(MAX_TAILLE_MEUBLE, Math.round(+v) || 60)), M = this._manipFormes();
+    const borner = (v) => tailleMeuble(Math.round(+v)), M = this._manipFormes();
     return {
       reglages: (o) => this._reglagesMeuble(o), apercu: (o) => this._apercuMeuble(o),
       // aperçu manipulable : sélection, glisser, poignées, sommets, aimantation, clavier, historique propre à l'atelier
@@ -10882,9 +12249,9 @@ class EditeurPlan {
     const C = this.carte.constructor, m = clone(o), cat = m._cat, mots = (m._mots || "").trim();
     for (const k of ["_cat", "_mots", "_connecte"]) delete m[k];
     if (!o._connecte) for (const k of ["entite", "valeur", "actif", "fiche"]) delete m[k];
-    if (m.couleur && !C.couleurSure(m.couleur)) delete m.couleur;
+    if (m.couleur && !C.couleurEcrite(m.couleur)) delete m.couleur;
     m.forme = C.normaliserForme(m.forme);
-    m.taille = m.taille.map((v) => Math.max(5, Math.min(MAX_TAILLE_MEUBLE, Math.round(+v) || 60)));
+    m.taille = m.taille.map((v) => tailleMeuble(Math.round(+v)));
     for (const k of Object.keys(m)) if (m[k] === "" || m[k] == null) delete m[k];
     return { m, cat, mots };
   }
@@ -10952,7 +12319,7 @@ class EditeurPlan {
       <div class="ed-ligne">${N(_t("Largeur (cm)"), "taille.0", w)}${N(_t("Profondeur (cm)"), "taille.1", h)}</div>
       <div class="ed-ligne"><div class="ed-champ"><label>${_t("Catégorie")}</label><select data-k="_cat">${Object.entries(C.CATS_MEUBLES).map(([k, n]) => `<option value="${esc(k)}" ${o._cat === k ? "selected" : ""}>${esc(_t(n))}</option>`).join("")}</select></div>
         ${this._champTexte(_t("Mots de recherche"), "_mots", o._mots, _t("ex. banc assise"))}</div>
-      <div class="ed-champ"><label>${_t("Couleur")}</label><div class="ed-couleurs"><button type="button" data-at="couleur:" class="${coul ? "" : "on"} aucune" title="${_t("Aucune")}" aria-label="${_t("Aucune")}"></button>${COULEURS.map(([n, c]) => `<button type="button" data-at="couleur:${c}" title="${_t(n)}" aria-label="${_t(n)}" class="${coul === c ? "on" : ""}" style="background:${c}"></button>`).join("")}</div></div>
+      <div class="ed-champ"><label>${_t("Couleur")}</label><div class="ed-couleurs"><button type="button" data-at="couleur:" class="${coul ? "" : "on"} aucune" title="${_t("Aucune")}" aria-label="${_t("Aucune")}"></button>${this._pastilles(o.couleur, (c) => `data-at="couleur:${c}"`, (n) => `data-at="couleur:${esc(n)}"`)}</div></div>
       <h4 class="ed-at-titre">${_t("Forme")}${bulleI(`${_t("Primitives dessinées dans l'ordre, la dernière au-dessus ; positions depuis le coin haut gauche, en cm.")} ${tactile() ? _t("Dans l'aperçu : glisser pour déplacer, poignées pour redimensionner, appui long sur un sommet pour le retirer.") : _t("Dans l'aperçu : glisser pour déplacer, poignées pour redimensionner (Maj : proportions, Alt : sans aimant), flèches 1 cm (Maj : 10 cm), Suppr pour retirer.")}`)}</h4>
       ${o.forme.map(prim).join("")}
       <div class="ed-prim-ajout">${Object.entries(PRIMITIVES).map(([g, n]) => `<button type="button" class="ed-btn contour" data-at="prim:${g}"><ha-icon icon="mdi:plus"></ha-icon>${esc(_t(n))}</button>`).join("")}</div>
@@ -10962,7 +12329,7 @@ class EditeurPlan {
   // aperçu à l'échelle : le meuble, une règle (50 cm ou 1 m) et ses dimensions
   _apercuMeuble(o) {
     // marge réduite : le meuble occupe l'essentiel de l'aperçu (manipulation), la règle et les cotes restent lisibles
-    const C = this.carte.constructor, [w, h] = o.taille.map((v) => Math.max(5, Math.min(MAX_TAILLE_MEUBLE, +v || 60))), c = Math.max(w, h) * 0.56 + 26;
+    const C = this.carte.constructor, [w, h] = o.taille.map(tailleMeuble), c = Math.max(w, h) * 0.56 + 26;
     const regle = Math.max(w, h) > 150 ? 100 : 50, y = c - 14, x0 = -c + 10;
     const coul = C.couleurSure(o.couleur) ? o.couleur : null;
     return `<svg class="ed-ap-meuble" viewBox="${-c} ${-c} ${2 * c} ${2 * c}" tabindex="0" data-foc="ap" role="application" aria-label="${esc(_t("Aperçu des formes : glisser pour déplacer, flèches 1 cm, Suppr pour retirer"))}">
@@ -10983,7 +12350,7 @@ class EditeurPlan {
     const ed = this, GRILLE = 5, SEUIL = 8, MIN = 1; // cm, px (aimant), cm (plus petite forme)
     const M = { sel: null, som: null, aimant: true, grand: false, hist: [], pos: -1, ref: null, g: null, guides: [], voile: null, api: null, raf: 0 };
     const o = () => M.api?.objet();
-    const dims = (ob) => ob.taille.map((v) => Math.max(5, Math.min(MAX_TAILLE_MEUBLE, +v || 60)));
+    const dims = (ob) => ob.taille.map(tailleMeuble);
     const aPoints = (p) => p.genre === "trait" || p.genre === "polygone";
     const minPts = (p) => (p.genre === "trait" ? 2 : 3);
     const valide = (p) => !!p && (aPoints(p) ? Array.isArray(p.points) && p.points.length >= minPts(p) : [p.x, p.y, p.l, p.h].every((v) => v !== "" && Number.isFinite(+v)));
@@ -10992,7 +12359,6 @@ class EditeurPlan {
       if (aPoints(p)) { const xs = p.points.map((q) => (q[0] * w) / 100), ys = p.points.map((q) => (q[1] * h) / 100); return { x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys) }; }
       return { x0: (p.x * w) / 100, y0: (p.y * h) / 100, x1: ((+p.x + +p.l) * w) / 100, y1: ((+p.y + +p.h) * h) / 100 };
     };
-    const borne = (v, a, b) => Math.max(a, Math.min(b, v));
     // repères d'aimantation sur un axe (0 : x, 1 : y) : bords et centre du meuble, des autres formes (et leurs sommets), des autres
     // sommets de la forme
     const reperes = (axe, j, w, h, i = null) => {
@@ -11317,7 +12683,6 @@ class EditeurPlan {
   ouvrirCatalogue(opt = {}) {
     const d = this.d, mod = (d.modeles || []).filter((m) => !opt.widgets || m.genre === "widget");
     const cat = (m) => (m.genre === "point" ? "appareils" : m.genre === "ouverture" ? "ouvertures" : m.genre === "widget" ? "widgets" : m.genre === "meuble" ? "meubles" : "pieces");
-    const sansAccent = (t) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
     const apercu = (t) => { const x = MEUBLES()[t]; return apercuObj({ type: t, taille: x.taille, chaises: x.chaises }); };
     // aperçu d'un meuble (catalogue ou modèle, forme personnalisée comprise)
     const apercuObj = (x) => { const [w, h] = (x.taille || MEUBLES()[x.type]?.taille || [60, 60]).map((v) => nbr(v, 60)), c = Math.max(w, h) * 0.62 + 20;
@@ -11343,7 +12708,7 @@ class EditeurPlan {
     const apercuSZ = `<svg class="ed-apercu" viewBox="-60 -45 120 90" aria-hidden="true"><rect x="-50" y="-35" width="100" height="70" rx="2" class="ed-sz"/></svg>`;
     const sousZones = SZ.map(([nom, w, h, mots], i) => [{ nom, desc: _t("{w} × {h} cm · à tracer", { w, h }), genre: "sous_zone", mots: `sous zone ${mots}` }, `z${i}`]);
     const pieces = plan.filter(([m]) => cat(m) === "pieces").sort((a, b) => ordre.indexOf(a[0].genre) - ordre.indexOf(b[0].genre));
-    const pf = opt.cote === "fiche" ? porteur(opt) : null, pourFiche = pf && d[GENRES_FICHE[pf.genre]]?.[pf.i];
+    const pf = opt.cote === "fiche" ? porteurDe(opt) : null, pourFiche = pf && d[GENRES_FICHE[pf.genre]]?.[pf.i];
     const Wi = W.map((m, i) => [m, `w${i}`]);
     // modale « Ajouter un widget » : une section par catégorie ; catalogue général : les génériques, « Tous les widgets » et,
     // seulement pendant une recherche, les prêts à l'emploi
@@ -11361,16 +12726,13 @@ class EditeurPlan {
     const onglets = [["tous", _t("Tout")], ...new Map(sections.map(([c, t]) => [c, NOMS_ONGLETS[c] || t]))];
     let onglet = opt.onglet && onglets.some(([c]) => c === opt.onglet) ? opt.onglet : opt.widgets ? "tous" : !d.pieces.length ? "pieces" : "tous";
     const ou = opt.widgets ? (pourFiche ? _t("Fiche « {nom} »", { nom: esc(this._nomElement(pf)) }) : opt.piece != null ? _t("Pièce « {nom} »", { nom: esc(d.pieces[opt.piece].nom) }) : "") : "";
-    const voile = document.createElement("div");
-    voile.className = `ed-voile${opt.widgets ? " ed-plein-tel" : ""}`;
-    poserHTML(voile, `<div class="ed-dialogue large${opt.widgets ? " ed-cat-widgets" : ""}" role="dialog" aria-modal="true" aria-labelledby="ed-cat-titre"><header>
+    const { voile, fermer } = this._voile(opt.widgets ? "ed-plein-tel" : "", `<div class="ed-dialogue large${opt.widgets ? " ed-cat-widgets" : ""}" role="dialog" aria-modal="true" aria-labelledby="ed-cat-titre"><header>
         ${opt.widgets ? `<div class="ed-titre-ligne"><h2 id="ed-cat-titre">${_t("Ajouter un widget")}</h2><button class="ed-btn tonal" data-creer="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Créer un widget")}</button></div>${ou ? `<div class="ed-aide ed-ou">${ou}</div>` : ""}` : `<h2 id="ed-cat-titre">${_t("Ajouter")}</h2>`}
         <div class="ed-recherche"><ha-icon icon="mdi:magnify"></ha-icon><input type="search" placeholder="${this._etroit() ? _t("Rechercher…") : opt.widgets ? _t("Rechercher (co2, fuite, serrure…)") : _t("Rechercher (lumière, fenêtre, jauge…)")}" aria-label="${_t("Rechercher")}"></div>
         <div class="ed-filtres ed-cat-filtres${opt.widgets ? " ed-cat-defile" : ""}" role="tablist">${onglets.map(([c, t]) => `<button role="tab" data-onglet="${c}">${esc(t)}</button>`).join("")}</div></header>
       <div class="ed-cat">${sections.map(([c, t, l]) => `<section data-sec="${c}"><h4>${t}</h4><div class="ed-grille">${l.map(([m, ref, hors]) => tuile(m, ref, c, hors)).join("")}</div></section>`).join("")}
         <div class="ed-aide ed-rien" hidden>${_t("Rien ne correspond à cette recherche.")}</div></div>
-      <footer>${opt.widgets ? `<button class="ed-btn tonal ed-creer-bas" data-creer="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Créer un widget")}</button><span class="ed-espace"></span>` : ""}<button class="ed-btn texte" data-fermer="1">${_t("Fermer")}</button></footer></div>`);
-    this.R.querySelector("ha-card").append(voile);
+      <footer>${opt.widgets ? `<button class="ed-btn tonal ed-creer-bas" data-creer="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Créer un widget")}</button><span class="ed-espace"></span>` : ""}<button class="ed-btn texte" data-fermer="1">${_t("Fermer")}</button></footer></div>`, { echap: () => fermer(), dessus: true });
     const champ = voile.querySelector("input[type=search]");
     const filtrer = () => {
       const q = sansAccent(champ.value.trim());
@@ -11393,9 +12755,6 @@ class EditeurPlan {
     filtrer();
     this._indiceDefilement(voile.querySelector(".ed-filtres"));
     setTimeout(() => champ.focus(), 30);
-    const fermer = () => { voile.remove(); window.removeEventListener("keydown", echap, true); };
-    const echap = (ev) => { if (ev.key === "Escape" && this._dessus(voile)) { ev.stopPropagation(); fermer(); } };
-    window.addEventListener("keydown", echap, true);
     voile.addEventListener("click", (ev) => {
       const chemin = ev.composedPath();
       if (ev.target === voile || chemin.some((n) => n.dataset?.fermer)) return fermer();
@@ -11459,7 +12818,7 @@ class EditeurPlan {
         l.push(...objs);
         this.sel = { type: "widget", cote, i: i0, ...(cote === "fiche" ? ref : piece != null ? { piece } : {}) };
       });
-      if (manquants.size) { this._aFaire = { cle: cle(this.sel), champs: manquants }; this._panneau(); this.snack(_t("« {nom} » ajouté : champs en orange à compléter.", { nom: m.nom })); }
+      if (manquants.size) { this._aFaire = { cle: cle(this.sel), champs: manquants }; this.editerSelection(); this.snack(_t("« {nom} » ajouté : champs en orange à compléter.", { nom: m.nom })); }
       return;
     }
     if (m.genre === "ouverture") {
@@ -11489,14 +12848,11 @@ class EditeurPlan {
     return new Promise((fin) => {
       const hass = this.hass, zones = Object.values(hass.areas || {}).sort((a, b) => a.name.localeCompare(b.name, _loc()));
       const liee = (z) => this.d.pieces.find((p) => p.zone === z);
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${_t("Pièce Home Assistant")}</h2>
+      const { voile } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${_t("Pièce Home Assistant")}</h2>
         <div class="ed-aide">${_t("Ses appareils, capteurs et automatisations seront intégrés d'office.")}</div></header>
         <div class="ed-resultats">${zones.map((z) => { const n = entitesZone(hass, z.area_id).length, p = liee(z.area_id);
           return `<button data-r="${esc(z.area_id)}"><ha-icon icon="${esc(z.icon || "mdi:floor-plan")}"></ha-icon><span class="n"><span>${esc(z.name)}</span><small>${_t("{n} entité|{n} entités", { n })}${p ? _t(" · liée à « {nom} »", { nom: esc(p.nom) }) : ""}</small></span></button>`; }).join("")}</div>
         <footer><button class="ed-btn texte" data-r="">${_t("Annuler")}</button></footer></div>`);
-      this.R.querySelector("ha-card").append(voile);
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r != null); if (ev.target === voile || b) { voile.remove(); fin(b?.dataset.r || null); } };
     });
   }
@@ -11529,7 +12885,7 @@ class EditeurPlan {
 
   _utilisees() {
     const d = this.d;
-    return new Set([...(d.points || []).flatMap((q) => [q.entite, q.valeur, q.actif]), ...(d.ouvertures || []).flatMap((o) => [o.contact, o.volet, o.entite]),
+    return new Set([...(d.points || []).flatMap((q) => [q.entite, q.valeur, q.actif]), ...(d.ouvertures || []).flatMap((o) => [...contactsOuv(o), o.volet, o.entite]),
       ...(d.meubles || []).flatMap((m) => [m.entite, m.valeur, m.actif])].filter(Boolean));
   }
 
@@ -11581,18 +12937,15 @@ class EditeurPlan {
     if (this._silence) { faire(); return nouveaux.length; }
     this.commit(faire);
     const ouv = this._ouverturesAPlacer(pi).length;
-    this.snack(`${nouveaux.length ? _t("{n} appareil ajouté|{n} appareils ajoutés", { n: nouveaux.length }) : _t("Aucun nouvel appareil")}${temp && !avaitTemp ? _t(", température reliée") : ""}${ouv ? _t(", {n} ouverture à placer sur les murs (panneau)|, {n} ouvertures à placer sur les murs (panneau)", { n: ouv }) : ""}.`, null, null, 8000);
+    this.snack(`${nouveaux.length ? _t("{n} appareil ajouté|{n} appareils ajoutés", { n: nouveaux.length }) : _t("Aucun nouvel appareil")}${temp && !avaitTemp ? _t(", température reliée") : ""}${ouv ? _t(", {n} ouverture à placer sur les murs (fenêtre d'édition de la pièce)|, {n} ouvertures à placer sur les murs (fenêtre d'édition de la pièce)", { n: ouv }) : ""}.`, null, null, 8000);
   }
 
   demander(titre, defaut, inter) {
     return new Promise((fin) => {
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue" role="dialog" style="width:min(420px,100%)"><header><h2>${esc(titre)}</h2>
+      const { voile } = this._voile("", `<div class="ed-dialogue" role="dialog" style="width:min(420px,100%)"><header><h2>${esc(titre)}</h2>
         <div class="ed-champ"><label>${_t("Nom")}</label><input type="text" value="${esc(defaut)}"></div>
         ${inter ? `<label class="ed-inter" style="margin-top:12px"><span>${esc(inter)}</span><input type="checkbox"></label>` : ""}</header>
         <footer><button class="ed-btn texte" data-r="0">${_t("Annuler")}</button><button class="ed-btn plein" data-r="1">${_t("Enregistrer")}</button></footer></div>`);
-      this.R.querySelector("ha-card").append(voile);
       const champ = voile.querySelector("input[type=text]"), coche = voile.querySelector("input[type=checkbox]");
       const fermer = (ok) => { voile.remove(); fin(ok && champ.value.trim() ? { nom: champ.value.trim(), coche: !!coche?.checked } : null); };
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile) fermer(false); else if (b) fermer(b.dataset.r === "1"); };
@@ -11633,27 +12986,15 @@ class EditeurPlan {
   }
 
   // ---------- appareils ----------
-  async ajouterAppareil() {
-    const e = await this.choisirEntite({ titre: _t("Ajouter un appareil"), obligatoire: true });
-    if (!e) return;
-    this.choisirOutil("selection");
-    this.aPlacer = pointPour(this.hass, e, [0, 0]);
-    this.zone.classList.add("dessin");
-    this.snack(_t("Clique sur le plan pour placer « {nom} ». Échap pour annuler.", { nom: this.carte._nom(e) }));
-  }
-
   choisirEntite({ titre, domaine = "", obligatoire = false } = {}) {
     return new Promise((fin) => {
       const hass = this.hass, deja = new Set([...(this.d.points || []), ...(this.d.meubles || [])].map((p) => p.entite).filter(Boolean));
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
       let filtre = domaine;
-      poserHTML(voile, `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${esc(titre)}</h2>
+      const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${esc(titre)}</h2>
         <label class="ed-recherche"><ha-icon icon="mdi:magnify"></ha-icon><input type="text" placeholder="${this._etroit() ? _t("Rechercher…") : _t("Rechercher une entité, une pièce…")}" aria-label="${_t("Rechercher une entité, une pièce…")}" autocomplete="off"></label>
         <div class="ed-filtres">${DOMAINES.map(([d, n]) => `<button data-f="${d}" class="${d === filtre ? "on" : ""}">${_t(n)}</button>`).join("")}</div></header>
         <div class="ed-resultats"></div>
-        <footer>${obligatoire ? "" : `<button class="ed-btn texte" data-r="">${_t("Aucune")}</button>`}<button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button></footer></div>`);
-      this.R.querySelector("ha-card").append(voile);
+        <footer>${obligatoire ? "" : `<button class="ed-btn texte" data-r="">${_t("Aucune")}</button>`}<button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button></footer></div>`, { echap: () => fermer(null) });
       const champ = voile.querySelector("input"), res = voile.querySelector(".ed-resultats");
       const tous = Object.keys(hass.states).sort();
       const rendre = () => {
@@ -11671,9 +13012,7 @@ class EditeurPlan {
           <span class="n"><span>${esc(n)}</span><small>${esc(e)}${deja.has(e) ? _t(" · déjà sur le plan") : ""}</small></span><span class="etat">${esc(hass.formatEntityState?.(s) ?? s.state)}</span></button>`).join("")
           : `<div class="ed-aide" style="padding:16px">${_t("Aucune entité trouvée.")}</div>`);
       };
-      const fermer = (v) => { voile.remove(); window.removeEventListener("keydown", echap, true); fin(v); };
-      const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer(null); } };
-      window.addEventListener("keydown", echap, true);
+      const fermer = (v) => { retirer(); fin(v); };
       voile.addEventListener("click", (ev) => {
         if (ev.target === voile) return fermer(null);
         const b = ev.composedPath().find((n) => n.dataset && (n.dataset.f != null || n.dataset.r != null));
@@ -11696,10 +13035,9 @@ class EditeurPlan {
     return (this.d.resume = this.carte._puces());
   }
 
-  _panneauPuce(o, supprimer) {
+  _ongletsPuce(o) {
     const t0 = PUCES.find((x) => x[0] === o.type), t = t0 ? [t0[0], t0[1], _t(t0[2]), _t(t0[3])] : [o.type, "mdi:help", o.type, ""], l = this._puces(), i = this.sel.i;
-    let h = `<h3><ha-icon icon="${esc(o.icone || t[1])}"></ha-icon>${esc(o.type === "entite" ? o.nom || (o.entite ? this.carte._nom(o.entite) : t[2]) : t[2])}${bulleI(t[3] ? `${_t("Puce du résumé, en tête du plan.")} ${t[3]}.` : _t("Puce du résumé, en tête du plan."))}</h3>
-      <div class="ed-resume">${_t("Puce {i} sur {n}", { i: i + 1, n: l.length })}</div>`;
+    let h = "";
     if (o.type === "entite") h += `${this._champEntite(_t("Entité"), "entite", o.entite, false)}
       ${this._champTexte(_t("Texte après la valeur"), "nom", o.nom, o.entite ? this.carte._nom(o.entite) : _t("nom de l'entité"))}
       <div class="ed-ligne">${this._champTexte(_t("Unité"), "unite", o.unite, _t("auto"))}${this._champNombre(_t("Décimales"), "decimales", o.decimales, 1, _t("auto"))}</div>
@@ -11711,9 +13049,10 @@ class EditeurPlan {
       ${this._champTexte(_t("Icône"), "icone", o.icone, _t("auto ({icone})", { icone: t[1] }))}
       <h4>${_t("Place")}${bulleI(_t("Glisse la puce : à côté d'une autre, sous elle (pile) ou sous toutes (nouvelle ligne)."))}</h4>
       ${i ? this._inter(_t("Sous la puce précédente (pile)"), "sous", o.sous) : ""}
-      ${i && !o.sous ? this._inter(_t("Commencer une nouvelle ligne"), "ligne", o.ligne) : ""}
-      <div class="ed-actions">${ibAct("p-avant", "mdi:arrow-left", _t("Avant"), i ? "" : "disabled")}${ibAct("p-apres", "mdi:arrow-right", _t("Après"), i < l.length - 1 ? "" : "disabled")}${ibAct("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${supprimer}</div>`;
-    return h;
+      ${i && !o.sous ? this._inter(_t("Commencer une nouvelle ligne"), "ligne", o.ligne) : ""}`;
+    return { icone: o.icone || t[1], titre: o.type === "entite" ? o.nom || (o.entite ? this.carte._nom(o.entite) : t[2]) : t[2], resume: _t("Puce {i} sur {n}", { i: i + 1, n: l.length }),
+      aide: t[3] ? `${_t("Puce du résumé, en tête du plan.")} ${t[3]}.` : _t("Puce du résumé, en tête du plan."), apercu: "puce", onglets: [["general", _t("Général"), "mdi:tune-variant", h]],
+      actions: `${ibAct("p-avant", "mdi:arrow-left", _t("Avant"), i ? "" : "disabled")}${ibAct("p-apres", "mdi:arrow-right", _t("Après"), i < l.length - 1 ? "" : "disabled")}` };
   }
 
   // glisser une puce du résumé : à gauche / à droite d'une autre (dans sa ligne), sous elle (pile), ou sous toutes (nouvelle ligne)
@@ -11791,9 +13130,7 @@ class EditeurPlan {
 
   ajouterPuce() {
     const l = this._puces(), dispo = PUCES.filter(([t]) => t === "entite" || !l.some((p) => p.type === t));
-    const voile = document.createElement("div");
-    voile.className = "ed-voile";
-    poserHTML(voile, `<div class="ed-dialogue" role="dialog" aria-modal="true" style="width:min(440px,100%)"><header><h2>${_t("Ajouter une puce")}</h2></header>
+    const { voile } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true" style="width:min(440px,100%)"><header><h2>${_t("Ajouter une puce")}</h2></header>
       <div class="ed-resultats">${dispo.map(([t, ic, n, d]) => `<button data-t="${t}"><ha-icon icon="${ic}"></ha-icon><span class="n"><span>${esc(_t(n))}</span><small>${esc(_t(d))}</small></span></button>`).join("")}</div>
       <footer><button class="ed-btn texte" data-t="">${_t("Annuler")}</button></footer></div>`);
     voile.onclick = async (ev) => {
@@ -11806,7 +13143,6 @@ class EditeurPlan {
       if (t === "entite") { p.entite = await this.choisirEntite({ titre: _t("Puce : choisir une entité"), obligatoire: true }); if (!p.entite) return; }
       this.commit(() => { const L = this._puces(true); L.push(p); this.sel = { type: "puce", i: L.length - 1 }; });
     };
-    this.R.querySelector("ha-card").append(voile);
   }
 
   // glisser-déposer depuis les panneaux d'information : cote / i = destination (i Infinity = à la fin)
@@ -11827,8 +13163,8 @@ class EditeurPlan {
   // analyse par le moteur (MaquetteNettoyage) → dialogue : aperçu, défauts cerclés (clic = zoom), corrections à cocher (pièce par
   // pièce pour les murs manquants et les passages) ; « Appliquer » = une seule action annulable, après une copie du plan d'avant
   nettoyerPlan() {
-    const N = globalThis.MaquetteNettoyage, en = versMoteur(this.d), a = N.analyser(en);
-    const opts = { ...N.OPTIONS_DEFAUT }, salles = { manquants: new Set(), passages: new Set() };
+    const N = globalThis.MaquetteNettoyage, en = versMoteur(this.d), controles = this._controlesNet(), a = N.analyser(en, { ...N.OPTIONS_DEFAUT, controles });
+    const opts = { ...N.OPTIONS_DEFAUT, controles }, salles = { manquants: new Set(), passages: new Set() };
     const visibles = OPTIONS_NET.filter(([k]) => a.corrections[k].length && (k !== "arrondir" || a.arrondiUtile));
     const items = visibles.flatMap(([k]) => a.corrections[k]).map((x, i) => ({ ...x, i }));
     const piecesDe = (k) => [...new Set(items.filter((x) => x.option === k).flatMap((x) => x.pieces || [x.piece]))];
@@ -11840,11 +13176,7 @@ class EditeurPlan {
     const nDef = items.filter((x) => x.niveau === "defaut").length, nStyle = items.filter((x) => x.niveau === "style").length;
     const copies = this._copiesNettoyage().length;
     const lienCopies = copies ? `<button class="ed-btn texte" data-x="copies"><ha-icon icon="mdi:history"></ha-icon>${_t("Plans d'avant nettoyage ({n})", { n: copies })}</button>` : "";
-    const voile = document.createElement("div");
-    voile.className = "ed-voile ed-plein-tel";
-    const fermer = () => { voile.remove(); window.removeEventListener("keydown", echap, true); };
-    const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer(); } };
-    window.addEventListener("keydown", echap, true);
+    const { voile, fermer } = this._voile("ed-plein-tel", null, { echap: () => fermer() });
     // plan propre, sans rien de facultatif : un message et rien à faire
     if (!visibles.length) {
       poserHTML(voile, `<div class="ed-dialogue ed-net ed-net-petit" role="dialog" aria-modal="true" aria-label="${esc(_t("Nettoyer le plan"))}"><header><h2>${_t("Nettoyer le plan")}</h2></header>
@@ -11970,9 +13302,12 @@ class EditeurPlan {
     btnApp.disabled ? voile.querySelector('[data-x="fermer"]').focus() : btnApp.focus();
   }
 
+  // contrôles des ouvertures (côté dehors, volets reliés à rien) : entités connues de HA (sans HA, aucune n'est dite inexistante)
+  _controlesNet() { const st = this.hass?.states; return { entites: st && Object.keys(st).length ? Object.keys(st) : null }; }
+
   // applique les corrections choisies : copie du plan d'avant gardée dans ce navigateur, puis une seule action annulable
   appliquerNettoyage(options = {}) {
-    const N = globalThis.MaquetteNettoyage, r = N.nettoyer(versMoteur(this.d), options), n = r.operations.length;
+    const N = globalThis.MaquetteNettoyage, r = N.nettoyer(versMoteur(this.d), { controles: this._controlesNet(), ...options }), n = r.operations.length;
     if (!n) return this.snack(_t("Plan propre"));
     const garde = this._garderCopieNettoyage(n), res = depuisMoteur(this.d, r.config);
     this.commit(() => {
@@ -12027,23 +13362,18 @@ class EditeurPlan {
     const copies = this._copiesNettoyage();
     if (!copies.length) return this.snack(_t("Aucun plan d'avant nettoyage dans ce navigateur."));
     let j = 0;
-    const voile = document.createElement("div");
-    voile.className = "ed-voile ed-plein-tel";
     const date = (t) => new Date(t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "short" });
-    poserHTML(voile, `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${esc(_t("Plans d'avant nettoyage"))}"><header><h2>${_t("Plans d'avant nettoyage")}</h2>
+    const { voile, fermer } = this._voile("ed-plein-tel", `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${esc(_t("Plans d'avant nettoyage"))}"><header><h2>${_t("Plans d'avant nettoyage")}</h2>
         <div class="ed-aide">${_t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures (annulable).")}</div></header>
       <div class="ed-cat ed-net-corps"><div class="ed-net-apercu"><div class="ed-net-w"></div></div>
         <div class="ed-versions" role="listbox" aria-label="${esc(_t("Plans d'avant nettoyage"))}">${copies.map((v, i) => `<button type="button" role="option" data-c="${i}" aria-selected="${i === 0}" class="${i === 0 ? "on" : ""}"><span>${esc(date(v.t))}<small> · ${_t("{n} correction|{n} corrections", { n: v.nettoyage })}</small></span></button>`).join("")}</div></div>
       <footer><button class="ed-btn texte" data-x="yaml"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copier le plan d'avant (YAML)")}</button><span class="ed-espace"></span>
-        <button class="ed-btn texte" data-x="fermer">${_t("Fermer")}</button><button class="ed-btn plein" data-x="restaurer"><ha-icon icon="mdi:history"></ha-icon>${_t("Restaurer")}</button></footer></div>`);
+        <button class="ed-btn texte" data-x="fermer">${_t("Fermer")}</button><button class="ed-btn plein" data-x="restaurer"><ha-icon icon="mdi:history"></ha-icon>${_t("Restaurer")}</button></footer></div>`, { echap: () => fermer() });
     const W = voile.querySelector(".ed-net-w");
     const apercu = () => {
       const c = { rooms: copies[j].cles.rooms || [], walls: copies[j].cles.walls || [], openings: copies[j].cles.openings || [] }, v = cadreNet(c), r = W.getBoundingClientRect();
       poserHTML(W, svgNettoyage(c, v, Math.max(v.w / (r.width || 600), v.h / (r.height || 400)), [], null));
     };
-    const fermer = () => { voile.remove(); window.removeEventListener("keydown", echap, true); };
-    const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer(); } };
-    window.addEventListener("keydown", echap, true);
     voile.onclick = async (ev) => {
       if (ev.target === voile) return fermer();
       const b = ev.composedPath().find((n) => n.dataset?.x || n.dataset?.c != null);
@@ -12061,7 +13391,6 @@ class EditeurPlan {
         this.snack(ok ? _t("Plan d'avant copié (YAML : rooms, walls, openings).") : _t("Copie refusée par le navigateur."));
       }
     };
-    this.R.querySelector("ha-card").append(voile);
     apercu();
     const ro = new ResizeObserver(() => { if (!voile.isConnected) return ro.disconnect(); apercu(); });
     ro.observe(W);
@@ -12073,9 +13402,7 @@ class EditeurPlan {
     let format = this._format || "yaml";
     const nomFichier = () => `plan-${(this.d.id || "maison").replace(/[^\w-]+/g, "-")}.${format === "json" ? "json" : "yaml"}`;
     const texte = () => { const o = versAnglais(this.d); return format === "json" ? JSON.stringify(o, null, 2) : versYaml(o) + "\n"; };
-    const voile = document.createElement("div");
-    voile.className = "ed-voile";
-    poserHTML(voile, `<div class="ed-dialogue large" role="dialog" aria-modal="true"><header><h2>${_t("Exporter / importer le plan")}</h2>
+    const { voile, fermer } = this._voile("", `<div class="ed-dialogue large" role="dialog" aria-modal="true"><header><h2>${_t("Exporter / importer le plan")}</h2>
         <div class="ed-aide">${tactile() ? _t("Le plan complet. « Importer » remplace le plan en cours (annulable).") : _t("Le plan complet. « Importer » remplace le plan en cours (Ctrl+Z pour annuler).")}</div>
         <span class="ed-seg petit" style="margin-top:12px">${["yaml", "json"].map((f) => `<button data-f="${f}" class="${f === format ? "on" : ""}">${f.toUpperCase()}</button>`).join("")}</span></header>
       <div class="ed-cat">${(() => { const vs = this._versions(); if (!vs.length) return "";
@@ -12086,13 +13413,10 @@ class EditeurPlan {
         <button class="ed-btn texte" data-x="telecharger"><ha-icon icon="mdi:download"></ha-icon>${_t("Télécharger")}</button>
         <button class="ed-btn texte" data-x="ouvrir"><ha-icon icon="mdi:folder-open-outline"></ha-icon>${_t("Ouvrir un fichier…")}</button>
         <span style="flex:1"></span><button class="ed-btn texte" data-x="fermer">${_t("Fermer")}</button><button class="ed-btn plein" data-x="importer"><ha-icon icon="mdi:import"></ha-icon>${_t("Importer")}</button>
-        <input type="file" accept=".yaml,.yml,.json,application/json,text/yaml" hidden></footer></div>`);
+        <input type="file" accept=".yaml,.yml,.json,application/json,text/yaml" hidden></footer></div>`, { echap: () => fermer() });
     const ta = voile.querySelector("textarea"), err = voile.querySelector(".ed-erreur"), fichier = voile.querySelector("input[type=file]");
     const erreur = (m) => { err.hidden = !m; err.textContent = m || ""; };
     ta.value = texte();
-    const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer(); } };
-    window.addEventListener("keydown", echap, true);
-    const fermer = () => { voile.remove(); window.removeEventListener("keydown", echap, true); };
     fichier.onchange = async () => {
       const f = fichier.files?.[0];
       if (!f) return;
@@ -12153,7 +13477,6 @@ class EditeurPlan {
         return this._recapImport(o, { ...rap, ignorees }).then((oui) => { if (oui) appliquer(); });
       }
     };
-    this.R.querySelector("ha-card").append(voile);
     ta.focus(); ta.setSelectionRange(0, 0); ta.scrollTop = 0;
   }
 
@@ -12211,9 +13534,7 @@ class EditeurPlan {
     const bloc = (ic, titre, n, corps) => `<section class="ed-recap-s"><h4><ha-icon icon="${ic}"></ha-icon>${esc(titre)} (${n})</h4>${corps}</section>`;
     const rien = !services.length && !commandes.length && !liens.length && !retires.length && !rap.ignores && !ignorees.length;
     return new Promise((fin) => {
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue large ed-recap" role="alertdialog" aria-modal="true" aria-labelledby="ed-recap-t" aria-describedby="ed-recap-d">
+      const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue large ed-recap" role="alertdialog" aria-modal="true" aria-labelledby="ed-recap-t" aria-describedby="ed-recap-d">
         <header><h2 id="ed-recap-t">${_t("Vérifier avant d'importer")}</h2>
           <div class="ed-aide" id="ed-recap-d">${esc(_t("Pièces {p} · Ouvertures {o} · Appareils {a} · Meubles {m} · Widgets {w} · Modèles {t}", { p: (c.pieces || []).length, o: (c.ouvertures || []).length, a: (c.points || []).length, m: (c.meubles || []).length, w: nW, t: (c.modeles || []).length }))}</div></header>
         <div class="ed-cat">
@@ -12225,12 +13546,9 @@ class EditeurPlan {
           ${ignorees.length ? bloc("mdi:view-dashboard-outline", _t("Clés du tableau de bord ignorées"), ignorees.length, `<p>${esc(ignorees.join(", "))} : ${_t("celles de cette carte sont gardées.")}</p>`) : ""}
           ${rien ? `<p class="ed-aide">${_t("Aucun service, aucune commande, aucun lien, rien de retiré.")}</p>` : `<p class="ed-aide">${_t("Les actions sensibles (déverrouiller, ouvrir un garage, désarmer, lancer un script…) demandent toujours une confirmation.")}</p>`}
         </div>
-        <footer><button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button><button class="ed-btn plein" data-r="importer"><ha-icon icon="mdi:import"></ha-icon>${_t("Importer")}</button></footer></div>`);
-      const finir = (r) => { voile.remove(); window.removeEventListener("keydown", echap, true); fin(r); };
-      const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); finir(false); } else if (ev.key === "Tab") this._pieger(ev, voile.querySelector(".ed-dialogue")); };
-      window.addEventListener("keydown", echap, true);
+        <footer><button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button><button class="ed-btn plein" data-r="importer"><ha-icon icon="mdi:import"></ha-icon>${_t("Importer")}</button></footer></div>`, { echap: () => finir(false), pieger: true });
+      const finir = (r) => { retirer(); fin(r); };
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) finir(b?.dataset.r === "importer"); };
-      this.R.querySelector("ha-card").append(voile);
       voile.querySelector('[data-r="annuler"]').focus();
     });
   }
@@ -12257,13 +13575,13 @@ class EditeurPlan {
   // un défilement ou un nouveau rendu la ferment. Le texte est aussi dans aria-description (lu sans ouvrir la bulle).
   _cablerAides() {
     const R = this.R, bouton = (e) => e.composedPath().find((n) => n instanceof HTMLElement && n.classList.contains("ed-i"));
-    let attente = 0;
+    let attente = 0; // survol : la bulle vient après 300 ms (un clic avant annule cette attente, sinon la bulle épinglée serait remplacée)
     const E = (this._aideEv = {
       over: (e) => { if (e.pointerType !== "mouse") return; const b = bouton(e); if (!b || this._tip?.b === b) return; clearTimeout(attente); attente = setTimeout(() => { if (b.matches(":hover")) this._montrerAide(b, false); }, 300); },
       out: (e) => { if (e.pointerType !== "mouse") return; const b = bouton(e); if (!b || (e.relatedTarget && b.contains(e.relatedTarget))) return; clearTimeout(attente); if (this._tip?.b === b && !this._tip.epingle) this._cacherAide(); },
       focusin: (e) => { const b = bouton(e); if (b && !this._focusSansAide && b.matches(":focus-visible") && this._tip?.b !== b) this._montrerAide(b, false); },
       focusout: (e) => { const b = bouton(e); if (b && this._tip?.b === b && !this._tip.epingle) this._cacherAide(); },
-      clic: (e) => { const b = bouton(e); if (!b) return; e.preventDefault(); e.stopPropagation(); if (Date.now() - (this._depliee || 0) < 600) return; if (this._tip?.b === b && this._tip.epingle) this._cacherAide(); else this._montrerAide(b, true); },
+      clic: (e) => { const b = bouton(e); if (!b) return; e.preventDefault(); e.stopPropagation(); clearTimeout(attente); if (Date.now() - (this._depliee || 0) < 600) return; if (this._tip?.b === b && this._tip.epingle) this._cacherAide(); else this._montrerAide(b, true); },
       bas: (e) => { if (!this._tip) return; const ch = e.composedPath(); if (!ch.includes(this._tip.el) && !ch.includes(this._tip.b)) this._cacherAide(); },
       touche: (e) => { if (e.key !== "Escape" || !this._tip) return; e.preventDefault(); e.stopImmediatePropagation(); const b = this._tip.b; this._cacherAide(); if (b.isConnected) { this._focusSansAide = true; b.focus({ preventScroll: true }); this._focusSansAide = false; } },
       defile: (e) => { if (this._tip && !(e.target instanceof Node && this._tip.el.contains(e.target))) this._cacherAide(); },
@@ -12372,38 +13690,40 @@ class EditeurPlan {
   // 5 dernières versions enregistrées (avant écrasement), gardées dans ce navigateur : la carte telle qu'elle était dans le dashboard (format anglais, `en: 1` ;
   // les plus anciennes, en clés françaises, sont converties une fois au chargement de la carte)
   // La même clé garde aussi les 3 dernières copies d'avant nettoyage (`nettoyage: n`, `cles` : rooms, walls, openings), à part dans les listes.
-  _toutesVersions(id) { try { const l = JSON.parse(localStorage.getItem(`maquette-versions:${id}`) || "[]"); return Array.isArray(l) ? l.filter((v) => v && typeof v === "object") : []; } catch (e) { return []; } }
+  _toutesVersions(id) { try { const l = JSON.parse(localStorage.getItem(cleVersions(id)) || "[]"); return Array.isArray(l) ? l.filter((v) => v && typeof v === "object") : []; } catch (e) { return []; } }
   _versions(id = this._ident()) { return this._toutesVersions(id).filter((v) => !v.nettoyage); }
   _copiesNettoyage(id = this._ident()) { return this._toutesVersions(id).filter((v) => v.nettoyage && v.cles); }
-  _ecrireVersions(id, versions, copies) { localStorage.setItem(`maquette-versions:${id}`, JSON.stringify([...versions.slice(0, 5), ...copies.slice(0, 3)])); }
+  _ecrireVersions(id, versions, copies) { localStorage.setItem(cleVersions(id), JSON.stringify([...versions.slice(0, 5), ...copies.slice(0, 3)])); }
   _garderVersion(id, config) {
     try { this._ecrireVersions(id, [{ t: Date.now(), config, en: 1 }, ...this._versions(id)], this._copiesNettoyage(id)); } catch (e) { /* stockage plein ou indisponible */ }
   }
 
   _dialogueConflit(message, ecrasable = true) {
     return new Promise((fin) => {
-      const voile = document.createElement("div");
-      voile.className = "ed-voile";
-      poserHTML(voile, `<div class="ed-dialogue" role="alertdialog" aria-modal="true" style="width:min(460px,100%)"><header><h2>${_t("Plan modifié ailleurs")}</h2>
+      const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue" role="alertdialog" aria-modal="true" style="width:min(460px,100%)"><header><h2>${_t("Plan modifié ailleurs")}</h2>
         <div class="ed-aide">${esc(message)}</div></header>
         <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-r="exporter">${_t("Exporter mon plan")}</button><button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button>
-          ${ecrasable ? `<button class="ed-btn texte" data-r="ecraser" style="color:var(--md-error)">${_t("Écraser avec mon plan")}</button>` : ""}</footer></div>`);
-      const fermer = (r) => { voile.remove(); window.removeEventListener("keydown", echap, true); fin(r); };
-      const echap = (ev) => { if (ev.key === "Escape") { ev.stopPropagation(); fermer("annuler"); } };
-      window.addEventListener("keydown", echap, true);
+          ${ecrasable ? `<button class="ed-btn texte" data-r="ecraser" style="color:var(--md-error)">${_t("Écraser avec mon plan")}</button>` : ""}</footer></div>`, { echap: () => fermer("annuler") });
+      const fermer = (r) => { retirer(); fin(r); };
       voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) fermer(b?.dataset.r || "annuler"); };
-      this.R.querySelector("ha-card").append(voile);
     });
   }
 
-  async enregistrer() {
+  // Enregistrer : enregistre puis quitte l'éditeur ; Appliquer (Ctrl+S) : enregistre et reste dans l'éditeur, avec un message
+  async enregistrer(rester = false) {
     if (this.R.querySelector(".ed-voile") && this.modifie) return this.snack(_t("Ferme la fenêtre ouverte pour enregistrer."));
     if (!this.modifie || this._enCours) return;
     this._enCours = true;
-    try { await this._enregistrer(); } finally { this._enCours = false; }
+    let ok = false;
+    try { ok = await this._enregistrer(rester); } finally { this._enCours = false; }
+    if (ok && !rester) {
+      stockSession.retirer(cleRouvrir(this.d.id));
+      this.fermer();
+    }
   }
+  appliquer() { return this.enregistrer(true); }
 
-  async _enregistrer() {
+  async _enregistrer(rester = true) {
     const seg = decodeURIComponent(location.pathname.split("/")[1] || "");
     const url_path = !seg || seg === "lovelace" ? null : seg;
     try {
@@ -12422,7 +13742,7 @@ class EditeurPlan {
       const avant = clone(ref);
       // une carte sans id (ou dupliquée avec le même id) en reçoit un, pour être retrouvée à coup sûr aux prochains enregistrements
       if (this.d.id == null || nouvelId) {
-        try { localStorage.removeItem(this._cle()); } catch (e) { /* stockage indisponible */ }
+        stock.retirer(this._cle());
         const ancien = this._ident(), copies = this._copiesNettoyage(ancien);
         this.d.id = `plan-${Math.random().toString(36).slice(2, 8)}`;
         // les copies d'avant nettoyage suivent la carte sous son nouvel id
@@ -12432,40 +13752,38 @@ class EditeurPlan {
       Object.assign(ref, versAnglais(this.d));
       const fige = JSON.stringify(this.d);
       // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit
-      try { sessionStorage.setItem(`maquette-rouvrir:${this.d.id || "plan"}`, JSON.stringify({ sel: this.sel, grille: this.grille, t: Date.now() })); } catch (e) { /* stockage indisponible */ }
+      if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, t: Date.now() }));
       await this.hass.callWS({ type: "lovelace/config/save", url_path, config: cfg });
       this._garderVersion(this.d.id, avant); // seulement après un enregistrement réussi
       this.original = JSON.parse(fige);
       this.externe = null;
       this.modifie = false;
-      try { localStorage.removeItem(this._cle()); } catch (e) { /* stockage indisponible */ }
+      stock.retirer(this._cle());
       this._barre();
       this.snack(_t("Plan enregistré."));
+      return true;
     } catch (e) {
       const m = String(e?.message || e?.code || e);
       const yaml = /yaml|not supported|unsupported/i.test(m), auto = e?.code === "config_not_found";
       this.snack(_t("Échec de l'enregistrement : {raison}", { raison: yaml ? _t("dashboard en mode YAML, à modifier dans ses fichiers (exporte le plan pour le copier)") : auto ? _t("dashboard généré automatiquement : prends-en le contrôle dans HA (⋮ → Modifier le dashboard)") : m }),
-        [[_t("Réessayer"), () => this.enregistrer()], [_t("Exporter"), () => this.exporter()]], "erreur");
+        [[_t("Réessayer"), () => this.enregistrer(rester)], [_t("Exporter"), () => this.exporter()]], "erreur");
     }
   }
 
   async quitter() {
     if (this.modifie) {
       const ok = await new Promise((fin) => {
-        const voile = document.createElement("div");
-        voile.className = "ed-voile";
-        poserHTML(voile, `<div class="ed-dialogue" role="alertdialog" style="width:min(380px,100%)"><header><h2>${_t("Quitter sans enregistrer ?")}</h2>
+        const { voile } = this._voile("", `<div class="ed-dialogue" role="alertdialog" style="width:min(380px,100%)"><header><h2>${_t("Quitter sans enregistrer ?")}</h2>
           <div class="ed-aide">${_t("Brouillon gardé dans ce navigateur.")}</div></header>
           <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-r="0">${_t("Continuer l'édition")}</button><button class="ed-btn texte" data-r="2" style="color:var(--md-error)">${_t("Abandonner les modifications")}</button>
             <button class="ed-btn texte" data-r="1">${_t("Quitter")}</button></footer></div>`);
         voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.r); if (ev.target === voile || b) { voile.remove(); fin(b?.dataset.r || "0"); } };
-        this.R.querySelector("ha-card").append(voile);
       });
       if (ok === "0") return;
-      if (ok === "2") try { localStorage.removeItem(this._cle()); } catch (e) { /* stockage indisponible */ }
+      if (ok === "2") stock.retirer(this._cle());
     }
     // la carte n'a pas été recréée après l'enregistrement : la reprise prévue ne doit pas rouvrir l'éditeur qu'on quitte
-    try { sessionStorage.removeItem(`maquette-rouvrir:${this.d.id || "plan"}`); } catch (e) { /* stockage indisponible */ }
+    stockSession.retirer(cleRouvrir(this.d.id));
     this.fermer();
   }
 
@@ -12484,10 +13802,10 @@ class EditeurPlan {
     this.zone.removeEventListener("contextmenu", this._ctx);
     this.zone.classList.remove("dessin");
     this._fermerMenu();
-    this.barre.remove(); this.panneau.remove(); this.poignee.remove(); this.style.remove();
-    this.R.querySelector(".panneau-hote")?.classList.remove("replie", "vide");
-    this.R.querySelectorAll(".ed-voile,.ed-mvoile,.ed-snack").forEach((n) => n.remove());
-    this.vueParametres = false;
+    this.barre.remove(); this.style.remove();
+    this.R.querySelectorAll(".ed-voile,.ed-mvoile,.ed-snack,.ed-bf").forEach((n) => n.remove());
+    this._bfObs?.disconnect(); this._bfObs = null; this._edObs?.disconnect(); this._edObs = null; this._edCarte = null;
+    this.vueParametres = false; this.vueEdition = false;
     const c = this.carte;
     c._editeur = null; c._boxFige = null;
     c._config = clone(this.externe || this.original);

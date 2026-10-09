@@ -70,7 +70,7 @@ const PlanDemo = (() => {
         { type: "tuile", titre: _t("Maison en direct"), icone: "mdi:home-lightning-bolt", entite: D("sensor.puissance_maison"), unite: "W", decimales: 0, historique: 24 },
       ],
     },
-    ambiance: { nord: 45, meteo: D("weather.maison"), traces: 10, energie: {}, personnes: { maison: _t("Séjour"), entites: [D("person.sam"), D("person.camille")] } },
+    ambiance: { nord: 45, meteo: D("weather.maison"), traces: 10, energie: {}, lumiere: { lune: D("sensor.moon_phase") }, personnes: { maison: _t("Séjour"), entites: [D("person.sam"), D("person.camille")] } },
     animations: { lumiere: { type: "halo" }, meuble: { type: "onde" } },
     alertes: [{ nom: _t("Ouverture alors que la maison est vide"), type: "ouvertures", si_absent: true, presence: D("zone.maison") }],
   });
@@ -84,8 +84,12 @@ const PlanDemo = (() => {
       // états de départ datés d'une heure (pas de « trace » au chargement)
       const t0 = Date.now() - 3600e3, e = {};
       const pose = (n, s, a) => { e[D(n)] = { ...S(s, a, t0), entity_id: D(n) }; };
-      pose("light.sejour", "on", { friendly_name: _tk("Lampe du séjour") }); pose("light.cuisine", "off", { friendly_name: _tk("Plafonnier cuisine") });
-      pose("light.chambre", "off", { friendly_name: _tk("Lampe de chevet") }); pose("light.bureau", "on", { friendly_name: _tk("Lampe du bureau") });
+      // lumière : lampe d'ambiance violette et plafonnier blanc chaud (halos qui se mélangent), lampe du bureau en blanc froid
+      pose("light.sejour", "on", { friendly_name: _tk("Lampe du séjour"), color_mode: "rgb", rgb_color: [186, 104, 255], brightness: 200 });
+      pose("light.cuisine", "off", { friendly_name: _tk("Plafonnier cuisine"), color_mode: "color_temp", color_temp_kelvin: 2700, brightness: 255 });
+      pose("light.chambre", "off", { friendly_name: _tk("Lampe de chevet"), color_mode: "color_temp", color_temp_kelvin: 2200, brightness: 120 });
+      pose("light.bureau", "on", { friendly_name: _tk("Lampe du bureau"), color_mode: "color_temp", color_temp_kelvin: 5000, brightness: 230 });
+      pose("sensor.moon_phase", "waxing_gibbous", { friendly_name: _tk("Lune"), device_class: "enum" });
       pose("media_player.tv", "playing", { friendly_name: _tk("Téléviseur"), device_class: "tv" });
       pose("switch.machine_cafe", "on", { friendly_name: _tk("Machine à café") }); pose("sensor.machine_cafe_puissance", 6, u("W", "power", _tk("Machine à café")));
       pose("camera.entree", "idle", { friendly_name: _tk("Caméra de l'entrée") }); pose("binary_sensor.mouvement_entree", "off", { friendly_name: _tk("Mouvement entrée"), device_class: "motion" });

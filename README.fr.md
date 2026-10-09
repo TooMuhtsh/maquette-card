@@ -15,21 +15,45 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ![Maquette : l'appartement de démonstration en direct, thème sombre](images/plan-pc-dark.png)
 
+## Bêta 0.2.0
+
+La prochaine version est sortie en bêta, sur la branche `dev`. Le gros morceau, c'est la lumière : le soleil et le ciel
+qui entrent par les fenêtres (volets et météo compris), la lune la nuit, et des halos de lampes qui mélangent leurs
+couleurs. L'éditeur a aussi perdu son panneau latéral : chaque élément s'ouvre maintenant dans sa propre fenêtre, avec
+un aperçu en direct. Elle tourne sur mon propre tableau de bord, mais ça reste une bêta : si quelque chose cloche,
+dites-le-moi dans les [issues](https://github.com/TooMuhtsh/maquette-card/issues). Le détail est sur le wiki :
+[Nouveautés de la 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-020).
+
+| Lumière du jour | Nuit |
+|---|---|
+| ![Lumière du jour dans l'appartement de démo : taches de soleil et lumière du ciel derrière les fenêtres](images/light-day-pc-dark.png) | ![Nuit dans l'appartement de démo : lune et halos de lampes colorés](images/light-night-pc-dark.png) |
+
+**Essayer la bêta avec HACS** (Maquette déjà installée par HACS) :
+
+1. Paramètres → Appareils et services → **HACS** → appareil **Maquette** → entité **Pre-release**. Elle est
+   désactivée par défaut : activez-la, puis allumez-la.
+2. HACS propose alors `v0.2.0-beta.1` comme mise à jour de Maquette. Installez-la et rechargez le navigateur.
+
+Sans l'interrupteur : HACS → Maquette → ⋮ → **Retélécharger** → *Need a different version?* → `v0.2.0-beta.1`.
+Pour revenir en arrière, éteignez l'interrupteur et retéléchargez `v0.1.0` de la même façon. Installation manuelle :
+prenez `maquette-card.js` dans la [release v0.2.0-beta.1](https://github.com/TooMuhtsh/maquette-card/releases/tag/v0.2.0-beta.1).
+
 ## Fonctionnalités
 
 - **Plan en direct** : halos des lumières limités à leur pièce, portes et fenêtres en rouge quand elles sont ouvertes,
   volets dessinés selon leur position, pièces teintées selon la température, meubles connectés (borne de recharge,
   frigo, TV…) avec leur puissance.
 - **Éditeur intégré** (administrateurs seulement) : murs, pièces, ouvertures, 45 meubles vus de dessus, calques,
-  groupes, aimantation, annuler / rétablir, vos pièces Home Assistant et leurs appareils en un clic. Enregistrement
-  direct dans la configuration du tableau de bord.
+  groupes, aimantation, annuler / rétablir, vos pièces Home Assistant et leurs appareils en un clic, une fenêtre
+  d'édition avec aperçu en direct pour chaque élément. Enregistrement direct dans la configuration du tableau de bord.
 - **Ateliers** : *Créer une ouverture*, *Créer un meuble* (dessinez vos propres meubles à partir de formes) et *Créer
   un widget*, avec un aperçu en direct, enregistrés dans *Mes modèles*.
 - **65 widgets prêts à l'emploi** (CO₂, fuite, serrure, voiture, tarif, pH de piscine…) en plus des 11 types de
   widgets, pour les panneaux latéraux et pour la fiche que chaque élément ouvre au toucher. Les entités sont
   pré-remplies depuis Home Assistant.
 - **Ambiance** : jour et nuit d'après le soleil, vraie météo sur les extérieurs, traces qui s'estompent de ce qui vient
-  de changer, flux d'énergie, personnes à la maison ou absentes dans leur vraie direction. Facultative et discrète.
+  de changer, flux d'énergie, personnes à la maison ou absentes dans leur vraie direction, lumière du soleil, du ciel
+  et de la lune par les fenêtres. Facultative et discrète.
 - **Revoir la journée** : tout le plan, panneaux compris, redessiné à n'importe quel moment des 1 à 72 dernières heures.
 - **Nettoyer le plan** : trouve les jours, les bouts de mur, les doublons et les ouvertures à côté de leur mur, et les
   corrige en une seule action annulable.
@@ -52,9 +76,9 @@ Cliquez sur le bouton d'édition en haut à droite de la carte.
 1. **Partez de vos pièces.** Sur un plan vide, *Démarrer avec mes pièces* crée une pièce par pièce de Home Assistant,
    avec ses appareils prêts à placer. Ou dessinez une pièce, ou importez un plan.
 2. **Dessinez les pièces.** L'outil rectangle (**R**) trace une pièce et ses murs en deux clics, aimantés à la grille.
-   Réglez ensuite la largeur et la hauteur exactes dans le panneau de la pièce. Les murs communs restent communs quand
+   Réglez ensuite la largeur et la hauteur exactes dans la fenêtre d'édition de la pièce. Les murs communs restent communs quand
    une pièce est redimensionnée.
-3. **Placez portes et fenêtres.** Le panneau de la pièce liste les ouvertures de cette pièce pas encore sur le plan :
+3. **Placez portes et fenêtres.** La fenêtre d'édition de la pièce liste les ouvertures de cette pièce pas encore sur le plan :
    un clic dessus, puis un clic sur le mur. Les capteurs sont reliés depuis la pièce.
 4. **Meublez.** Choisissez un symbole dans *Ajouter › Meubles* ; il s'aimante aux murs. Reliez-le à un appareil et sa
    fiche se remplit toute seule.
@@ -62,9 +86,9 @@ Cliquez sur le bouton d'édition en haut à droite de la carte.
 
 ![Deux pièces dessinées, puis des meubles posés](images/draw-your-home.gif)
 
-| Plan vide | Un meuble et son appareil | Créer un meuble |
+| Plan vide | Fenêtre d'édition et son aperçu | Créer un meuble |
 |---|---|---|
-| ![Démarrer avec mes pièces, dessiner une pièce ou importer un plan](images/empty-editor-pc-light.png) | ![Borne de recharge reliée à sa prise et à sa puissance](images/editor-furniture-pc-dark.png) | ![Atelier des meubles : formes et aperçu](images/create-furniture-pc-light.png) |
+| ![Démarrer avec mes pièces, dessiner une pièce ou importer un plan](images/empty-editor-pc-light.png) | ![Fenêtre d'édition d'une pièce, avec son aperçu en direct](images/editor-room-dialog-pc-dark.png) | ![Atelier des meubles : formes et aperçu](images/create-furniture-pc-light.png) |
 
 | 65 widgets prêts à l'emploi | Nettoyer le plan |
 |---|---|

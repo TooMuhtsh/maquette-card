@@ -14,18 +14,42 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
 
 ![Maquette: the demo apartment, live, dark theme](images/plan-pc-dark.png)
 
+## 0.2.0 beta
+
+The next version is out as a beta, on the `dev` branch. The main change is light: sun and sky coming in through the
+windows (shutters and weather included), the moon at night, and lamp halos that blend their colors. The editor also
+lost its side panel: each element now opens in its own dialog, with a live preview. It runs on my own dashboard, but
+it is still a beta, so please tell me in the [issues](https://github.com/TooMuhtsh/maquette-card/issues) if something
+looks wrong. The details are on the wiki: [What's new in 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-020).
+
+| Daylight | Night |
+|---|---|
+| ![Daylight in the demo apartment: sun patches and sky light behind the windows](images/light-day-pc-dark.png) | ![Night in the demo apartment: moonlight and colored lamp halos](images/light-night-pc-dark.png) |
+
+**Trying the beta with HACS** (Maquette already installed from HACS):
+
+1. Settings → Devices & services → **HACS** → device **Maquette** → entity **Pre-release**. It is disabled by
+   default: enable it, then turn it on.
+2. HACS now offers `v0.2.0-beta.1` as an update for Maquette. Install it and reload the browser.
+
+Without the switch: HACS → Maquette → ⋮ → **Redownload** → *Need a different version?* → `v0.2.0-beta.1`.
+To go back, turn the switch off and redownload `v0.1.0` the same way. Manual install: take `maquette-card.js` from
+the [v0.2.0-beta.1 release](https://github.com/TooMuhtsh/maquette-card/releases/tag/v0.2.0-beta.1).
+
 ## Features
 
 - **Live plan**: light halos clipped to their room, doors and windows red when open, shutters drawn by position,
   rooms tinted by temperature, connected furniture (EV charger, fridge, TV…) showing its power.
 - **Built-in editor** (admins only): walls, rooms, openings, 45 top-view furniture symbols, layers, groups, snapping,
-  undo / redo, your Home Assistant areas and their devices in one click. Saves into the dashboard configuration.
+  undo / redo, your Home Assistant areas and their devices in one click, an edit dialog with a live preview for every
+  element. Saves into the dashboard configuration.
 - **Workshops**: *Create an opening*, *Create furniture* (draw your own pieces from shapes) and *Create a widget*,
   with a live preview, saved to *My templates*.
 - **65 ready-made widgets** (CO₂, leak, lock, EV, tariff, pool pH…) on top of 11 widget types, for the side panels and
   for the card each element opens on tap. Entity fields are filled from Home Assistant.
 - **Ambience**: day and night from the sun, real weather on outdoor areas, fading traces of what just changed, energy
-  flows, people at home or away in their real direction. Optional and discreet.
+  flows, people at home or away in their real direction, sun, sky and moon light through the windows. Optional and
+  discreet.
 - **Replay the day**: the whole plan, panels included, redrawn at any moment of the last 1–72 hours.
 - **Clean up the plan**: finds gaps, stubs, duplicate walls and openings off their wall, and fixes them in one undoable step.
 - **Security**: sensitive actions (unlock, open a garage, disarm, run a script…) are always confirmed in a dialog that
@@ -46,8 +70,8 @@ Click the editor button at the top right of the card.
 1. **Start from your areas.** On an empty plan, *Start with my areas* creates one room per Home Assistant area, with
    its devices ready to place. Or draw a room, or import a plan.
 2. **Draw the rooms.** The rectangle tool (**R**) draws a room and its walls in two clicks, snapped to the grid. Set
-   the exact width and height afterwards in the room panel. Shared walls stay shared when a room is resized.
-3. **Place doors and windows.** The room panel lists the openings of that area not yet on the plan: click one, then
+   the exact width and height afterwards in the room's edit dialog. Shared walls stay shared when a room is resized.
+3. **Place doors and windows.** The room's edit dialog lists the openings of that area not yet on the plan: click one, then
    click the wall. Sensors are linked from the room.
 4. **Furnish.** Pick a symbol in *Add › Furniture*; it snaps to the walls. Link it to a device and its card fills
    itself.
@@ -55,9 +79,9 @@ Click the editor button at the top right of the card.
 
 ![Drawing two rooms and placing furniture](images/draw-your-home.gif)
 
-| Empty plan | Furniture and its device | Create furniture |
+| Empty plan | Edit dialog with live preview | Create furniture |
 |---|---|---|
-| ![Start with my areas, draw a room or import a plan](images/empty-editor-pc-light.png) | ![EV charger linked to its plug and power sensor](images/editor-furniture-pc-dark.png) | ![Furniture workshop with shapes and preview](images/create-furniture-pc-light.png) |
+| ![Start with my areas, draw a room or import a plan](images/empty-editor-pc-light.png) | ![Edit dialog of a room, with its live preview](images/editor-room-dialog-pc-dark.png) | ![Furniture workshop with shapes and preview](images/create-furniture-pc-light.png) |
 
 | 65 ready-made widgets | Clean up the plan |
 |---|---|
