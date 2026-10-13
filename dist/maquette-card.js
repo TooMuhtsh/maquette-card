@@ -1,4 +1,4 @@
-/*! Maquette v0.2.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.2.2 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -658,6 +658,8 @@ const MaquetteI18n = (() => {
     "Médias": "Media",
     "Sélection (V)": "Select (V)",
     "Déplacer la vue (H)": "Move the view (H)",
+    "Sélection (V) · retoucher : main (H)": "Select (V) · tap again: hand (H)",
+    "Main : déplacer la vue (H) · retoucher : sélection (V)": "Hand: move the view (H) · tap again: select (V)",
     "Mur (M)": "Wall (M)",
     "Limite / clôture (L)": "Boundary / fence (L)",
     "Ouverture (O)": "Opening (O)",
@@ -2801,7 +2803,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.2.1";
+const VERSION = "0.2.2";
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
 const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -9664,6 +9666,9 @@ class EditeurPlan {
     this._cablerAides(); // avant les raccourcis : Échap ferme d'abord une bulle ouverte
     this._touche = this._touche.bind(this);
     window.addEventListener("keydown", this._touche, true);
+    // dernier bouton enfoncé au pointeur : Espace ne le réactive pas (Chrome le passe en :focus-visible dès la touche enfoncée)
+    this._pointeBtn = (ev) => { this._btnPointe = ev.composedPath().find((n) => n instanceof HTMLButtonElement) || null; };
+    window.addEventListener("pointerdown", this._pointeBtn, true);
     this._relache = (ev) => { if (ev.key === " ") { this.espace = false; this.zone?.classList.remove("espace"); } };
     window.addEventListener("keyup", this._relache, true);
     this._avantFermeture = (e) => { if (this.modifie) { e.preventDefault(); e.returnValue = ""; } };
@@ -9736,13 +9741,15 @@ class EditeurPlan {
     const o = (id, ic, t) => `<button data-outil="${id}" class="${this.outil === id ? "on" : ""}" title="${_t(t)}" aria-label="${_t(t)}" aria-pressed="${this.outil === id}"><ha-icon icon="${ic}"></ha-icon></button>`;
     const ib = (a, ic, t, on, pc = true) => `<button class="ib${on ? " on" : ""}${pc ? " ed-pc" : ""}" data-a="${a}" title="${t}" aria-label="${t}"${on != null ? ` aria-pressed="${!!on}"` : ""}><ha-icon icon="${ic}"></ha-icon></button>`;
     // PC : historique | outils | grille, recadrer | panneaux (calques, ambiance) | import / export, paramètres, raccourcis
-    // outil Main : écrans tactiles seulement (au PC : Espace + glisser ou clic molette, et la barre n'a plus de place)
+    // Sélection et Main partagent un bouton : il montre le dernier des deux choisi, et le retoucher bascule de l'un à l'autre
+    const cur = this.outil === "main" || this.outil === "selection" ? this.outil : this._curseur || "selection";
+    const bascule = { selection: ["mdi:cursor-default-outline", _tk("Sélection (V) · retoucher : main (H)")], main: ["mdi:hand-back-right-outline", _tk("Main : déplacer la vue (H) · retoucher : sélection (V)")] };
     // téléphone : la grille et « Plus » (recadrer, calques, ambiance, import / export, paramètres) passent en tête, les outils en 2e rangée
     poserHTML(this.barre, `<div class="ed-defile">
       <span class="ed-groupe ed-histo"><button class="ib" data-a="annuler" title="${_t("Annuler (Ctrl+Z)")}" aria-label="${_t("Annuler (Ctrl+Z)")}" ${this.histo.length ? "" : "disabled"}><ha-icon icon="mdi:undo"></ha-icon></button>
         <button class="ib" data-a="refaire" title="${_t("Rétablir (Ctrl+Y)")}" aria-label="${_t("Rétablir (Ctrl+Y)")}" ${this.refaire.length ? "" : "disabled"}><ha-icon icon="mdi:redo"></ha-icon></button>
         ${EditeurPlan.pressePapiers?.length ? ib("coller", "mdi:content-paste", tactile() ? _t("Coller à la même position") : _t("Coller à la même position (Ctrl+V)")) : ""}</span>
-      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.filter(([id]) => id !== "main" || tactile() || this.outil === "main").map(([id, ic, t]) => o(id, ic, t)).join("")}</span>
+      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.filter(([id]) => id !== "main").map(([id, ic, t]) => (id === "selection" ? o(cur, ...bascule[cur]) : o(id, ic, t))).join("")}</span>
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
@@ -9770,7 +9777,8 @@ class EditeurPlan {
     this.barre.onclick = (ev) => {
       const b = ev.composedPath().find((n) => n instanceof HTMLElement && (n.dataset.a || n.dataset.outil));
       if (!b || b.disabled) return;
-      if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
+      const bo = b.dataset.outil, curseur = bo === "selection" || bo === "main";
+      if (bo) this.choisirOutil(curseur && this.outil === bo ? (bo === "main" ? "selection" : "main") : bo);
       else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
         quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), etages: () => this.ouvrirEtages(), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
         parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), coller: () => this.coller(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
@@ -9866,6 +9874,7 @@ class EditeurPlan {
     this._finirTrace();
     this._info("");
     this.outil = o; this.aPlacer = null;
+    if (o === "selection" || o === "main") this._curseur = o;
     if (!garderModele) { this.modeleOuverture = null; this.aCompleter = null; this.chercherOuv = null; this.prefOuv = null; }
     if (o !== "piece" && o !== "rectangle") this.zoneEnAttente = null;
     this.zone.classList.toggle("dessin", o !== "selection" && o !== "main");
@@ -12833,12 +12842,19 @@ class EditeurPlan {
     if (ctrl && k === "v" && EditeurPlan.pressePapiers?.length) { ev.preventDefault(); this.coller(); return; }
     if (ctrl || ev.altKey) return;
     if (ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); this.aideClavier(); return; }
-    // Entrée / Espace sur un bouton de zoom : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
-    if ((k === " " || k === "enter") && ev.composedPath().some((n) => n.tagName === "BUTTON" && n.dataset?.z)) return;
+    // bouton atteint au clavier (pas le dernier enfoncé au pointeur, dont le focus est resté dessus : Espace y déplace la vue)
+    const auClavier = (n) => n instanceof HTMLButtonElement && n !== this._btnPointe && n.matches(":focus-visible");
+    // Entrée / Espace sur un bouton de zoom atteint au clavier : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
+    if ((k === " " || k === "enter") && ev.composedPath().some((n) => auClavier(n) && n.dataset?.z)) return;
     // Entrée / Espace sur un bouton atteint au clavier (barre d'outils…) : le bouton s'active, sauf pendant un tracé
-    if ((k === " " || k === "enter") && !this.trace.length && ev.composedPath().some((n) => n instanceof HTMLButtonElement && n.matches(":focus-visible"))) return;
+    if ((k === " " || k === "enter") && !this.trace.length && ev.composedPath().some(auClavier)) return;
     const stop = () => { ev.preventDefault(); ev.stopPropagation(); };
-    if (k === " ") { stop(); this.espace = true; this.zone.classList.add("espace"); return; }
+    if (k === " ") {
+      stop(); this.espace = true; this.zone.classList.add("espace");
+      // bouton gardant le focus après un clic : retiré, sinon Espace le réactiverait au relâcher
+      ev.composedPath().find((n) => n instanceof HTMLButtonElement)?.blur();
+      return;
+    }
     if (["escape", "enter", "delete", "backspace", "arrowleft", "arrowright", "arrowup", "arrowdown", "a"].includes(k) || RACCOURCIS[k]) stop();
     if (k === "escape") { if (this.trace.length || this.outil !== "selection" || this.aPlacer || this.aPlacerMeuble) { this.aPlacer = null; this.aPlacerMeuble = null; this.trace = []; this.choisirOutil("selection"); } else if (!this.sel && this.vueCalques) this.panneauCalques(false); else if (!this.sel && this.vueAmbiance) this.panneauAmbiance(false);
       else this.selectionner(null); return; }
@@ -15956,6 +15972,7 @@ class EditeurPlan {
   fermer(silencieux) {
     this._decablerAides();
     window.removeEventListener("keydown", this._touche, true);
+    window.removeEventListener("pointerdown", this._pointeBtn, true);
     window.removeEventListener("keyup", this._relache, true);
     window.removeEventListener("beforeunload", this._avantFermeture);
     window.removeEventListener("pointermove", this._suivre, true);

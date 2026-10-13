@@ -256,12 +256,19 @@ class EditeurPlan { // @assemblage
     if (ctrl && k === "v" && EditeurPlan.pressePapiers?.length) { ev.preventDefault(); this.coller(); return; }
     if (ctrl || ev.altKey) return;
     if (ev.key === "?") { ev.preventDefault(); ev.stopPropagation(); this.aideClavier(); return; }
-    // Entrée / Espace sur un bouton de zoom : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
-    if ((k === " " || k === "enter") && ev.composedPath().some((n) => n.tagName === "BUTTON" && n.dataset?.z)) return;
+    // bouton atteint au clavier (pas le dernier enfoncé au pointeur, dont le focus est resté dessus : Espace y déplace la vue)
+    const auClavier = (n) => n instanceof HTMLButtonElement && n !== this._btnPointe && n.matches(":focus-visible");
+    // Entrée / Espace sur un bouton de zoom atteint au clavier : le bouton s'active (pas de fin de tracé ni de déplacement de la vue)
+    if ((k === " " || k === "enter") && ev.composedPath().some((n) => auClavier(n) && n.dataset?.z)) return;
     // Entrée / Espace sur un bouton atteint au clavier (barre d'outils…) : le bouton s'active, sauf pendant un tracé
-    if ((k === " " || k === "enter") && !this.trace.length && ev.composedPath().some((n) => n instanceof HTMLButtonElement && n.matches(":focus-visible"))) return;
+    if ((k === " " || k === "enter") && !this.trace.length && ev.composedPath().some(auClavier)) return;
     const stop = () => { ev.preventDefault(); ev.stopPropagation(); };
-    if (k === " ") { stop(); this.espace = true; this.zone.classList.add("espace"); return; }
+    if (k === " ") {
+      stop(); this.espace = true; this.zone.classList.add("espace");
+      // bouton gardant le focus après un clic : retiré, sinon Espace le réactiverait au relâcher
+      ev.composedPath().find((n) => n instanceof HTMLButtonElement)?.blur();
+      return;
+    }
     if (["escape", "enter", "delete", "backspace", "arrowleft", "arrowright", "arrowup", "arrowdown", "a"].includes(k) || RACCOURCIS[k]) stop();
     if (k === "escape") { if (this.trace.length || this.outil !== "selection" || this.aPlacer || this.aPlacerMeuble) { this.aPlacer = null; this.aPlacerMeuble = null; this.trace = []; this.choisirOutil("selection"); } else if (!this.sel && this.vueCalques) this.panneauCalques(false); else if (!this.sel && this.vueAmbiance) this.panneauAmbiance(false);
       else this.selectionner(null); return; }

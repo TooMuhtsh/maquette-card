@@ -238,6 +238,7 @@ class EditeurPlan { // @assemblage
   fermer(silencieux) {
     this._decablerAides();
     window.removeEventListener("keydown", this._touche, true);
+    window.removeEventListener("pointerdown", this._pointeBtn, true);
     window.removeEventListener("keyup", this._relache, true);
     window.removeEventListener("beforeunload", this._avantFermeture);
     window.removeEventListener("pointermove", this._suivre, true);

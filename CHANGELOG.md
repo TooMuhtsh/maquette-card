@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.2.2 – 2026-10-13
+
+### Changed
+
+- **Select / Hand** share one button in the editor, on every screen: tap the active button again to switch between selecting and moving the view (V / H).
+
+### Fixed
+
+- Space + drag did not move the view after clicking a zoom button: Space pressed the button again. It now moves the view; a button reached with the keyboard (Tab) still activates with Space.
+
 ## 0.2.1 – 2026-10-13
 
 ### Added

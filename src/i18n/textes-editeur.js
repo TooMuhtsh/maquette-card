@@ -22,6 +22,8 @@ const EN = { // @assemblage
     "Médias": "Media",
     "Sélection (V)": "Select (V)",
     "Déplacer la vue (H)": "Move the view (H)",
+    "Sélection (V) · retoucher : main (H)": "Select (V) · tap again: hand (H)",
+    "Main : déplacer la vue (H) · retoucher : sélection (V)": "Hand: move the view (H) · tap again: select (V)",
     "Mur (M)": "Wall (M)",
     "Limite / clôture (L)": "Boundary / fence (L)",
     "Ouverture (O)": "Opening (O)",
