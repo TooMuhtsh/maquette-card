@@ -62,6 +62,8 @@ const EN = { // @assemblage
     "Vélo": "Bike",
     "Arbre / arbuste": "Tree / shrub",
     "Piscine": "Pool",
+    "Pergola": "Pergola",
+    "Abri de jardin / cabanon": "Garden shed",
     "Pulsation": "Pulse",
     "Respiration (douce)": "Breathe (gentle)",
     "Clignotement": "Blink",

@@ -21,6 +21,7 @@ const EN = { // @assemblage
     "Climat": "Climate",
     "Médias": "Media",
     "Sélection (V)": "Select (V)",
+    "Déplacer la vue (H)": "Move the view (H)",
     "Mur (M)": "Wall (M)",
     "Limite / clôture (L)": "Boundary / fence (L)",
     "Ouverture (O)": "Opening (O)",

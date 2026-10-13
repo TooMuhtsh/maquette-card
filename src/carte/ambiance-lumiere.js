@@ -218,6 +218,41 @@ function lumiereVoisins(pieces, ouvertures, trans, F) {
   });
   return res;
 }
+// espaces ouverts : pièces intérieures qui se touchent le long d'un bord libre (ni mur ni ouverture dessus) d'au moins 40 cm, comme un
+// salon et une cuisine ouverte dessinés en deux pièces. La lumière d'une pièce (halo d'une lampe, lueur d'une baie) s'étend à tout
+// son espace et s'arrête aux murs. Retour : esp[k] = indices des pièces de l'espace de k ([k] : pièce dehors, sous-zone, sans bord libre)
+function espacesOuverts(pieces, murs, ouvertures) {
+  const L = pieces || [], chef = L.map((_, k) => k), haut = (k) => (chef[k] === k ? k : (chef[k] = haut(chef[k])));
+  const ok = (p) => p && !p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2 && p.poly.every(point);
+  const seg = (s) => (Array.isArray(s) && s.length >= 4 && s.slice(0, 4).every((v) => Number.isFinite(+v)) ? s.slice(0, 4).map(Number) : null);
+  const barres = [...(murs || []), ...(ouvertures || []).map((o) => o?.seg)].map(seg).filter(Boolean);
+  const bords = L.map((p) => (ok(p) ? p.poly.map((q, i) => [...q, ...p.poly[(i + 1) % p.poly.length]].map(Number)) : []));
+  // positions [début, fin] de s le long de la droite de b (b unitaire : origine, direction), si s est parallèle et à moins de tol cm
+  const surLigne = ([a, b, d, f], s, tol) => {
+    const l = Math.hypot(d - a, f - b), vx = (d - a) / l, vy = (f - b) / l, ls = Math.hypot(s[2] - s[0], s[3] - s[1]);
+    if (!(l > 0 && ls > 0) || Math.abs(vx * (s[3] - s[1]) - vy * (s[2] - s[0])) / ls > 0.03) return null;
+    const dist = (x, y) => Math.abs((x - a) * vy - (y - b) * vx), pos = (x, y) => (x - a) * vx + (y - b) * vy;
+    if (dist(s[0], s[1]) > tol || dist(s[2], s[3]) > tol) return null;
+    const p = pos(s[0], s[1]), q = pos(s[2], s[3]);
+    return [Math.min(p, q), Math.max(p, q)];
+  };
+  for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+    if (!bords[i].length || !bords[j].length || haut(i) === haut(j)) continue;
+    const libre = bords[i].some((e) => bords[j].some((e2) => {
+      const t = surLigne(e, e2, 3), lg = Math.hypot(e[2] - e[0], e[3] - e[1]);
+      if (!t) return false;
+      let de = Math.max(0, t[0]), a = Math.min(lg, t[1]);
+      if (a - de < 40) return false;
+      // bord commun moins ce que couvrent les murs et les ouvertures posés dessus : reste-t-il 40 cm libres ?
+      const couverts = barres.map((b) => surLigne(e, b, 8)).filter(Boolean).sort((x, y) => x[0] - y[0]);
+      let lib = 0;
+      for (const [x, y] of couverts) { if (y <= de) continue; if (x >= a) break; lib += Math.max(0, x - de); de = Math.max(de, y); }
+      return lib + Math.max(0, a - de) >= 40;
+    }));
+    if (libre) chef[haut(j)] = haut(i);
+  }
+  return L.map((_, k) => L.map((__, j) => j).filter((j) => haut(j) === haut(k)));
+}
 const aireDe = (poly) => Math.abs(poly.reduce((t, p, i) => { const q = poly[(i + 1) % poly.length]; return t + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
 // fenêtres → baies (lumière) : vantaux de même `baie` (prioritaire), colinéaires et contigus (bouts à moins de 5 cm, même côté dehors),
 // ou de même `groupe`, réunis en une baie d'un seul tenant. Un volet seul posé sur la baie (colinéaire, qui recouvre le vantail) réduit aussi sa part.

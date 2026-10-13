@@ -11,6 +11,8 @@ const EN = { // @assemblage
     "Vide": "Empty",
     "Avec les murs extérieurs": "With the outer walls",
     "Copie de cet étage": "Copy of this floor",
+    "Ext.##etage": "Out",
+    "Jardin, terrasse, pergola, dépendances : les murs extérieurs de cet étage situent la maison": "Garden, patio, pergola, outbuildings: this floor's outer walls show where the house stands",
     "Court": "Short",
     "Nom court (ascenseur)": "Short name (elevator)",
     "Affiché": "Shown",

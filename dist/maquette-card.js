@@ -1,4 +1,4 @@
-/*! Maquette v0.2.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.2.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -407,6 +407,8 @@ const MaquetteI18n = (() => {
     "Vélo": "Bike",
     "Arbre / arbuste": "Tree / shrub",
     "Piscine": "Pool",
+    "Pergola": "Pergola",
+    "Abri de jardin / cabanon": "Garden shed",
     "Pulsation": "Pulse",
     "Respiration (douce)": "Breathe (gentle)",
     "Clignotement": "Blink",
@@ -655,6 +657,7 @@ const MaquetteI18n = (() => {
     "Climat": "Climate",
     "Médias": "Media",
     "Sélection (V)": "Select (V)",
+    "Déplacer la vue (H)": "Move the view (H)",
     "Mur (M)": "Wall (M)",
     "Limite / clôture (L)": "Boundary / fence (L)",
     "Ouverture (O)": "Opening (O)",
@@ -1095,6 +1098,8 @@ const MaquetteI18n = (() => {
     "ou un attribut": "or an attribute",
     "Unité": "Unit",
     "Halo limité à la pièce": "Halo limited to room",
+    "Automatique (pièce où il est posé)": "Automatic (room it sits in)",
+    "Aucune : halo libre": "None: free halo",
     "x (cm)": "x (cm)",
     "y (cm)": "y (cm)",
     "Titre": "Title",
@@ -1355,6 +1360,11 @@ const MaquetteI18n = (() => {
     "Interaction": "Interaction",
     "Toucher une pièce": "Tapping a room",
     "Vue figée": "Locked view",
+    "Boutons de zoom": "Zoom buttons",
+    "Plan##zoom": "Map",
+    "En-tête": "Header",
+    "Cachés": "Hidden",
+    "Automatique : dans l'en-tête sur téléphone (hors du plan), sur le plan sinon. Cachés : le pincement et le toucher d'une pièce marchent toujours.": "Automatic: in the header on a phone (off the map), on the map otherwise. Hidden: pinching and tapping a room still work.",
     "Retour au plan entier après": "Back to the whole plan after",
     "Sans action pendant ce temps : vue de la pièce, zoom et fiches fermés. 0 = jamais.": "With no interaction for this long: room view, zoom and cards are closed. 0 = never.",
     "Tablette murale": "Wall tablet",
@@ -1519,6 +1529,12 @@ const MaquetteI18n = (() => {
     "Copier / coller sur place": "Copy / paste in place",
     "{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.": "{n} item copied: Ctrl+V pastes it at the same position, on this floor or another.|{n} items copied: Ctrl+V pastes them at the same position, on this floor or another.",
     "{n} élément collé.|{n} éléments collés.": "{n} item pasted.|{n} items pasted.",
+    // boutons Copier / Coller (téléphone et tablette, sans clavier)
+    "{n} élément copié : « Coller » le pose à la même position, sur cet étage ou un autre.|{n} éléments copiés : « Coller » les pose à la même position, sur cet étage ou un autre.": "{n} item copied: “Paste” puts it at the same position, on this floor or another.|{n} items copied: “Paste” puts them at the same position, on this floor or another.",
+    "Copier, pour coller sur un autre étage": "Copy, to paste on another floor",
+    "Copier, pour coller sur un autre étage (Ctrl+C)": "Copy, to paste on another floor (Ctrl+C)",
+    "Coller à la même position": "Paste at the same position",
+    "Coller à la même position (Ctrl+V)": "Paste at the same position (Ctrl+V)",
     // ---- étages : modale « Étages » (ajouter, renommer, réordonner, supprimer) ----
     "Du haut vers le bas. Renommer ne change pas l'identifiant : les escaliers et l'étage mémorisé restent valides.": "Top to bottom. Renaming keeps the id: stairs and the remembered floor stay valid.",
     "Rez-de-chaussée": "Ground floor",
@@ -1529,6 +1545,8 @@ const MaquetteI18n = (() => {
     "Vide": "Empty",
     "Avec les murs extérieurs": "With the outer walls",
     "Copie de cet étage": "Copy of this floor",
+    "Ext.##etage": "Out",
+    "Jardin, terrasse, pergola, dépendances : les murs extérieurs de cet étage situent la maison": "Garden, patio, pergola, outbuildings: this floor's outer walls show where the house stands",
     "Court": "Short",
     "Nom court (ascenseur)": "Short name (elevator)",
     "Affiché": "Shown",
@@ -2783,7 +2801,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.2.0";
+const VERSION = "0.2.1";
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
 const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -3334,6 +3352,10 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 @media (hover:hover) and (pointer:fine) and (not (any-pointer:coarse)){.zoom{opacity:0;pointer-events:none;transition:opacity .2s var(--md-sys-motion)}
   .plan:hover .zoom,.zoom:focus-within{opacity:1;pointer-events:auto}}
 @media (prefers-reduced-motion:reduce){.zoom{transition:none}}
+/* boutons de zoom dans l'en-tête (téléphone, ou interaction.boutons_zoom: header) : en ligne, hors du plan ; cachés : plus, moins, tout le plan */
+.zoom.en-tete{position:static;flex-direction:row;gap:4px;opacity:1;pointer-events:auto}
+.zoom.en-tete button{width:36px;height:36px}
+.zoom.caches [data-z=plus],.zoom.caches [data-z=moins],.zoom.caches [data-z=tout]{display:none}
 /* calques en édition : masqué = en transparence et non cliquable, verrouillé = transparent au clic ; élément masqué en vue = en transparence */
 .edition .c-masque,.edition .e-masque{opacity:.25}
 .edition .zone svg .cq.c-masque,.edition .zone svg .cq.c-masque *,.edition .zone svg .cq.c-verrou,.edition .zone svg .cq.c-verrou *,
@@ -3568,6 +3590,20 @@ const MEUBLES = {
   } },
   velo: { nom: _tk("Vélo"), cat: _tk("Extérieur"), taille: [60, 180], d: (w, h) => C_(0, -h / 2 + 30, 28, "vide") + C_(0, h / 2 - 30, 28, "vide") + L_(0, -h / 2 + 30, 0, h / 2 - 30) + L_(-w / 2 + 6, -h / 2 + 50, w / 2 - 6, -h / 2 + 50) },
   arbre: { nom: _tk("Arbre / arbuste"), cat: _tk("Extérieur"), taille: [200, 200], rond: true, mots: "haie jardin", d: (w) => [0, 1, 2, 3, 4, 5, 6, 7].map((k) => C_(Math.cos(k * 0.785) * w * 0.3, Math.sin(k * 0.785) * w * 0.3, w * 0.22)).join("") + C_(0, 0, w * 0.3) },
+  // pergola : poteaux aux coins et lames ; reliée à un `cover` (pergola bioclimatique), les lames s'affinent en s'ouvrant (voir _majVelux)
+  pergola: { nom: _tk("Pergola"), cat: _tk("Extérieur"), taille: [400, 300], mots: "bioclimatique tonnelle auvent lames terrasse", d: (w, h) => {
+    const p = +Math.max(4, Math.min(14, w * 0.06, h * 0.06)).toFixed(1), n = Math.max(2, Math.round((h - 2 * p) / 22)), pas = (h - 2 * p) / n, e = +(pas * 0.7).toFixed(1);
+    let s = R_(-w / 2, -h / 2, w, h, 2, "vide") + [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => R_(a > 0 ? w / 2 - p : -w / 2, b > 0 ? h / 2 - p : -h / 2, p, p, 1)).join("");
+    for (let k = 0; k < n; k++) {
+      const y = +(-h / 2 + p + pas * (k + 0.5)).toFixed(1);
+      s += `<rect class="pg-lame" x="${+(-w / 2 + p).toFixed(1)}" y="${+(y - e / 2).toFixed(1)}" width="${+Math.max(0, w - 2 * p).toFixed(1)}" height="${e}" rx="1" data-c="${y}" data-e="${e}"/>`;
+    }
+    return s; } },
+  // abri de jardin, cabanon : toit à deux pans vu du dessus (faîtage au milieu, arêtes vers les coins) et porte sur le bas
+  abri: { nom: _tk("Abri de jardin / cabanon"), cat: _tk("Extérieur"), taille: [250, 200], mots: "cabane remise dépendance atelier shed", d: (w, h) => {
+    const f = Math.min(w * 0.3, h / 2), pw = Math.min(90, w * 0.4);
+    return R_(-w / 2, -h / 2, w, h, 2) + L_(-w / 2 + f, 0, w / 2 - f, 0) + L_(-w / 2, -h / 2, -w / 2 + f, 0) + L_(-w / 2, h / 2, -w / 2 + f, 0) + L_(w / 2, -h / 2, w / 2 - f, 0) + L_(w / 2, h / 2, w / 2 - f, 0)
+      + `<path class="ligne" d="M${-pw / 2} ${h / 2}H${pw / 2}" style="stroke-width:5px"/>`; } },
   piscine: { nom: _tk("Piscine"), cat: _tk("Extérieur"), taille: [800, 400], d: (w, h) => R_(-w / 2, -h / 2, w, h, 20) + R_(-w / 2 + 15, -h / 2 + 15, w - 30, h - 30, 14, "eau") },
 };
 // tapis et espaces sous les autres meubles, quel que soit l'ordre de pose
@@ -3743,11 +3779,12 @@ const styleAnim = (a) => {
 
 // ---------- interaction (`interaction`), tablette murale (`tablette`), niveau d'animation (`niveau_animation`) ----------
 // sans ces clés : comportement d'origine (vue de la pièce au toucher, déplacement et zoom libres, pas de retour automatique)
-const CLICS_PIECE = ["vue", "infos", "aucun"], NIVEAUX_ANIM = ["complet", "reduit", "aucun"];
+const CLICS_PIECE = ["vue", "infos", "aucun"], NIVEAUX_ANIM = ["complet", "reduit", "aucun"], BOUTONS_ZOOM = ["auto", "plan", "entete", "caches"];
 const objetSimple = (v) => !!v && typeof v === "object" && !Array.isArray(v);
 const interactionDe = (c) => {
   const o = objetSimple(c?.interaction) ? c.interaction : {}, s = Number.isFinite(+o.retour_apres) ? +o.retour_apres : 0;
-  return { clic: CLICS_PIECE.includes(o.clic_piece) ? o.clic_piece : "vue", figee: o.vue_figee === true, retour: Math.min(86400, Math.max(0, s)) };
+  return { clic: CLICS_PIECE.includes(o.clic_piece) ? o.clic_piece : "vue", figee: o.vue_figee === true, retour: Math.min(86400, Math.max(0, s)),
+    zoom: BOUTONS_ZOOM.includes(o.boutons_zoom) ? o.boutons_zoom : "auto" };
 };
 // mode tablette : `true` = { resume: false, panneaux: false, anti_marquage: true } ; un objet règle chaque point (les clés absentes gardent ces valeurs)
 const tabletteDe = (c) => {
@@ -3996,6 +4033,41 @@ function lumiereVoisins(pieces, ouvertures, trans, F) {
     }
   });
   return res;
+}
+// espaces ouverts : pièces intérieures qui se touchent le long d'un bord libre (ni mur ni ouverture dessus) d'au moins 40 cm, comme un
+// salon et une cuisine ouverte dessinés en deux pièces. La lumière d'une pièce (halo d'une lampe, lueur d'une baie) s'étend à tout
+// son espace et s'arrête aux murs. Retour : esp[k] = indices des pièces de l'espace de k ([k] : pièce dehors, sous-zone, sans bord libre)
+function espacesOuverts(pieces, murs, ouvertures) {
+  const L = pieces || [], chef = L.map((_, k) => k), haut = (k) => (chef[k] === k ? k : (chef[k] = haut(chef[k])));
+  const ok = (p) => p && !p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2 && p.poly.every(point);
+  const seg = (s) => (Array.isArray(s) && s.length >= 4 && s.slice(0, 4).every((v) => Number.isFinite(+v)) ? s.slice(0, 4).map(Number) : null);
+  const barres = [...(murs || []), ...(ouvertures || []).map((o) => o?.seg)].map(seg).filter(Boolean);
+  const bords = L.map((p) => (ok(p) ? p.poly.map((q, i) => [...q, ...p.poly[(i + 1) % p.poly.length]].map(Number)) : []));
+  // positions [début, fin] de s le long de la droite de b (b unitaire : origine, direction), si s est parallèle et à moins de tol cm
+  const surLigne = ([a, b, d, f], s, tol) => {
+    const l = Math.hypot(d - a, f - b), vx = (d - a) / l, vy = (f - b) / l, ls = Math.hypot(s[2] - s[0], s[3] - s[1]);
+    if (!(l > 0 && ls > 0) || Math.abs(vx * (s[3] - s[1]) - vy * (s[2] - s[0])) / ls > 0.03) return null;
+    const dist = (x, y) => Math.abs((x - a) * vy - (y - b) * vx), pos = (x, y) => (x - a) * vx + (y - b) * vy;
+    if (dist(s[0], s[1]) > tol || dist(s[2], s[3]) > tol) return null;
+    const p = pos(s[0], s[1]), q = pos(s[2], s[3]);
+    return [Math.min(p, q), Math.max(p, q)];
+  };
+  for (let i = 0; i < L.length; i++) for (let j = i + 1; j < L.length; j++) {
+    if (!bords[i].length || !bords[j].length || haut(i) === haut(j)) continue;
+    const libre = bords[i].some((e) => bords[j].some((e2) => {
+      const t = surLigne(e, e2, 3), lg = Math.hypot(e[2] - e[0], e[3] - e[1]);
+      if (!t) return false;
+      let de = Math.max(0, t[0]), a = Math.min(lg, t[1]);
+      if (a - de < 40) return false;
+      // bord commun moins ce que couvrent les murs et les ouvertures posés dessus : reste-t-il 40 cm libres ?
+      const couverts = barres.map((b) => surLigne(e, b, 8)).filter(Boolean).sort((x, y) => x[0] - y[0]);
+      let lib = 0;
+      for (const [x, y] of couverts) { if (y <= de) continue; if (x >= a) break; lib += Math.max(0, x - de); de = Math.max(de, y); }
+      return lib + Math.max(0, a - de) >= 40;
+    }));
+    if (libre) chef[haut(j)] = haut(i);
+  }
+  return L.map((_, k) => L.map((__, j) => j).filter((j) => haut(j) === haut(k)));
 }
 const aireDe = (poly) => Math.abs(poly.reduce((t, p, i) => { const q = poly[(i + 1) % poly.length]; return t + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
 // fenêtres → baies (lumière) : vantaux de même `baie` (prioritaire), colinéaires et contigus (bouts à moins de 5 cm, même côté dehors),
@@ -4713,7 +4785,7 @@ const V_MEUBLES = { canape: "sofa", canape_angle: "corner_sofa", fauteuil: "armc
   plan_travail: "counter", evier: "sink", plaques: "hob", refrigerateur: "fridge", lave_linge: "washing_machine", lave_vaisselle: "dishwasher",
   lit_simple: "single_bed", lit_double: "double_bed", lit_bebe: "crib", table_nuit: "nightstand", armoire: "wardrobe", commode: "dresser", bureau: "desk",
   douche: "shower", baignoire: "bathtub", lavabo: "washbasin", wc: "toilet", chaudiere: "boiler", ballon: "water_heater", radiateur: "radiator",
-  tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool",
+  tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool", pergola: "pergola", abri: "shed",
   espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom", fenetre_toit: "skylight" };
 // catégories des meubles (catalogue et meubles personnalisés `modeles[].cat`)
 const V_CATS_MEUBLES = { sejour: "living", repas: "dining", cuisine: "kitchen", chambre: "bedroom", salle_eau: "bathroom", technique: "utility", formes: "shapes", exterieur: "outdoor" };
@@ -4832,7 +4904,8 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
   teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend",
   // interaction au toucher, tablette murale, niveau d'animation
-  interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after" })],
+  interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after",
+    boutons_zoom: ["zoom_buttons", nEnum({ auto: "auto", plan: "map", entete: "header", caches: "hidden" })] })],
   tablette: ["tablet", nObj({ resume: "summary", panneaux: "panels", anti_marquage: "burn_in" })],
   niveau_animation: ["animation_level", nEnum({ complet: "full", reduit: "reduced", aucun: "none" })],
   // clés que Home Assistant ajoute à toute carte : gardées telles quelles
@@ -4984,7 +5057,7 @@ class MaquetteCard extends HTMLElement {
   static normaliserForme = normaliserForme;
   static traitsOuverture = traitsOuverture;
   static LUMIERE = { couche: coucheLumiere, tache: tacheLumiere, baies: baiesFenetres, couleur: couleurLampe, phases: PHASES_LUNE, ciel: LUM_CIEL, kelvin: kelvinRgb,
-    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure };
+    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure, espaces: espacesOuverts };
   static couleurSure = (c) => !!couleurSure(c);
   static couleurEcrite = couleurEcrite;
   static palette = palette;
@@ -5202,7 +5275,7 @@ class MaquetteCard extends HTMLElement {
     const cw = corps.clientWidth, ch = plein ? corps.clientHeight : Infinity, r = this._box.W / this._box.H;
     const fiche = !R.querySelector(".fiche").hidden, ed = !!this._editeur, vue = R.querySelector(".vue");
     const mode = cw >= 1180 ? "large" : cw >= 760 ? "moyen" : "etroit";
-    if (mode !== this._modeMise) { this._modeMise = mode; this._widgets(); }
+    if (mode !== this._modeMise) { this._modeMise = mode; this._widgets(); this._placerZoom(); }
     // en édition, la vue finale garde exactement sa mise en page (l'éditeur n'a plus de panneau latéral : rien n'est pris à sa largeur)
     const reduite = ed && mode !== "etroit";
     this._zVue = 1;
@@ -5598,14 +5671,17 @@ class MaquetteCard extends HTMLElement {
     for (const [k, sz] of [["pieces", false], ["sous_zones", true]]) S[k] = trie(c.pieces).filter(([p]) => !!p.sous_zone === sz)
       .map(([p, i]) => `<polygon class="piece${p.dehors ? " dehors" : ""}${p.sous_zone ? " sous-zone" : ""}${em(p)}" data-p="${i}" points="${ptsSvg(p.poly)}"/>`).join("");
     // lumière de l'ambiance (`ambiance.lumiere.lampes`) : un dégradé par halo, à la couleur de la lampe, fondus entre eux (écran)
-    // et coupés par la pièce de la lampe (celle où elle est posée si `piece` manque)
+    // et coupés par l'espace de la pièce de la lampe (celle où elle est posée si `piece` manque ; pièces ouvertes l'une sur l'autre réunies,
+    // voir espacesOuverts) ; `piece: false` = halo libre, jamais coupé
     const LU = coucheLumiere((!ed || this._editeur?.vueAmbiance) && objetSimple(c.ambiance) ? c.ambiance : null), lampes = !!LU?.lampes;
+    let ESP = null;
     S.halos = (c.points || []).map((p, i) => {
       if (!p.halo || !garde(p)) return "";
-      let k = p.piece != null ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
-      if (k < 0 && lampes && point(p.pos)) k = c.pieces.findIndex((q) => !q.sous_zone && Array.isArray(q.poly) && q.poly.length > 2 && dansPoly(p.pos, q.poly));
+      let k = typeof p.piece === "string" ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
+      if (k < 0 && p.piece !== false && lampes && point(p.pos)) k = c.pieces.findIndex((q) => !q.sous_zone && Array.isArray(q.poly) && q.poly.length > 2 && dansPoly(p.pos, q.poly));
       const lc = lampes && (p.entite || "").startsWith("light.");
-      return (k >= 0 ? `<clipPath id="cp${i}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>` : "")
+      if (k >= 0) ESP ||= espacesOuverts(c.pieces, c.murs, c.ouvertures);
+      return (k >= 0 ? `<clipPath id="cp${i}">${ESP[k].map((j) => `<polygon points="${ptsSvg(c.pieces[j].poly)}"/>`).join("")}</clipPath>` : "")
         + (lc ? `<radialGradient id="halo-${i}"><stop offset="0" stop-color="#ffd54f" stop-opacity=".75"/><stop offset="1" stop-color="#ffd54f" stop-opacity="0"/></radialGradient>` : "")
         + `<circle class="halo${lc ? " lampe" : ""}" data-h="${i}" cx="${p.pos[0]}" cy="${p.pos[1]}" r="${p.halo === true ? 130 : nb(p.halo)}" fill="url(#halo${lc ? `-${i}` : ""})" opacity="0"${k >= 0 ? ` clip-path="url(#cp${i})"` : ""}/>`;
     }).join("");
@@ -5721,6 +5797,7 @@ class MaquetteCard extends HTMLElement {
     R.querySelector(".barre").hidden = sansTete;
     const bEd = R.querySelector(".editer"), hote = R.querySelector(sansTete ? ".zoom" : ".barre");
     if (bEd.parentElement !== hote) hote.append(bEd);
+    this._placerZoom();
     const niv = this._niveauAnim(), card = R.querySelector("ha-card");
     card.classList.toggle("anim-reduit", niv === "reduit");
     card.classList.toggle("anim-aucune", niv === "aucun");
@@ -5849,6 +5926,20 @@ class MaquetteCard extends HTMLElement {
     this._construire();
     this._vue = depart === this._box ? null : depart;
     this._cadrer({ x0: (x0 + x1) / 2 - W / 2, y0: (y0 + y1) / 2 - H / 2, W, H }, true);
+  }
+
+  // boutons de zoom (`interaction.boutons_zoom`) : sur le plan, dans l'en-tête (hors du plan) ou cachés (plus, moins, tout le plan :
+  // calques et revoir la journée restent) ; auto = en-tête sur un écran étroit et tactile (téléphone), sur le plan sinon.
+  // Toujours sur le plan en édition et sans en-tête (tablette sans titre)
+  _placerZoom() {
+    const R = this.shadowRoot, z = R?.querySelector(".zoom"), barre = R?.querySelector(".barre");
+    if (!z || !barre) return;
+    const m = interactionDe(this._config).zoom, tel = this._modeMise === "etroit" && matchMedia("(pointer: coarse)").matches;
+    const tete = !this._editeur && !barre.hidden && (m === "entete" || (m === "auto" && tel)), bEd = R.querySelector(".editer");
+    if (tete && z.parentElement !== barre) barre.insertBefore(z, bEd?.parentElement === barre ? bEd : null);
+    else if (!tete && z.parentElement === barre) R.querySelector(".plan").append(z);
+    z.classList.toggle("en-tete", tete);
+    z.classList.toggle("caches", !this._editeur && m === "caches");
   }
 
   _pxVersCm(cx, cy) {
@@ -7796,6 +7887,16 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
   _majVelux() {
     const R = this.shadowRoot;
     (this._config?.meubles || []).forEach((m, i) => {
+      // pergola reliée à un `cover` : lames vues de chant quand elles s'ouvrent (current_tilt_position, sinon current_position)
+      if (m?.type === "pergola") {
+        const s = typeof m.entite === "string" && m.entite.startsWith("cover.") ? this._etat(m.entite) : null, t = parseFloat(s?.attributes?.current_tilt_position);
+        const k = !s ? 0 : Number.isFinite(t) ? borne(t / 100, 0, 1) : ouvertVelux(m.entite, s);
+        R?.querySelectorAll(`.zone svg [data-mb="${i}"] .pg-lame`).forEach((l) => {
+          const h = +(+l.dataset.e * (1 - 0.8 * k)).toFixed(1);
+          if (l.getAttribute("height") !== String(h)) { l.setAttribute("height", h); l.setAttribute("y", +(+l.dataset.c - h / 2).toFixed(1)); }
+        });
+        return;
+      }
       if (m?.type !== "fenetre_toit") return;
       const st = R?.querySelector(`.zone svg [data-mb="${i}"] .vx-store`);
       if (!st) return;
@@ -7849,8 +7950,10 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       const [a, b, d, f] = o.seg, [nx, ny] = o.dehors, q = [(a + d) / 2 - nx * 15, (b + f) / 2 - ny * 15];
       return pieces.find(([p]) => dansPoly(q, p.poly))?.[1] ?? -1;
     };
-    // profondeur de la pièce vue de la baie (cm, le long de la normale vers l'intérieur)
-    const profondeur = (o, k) => { const [a, b] = o.seg, [nx, ny] = o.dehors; return Math.max(60, ...c.pieces[k].poly.map(([x, y]) => -((x - a) * nx + (y - b) * ny))); };
+    // espace de chaque pièce (pièces ouvertes l'une sur l'autre, sans mur entre elles) : la lumière d'une baie s'y étend, coupée aux murs
+    const esp = espacesOuverts(c.pieces, c.murs, c.ouvertures);
+    // profondeur de l'espace vu de la baie (cm, le long de la normale vers l'intérieur)
+    const profondeur = (o, k) => { const [a, b] = o.seg, [nx, ny] = o.dehors; return Math.max(60, ...esp[k].flatMap((j) => c.pieces[j].poly.map(([x, y]) => -((x - a) * nx + (y - b) * ny)))); };
     let defs = "", h = "", n = 0;
     const clips = new Set(), f0 = (v) => v.toFixed(1);
     const degrade = (id, col, stops) => `<radialGradient id="${id}">${stops.map(([o, a]) => `<stop offset="${o}" stop-color="${col}" stop-opacity="${a}"/>`).join("")}</radialGradient>`;
@@ -7976,7 +8079,15 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       h = h.slice(0, h0) + h.slice(h0).replace('<polygon class="lum-tache', `<polygon data-vx="${i}" class="lum-tache lum-vx`);
     }
     let fh = "";
-    const F = new Map([...fonds].map(([k, l]) => [k, lumiereFond(l.map((x) => x[0]), aireDe(c.pieces[k].poly)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28)]));
+    // lumière de fond par espace (pièces ouvertes l'une sur l'autre réunies) : surfaces vitrées de tout l'espace rapportées à son aire,
+    // posée sur chacune de ses pièces
+    const parEsp = new Map();
+    for (const [k, l] of fonds) { const e = esp[k][0]; parEsp.set(e, [...(parEsp.get(e) || []), ...l]); }
+    const F = new Map();
+    for (const [e, l] of parEsp) {
+      const v = lumiereFond(l.map((x) => x[0]), esp[e].reduce((t, j) => t + aireDe(c.pieces[j].poly), 0)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28);
+      for (const j of esp[e]) F.set(j, v);
+    }
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
     // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
     for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
@@ -7984,7 +8095,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
     }
-    const cp = [...clips].map((k) => `<clipPath id="lum-cp${k}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>`).join("");
+    const cp = [...clips].map((k) => `<clipPath id="lum-cp${k}">${esp[k].map((j) => `<polygon points="${ptsSvg(c.pieces[j].poly)}"/>`).join("")}</clipPath>`).join("");
     poserHTML(g, h || fh ? `<defs>${cp}${defs}</defs>${fh}${h}` : "");
   }
 
@@ -8136,11 +8247,11 @@ function chercherIcones(liste, q, n = 48) {
 // libellés (DOMAINES[i][1], OUTILS[i][2], PUCES[i][2] et [3], A_COMPLETER) : clés traduites à l'affichage (_t)
 const DOMAINES = [["", _tk("Tout")], ["light", _tk("Lumières")], ["switch", _tk("Interrupteurs")], ["sensor", _tk("Capteurs")], ["binary_sensor", _tk("Détecteurs")],
   ["cover", _tk("Volets")], ["camera", _tk("Caméras")], ["climate", _tk("Climat")], ["media_player", _tk("Médias")]];
-const OUTILS = [["selection", "mdi:cursor-default-outline", _tk("Sélection (V)")], ["mur", "mdi:wall", _tk("Mur (M)")], ["limite", "mdi:fence", _tk("Limite / clôture (L)")],
+const OUTILS = [["selection", "mdi:cursor-default-outline", _tk("Sélection (V)")], ["main", "mdi:hand-back-right-outline", _tk("Déplacer la vue (H)")], ["mur", "mdi:wall", _tk("Mur (M)")], ["limite", "mdi:fence", _tk("Limite / clôture (L)")],
   ["ouverture", "mdi:window-closed-variant", _tk("Ouverture (O)")], ["rectangle", "mdi:rectangle-outline", _tk("Pièce rectangulaire avec ses murs (R)")],
   ["piece", "mdi:vector-square", _tk("Pièce de forme libre (P)")], ["texte", "mdi:format-text", _tk("Texte (T)")]];
 const PAS_GRILLE = [1, 5, 10, 25]; // pas de la grille proposés, en cm
-const RACCOURCIS = { v: "selection", m: "mur", l: "limite", o: "ouverture", r: "rectangle", p: "piece", t: "texte" };
+const RACCOURCIS = { v: "selection", h: "main", m: "mur", l: "limite", o: "ouverture", r: "rectangle", p: "piece", t: "texte" };
 const aire = (poly) => Math.abs(poly.reduce((a, p, j) => { const q = poly[(j + 1) % poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2) / 10000;
 // pièce rectangle alignée sur les axes : [x, y, largeur, hauteur], sinon null
 const rectDe = (poly) => {
@@ -8546,6 +8657,9 @@ const PARAMS_INTERACTION = [
     { chemin: "interaction.clic_piece", type: "choix", nom: _tk("Toucher une pièce"), defaut: "vue",
       options: [["vue", _tk("Vue de la pièce")], ["infos", _tk("Plus d'infos")], ["aucun", _tk("Rien")]],
       aide: _tk("« Plus d'infos » ouvre l'entité de l'étiquette (sinon la température).") },
+    { chemin: "interaction.boutons_zoom", type: "choix", nom: _tk("Boutons de zoom"), defaut: "auto",
+      options: [["auto", _tk("Auto")], ["plan", _tk("Plan##zoom")], ["entete", _tk("En-tête")], ["caches", _tk("Cachés")]],
+      aide: _tk("Automatique : dans l'en-tête sur téléphone (hors du plan), sur le plan sinon. Cachés : le pincement et le toucher d'une pièce marchent toujours.") },
     { chemin: "interaction.vue_figee", type: "bool", nom: _tk("Vue figée"), defaut: false,
       aide: _tk("Plus de déplacement ni de zoom (boutons compris) ; le toucher des éléments marche toujours.") },
     { chemin: "interaction.retour_apres", type: "nombre", nom: _tk("Retour au plan entier après"), defaut: 0, min: 0, max: 86400, pas: 10, unite: "s",
@@ -9199,7 +9313,8 @@ ha-card.ed-etroit .ed-at-mb .ed-prim{scroll-margin-top:calc(var(--ed-ap-h,0px) +
 .ed-puces button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--md-outline-variant);background:none;color:var(--md-on-surface-variant);cursor:pointer;font:500 13px/18px var(--ha-font-family-body,Roboto,sans-serif)}
 .ed-puces button.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container);border-color:transparent}
 svg .ed-cadre{fill:color-mix(in srgb,var(--md-primary) 12%,transparent);stroke:var(--md-primary);stroke-dasharray:6 4;pointer-events:none}
-.edition .zone.espace{cursor:grab}
+.edition .zone.espace,.edition .zone.main{cursor:grab}
+.edition .zone.main .calque>*{pointer-events:none}
 svg .ed-cible{stroke:transparent;fill:none;cursor:pointer;pointer-events:stroke}
 svg .ed-cible:hover{stroke:color-mix(in srgb,var(--md-primary) 25%,transparent)}
 svg .ed-sel{fill:none;stroke:var(--md-primary);stroke-dasharray:10 6;pointer-events:none}
@@ -9621,11 +9736,13 @@ class EditeurPlan {
     const o = (id, ic, t) => `<button data-outil="${id}" class="${this.outil === id ? "on" : ""}" title="${_t(t)}" aria-label="${_t(t)}" aria-pressed="${this.outil === id}"><ha-icon icon="${ic}"></ha-icon></button>`;
     const ib = (a, ic, t, on, pc = true) => `<button class="ib${on ? " on" : ""}${pc ? " ed-pc" : ""}" data-a="${a}" title="${t}" aria-label="${t}"${on != null ? ` aria-pressed="${!!on}"` : ""}><ha-icon icon="${ic}"></ha-icon></button>`;
     // PC : historique | outils | grille, recadrer | panneaux (calques, ambiance) | import / export, paramètres, raccourcis
+    // outil Main : écrans tactiles seulement (au PC : Espace + glisser ou clic molette, et la barre n'a plus de place)
     // téléphone : la grille et « Plus » (recadrer, calques, ambiance, import / export, paramètres) passent en tête, les outils en 2e rangée
     poserHTML(this.barre, `<div class="ed-defile">
       <span class="ed-groupe ed-histo"><button class="ib" data-a="annuler" title="${_t("Annuler (Ctrl+Z)")}" aria-label="${_t("Annuler (Ctrl+Z)")}" ${this.histo.length ? "" : "disabled"}><ha-icon icon="mdi:undo"></ha-icon></button>
-        <button class="ib" data-a="refaire" title="${_t("Rétablir (Ctrl+Y)")}" aria-label="${_t("Rétablir (Ctrl+Y)")}" ${this.refaire.length ? "" : "disabled"}><ha-icon icon="mdi:redo"></ha-icon></button></span>
-      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.map(([id, ic, t]) => o(id, ic, t)).join("")}</span>
+        <button class="ib" data-a="refaire" title="${_t("Rétablir (Ctrl+Y)")}" aria-label="${_t("Rétablir (Ctrl+Y)")}" ${this.refaire.length ? "" : "disabled"}><ha-icon icon="mdi:redo"></ha-icon></button>
+        ${EditeurPlan.pressePapiers?.length ? ib("coller", "mdi:content-paste", tactile() ? _t("Coller à la même position") : _t("Coller à la même position (Ctrl+V)")) : ""}</span>
+      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.filter(([id]) => id !== "main" || tactile() || this.outil === "main").map(([id, ic, t]) => o(id, ic, t)).join("")}</span>
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
@@ -9656,7 +9773,7 @@ class EditeurPlan {
       if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
       else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
         quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), etages: () => this.ouvrirEtages(), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
-        parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
+        parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), coller: () => this.coller(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
     };
     if (garde) this.barre.querySelector(garde)?.focus({ preventScroll: true });
     this._info();
@@ -9673,6 +9790,7 @@ class EditeurPlan {
     // le pas de la grille a son propre bouton à côté : pas de doublon dans ce menu
     // Appliquer (enregistrer sans quitter) : dans ce menu sur téléphone, la barre garde ses deux rangées
     this._menu(b, [...(this.modifie ? [{ icone: "mdi:check", libelle: _t("Appliquer : enregistrer sans quitter l'éditeur"), action: () => this.appliquer() }, { sep: true }] : []),
+      ...(EditeurPlan.pressePapiers?.length ? [{ icone: "mdi:content-paste", libelle: _t("Coller à la même position"), action: () => this.coller() }] : []),
       { icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
       { icone: "mdi:layers-triple-outline", libelle: _t("Gérer les étages"), action: () => this.ouvrirEtages() },
       { icone: "mdi:layers-outline", libelle: _t("Calques"), action: () => this.panneauCalques(!this.vueCalques) },
@@ -9750,7 +9868,8 @@ class EditeurPlan {
     this.outil = o; this.aPlacer = null;
     if (!garderModele) { this.modeleOuverture = null; this.aCompleter = null; this.chercherOuv = null; this.prefOuv = null; }
     if (o !== "piece" && o !== "rectangle") this.zoneEnAttente = null;
-    this.zone.classList.toggle("dessin", o !== "selection");
+    this.zone.classList.toggle("dessin", o !== "selection" && o !== "main");
+    this.zone.classList.toggle("main", o === "main");
     this._barre();
     const tactile = matchMedia("(pointer: coarse)").matches;
     const aides = { mur: tactile ? _t("Touche ou clique pour enchaîner les murs ; « Terminer » pour finir.") : _t("Touche ou clique pour enchaîner les murs ; Échap, Entrée ou clic droit pour finir."),
@@ -10012,9 +10131,10 @@ class EditeurPlan {
       this.zone.classList.remove("dessin");
       return;
     }
+    // main (ou Espace maintenue) : glisser déplace la vue, rien n'est sélectionné ni déplacé
+    if (this.outil === "main" || this.espace) { ev.preventDefault(); this.carte.debutPan(ev); return; }
     if (this.outil !== "selection") { ev.preventDefault(); this._clicDessin(p, ev); return; }
     const chemin = ev.composedPath();
-    if (this.espace) { ev.preventDefault(); this.carte.debutPan(ev); return; }
     const cibleDe = (n) => n?.dataset && (n.dataset.poignee || n.dataset.q || n.dataset.t || n.dataset.l || n.dataset.c || n.dataset.o || n.dataset.mb || n.dataset.p);
     let el = chemin.find(cibleDe);
     const mod = ev.ctrlKey || ev.metaKey || ev.shiftKey;
@@ -10199,9 +10319,9 @@ class EditeurPlan {
     if (genre === "sommet" && this.d.pieces[+a].poly.length > 3) this.commit(() => this.d.pieces[+a].poly.splice(+b, 1));
   }
 
-  // rattache un point à sa pièce (halo limité aux murs)
+  // rattache un point à sa pièce (halo limité aux murs), sauf halo libre (`piece: false`)
   _rattacher(pt) {
-    if (!pt.halo) return;
+    if (!pt.halo || pt.piece === false) return;
     const pc = [...this.d.pieces].reverse().find((p) => dansPoly(pt.pos, p.poly));
     if (pc) pt.piece = pc.nom; else delete pt.piece;
   }
@@ -11712,7 +11832,7 @@ class EditeurPlan {
         <h4>${_t("Valeur affichée")}</h4>
         <div class="ed-ligne trois">${this._champTexte(_t("ou un attribut"), "attribut", o.attribut, _t("option"))}${this._champTexte(_t("Unité"), "unite", o.unite, "auto")}${this._champNombre(_t("Décimales"), "decimales", o.decimales, 1, "0")}</div>
         ${dom === "light" ? "" : halo}
-        <div class="ed-champ"><label>${_t("Halo limité à la pièce")}</label><select data-k="piece"><option value="">${_t("— aucune —")}</option>${this.d.pieces.map((p) => `<option ${p.nom === o.piece ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select></div>
+        <div class="ed-champ"><label>${_t("Halo limité à la pièce")}</label><select data-k="piece"><option value="">${_t("Automatique (pièce où il est posé)")}</option><option value="-" ${o.piece === false ? "selected" : ""}>${_t("Aucune : halo libre")}</option>${this.d.pieces.map((p) => `<option ${p.nom === o.piece ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select></div>
         ${this._champXY(o)}`],
         ["fiche", _t("Fiche"), "mdi:card-text-outline", this._sectionFiche(o, "point")],
         ["animation", _t("Animation"), "mdi:animation-play-outline", this._sectionAnimation(o, this.carte.constructor.evenementPoint(o))]] };
@@ -12048,7 +12168,7 @@ class EditeurPlan {
     this._edPoser = poser;
   }
 
-  // ---------- barre flottante (MD3) près de l'élément sélectionné : Modifier, Dupliquer, Verrou, Ordre, Supprimer ----------
+  // ---------- barre flottante (MD3) près de l'élément sélectionné : Modifier, Dupliquer, Copier, Verrou, Ordre, Supprimer ----------
   // hors de l'élément (au-dessus, sinon dessous), dans la partie visible du plan ; suit le zoom, le défilement et les modifications
   _majBarreFlottante() {
     const plan = this.R.querySelector(".plan"), svg = this.R.querySelector(".zone svg"), s = this.sel, multi = this.multi.size > 1;
@@ -12077,7 +12197,7 @@ class EditeurPlan {
     const v = multi ? objs.length > 0 && objs.every((x) => x.verrouille === true) : o.verrouille === true, lv = v ? _t("Déverrouiller") : _t("Verrouiller : ni déplacé ni redimensionné à la souris");
     const ib = (a, ic, t, cl = "") => `<button type="button" class="ib${cl}" data-bf="${a}" title="${esc(t)}" aria-label="${esc(t)}"><ha-icon icon="${ic}"></ha-icon></button>`;
     poserHTML(b, `<button type="button" class="ed-btn tonal ed-bf-mod" data-bf="modifier" title="${tactile() ? _t("Modifier") : _t("Modifier (Entrée ou double-clic)")}"><ha-icon icon="mdi:pencil-outline"></ha-icon><span>${_t("Modifier")}</span></button>
-      ${plat ? "" : ib("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${plat || hors || (multi && !objs.length) ? "" : ib("verrou", `mdi:${v ? "lock-outline" : "lock-open-variant-outline"}`, lv, v ? " on" : "")}
+      ${plat ? "" : ib("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${hors || (multi && !objs.length) ? "" : ib("copier", "mdi:clipboard-outline", tactile() ? _t("Copier, pour coller sur un autre étage") : _t("Copier, pour coller sur un autre étage (Ctrl+C)"))}${plat || hors || (multi && !objs.length) ? "" : ib("verrou", `mdi:${v ? "lock-outline" : "lock-open-variant-outline"}`, lv, v ? " on" : "")}
       ${plat || hors || multi ? "" : `${ib("niveau:haut", "mdi:arrange-bring-to-front", _t("Premier plan"))}${ib("niveau:bas", "mdi:arrange-send-to-back", _t("Arrière-plan"))}`}<span class="ed-bf-sep"></span>${ib("supprimer", "mdi:delete-outline", _t("Supprimer"), " danger")}`);
     b.querySelector('[data-bf="verrou"]')?.setAttribute("aria-pressed", String(v));
     this._placerBarreFlottante();
@@ -12323,6 +12443,8 @@ class EditeurPlan {
         (this.d.points || []).forEach((p) => { if (p.piece === ancien) p.piece = v; });
       }
       if (k === "halo" && !v) { delete o.halo; return; }
+      // halo limité à la pièce : vide = automatique (pièce où il est posé), « - » = libre (`piece: false`, jamais coupé)
+      if (k === "piece" && s.type === "point") { if (v === "-") o.piece = false; else if (v) o.piece = v; else delete o.piece; return; }
       if (k[0] === "!") { if (v) delete o[k.slice(1)]; else o[k.slice(1)] = false; return; }
       if (k.endsWith(".donnees")) { try { v = v ? JSON.parse(v) : ""; } catch (e) { this.snack(_t("Données : JSON invalide.")); return; } }
       const ca = /^(animation(?:_volet)?)\./.exec(k)?.[1];
@@ -12457,6 +12579,7 @@ class EditeurPlan {
 
   _action(a) {
     const s = this.sel, d = this.d;
+    if (a === "copier") return this.copier();
     // zone d'informations : ajouter (choix de l'entité), monter, retirer une ligne
     if (/^info-/.test(a) && s?.type === "texte") {
       const o = this._objet(), [op, j] = a.split(":");
@@ -12736,7 +12859,9 @@ class EditeurPlan {
     const L = this._listes(), m = (this.multi.size ? [...this.multi] : this.sel ? [cle(this.sel)] : []).map(deCle).filter((x) => L[x.type]?.[x.i]);
     if (!m.length) return false;
     EditeurPlan.pressePapiers = m.map((x) => ({ type: x.type, o: clone(L[x.type][x.i]) }));
-    this.snack(_t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
+    this._barre();   // le bouton Coller apparaît
+    this.snack(tactile() ? _t("{n} élément copié : « Coller » le pose à la même position, sur cet étage ou un autre.|{n} éléments copiés : « Coller » les pose à la même position, sur cet étage ou un autre.", { n: m.length })
+      : _t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
     return true;
   }
   coller() {
@@ -12773,13 +12898,13 @@ class EditeurPlan {
     const groupes = [
       [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer sans quitter l'éditeur")],
         [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer une fenêtre")]]],
-      [_t("Outils"), [...OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
+      [_t("Outils"), [...OUTILS.filter(([id]) => id !== "main").map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
         // copier / coller (aussi d'un étage à l'autre) : ici, la colonne qui a de la place (la modale tient sans défiler)
         [ou(K(ctrl, "C"), K(ctrl, "V")), _t("Copier / coller sur place")]]],
       [_t("Sélection"), [[_t("Clic"), _t("Sélectionner")], [`${K(ctrl)}+${_t("clic")}`, _t("Ajouter à la sélection ou en retirer")], [_t("Glisser dans le vide"), _t("Cadre de sélection")],
         [K(ctrl, "A"), _t("Tout sélectionner")], [K(_t("Flèches")), _t("Déplacer d'un pas de grille (avec Maj : ×10)")], [K(_t("Suppr")), _t("Retirer")],
         [K(ctrl, "D"), _t("Dupliquer")], [K(ctrl, "G"), _t("Grouper")], [K(ctrl, maj, "G"), _t("Dégrouper")]]],
-      [_t("Vue et dessin"), [[ou(`${K(_t("Espace##touche"))}+${_t("glisser")}`, _t("clic molette")), _t("Déplacer la vue")], [`${K("Alt")} ${_t("maintenu")}`, _t("Sans magnétisme")],
+      [_t("Vue et dessin"), [[ou(K("H"), `${K(_t("Espace##touche"))}+${_t("glisser")}`, _t("clic molette")), _t("Déplacer la vue")], [`${K("Alt")} ${_t("maintenu")}`, _t("Sans magnétisme")],
         [K(maj), _t("Angle libre en dessin")], [ou(K(_t("Entrée##touche")), _t("clic droit")), _t("Finir un tracé")]]],
     ];
     const { voile, fermer: retirer } = this._voile("ed-aide-clavier", `<div class="ed-dialogue large ed-dlg-touches" role="dialog" aria-modal="true" aria-labelledby="ed-clavier-t"><header><h2 id="ed-clavier-t">${_t("Raccourcis clavier")}</h2></header>
@@ -14924,7 +15049,8 @@ class EditeurPlan {
     return { pieces: g.pieces.length, autres };
   }
 
-  // + Étage : `vide`, `murs` (murs extérieurs de l'étage affiché) ou `tout` (copie de l'étage affiché) ; placé juste au-dessus, on y passe
+  // + Étage : `vide`, `murs` (murs extérieurs de l'étage affiché), `tout` (copie de l'étage affiché) ou `exterieur` (jardin, dépendances :
+  // les murs extérieurs de l'étage affiché pour situer la maison, nommé « Extérieur ») ; placé juste au-dessus, on y passe
   ajouterEtage(mode = "vide") {
     const E = this._E, plein = this._replie();
     let cur = this._etageActif();
@@ -14942,7 +15068,13 @@ class EditeurPlan {
     const src = plein.etages[i], neuf = this._nouvelEtage(plein);
     if (mode === "tout") {
       for (const k of [...E.CLES_ETAGE, "panneaux"]) if (k in src) neuf[k] = clone(src[k]);
-    } else if (mode === "murs") neuf.murs = (src.murs || []).filter((m) => Array.isArray(m) && this._murExterieur(m, src.pieces || [])).map((m) => [...m]);
+    } else if (mode === "murs" || mode === "exterieur") neuf.murs = (src.murs || []).filter((m) => Array.isArray(m) && this._murExterieur(m, src.pieces || [])).map((m) => [...m]);
+    if (mode === "exterieur") {
+      const ids = new Set(E.ids(plein));
+      let n = 1;
+      while (ids.has(n > 1 ? `exterieur_${n}` : "exterieur")) n++;
+      Object.assign(neuf, { id: n > 1 ? `exterieur_${n}` : "exterieur", nom: n > 1 ? `${_t("Extérieur")} ${n}` : _t("Extérieur"), court: _t("Ext.##etage"), icone: "mdi:pine-tree" });
+    }
     neuf.pieces ||= [];
     plein.etages.splice(i + 1, 0, neuf);
     this._taireDoublons = true;
@@ -15101,7 +15233,7 @@ class EditeurPlan {
       if (!b || b.disabled) return;
       const id = b.closest("[data-id]")?.dataset.id, a = b.dataset.et;
       ({ fermer: () => this.fermerEtages(), haut: () => this.deplacerEtage(id, 1), bas: () => this.deplacerEtage(id, -1), suppr: () => this.supprimerEtage(id),
-        voir: () => { this.changerEtage(id); this._rendreEtages(); }, vide: () => this.ajouterEtage("vide"), murs: () => this.ajouterEtage("murs"), tout: () => this.ajouterEtage("tout") })[a]?.();
+        voir: () => { this.changerEtage(id); this._rendreEtages(); }, vide: () => this.ajouterEtage("vide"), murs: () => this.ajouterEtage("murs"), tout: () => this.ajouterEtage("tout"), exterieur: () => this.ajouterEtage("exterieur") })[a]?.();
     });
     voile.addEventListener("change", (ev) => {
       const t = ev.target, id = t.closest?.("[data-id]")?.dataset.id;
@@ -15171,7 +15303,8 @@ class EditeurPlan {
       <div class="ed-et-choix">
         <button type="button" class="ed-btn tonal" data-et="vide"><ha-icon icon="mdi:plus"></ha-icon>${_t("Vide")}</button>
         <button type="button" class="ed-btn tonal" data-et="murs"><ha-icon icon="mdi:wall"></ha-icon>${_t("Avec les murs extérieurs")}</button>
-        <button type="button" class="ed-btn tonal" data-et="tout"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copie de cet étage")}</button></div></section>`;
+        <button type="button" class="ed-btn tonal" data-et="tout"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copie de cet étage")}</button>
+        <button type="button" class="ed-btn tonal" data-et="exterieur" title="${esc(_t("Jardin, terrasse, pergola, dépendances : les murs extérieurs de cet étage situent la maison"))}"><ha-icon icon="mdi:pine-tree"></ha-icon>${_t("Extérieur")}</button></div></section>`;
     poserHTML(V, `<div class="ed-dialogue large ed-et-dlg" role="dialog" aria-modal="true" aria-labelledby="ed-et-titre">
       <header><h2 id="ed-et-titre">${_t("Étages")}</h2><div class="ed-aide">${_t("Du haut vers le bas. Renommer ne change pas l'identifiant : les escaliers et l'étage mémorisé restent valides.")}</div></header>
       <div class="ed-cat ed-et-corps"><div class="ed-et-l" role="list" aria-label="${esc(_t("Étages"))}">${liste}</div>${ajout}${defaut}</div>

@@ -71,7 +71,7 @@ class EditeurPlan { // @assemblage
         <h4>${_t("Valeur affichée")}</h4>
         <div class="ed-ligne trois">${this._champTexte(_t("ou un attribut"), "attribut", o.attribut, _t("option"))}${this._champTexte(_t("Unité"), "unite", o.unite, "auto")}${this._champNombre(_t("Décimales"), "decimales", o.decimales, 1, "0")}</div>
         ${dom === "light" ? "" : halo}
-        <div class="ed-champ"><label>${_t("Halo limité à la pièce")}</label><select data-k="piece"><option value="">${_t("— aucune —")}</option>${this.d.pieces.map((p) => `<option ${p.nom === o.piece ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select></div>
+        <div class="ed-champ"><label>${_t("Halo limité à la pièce")}</label><select data-k="piece"><option value="">${_t("Automatique (pièce où il est posé)")}</option><option value="-" ${o.piece === false ? "selected" : ""}>${_t("Aucune : halo libre")}</option>${this.d.pieces.map((p) => `<option ${p.nom === o.piece ? "selected" : ""}>${esc(p.nom)}</option>`).join("")}</select></div>
         ${this._champXY(o)}`],
         ["fiche", _t("Fiche"), "mdi:card-text-outline", this._sectionFiche(o, "point")],
         ["animation", _t("Animation"), "mdi:animation-play-outline", this._sectionAnimation(o, this.carte.constructor.evenementPoint(o))]] };
@@ -407,7 +407,7 @@ class EditeurPlan { // @assemblage
     this._edPoser = poser;
   }
 
-  // ---------- barre flottante (MD3) près de l'élément sélectionné : Modifier, Dupliquer, Verrou, Ordre, Supprimer ----------
+  // ---------- barre flottante (MD3) près de l'élément sélectionné : Modifier, Dupliquer, Copier, Verrou, Ordre, Supprimer ----------
   // hors de l'élément (au-dessus, sinon dessous), dans la partie visible du plan ; suit le zoom, le défilement et les modifications
   _majBarreFlottante() {
     const plan = this.R.querySelector(".plan"), svg = this.R.querySelector(".zone svg"), s = this.sel, multi = this.multi.size > 1;
@@ -436,7 +436,7 @@ class EditeurPlan { // @assemblage
     const v = multi ? objs.length > 0 && objs.every((x) => x.verrouille === true) : o.verrouille === true, lv = v ? _t("Déverrouiller") : _t("Verrouiller : ni déplacé ni redimensionné à la souris");
     const ib = (a, ic, t, cl = "") => `<button type="button" class="ib${cl}" data-bf="${a}" title="${esc(t)}" aria-label="${esc(t)}"><ha-icon icon="${ic}"></ha-icon></button>`;
     poserHTML(b, `<button type="button" class="ed-btn tonal ed-bf-mod" data-bf="modifier" title="${tactile() ? _t("Modifier") : _t("Modifier (Entrée ou double-clic)")}"><ha-icon icon="mdi:pencil-outline"></ha-icon><span>${_t("Modifier")}</span></button>
-      ${plat ? "" : ib("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${plat || hors || (multi && !objs.length) ? "" : ib("verrou", `mdi:${v ? "lock-outline" : "lock-open-variant-outline"}`, lv, v ? " on" : "")}
+      ${plat ? "" : ib("dupliquer", "mdi:content-copy", _t("Dupliquer"))}${hors || (multi && !objs.length) ? "" : ib("copier", "mdi:clipboard-outline", tactile() ? _t("Copier, pour coller sur un autre étage") : _t("Copier, pour coller sur un autre étage (Ctrl+C)"))}${plat || hors || (multi && !objs.length) ? "" : ib("verrou", `mdi:${v ? "lock-outline" : "lock-open-variant-outline"}`, lv, v ? " on" : "")}
       ${plat || hors || multi ? "" : `${ib("niveau:haut", "mdi:arrange-bring-to-front", _t("Premier plan"))}${ib("niveau:bas", "mdi:arrange-send-to-back", _t("Arrière-plan"))}`}<span class="ed-bf-sep"></span>${ib("supprimer", "mdi:delete-outline", _t("Supprimer"), " danger")}`);
     b.querySelector('[data-bf="verrou"]')?.setAttribute("aria-pressed", String(v));
     this._placerBarreFlottante();

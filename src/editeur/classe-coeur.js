@@ -100,11 +100,13 @@ export class EditeurPlan {
     const o = (id, ic, t) => `<button data-outil="${id}" class="${this.outil === id ? "on" : ""}" title="${_t(t)}" aria-label="${_t(t)}" aria-pressed="${this.outil === id}"><ha-icon icon="${ic}"></ha-icon></button>`;
     const ib = (a, ic, t, on, pc = true) => `<button class="ib${on ? " on" : ""}${pc ? " ed-pc" : ""}" data-a="${a}" title="${t}" aria-label="${t}"${on != null ? ` aria-pressed="${!!on}"` : ""}><ha-icon icon="${ic}"></ha-icon></button>`;
     // PC : historique | outils | grille, recadrer | panneaux (calques, ambiance) | import / export, paramètres, raccourcis
+    // outil Main : écrans tactiles seulement (au PC : Espace + glisser ou clic molette, et la barre n'a plus de place)
     // téléphone : la grille et « Plus » (recadrer, calques, ambiance, import / export, paramètres) passent en tête, les outils en 2e rangée
     poserHTML(this.barre, `<div class="ed-defile">
       <span class="ed-groupe ed-histo"><button class="ib" data-a="annuler" title="${_t("Annuler (Ctrl+Z)")}" aria-label="${_t("Annuler (Ctrl+Z)")}" ${this.histo.length ? "" : "disabled"}><ha-icon icon="mdi:undo"></ha-icon></button>
-        <button class="ib" data-a="refaire" title="${_t("Rétablir (Ctrl+Y)")}" aria-label="${_t("Rétablir (Ctrl+Y)")}" ${this.refaire.length ? "" : "disabled"}><ha-icon icon="mdi:redo"></ha-icon></button></span>
-      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.map(([id, ic, t]) => o(id, ic, t)).join("")}</span>
+        <button class="ib" data-a="refaire" title="${_t("Rétablir (Ctrl+Y)")}" aria-label="${_t("Rétablir (Ctrl+Y)")}" ${this.refaire.length ? "" : "disabled"}><ha-icon icon="mdi:redo"></ha-icon></button>
+        ${EditeurPlan.pressePapiers?.length ? ib("coller", "mdi:content-paste", tactile() ? _t("Coller à la même position") : _t("Coller à la même position (Ctrl+V)")) : ""}</span>
+      <span class="ed-seg ed-outils" role="group" aria-label="${_t("Outils")}">${OUTILS.filter(([id]) => id !== "main" || tactile() || this.outil === "main").map(([id, ic, t]) => o(id, ic, t)).join("")}</span>
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
@@ -135,7 +137,7 @@ export class EditeurPlan {
       if (b.dataset.outil) this.choisirOutil(b.dataset.outil);
       else ({ annuler: () => this.annuler(), refaire: () => this.retablir(), ajouter: () => this.ouvrirCatalogue(), enregistrer: () => this.enregistrer(), appliquer: () => this.appliquer(),
         quitter: () => this.quitter(), recadrer: () => this.recadrer(), exporter: () => this.exporter(), nettoyer: () => this.nettoyerPlan(), calques: () => this.panneauCalques(!this.vueCalques), etages: () => this.ouvrirEtages(), ambiance: () => this.panneauAmbiance(!this.vueAmbiance),
-        parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
+        parametres: () => this.panneauParametres(!this.vueParametres), aide: () => this.aideClavier(), coller: () => this.coller(), grille: () => this.menuGrille(), plus: () => this.menuPlus() })[b.dataset.a]();
     };
     if (garde) this.barre.querySelector(garde)?.focus({ preventScroll: true });
     this._info();
@@ -152,6 +154,7 @@ export class EditeurPlan {
     // le pas de la grille a son propre bouton à côté : pas de doublon dans ce menu
     // Appliquer (enregistrer sans quitter) : dans ce menu sur téléphone, la barre garde ses deux rangées
     this._menu(b, [...(this.modifie ? [{ icone: "mdi:check", libelle: _t("Appliquer : enregistrer sans quitter l'éditeur"), action: () => this.appliquer() }, { sep: true }] : []),
+      ...(EditeurPlan.pressePapiers?.length ? [{ icone: "mdi:content-paste", libelle: _t("Coller à la même position"), action: () => this.coller() }] : []),
       { icone: "mdi:fit-to-screen-outline", libelle: _t("Recadrer"), action: () => this.recadrer() },
       { icone: "mdi:layers-triple-outline", libelle: _t("Gérer les étages"), action: () => this.ouvrirEtages() },
       { icone: "mdi:layers-outline", libelle: _t("Calques"), action: () => this.panneauCalques(!this.vueCalques) },
@@ -229,7 +232,8 @@ export class EditeurPlan {
     this.outil = o; this.aPlacer = null;
     if (!garderModele) { this.modeleOuverture = null; this.aCompleter = null; this.chercherOuv = null; this.prefOuv = null; }
     if (o !== "piece" && o !== "rectangle") this.zoneEnAttente = null;
-    this.zone.classList.toggle("dessin", o !== "selection");
+    this.zone.classList.toggle("dessin", o !== "selection" && o !== "main");
+    this.zone.classList.toggle("main", o === "main");
     this._barre();
     const tactile = matchMedia("(pointer: coarse)").matches;
     const aides = { mur: tactile ? _t("Touche ou clique pour enchaîner les murs ; « Terminer » pour finir.") : _t("Touche ou clique pour enchaîner les murs ; Échap, Entrée ou clic droit pour finir."),

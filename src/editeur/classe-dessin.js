@@ -87,9 +87,10 @@ class EditeurPlan { // @assemblage
       this.zone.classList.remove("dessin");
       return;
     }
+    // main (ou Espace maintenue) : glisser déplace la vue, rien n'est sélectionné ni déplacé
+    if (this.outil === "main" || this.espace) { ev.preventDefault(); this.carte.debutPan(ev); return; }
     if (this.outil !== "selection") { ev.preventDefault(); this._clicDessin(p, ev); return; }
     const chemin = ev.composedPath();
-    if (this.espace) { ev.preventDefault(); this.carte.debutPan(ev); return; }
     const cibleDe = (n) => n?.dataset && (n.dataset.poignee || n.dataset.q || n.dataset.t || n.dataset.l || n.dataset.c || n.dataset.o || n.dataset.mb || n.dataset.p);
     let el = chemin.find(cibleDe);
     const mod = ev.ctrlKey || ev.metaKey || ev.shiftKey;
@@ -274,9 +275,9 @@ class EditeurPlan { // @assemblage
     if (genre === "sommet" && this.d.pieces[+a].poly.length > 3) this.commit(() => this.d.pieces[+a].poly.splice(+b, 1));
   }
 
-  // rattache un point à sa pièce (halo limité aux murs)
+  // rattache un point à sa pièce (halo limité aux murs), sauf halo libre (`piece: false`)
   _rattacher(pt) {
-    if (!pt.halo) return;
+    if (!pt.halo || pt.piece === false) return;
     const pc = [...this.d.pieces].reverse().find((p) => dansPoly(pt.pos, p.poly));
     if (pc) pt.piece = pc.nom; else delete pt.piece;
   }

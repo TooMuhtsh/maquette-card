@@ -78,11 +78,11 @@ function chercherIcones(liste, q, n = 48) {
 // libellés (DOMAINES[i][1], OUTILS[i][2], PUCES[i][2] et [3], A_COMPLETER) : clés traduites à l'affichage (_t)
 const DOMAINES = [["", _tk("Tout")], ["light", _tk("Lumières")], ["switch", _tk("Interrupteurs")], ["sensor", _tk("Capteurs")], ["binary_sensor", _tk("Détecteurs")],
   ["cover", _tk("Volets")], ["camera", _tk("Caméras")], ["climate", _tk("Climat")], ["media_player", _tk("Médias")]];
-const OUTILS = [["selection", "mdi:cursor-default-outline", _tk("Sélection (V)")], ["mur", "mdi:wall", _tk("Mur (M)")], ["limite", "mdi:fence", _tk("Limite / clôture (L)")],
+const OUTILS = [["selection", "mdi:cursor-default-outline", _tk("Sélection (V)")], ["main", "mdi:hand-back-right-outline", _tk("Déplacer la vue (H)")], ["mur", "mdi:wall", _tk("Mur (M)")], ["limite", "mdi:fence", _tk("Limite / clôture (L)")],
   ["ouverture", "mdi:window-closed-variant", _tk("Ouverture (O)")], ["rectangle", "mdi:rectangle-outline", _tk("Pièce rectangulaire avec ses murs (R)")],
   ["piece", "mdi:vector-square", _tk("Pièce de forme libre (P)")], ["texte", "mdi:format-text", _tk("Texte (T)")]];
 const PAS_GRILLE = [1, 5, 10, 25]; // pas de la grille proposés, en cm
-const RACCOURCIS = { v: "selection", m: "mur", l: "limite", o: "ouverture", r: "rectangle", p: "piece", t: "texte" };
+const RACCOURCIS = { v: "selection", h: "main", m: "mur", l: "limite", o: "ouverture", r: "rectangle", p: "piece", t: "texte" };
 const aire = (poly) => Math.abs(poly.reduce((a, p, j) => { const q = poly[(j + 1) % poly.length]; return a + p[0] * q[1] - q[0] * p[1]; }, 0) / 2) / 10000;
 // pièce rectangle alignée sur les axes : [x, y, largeur, hauteur], sinon null
 const rectDe = (poly) => {

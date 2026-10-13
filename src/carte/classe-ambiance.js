@@ -54,6 +54,16 @@ class MaquetteCard extends HTMLElement { // @assemblage
   _majVelux() {
     const R = this.shadowRoot;
     (this._config?.meubles || []).forEach((m, i) => {
+      // pergola reliée à un `cover` : lames vues de chant quand elles s'ouvrent (current_tilt_position, sinon current_position)
+      if (m?.type === "pergola") {
+        const s = typeof m.entite === "string" && m.entite.startsWith("cover.") ? this._etat(m.entite) : null, t = parseFloat(s?.attributes?.current_tilt_position);
+        const k = !s ? 0 : Number.isFinite(t) ? borne(t / 100, 0, 1) : ouvertVelux(m.entite, s);
+        R?.querySelectorAll(`.zone svg [data-mb="${i}"] .pg-lame`).forEach((l) => {
+          const h = +(+l.dataset.e * (1 - 0.8 * k)).toFixed(1);
+          if (l.getAttribute("height") !== String(h)) { l.setAttribute("height", h); l.setAttribute("y", +(+l.dataset.c - h / 2).toFixed(1)); }
+        });
+        return;
+      }
       if (m?.type !== "fenetre_toit") return;
       const st = R?.querySelector(`.zone svg [data-mb="${i}"] .vx-store`);
       if (!st) return;
@@ -107,8 +117,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const [a, b, d, f] = o.seg, [nx, ny] = o.dehors, q = [(a + d) / 2 - nx * 15, (b + f) / 2 - ny * 15];
       return pieces.find(([p]) => dansPoly(q, p.poly))?.[1] ?? -1;
     };
-    // profondeur de la pièce vue de la baie (cm, le long de la normale vers l'intérieur)
-    const profondeur = (o, k) => { const [a, b] = o.seg, [nx, ny] = o.dehors; return Math.max(60, ...c.pieces[k].poly.map(([x, y]) => -((x - a) * nx + (y - b) * ny))); };
+    // espace de chaque pièce (pièces ouvertes l'une sur l'autre, sans mur entre elles) : la lumière d'une baie s'y étend, coupée aux murs
+    const esp = espacesOuverts(c.pieces, c.murs, c.ouvertures);
+    // profondeur de l'espace vu de la baie (cm, le long de la normale vers l'intérieur)
+    const profondeur = (o, k) => { const [a, b] = o.seg, [nx, ny] = o.dehors; return Math.max(60, ...esp[k].flatMap((j) => c.pieces[j].poly.map(([x, y]) => -((x - a) * nx + (y - b) * ny)))); };
     let defs = "", h = "", n = 0;
     const clips = new Set(), f0 = (v) => v.toFixed(1);
     const degrade = (id, col, stops) => `<radialGradient id="${id}">${stops.map(([o, a]) => `<stop offset="${o}" stop-color="${col}" stop-opacity="${a}"/>`).join("")}</radialGradient>`;
@@ -234,7 +246,15 @@ class MaquetteCard extends HTMLElement { // @assemblage
       h = h.slice(0, h0) + h.slice(h0).replace('<polygon class="lum-tache', `<polygon data-vx="${i}" class="lum-tache lum-vx`);
     }
     let fh = "";
-    const F = new Map([...fonds].map(([k, l]) => [k, lumiereFond(l.map((x) => x[0]), aireDe(c.pieces[k].poly)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28)]));
+    // lumière de fond par espace (pièces ouvertes l'une sur l'autre réunies) : surfaces vitrées de tout l'espace rapportées à son aire,
+    // posée sur chacune de ses pièces
+    const parEsp = new Map();
+    for (const [k, l] of fonds) { const e = esp[k][0]; parEsp.set(e, [...(parEsp.get(e) || []), ...l]); }
+    const F = new Map();
+    for (const [e, l] of parEsp) {
+      const v = lumiereFond(l.map((x) => x[0]), esp[e].reduce((t, j) => t + aireDe(c.pieces[j].poly), 0)) * Math.max(...l.map((x) => x[1])) * (sombre ? 0.2 : 0.28);
+      for (const j of esp[e]) F.set(j, v);
+    }
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
     // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
     for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
@@ -242,7 +262,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
     }
-    const cp = [...clips].map((k) => `<clipPath id="lum-cp${k}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>`).join("");
+    const cp = [...clips].map((k) => `<clipPath id="lum-cp${k}">${esp[k].map((j) => `<polygon points="${ptsSvg(c.pieces[j].poly)}"/>`).join("")}</clipPath>`).join("");
     poserHTML(g, h || fh ? `<defs>${cp}${defs}</defs>${fh}${h}` : "");
   }
 

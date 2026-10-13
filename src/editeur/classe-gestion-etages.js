@@ -34,7 +34,8 @@ class EditeurPlan { // @assemblage
     return { pieces: g.pieces.length, autres };
   }
 
-  // + Étage : `vide`, `murs` (murs extérieurs de l'étage affiché) ou `tout` (copie de l'étage affiché) ; placé juste au-dessus, on y passe
+  // + Étage : `vide`, `murs` (murs extérieurs de l'étage affiché), `tout` (copie de l'étage affiché) ou `exterieur` (jardin, dépendances :
+  // les murs extérieurs de l'étage affiché pour situer la maison, nommé « Extérieur ») ; placé juste au-dessus, on y passe
   ajouterEtage(mode = "vide") {
     const E = this._E, plein = this._replie();
     let cur = this._etageActif();
@@ -52,7 +53,13 @@ class EditeurPlan { // @assemblage
     const src = plein.etages[i], neuf = this._nouvelEtage(plein);
     if (mode === "tout") {
       for (const k of [...E.CLES_ETAGE, "panneaux"]) if (k in src) neuf[k] = clone(src[k]);
-    } else if (mode === "murs") neuf.murs = (src.murs || []).filter((m) => Array.isArray(m) && this._murExterieur(m, src.pieces || [])).map((m) => [...m]);
+    } else if (mode === "murs" || mode === "exterieur") neuf.murs = (src.murs || []).filter((m) => Array.isArray(m) && this._murExterieur(m, src.pieces || [])).map((m) => [...m]);
+    if (mode === "exterieur") {
+      const ids = new Set(E.ids(plein));
+      let n = 1;
+      while (ids.has(n > 1 ? `exterieur_${n}` : "exterieur")) n++;
+      Object.assign(neuf, { id: n > 1 ? `exterieur_${n}` : "exterieur", nom: n > 1 ? `${_t("Extérieur")} ${n}` : _t("Extérieur"), court: _t("Ext.##etage"), icone: "mdi:pine-tree" });
+    }
     neuf.pieces ||= [];
     plein.etages.splice(i + 1, 0, neuf);
     this._taireDoublons = true;
@@ -211,7 +218,7 @@ class EditeurPlan { // @assemblage
       if (!b || b.disabled) return;
       const id = b.closest("[data-id]")?.dataset.id, a = b.dataset.et;
       ({ fermer: () => this.fermerEtages(), haut: () => this.deplacerEtage(id, 1), bas: () => this.deplacerEtage(id, -1), suppr: () => this.supprimerEtage(id),
-        voir: () => { this.changerEtage(id); this._rendreEtages(); }, vide: () => this.ajouterEtage("vide"), murs: () => this.ajouterEtage("murs"), tout: () => this.ajouterEtage("tout") })[a]?.();
+        voir: () => { this.changerEtage(id); this._rendreEtages(); }, vide: () => this.ajouterEtage("vide"), murs: () => this.ajouterEtage("murs"), tout: () => this.ajouterEtage("tout"), exterieur: () => this.ajouterEtage("exterieur") })[a]?.();
     });
     voile.addEventListener("change", (ev) => {
       const t = ev.target, id = t.closest?.("[data-id]")?.dataset.id;
@@ -281,7 +288,8 @@ class EditeurPlan { // @assemblage
       <div class="ed-et-choix">
         <button type="button" class="ed-btn tonal" data-et="vide"><ha-icon icon="mdi:plus"></ha-icon>${_t("Vide")}</button>
         <button type="button" class="ed-btn tonal" data-et="murs"><ha-icon icon="mdi:wall"></ha-icon>${_t("Avec les murs extérieurs")}</button>
-        <button type="button" class="ed-btn tonal" data-et="tout"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copie de cet étage")}</button></div></section>`;
+        <button type="button" class="ed-btn tonal" data-et="tout"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copie de cet étage")}</button>
+        <button type="button" class="ed-btn tonal" data-et="exterieur" title="${esc(_t("Jardin, terrasse, pergola, dépendances : les murs extérieurs de cet étage situent la maison"))}"><ha-icon icon="mdi:pine-tree"></ha-icon>${_t("Extérieur")}</button></div></section>`;
     poserHTML(V, `<div class="ed-dialogue large ed-et-dlg" role="dialog" aria-modal="true" aria-labelledby="ed-et-titre">
       <header><h2 id="ed-et-titre">${_t("Étages")}</h2><div class="ed-aide">${_t("Du haut vers le bas. Renommer ne change pas l'identifiant : les escaliers et l'étage mémorisé restent valides.")}</div></header>
       <div class="ed-cat ed-et-corps"><div class="ed-et-l" role="list" aria-label="${esc(_t("Étages"))}">${liste}</div>${ajout}${defaut}</div>

@@ -152,6 +152,8 @@ const EN = { // @assemblage
     "ou un attribut": "or an attribute",
     "Unité": "Unit",
     "Halo limité à la pièce": "Halo limited to room",
+    "Automatique (pièce où il est posé)": "Automatic (room it sits in)",
+    "Aucune : halo libre": "None: free halo",
     "x (cm)": "x (cm)",
     "y (cm)": "y (cm)",
     "Titre": "Title",

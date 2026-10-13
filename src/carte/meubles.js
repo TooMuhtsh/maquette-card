@@ -136,6 +136,20 @@ const MEUBLES = {
   } },
   velo: { nom: _tk("Vélo"), cat: _tk("Extérieur"), taille: [60, 180], d: (w, h) => C_(0, -h / 2 + 30, 28, "vide") + C_(0, h / 2 - 30, 28, "vide") + L_(0, -h / 2 + 30, 0, h / 2 - 30) + L_(-w / 2 + 6, -h / 2 + 50, w / 2 - 6, -h / 2 + 50) },
   arbre: { nom: _tk("Arbre / arbuste"), cat: _tk("Extérieur"), taille: [200, 200], rond: true, mots: "haie jardin", d: (w) => [0, 1, 2, 3, 4, 5, 6, 7].map((k) => C_(Math.cos(k * 0.785) * w * 0.3, Math.sin(k * 0.785) * w * 0.3, w * 0.22)).join("") + C_(0, 0, w * 0.3) },
+  // pergola : poteaux aux coins et lames ; reliée à un `cover` (pergola bioclimatique), les lames s'affinent en s'ouvrant (voir _majVelux)
+  pergola: { nom: _tk("Pergola"), cat: _tk("Extérieur"), taille: [400, 300], mots: "bioclimatique tonnelle auvent lames terrasse", d: (w, h) => {
+    const p = +Math.max(4, Math.min(14, w * 0.06, h * 0.06)).toFixed(1), n = Math.max(2, Math.round((h - 2 * p) / 22)), pas = (h - 2 * p) / n, e = +(pas * 0.7).toFixed(1);
+    let s = R_(-w / 2, -h / 2, w, h, 2, "vide") + [[-1, -1], [1, -1], [1, 1], [-1, 1]].map(([a, b]) => R_(a > 0 ? w / 2 - p : -w / 2, b > 0 ? h / 2 - p : -h / 2, p, p, 1)).join("");
+    for (let k = 0; k < n; k++) {
+      const y = +(-h / 2 + p + pas * (k + 0.5)).toFixed(1);
+      s += `<rect class="pg-lame" x="${+(-w / 2 + p).toFixed(1)}" y="${+(y - e / 2).toFixed(1)}" width="${+Math.max(0, w - 2 * p).toFixed(1)}" height="${e}" rx="1" data-c="${y}" data-e="${e}"/>`;
+    }
+    return s; } },
+  // abri de jardin, cabanon : toit à deux pans vu du dessus (faîtage au milieu, arêtes vers les coins) et porte sur le bas
+  abri: { nom: _tk("Abri de jardin / cabanon"), cat: _tk("Extérieur"), taille: [250, 200], mots: "cabane remise dépendance atelier shed", d: (w, h) => {
+    const f = Math.min(w * 0.3, h / 2), pw = Math.min(90, w * 0.4);
+    return R_(-w / 2, -h / 2, w, h, 2) + L_(-w / 2 + f, 0, w / 2 - f, 0) + L_(-w / 2, -h / 2, -w / 2 + f, 0) + L_(-w / 2, h / 2, -w / 2 + f, 0) + L_(w / 2, -h / 2, w / 2 - f, 0) + L_(w / 2, h / 2, w / 2 - f, 0)
+      + `<path class="ligne" d="M${-pw / 2} ${h / 2}H${pw / 2}" style="stroke-width:5px"/>`; } },
   piscine: { nom: _tk("Piscine"), cat: _tk("Extérieur"), taille: [800, 400], d: (w, h) => R_(-w / 2, -h / 2, w, h, 20) + R_(-w / 2 + 15, -h / 2 + 15, w - 30, h - 30, 14, "eau") },
 };
 // tapis et espaces sous les autres meubles, quel que soit l'ordre de pose

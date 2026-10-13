@@ -513,7 +513,7 @@ halo, animation and card.
 | `color` | colour | | HA active state colour (`--state-active-color`, else yellow) | Colour when active |
 | `light_color` | bool | | guessed from `color` | The colour is light: the icon is drawn dark when active |
 | `halo` | number (cm) / bool | | — | Light halo radius while active; `true` = 130 |
-| `room` | string | a room `name` | — | Clip the halo to this room |
+| `room` | string / `false` | a room `name` | the room it sits in (with the ambience light) | Clip the halo to this room and the rooms open onto it (shared edge with no wall or opening); `false` = free halo |
 | `alert` | bool | | `false` | Alert badge: uses `animations.alert` (pulse) when active |
 | `active` | entity | | `entity` | Entity that defines “active” |
 | `active_attribute` | attribute | | — | Use this attribute of the active entity instead of its state |
@@ -1674,6 +1674,7 @@ How the card reacts to touch. Without these keys it behaves as before. Never app
 |---|---|---|---|---|
 | `interaction.room_tap` | enum | `room_view` `more_info` `none` | `room_view` | Tapping a room: room view; more-info of its `tap` entity (else `temperature`); nothing. A room with `zoom: false` keeps its own behaviour |
 | `interaction.lock_view` | bool | | `false` | No panning nor wheel / pinch zoom, zoom buttons hidden; taps still work |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise |
 | `interaction.reset_after` | number (s) | 0–86400 (editor: step 10) | `0` | Back to the whole plan after this many seconds without interaction (room view, zoom, cards closed, paused replay back to live); `0` = never |
 
 ```yaml
@@ -1909,6 +1910,7 @@ Every public key, alphabetically, with the sections that document it.
 | `light` | [Animations](#animations), [Light](#light) |
 | `light_color` | [Device badges](#device-badges) |
 | `lock_view` | [Interaction](#interaction) |
+| `zoom_buttons` | [Interaction](#interaction) |
 | `locked` | [Layers](#layers), [Conventions](#conventions) (on an element) |
 | `margin` | [Global settings](#global-settings) |
 | `marker` | [Day and night](#day-and-night) |

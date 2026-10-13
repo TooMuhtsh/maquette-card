@@ -180,6 +180,8 @@ class EditeurPlan { // @assemblage
         (this.d.points || []).forEach((p) => { if (p.piece === ancien) p.piece = v; });
       }
       if (k === "halo" && !v) { delete o.halo; return; }
+      // halo limité à la pièce : vide = automatique (pièce où il est posé), « - » = libre (`piece: false`, jamais coupé)
+      if (k === "piece" && s.type === "point") { if (v === "-") o.piece = false; else if (v) o.piece = v; else delete o.piece; return; }
       if (k[0] === "!") { if (v) delete o[k.slice(1)]; else o[k.slice(1)] = false; return; }
       if (k.endsWith(".donnees")) { try { v = v ? JSON.parse(v) : ""; } catch (e) { this.snack(_t("Données : JSON invalide.")); return; } }
       const ca = /^(animation(?:_volet)?)\./.exec(k)?.[1];

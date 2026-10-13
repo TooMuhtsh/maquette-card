@@ -155,14 +155,17 @@ class MaquetteCard extends HTMLElement { // @assemblage
     for (const [k, sz] of [["pieces", false], ["sous_zones", true]]) S[k] = trie(c.pieces).filter(([p]) => !!p.sous_zone === sz)
       .map(([p, i]) => `<polygon class="piece${p.dehors ? " dehors" : ""}${p.sous_zone ? " sous-zone" : ""}${em(p)}" data-p="${i}" points="${ptsSvg(p.poly)}"/>`).join("");
     // lumière de l'ambiance (`ambiance.lumiere.lampes`) : un dégradé par halo, à la couleur de la lampe, fondus entre eux (écran)
-    // et coupés par la pièce de la lampe (celle où elle est posée si `piece` manque)
+    // et coupés par l'espace de la pièce de la lampe (celle où elle est posée si `piece` manque ; pièces ouvertes l'une sur l'autre réunies,
+    // voir espacesOuverts) ; `piece: false` = halo libre, jamais coupé
     const LU = coucheLumiere((!ed || this._editeur?.vueAmbiance) && objetSimple(c.ambiance) ? c.ambiance : null), lampes = !!LU?.lampes;
+    let ESP = null;
     S.halos = (c.points || []).map((p, i) => {
       if (!p.halo || !garde(p)) return "";
-      let k = p.piece != null ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
-      if (k < 0 && lampes && point(p.pos)) k = c.pieces.findIndex((q) => !q.sous_zone && Array.isArray(q.poly) && q.poly.length > 2 && dansPoly(p.pos, q.poly));
+      let k = typeof p.piece === "string" ? c.pieces.findIndex((q) => q.nom === p.piece) : -1;
+      if (k < 0 && p.piece !== false && lampes && point(p.pos)) k = c.pieces.findIndex((q) => !q.sous_zone && Array.isArray(q.poly) && q.poly.length > 2 && dansPoly(p.pos, q.poly));
       const lc = lampes && (p.entite || "").startsWith("light.");
-      return (k >= 0 ? `<clipPath id="cp${i}"><polygon points="${ptsSvg(c.pieces[k].poly)}"/></clipPath>` : "")
+      if (k >= 0) ESP ||= espacesOuverts(c.pieces, c.murs, c.ouvertures);
+      return (k >= 0 ? `<clipPath id="cp${i}">${ESP[k].map((j) => `<polygon points="${ptsSvg(c.pieces[j].poly)}"/>`).join("")}</clipPath>` : "")
         + (lc ? `<radialGradient id="halo-${i}"><stop offset="0" stop-color="#ffd54f" stop-opacity=".75"/><stop offset="1" stop-color="#ffd54f" stop-opacity="0"/></radialGradient>` : "")
         + `<circle class="halo${lc ? " lampe" : ""}" data-h="${i}" cx="${p.pos[0]}" cy="${p.pos[1]}" r="${p.halo === true ? 130 : nb(p.halo)}" fill="url(#halo${lc ? `-${i}` : ""})" opacity="0"${k >= 0 ? ` clip-path="url(#cp${i})"` : ""}/>`;
     }).join("");
@@ -278,6 +281,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     R.querySelector(".barre").hidden = sansTete;
     const bEd = R.querySelector(".editer"), hote = R.querySelector(sansTete ? ".zoom" : ".barre");
     if (bEd.parentElement !== hote) hote.append(bEd);
+    this._placerZoom();
     const niv = this._niveauAnim(), card = R.querySelector("ha-card");
     card.classList.toggle("anim-reduit", niv === "reduit");
     card.classList.toggle("anim-aucune", niv === "aucun");
@@ -406,6 +410,20 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._construire();
     this._vue = depart === this._box ? null : depart;
     this._cadrer({ x0: (x0 + x1) / 2 - W / 2, y0: (y0 + y1) / 2 - H / 2, W, H }, true);
+  }
+
+  // boutons de zoom (`interaction.boutons_zoom`) : sur le plan, dans l'en-tête (hors du plan) ou cachés (plus, moins, tout le plan :
+  // calques et revoir la journée restent) ; auto = en-tête sur un écran étroit et tactile (téléphone), sur le plan sinon.
+  // Toujours sur le plan en édition et sans en-tête (tablette sans titre)
+  _placerZoom() {
+    const R = this.shadowRoot, z = R?.querySelector(".zoom"), barre = R?.querySelector(".barre");
+    if (!z || !barre) return;
+    const m = interactionDe(this._config).zoom, tel = this._modeMise === "etroit" && matchMedia("(pointer: coarse)").matches;
+    const tete = !this._editeur && !barre.hidden && (m === "entete" || (m === "auto" && tel)), bEd = R.querySelector(".editer");
+    if (tete && z.parentElement !== barre) barre.insertBefore(z, bEd?.parentElement === barre ? bEd : null);
+    else if (!tete && z.parentElement === barre) R.querySelector(".plan").append(z);
+    z.classList.toggle("en-tete", tete);
+    z.classList.toggle("caches", !this._editeur && m === "caches");
   }
 
   _pxVersCm(cx, cy) {

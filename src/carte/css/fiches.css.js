@@ -133,6 +133,10 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 @media (hover:hover) and (pointer:fine) and (not (any-pointer:coarse)){.zoom{opacity:0;pointer-events:none;transition:opacity .2s var(--md-sys-motion)}
   .plan:hover .zoom,.zoom:focus-within{opacity:1;pointer-events:auto}}
 @media (prefers-reduced-motion:reduce){.zoom{transition:none}}
+/* boutons de zoom dans l'en-tête (téléphone, ou interaction.boutons_zoom: header) : en ligne, hors du plan ; cachés : plus, moins, tout le plan */
+.zoom.en-tete{position:static;flex-direction:row;gap:4px;opacity:1;pointer-events:auto}
+.zoom.en-tete button{width:36px;height:36px}
+.zoom.caches [data-z=plus],.zoom.caches [data-z=moins],.zoom.caches [data-z=tout]{display:none}
 /* calques en édition : masqué = en transparence et non cliquable, verrouillé = transparent au clic ; élément masqué en vue = en transparence */
 .edition .c-masque,.edition .e-masque{opacity:.25}
 .edition .zone svg .cq.c-masque,.edition .zone svg .cq.c-masque *,.edition .zone svg .cq.c-verrou,.edition .zone svg .cq.c-verrou *,

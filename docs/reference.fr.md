@@ -554,7 +554,7 @@ valeur, un halo lumineux, une animation et une fiche.
 | `color` | couleur | | couleur d'état actif de HA (`--state-active-color`, sinon jaune) | Couleur quand elle est active |
 | `light_color` | booléen | | déduit de `color` | La couleur est claire : l'icône est dessinée en sombre quand la pastille est active |
 | `halo` | nombre (cm) / booléen | | — | Rayon du halo lumineux quand elle est active ; `true` = 130 |
-| `room` | texte | un `name` de pièce | — | Limiter le halo à cette pièce |
+| `room` | texte / `false` | un `name` de pièce | pièce où il est posé (avec la lumière de l'ambiance) | Limiter le halo à cette pièce et aux pièces ouvertes sur elle (bord commun sans mur ni ouverture) ; `false` = halo libre |
 | `alert` | booléen | | `false` | Pastille d'alerte : utilise `animations.alert` (pulsation) quand elle est active |
 | `active` | entité | | `entity` | Entité qui définit l'état « actif » |
 | `active_attribute` | attribut | | — | Utiliser cet attribut de l'entité active au lieu de son état |
@@ -1731,6 +1731,7 @@ La réaction de la carte au toucher. Sans ces clés, elle se comporte comme avan
 |---|---|---|---|---|
 | `interaction.room_tap` | énum | `room_view` `more_info` `none` | `room_view` | Toucher une pièce : vue de la pièce ; plus d'infos de son entité `tap` (sinon `temperature`) ; rien. Une pièce avec `zoom: false` garde son propre comportement |
 | `interaction.lock_view` | booléen | | `false` | Ni déplacement ni zoom à la molette / au pincement, boutons de zoom masqués ; les touchers fonctionnent toujours |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon |
 | `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
 
 ```yaml
@@ -1969,6 +1970,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `light` | [Animations](#animations), [Lumière](#lumière) |
 | `light_color` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `lock_view` | [Interaction](#interaction) |
+| `zoom_buttons` | [Interaction](#interaction) |
 | `locked` | [Calques](#calques), [Conventions](#conventions) (sur un élément) |
 | `margin` | [Réglages généraux](#réglages-généraux) |
 | `marker` | [Jour et nuit](#jour-et-nuit) |

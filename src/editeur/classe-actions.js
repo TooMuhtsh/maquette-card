@@ -2,6 +2,7 @@
 class EditeurPlan { // @assemblage
   _action(a) {
     const s = this.sel, d = this.d;
+    if (a === "copier") return this.copier();
     // zone d'informations : ajouter (choix de l'entité), monter, retirer une ligne
     if (/^info-/.test(a) && s?.type === "texte") {
       const o = this._objet(), [op, j] = a.split(":");
@@ -281,7 +282,9 @@ class EditeurPlan { // @assemblage
     const L = this._listes(), m = (this.multi.size ? [...this.multi] : this.sel ? [cle(this.sel)] : []).map(deCle).filter((x) => L[x.type]?.[x.i]);
     if (!m.length) return false;
     EditeurPlan.pressePapiers = m.map((x) => ({ type: x.type, o: clone(L[x.type][x.i]) }));
-    this.snack(_t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
+    this._barre();   // le bouton Coller apparaît
+    this.snack(tactile() ? _t("{n} élément copié : « Coller » le pose à la même position, sur cet étage ou un autre.|{n} éléments copiés : « Coller » les pose à la même position, sur cet étage ou un autre.", { n: m.length })
+      : _t("{n} élément copié : Ctrl+V pour le coller à la même position, sur cet étage ou un autre.|{n} éléments copiés : Ctrl+V pour les coller à la même position, sur cet étage ou un autre.", { n: m.length }));
     return true;
   }
   coller() {
@@ -318,13 +321,13 @@ class EditeurPlan { // @assemblage
     const groupes = [
       [_t("Général"), [[K(ctrl, "Z"), _t("Annuler##defaire")], [ou(K(ctrl, "Y"), K(ctrl, maj, "Z")), _t("Rétablir")], [K(ctrl, "S"), _t("Enregistrer sans quitter l'éditeur")],
         [K("A"), _t("Ajouter un objet ou un widget")], [K("?"), _t("Cette aide")], [K(_t("Échap")), _t("Annuler l'outil, désélectionner, fermer une fenêtre")]]],
-      [_t("Outils"), [...OUTILS.map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
+      [_t("Outils"), [...OUTILS.filter(([id]) => id !== "main").map(([id, , t]) => [K(Object.keys(RACCOURCIS).find((k) => RACCOURCIS[k] === id).toUpperCase()), esc(_t(t).replace(/\s*\([^)]*\)$/, ""))]),
         // copier / coller (aussi d'un étage à l'autre) : ici, la colonne qui a de la place (la modale tient sans défiler)
         [ou(K(ctrl, "C"), K(ctrl, "V")), _t("Copier / coller sur place")]]],
       [_t("Sélection"), [[_t("Clic"), _t("Sélectionner")], [`${K(ctrl)}+${_t("clic")}`, _t("Ajouter à la sélection ou en retirer")], [_t("Glisser dans le vide"), _t("Cadre de sélection")],
         [K(ctrl, "A"), _t("Tout sélectionner")], [K(_t("Flèches")), _t("Déplacer d'un pas de grille (avec Maj : ×10)")], [K(_t("Suppr")), _t("Retirer")],
         [K(ctrl, "D"), _t("Dupliquer")], [K(ctrl, "G"), _t("Grouper")], [K(ctrl, maj, "G"), _t("Dégrouper")]]],
-      [_t("Vue et dessin"), [[ou(`${K(_t("Espace##touche"))}+${_t("glisser")}`, _t("clic molette")), _t("Déplacer la vue")], [`${K("Alt")} ${_t("maintenu")}`, _t("Sans magnétisme")],
+      [_t("Vue et dessin"), [[ou(K("H"), `${K(_t("Espace##touche"))}+${_t("glisser")}`, _t("clic molette")), _t("Déplacer la vue")], [`${K("Alt")} ${_t("maintenu")}`, _t("Sans magnétisme")],
         [K(maj), _t("Angle libre en dessin")], [ou(K(_t("Entrée##touche")), _t("clic droit")), _t("Finir un tracé")]]],
     ];
     const { voile, fermer: retirer } = this._voile("ed-aide-clavier", `<div class="ed-dialogue large ed-dlg-touches" role="dialog" aria-modal="true" aria-labelledby="ed-clavier-t"><header><h2 id="ed-clavier-t">${_t("Raccourcis clavier")}</h2></header>

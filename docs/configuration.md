@@ -177,7 +177,7 @@ links another one; when several contacts of the room are free, tick them in the 
   color: "#f6c445"             # badge colour when active (default: the theme's active colour)
   light_color: true            # optional: the colour is light, the icon is drawn dark when active (default: guessed from color)
   halo: 170                    # light halo radius (cm); true = 130
-  room: Living room            # clip the halo to this room
+  room: Living room            # clip the halo to this room (and open-plan rooms next to it); false = free halo
   active: binary_sensor.motion # entity defining "active" (default: the entity itself)
   active_attribute: hvac_action  # or an attribute of it
   threshold: 20                # active when the value is above
@@ -677,6 +677,7 @@ everything and keeps free zoom.
 interaction:
   room_tap: room_view   # room_view (default) | more_info | none
   lock_view: false      # true: no panning nor zooming, zoom buttons hidden
+  zoom_buttons: auto    # auto (default: in the header on a phone, on the map otherwise) | map | header | hidden
   reset_after: 0        # seconds without interaction before going back to the whole plan; 0 (default) = never
 tablet: true            # or {summary: false, panels: false, burn_in: true}
 animation_level: full   # full (default) | reduced | none
@@ -686,6 +687,7 @@ animation_level: full   # full (default) | reduced | none
 |---|---|---|---|
 | `interaction.room_tap` | `room_view` / `more_info` / `none` | `room_view` | Tapping a room (its floor or its label): open the room view; open Home Assistant's « more info » of the room's `tap` entity (otherwise its `temperature`; nothing if it has neither); or do nothing. A room with `zoom: false` keeps its own behaviour (its label opens its entity) |
 | `interaction.lock_view` | bool | `false` | No panning, no wheel / pinch zoom (not even in a room view), zoom buttons hidden. Tapping rooms, badges, furniture and openings still works |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | `auto` | Where the zoom buttons (+, −, whole plan) sit: on the map, in the header (off the map), or hidden (pinch, drag and room taps still work, unlike `lock_view`). `auto`: in the header on a phone (narrow touch screen), on the map otherwise. Always on the map in the editor |
 | `interaction.reset_after` | number (s, 0–86400) | `0` | After this many seconds without any interaction with the card: room view closed, initial zoom, cards and layer menu closed, a paused replay back to live. Never while editing or while a replay is playing. `0` = never |
 | `tablet` | bool / object | `false` | Wall tablet mode, see below |
 | `tablet.summary` | bool | `false` | Show the summary chips in tablet mode |

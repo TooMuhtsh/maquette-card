@@ -8,7 +8,7 @@ class MaquetteCard extends HTMLElement {
   static normaliserForme = normaliserForme;
   static traitsOuverture = traitsOuverture;
   static LUMIERE = { couche: coucheLumiere, tache: tacheLumiere, baies: baiesFenetres, couleur: couleurLampe, phases: PHASES_LUNE, ciel: LUM_CIEL, kelvin: kelvinRgb,
-    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure };
+    fond: lumiereFond, bornes: vitrageBornes, lune: positionLune, voisins: lumiereVoisins, passage: passageLumiere, lames: partLames, interieure: ouvertureInterieure, espaces: espacesOuverts };
   static couleurSure = (c) => !!couleurSure(c);
   static couleurEcrite = couleurEcrite;
   static palette = palette;
@@ -226,7 +226,7 @@ class MaquetteCard extends HTMLElement {
     const cw = corps.clientWidth, ch = plein ? corps.clientHeight : Infinity, r = this._box.W / this._box.H;
     const fiche = !R.querySelector(".fiche").hidden, ed = !!this._editeur, vue = R.querySelector(".vue");
     const mode = cw >= 1180 ? "large" : cw >= 760 ? "moyen" : "etroit";
-    if (mode !== this._modeMise) { this._modeMise = mode; this._widgets(); }
+    if (mode !== this._modeMise) { this._modeMise = mode; this._widgets(); this._placerZoom(); }
     // en édition, la vue finale garde exactement sa mise en page (l'éditeur n'a plus de panneau latéral : rien n'est pris à sa largeur)
     const reduite = ed && mode !== "etroit";
     this._zVue = 1;

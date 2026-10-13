@@ -39,7 +39,7 @@ const V_MEUBLES = { canape: "sofa", canape_angle: "corner_sofa", fauteuil: "armc
   plan_travail: "counter", evier: "sink", plaques: "hob", refrigerateur: "fridge", lave_linge: "washing_machine", lave_vaisselle: "dishwasher",
   lit_simple: "single_bed", lit_double: "double_bed", lit_bebe: "crib", table_nuit: "nightstand", armoire: "wardrobe", commode: "dresser", bureau: "desk",
   douche: "shower", baignoire: "bathtub", lavabo: "washbasin", wc: "toilet", chaudiere: "boiler", ballon: "water_heater", radiateur: "radiator",
-  tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool",
+  tableau_elec: "electrical_panel", box: "router", borne_recharge: "ev_charger", pac: "heat_pump", voiture: "car", velo: "bike", arbre: "tree", piscine: "pool", pergola: "pergola", abri: "shed",
   espace: "area", rect: "rect", cercle: "circle", escalier: "stairs", forme: "custom", fenetre_toit: "skylight" };
 // catégories des meubles (catalogue et meubles personnalisés `modeles[].cat`)
 const V_CATS_MEUBLES = { sejour: "living", repas: "dining", cuisine: "kitchen", chambre: "bedroom", salle_eau: "bathroom", technique: "utility", formes: "shapes", exterieur: "outdoor" };
@@ -158,7 +158,8 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
   teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend",
   // interaction au toucher, tablette murale, niveau d'animation
-  interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after" })],
+  interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after",
+    boutons_zoom: ["zoom_buttons", nEnum({ auto: "auto", plan: "map", entete: "header", caches: "hidden" })] })],
   tablette: ["tablet", nObj({ resume: "summary", panneaux: "panels", anti_marquage: "burn_in" })],
   niveau_animation: ["animation_level", nEnum({ complet: "full", reduit: "reduced", aucun: "none" })],
   // clés que Home Assistant ajoute à toute carte : gardées telles quelles

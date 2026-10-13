@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.2.1 – 2026-10-13
+
+### Added
+
+- **Copy** and **Paste** buttons in the editor for phones and tablets: *Copy* in the floating toolbar of the selection, *Paste* in the editor bar (or the ⋮ menu) once something is copied. They do the same as Ctrl+C / Ctrl+V, across floors.
+- **Pergola** in the furniture catalogue (Outdoor): posts and louvres. Linked to a `cover` (bioclimatic pergola), the louvres narrow as they open (`current_tilt_position`, otherwise `current_position`).
+- **Garden shed** in the furniture catalogue (Outdoor), drawn with its two-sided roof seen from above.
+- **Outdoor floor** in the floor manager: one click adds a floor named *Outdoor* (garden, patio, outbuildings) with the outer walls of the displayed floor to show where the house stands.
+- **Zoom buttons** setting (`interaction.zoom_buttons`, Settings › Interaction), separate from *Locked view*: on the map, in the header (off the map) or hidden, where pinching and tapping a room still work. By default (`auto`) they sit in the header on a phone so they no longer cover the plan.
+- **Hand** tool in the editor on touch screens (H): dragging moves the view without selecting or moving anything, handy on a phone to reach a wall once zoomed in. Space + drag still works on a computer.
+
+### Fixed
+
+- Lamp halos and the light coming through windows stopped at the edge of their room even where no wall stands, for example between a living room and an open kitchen drawn as two rooms. Light now spreads over rooms that share an edge with no wall or opening on it, and still stops at walls.
+- The halo room setting had no real "none": *— none —* fell back to the room the lamp sits in. It now offers *Automatic (room it sits in)* and *None: free halo* (`room: false`), which is never clipped.
+
 ## 0.2.0 – 2026-10-09
 
 Everything from 0.1.0 still works the same, with one exception: **Save** now also leaves the editor (**Apply** or Ctrl+S saves and keeps editing). This version includes the 0.2.0 betas.

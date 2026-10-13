@@ -147,7 +147,8 @@ ha-card.ed-etroit .ed-at-mb .ed-prim{scroll-margin-top:calc(var(--ed-ap-h,0px) +
 .ed-puces button{height:32px;padding:0 12px;border-radius:8px;border:1px solid var(--md-outline-variant);background:none;color:var(--md-on-surface-variant);cursor:pointer;font:500 13px/18px var(--ha-font-family-body,Roboto,sans-serif)}
 .ed-puces button.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container);border-color:transparent}
 svg .ed-cadre{fill:color-mix(in srgb,var(--md-primary) 12%,transparent);stroke:var(--md-primary);stroke-dasharray:6 4;pointer-events:none}
-.edition .zone.espace{cursor:grab}
+.edition .zone.espace,.edition .zone.main{cursor:grab}
+.edition .zone.main .calque>*{pointer-events:none}
 svg .ed-cible{stroke:transparent;fill:none;cursor:pointer;pointer-events:stroke}
 svg .ed-cible:hover{stroke:color-mix(in srgb,var(--md-primary) 25%,transparent)}
 svg .ed-sel{fill:none;stroke:var(--md-primary);stroke-dasharray:10 6;pointer-events:none}

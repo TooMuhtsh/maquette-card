@@ -166,11 +166,12 @@ const styleAnim = (a) => {
 
 // ---------- interaction (`interaction`), tablette murale (`tablette`), niveau d'animation (`niveau_animation`) ----------
 // sans ces clés : comportement d'origine (vue de la pièce au toucher, déplacement et zoom libres, pas de retour automatique)
-const CLICS_PIECE = ["vue", "infos", "aucun"], NIVEAUX_ANIM = ["complet", "reduit", "aucun"];
+const CLICS_PIECE = ["vue", "infos", "aucun"], NIVEAUX_ANIM = ["complet", "reduit", "aucun"], BOUTONS_ZOOM = ["auto", "plan", "entete", "caches"];
 const objetSimple = (v) => !!v && typeof v === "object" && !Array.isArray(v);
 const interactionDe = (c) => {
   const o = objetSimple(c?.interaction) ? c.interaction : {}, s = Number.isFinite(+o.retour_apres) ? +o.retour_apres : 0;
-  return { clic: CLICS_PIECE.includes(o.clic_piece) ? o.clic_piece : "vue", figee: o.vue_figee === true, retour: Math.min(86400, Math.max(0, s)) };
+  return { clic: CLICS_PIECE.includes(o.clic_piece) ? o.clic_piece : "vue", figee: o.vue_figee === true, retour: Math.min(86400, Math.max(0, s)),
+    zoom: BOUTONS_ZOOM.includes(o.boutons_zoom) ? o.boutons_zoom : "auto" };
 };
 // mode tablette : `true` = { resume: false, panneaux: false, anti_marquage: true } ; un objet règle chaque point (les clés absentes gardent ces valeurs)
 const tabletteDe = (c) => {
