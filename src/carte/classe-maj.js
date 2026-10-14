@@ -43,7 +43,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const s = this._etat(p.entite);
     if (p.attribut && s) { const a = s.attributes[p.attribut]; return a != null ? `${typeof a === "number" ? fmt(a, p.decimales ?? 1) : a}${p.unite ?? ""}` : ""; }
     if (p.valeur) { const n = this._num(p.valeur), sv = this._etat(p.valeur); if (n != null) return `${fmt(n, p.decimales ?? 0)} ${p.unite ?? sv.attributes.unit_of_measurement ?? ""}`.trim(); }
-    return "";
+    return consigneClimat(s, p, this._hass);
   }
 
   _maj() {
@@ -62,19 +62,18 @@ class MaquetteCard extends HTMLElement { // @assemblage
         poly.style.fill = col ? `color-mix(in srgb, ${col} 28%, var(--md-surface))` : "var(--secondary-background-color)";
       }
       const etq = R.querySelector(`[data-l="${i}"] .val`);
-      if (etq) etq.textContent = [t != null && EP.temperature ? `${fmt(t)} °C` : "", h != null && EP.humidite ? `${fmt(h, 0)}${globalThis.MaquetteI18n.pct()}` : ""].filter(Boolean).join(" · ");
+      texteSi(etq, [t != null && EP.temperature ? `${fmt(t)} °C` : "", h != null && EP.humidite ? `${fmt(h, 0)}${globalThis.MaquetteI18n.pct()}` : ""].filter(Boolean).join(" · "));
     });
 
     (c.ouvertures || []).forEach((o, i) => {
       // ouverture masquée (élément ou calque) : pas de dessin, mais elle compte toujours dans le résumé
       const g = R.querySelector(`[data-o="${i}"]`), ent = entOuv(o);
       const s = this._etatOuverture(o), cl = g?.classList;
-      cl?.remove("ouvert", "bouge", "inconnu");
+      // classe d'état (une seule) : basculée seulement si elle change (remove + add réécrivait `class` à chaque passage)
+      const ec = !ent ? "" : !s || ["unavailable", "unknown"].includes(s.state) ? "inconnu" : ["opening", "closing"].includes(s.state) ? "bouge" : s.state === "on" || s.state === "open" ? "ouvert" : "";
+      for (const k of ["ouvert", "bouge", "inconnu"]) cl?.toggle(k, k === ec);
       let txt = o.nom || "";
       if (ent) {
-        if (!s || ["unavailable", "unknown"].includes(s.state)) cl?.add("inconnu");
-        else if (["opening", "closing"].includes(s.state)) cl?.add("bouge");
-        else if (s.state === "on" || s.state === "open") cl?.add("ouvert");
         txt = _t("{nom} : {etat}", { nom: o.nom || this._nom(ent), etat: s ? this._hass.formatEntityState?.(s) ?? s.state : "?" });
       }
       if (o.volet) {
@@ -89,7 +88,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
         }
         if (sv) txt += _t(" · volet {etat}", { etat: pos != null ? pos + globalThis.MaquetteI18n.pct() : sv.state });
       }
-      if (g) g.querySelector("title").textContent = txt;
+      if (g) texteSi(g.querySelector("title"), txt);
     });
 
     // bulles cachées (indisponibles ou inactives, selon `style_pastilles`) : plus dessinées ni cliquables ni lues ; toujours là en édition
@@ -97,10 +96,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
     (c.points || []).forEach((p, i) => {
       const b = R.querySelector(`[data-q="${i}"]`), s = this._etat(p.entite), actif = this._actif(p);
       const h = R.querySelector(`[data-h="${i}"]`);
-      if (h) h.setAttribute("opacity", actif ? 1 : 0);
+      attrSi(h, "opacity", actif ? 1 : 0);
       if (h?.classList.contains("lampe") && actif) {
         const { rgb, force } = couleurLampe(s), col = rgb ? `rgb(${rgb.join(",")})` : "#ffd54f";
-        R.querySelectorAll(`#halo-${i} stop`).forEach((st, n) => { st.setAttribute("stop-color", col); if (!n) st.setAttribute("stop-opacity", (0.75 * force).toFixed(3)); });
+        R.querySelectorAll(`#halo-${i} stop`).forEach((st, n) => { attrSi(st, "stop-color", col); if (!n) attrSi(st, "stop-opacity", (0.75 * force).toFixed(3)); });
       }
       if (!b) return; // pastille masquée : elle compte toujours dans le résumé
       b.classList.toggle("actif", actif);
@@ -110,8 +109,8 @@ class MaquetteCard extends HTMLElement { // @assemblage
       b.classList.toggle("indispo", indispo);
       b.classList.toggle("bs-cache", !ed && (indispo ? st.indisponible === "cache" : !actif && st.inactif === "actif_seul"));
       b.classList.toggle("bs-estompe", !ed && !indispo && !actif && st.inactif === "estompe");
-      b.querySelector(".v").textContent = this._texteValeur(p);
-      b.title = _t("{nom} : {etat}", { nom: p.nom || this._nom(p.entite), etat: s ? this._hass.formatEntityState?.(s) ?? s.state : "?" });
+      texteSi(b.querySelector(".v"), this._texteValeur(p));
+      titreSi(b, _t("{nom} : {etat}", { nom: p.nom || this._nom(p.entite), etat: s ? this._hass.formatEntityState?.(s) ?? s.state : "?" }));
     });
 
     // meubles connectés : classes et badge seulement (pas de reconstruction du plan) ; un meuble dont les états n'ont pas changé est sauté
@@ -180,7 +179,8 @@ class MaquetteCard extends HTMLElement { // @assemblage
         if (ajout) (rendu[rendu.length - 1] ||= []).push([ajout]);
         html = rendu.filter((l) => l.length).map((l) => `<div class="tete-l">${l.map((pl) => (pl.length > 1 ? `<div class="pile">${pl.join("")}</div>` : pl[0])).join("")}</div>`).join("");
       }
-      poserHTML(tete, html);
+      // même résumé qu'au passage précédent : rien n'est reconstruit (hors édition, où les puces se déplacent à la main)
+      if (ed || tete._html !== html) { poserHTML(tete, html); tete._html = ed ? null : html; }
     }
     this._majInfos();
     this._majTraces();
@@ -202,14 +202,14 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const t = T[+b.dataset.t];
       b.querySelectorAll(".ib-l").forEach((ln) => {
         const l = t?.infos?.[+ln.dataset.ibl] || {}, s = this._etat(l.entite), dc = s?.attributes.device_class;
-        ln.querySelector(".ib-n").textContent = l.nom ?? (s ? s.attributes.friendly_name || l.entite : l.entite || "");
+        texteSi(ln.querySelector(".ib-n"), l.nom ?? (s ? s.attributes.friendly_name || l.entite : l.entite || ""));
         const parAttr = /temp/i.test(l.attribut || "") ? "temperature" : /humid/i.test(l.attribut || "") ? "humidity" : null;
-        if (!l.icone) ln.querySelector("ha-icon").setAttribute("icon", (parAttr && ICONES_MESURE[parAttr]) || s?.attributes.icon || ICONES_MESURE[dc] || "mdi:information-outline");
+        if (!l.icone) attrSi(ln.querySelector("ha-icon"), "icon", (parAttr && ICONES_MESURE[parAttr]) || s?.attributes.icon || ICONES_MESURE[dc] || "mdi:information-outline");
         let v = "—";
         if (s && l.attribut) { const a = s.attributes[l.attribut]; v = a == null ? "—" : `${typeof a === "number" ? fmt(a, l.decimales ?? 1) : a}${l.unite ? ` ${l.unite}` : ""}`; }
         else if (s && !isNaN(parseFloat(s.state))) { const x = this._val(l.entite, l.decimales, l.unite); v = `${x.t}${globalThis.MaquetteI18n.unite(x.u)}`; }
         else if (s) v = this._hass.formatEntityState?.(s) ?? s.state;
-        ln.querySelector(".ib-v").textContent = v;
+        texteSi(ln.querySelector(".ib-v"), v);
         ln.classList.toggle("indispo", !s || s.state === "unavailable");
       });
     });

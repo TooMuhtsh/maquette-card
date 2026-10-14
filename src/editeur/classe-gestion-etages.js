@@ -151,8 +151,8 @@ class EditeurPlan { // @assemblage
     for (const e of this._E.parEtage(c)) for (const p of e.geo.pieces) { const k = this._cleNom(p?.nom); if (k) m.set(k, (m.get(k) || 0) + 1); }
     return m;
   }
-  // crochet de _apres : un nom de pièce de l'étage affiché devient doublon dans la maison (création, renommage, copie, étage dupliqué)
-  _apresGestionEtages(plein, sansHisto) {
+  // point d'accroche « modifie » (fin de _apres) : un nom de pièce de l'étage affiché devient doublon dans la maison (création, renommage, copie, étage dupliqué)
+  _quand_modifie_gestionEtages(plein, sansHisto) {
     // modale ouverte : redessinée après toute modification (annuler depuis la notification compris), sauf pendant une saisie
     if (this._voileEtages && !this._saisieEtages) this._rendreEtages();
     const avant = this._nomsMaison || this._compterNoms(this.original), noms = (this._nomsMaison = this._compterNoms(plein));

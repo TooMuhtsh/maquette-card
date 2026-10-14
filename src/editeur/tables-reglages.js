@@ -169,6 +169,9 @@ const PARAMS_INTERACTION = [
     { chemin: "niveau_animation", type: "choix", nom: _tk("Niveau d'animation"), defaut: "complet",
       options: [["complet", _tk("Complet")], ["reduit", _tk("Réduit")], ["aucun", _tk("Aucune")]],
       aide: _tk("Réduit : rien ne bouge en boucle (pulsations, ondes, météo, flux), transitions courtes. Aucune : rien ne bouge.") },
+    { chemin: "effets", type: "choix", nom: _tk("Effets"), defaut: "auto",
+      options: [["auto", _tk("Auto")], ["complets", _tk("Complets")], ["legers", _tk("Légers")]],
+      aide: _tk("Légers : lumière des fenêtres sans flou, nuages et brouillard immobiles ; plus sobre pour un téléphone. Auto : légers sur écran tactile.") },
   ] },
 ];
 // widgets latéraux d'un étage (plan à étages, config dépliée : `etage_actif.propres`) : propres = les panneaux à la racine sont ceux de

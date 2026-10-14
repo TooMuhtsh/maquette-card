@@ -20,6 +20,29 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._fluxCle = cle;
     const b = this._box;
     poserHTML(g, dessinFlux(l, Math.max(b.W, b.H) * 0.0045, this._sansBoucles()));
+    this._billes();
+  }
+  // billes des flux (plan et vitrine) : 10 positions par seconde (minuterie de 100 ms) au lieu d'une animation SMIL redessinée à chaque
+  // image de l'écran ; même trajet (le chemin du flux, parcouru à vitesse constante) et même vitesse. Horloge propre, arrêtée pendant la
+  // pause (plan hors de la vue, page cachée : _pauseAnimations) : les billes repartent d'où elles étaient. Niveau réduit / mouvement
+  // réduit : pas de billes
+  _billes() {
+    const R = this.shadowRoot, l = R ? R.querySelectorAll(".zone svg circle.bille") : [];
+    if (!l.length || this._enPause || !this.isConnected) { clearInterval(this._tmBilles); this._tmBilles = 0; this._tbDer = null; return; }
+    const pas = () => {
+      const t0 = performance.now();
+      if (this._tbDer != null) this._tb = (this._tb || 0) + Math.min(1000, Math.max(0, t0 - this._tbDer));
+      this._tbDer = t0;
+      const t = (this._tb || 0) / 1000;
+      for (const c of R.querySelectorAll(".zone svg circle.bille")) {
+        const p = c.parentNode.firstElementChild, d = +c.dataset.dur;
+        if (!(d > 0) || !p?.getPointAtLength) continue;
+        const L = (c._L ??= p.getTotalLength()), q = p.getPointAtLength((((t + +c.dataset.dec) / d) % 1) * L);
+        attrSi(c, "cx", q.x.toFixed(1)); attrSi(c, "cy", q.y.toFixed(1));
+      }
+    };
+    pas();
+    if (!this._tmBilles) this._tmBilles = setInterval(() => (this.isConnected && !this._enPause ? pas() : this._billes()), 100);
   }
 
   // ---------- personnes ----------
@@ -78,10 +101,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
         return;
       }
       if (home) {
-        el.dataset.x = mz[0]; el.dataset.y = mz[1];
+        attrSi(el, "data-x", mz[0]); attrSi(el, "data-y", mz[1]);
         el.style.left = `${((mz[0] - q.x0) / q.W) * 100}%`; el.style.top = `${((mz[1] - q.y0) / q.H) * 100}%`;
         el.style.setProperty("--dx", (chez.indexOf(el) - (chez.length - 1) / 2).toFixed(2));
-        pt.textContent = ""; el.title = _t("{nom} : à la maison", { nom });
+        texteSi(pt, ""); titreSi(el, _t("{nom} : à la maison", { nom }));
         return;
       }
       delete el.dataset.x; delete el.dataset.y;
@@ -95,7 +118,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const k = Math.min(Math.abs(ux) > 1e-6 ? 0.44 / Math.abs(ux) : Infinity, Math.abs(uy) > 1e-6 ? 0.44 / Math.abs(uy) : Infinity);
       el.style.left = `${(50 + ux * k * 100).toFixed(2)}%`; el.style.top = `${(50 + uy * k * 100).toFixed(2)}%`;
       el.style.setProperty("--dx", (dehors.indexOf(el) * 0.5).toFixed(2)); // deux personnes au même endroit : légèrement décalées
-      pt.textContent = txt; el.title = _t("{nom} : {etat}", { nom, etat: txt });
+      texteSi(pt, txt); titreSi(el, _t("{nom} : {etat}", { nom, etat: txt }));
     });
     this._rangeePersonnes();
   }
@@ -137,15 +160,19 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const R = this.shadowRoot, plan = R?.querySelector(".plan");
     if (!plan) return;
     const l = this._editeur ? [] : this._alertesActives().filter((a) => !this._alertesVues?.has(a.sig));
-    R.querySelectorAll(".en-alerte:not(.vit-pt)").forEach((e) => { e.classList.remove("en-alerte"); e.style.removeProperty("--al-c"); });
+    // éléments entourés (élément → couleur) : seuls ceux qui changent sont réécrits (pas de retrait puis remise à chaque mise à jour)
+    const marques = new Map(), marquer = () => {
+      R.querySelectorAll(".en-alerte:not(.vit-pt)").forEach((e) => { if (!marques.has(e)) { e.classList.remove("en-alerte"); e.style.removeProperty("--al-c"); } });
+      for (const [x, c] of marques) { x.classList.toggle("en-alerte", true); if (x.style.getPropertyValue("--al-c") !== c) x.style.setProperty("--al-c", c); }
+    };
     let v = plan.querySelector(":scope>.alerte-voile"), bd = plan.querySelector(":scope>.bandeau-al");
     this._alertes = l;
-    if (!l.length) { v?.remove(); bd?.remove(); return; }
+    if (!l.length) { v?.remove(); bd?.remove(); marquer(); return; }
     const COUL = { critique: "var(--md-error)", alerte: "var(--warning-color,#f4b400)", info: "var(--md-primary)" }, a0 = l[0];
     if (!v) { v = document.createElement("div"); plan.append(v); }
     if (!bd) { bd = document.createElement("div"); bd.setAttribute("role", "alert"); plan.append(bd); }
-    v.className = `alerte-voile ${a0.niv}`; bd.className = `bandeau-al ${a0.niv}`;
-    plan.style.setProperty("--al-c", COUL[a0.niv]);
+    attrSi(v, "class", `alerte-voile ${a0.niv}`); attrSi(bd, "class", `bandeau-al ${a0.niv}`);
+    if (plan.style.getPropertyValue("--al-c") !== COUL[a0.niv]) plan.style.setProperty("--al-c", COUL[a0.niv]);
     // nom de l'élément concerné (ouverture de n'importe quel étage, l'affiché d'abord), suivi de son étage s'il n'est pas affiché
     const nomDe = (e) => {
       const o = this._maisonEtages().flatMap((E) => E.geo.ouvertures).find((x) => contactsDe(x).includes(e) || (!contactsDe(x).length && x.entite === e));
@@ -162,8 +189,9 @@ class MaquetteCard extends HTMLElement { // @assemblage
       (this._config.meubles || []).forEach((m, i) => { if (m.entite === e || m.valeur === e) els.push(R.querySelector(`.calque>[data-mbq="${i}"]`)); });
       // ouverture à plusieurs capteurs : entourée aussi quand c'est un autre que le premier qui est ouvert
       (this._config.ouvertures || []).forEach((o, i) => { if (contactsDe(o).length > 1 && contactsDe(o).includes(e)) els.push(R.querySelector(`.zone svg [data-o="${i}"]`)); });
-      for (const x of els) if (x && !x.classList.contains("en-alerte")) { x.classList.add("en-alerte"); x.style.setProperty("--al-c", COUL[a.niv]); }
+      for (const x of els) if (x && !marques.has(x)) marques.set(x, COUL[a.niv]);
     }
+    marquer();
   }
   _actionAlerte(k) {
     const a = this._alertes?.[0];

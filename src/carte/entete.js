@@ -9,7 +9,21 @@
  */
 import "./maquette-i18n.js"; // dist : ligne retirée par build.mjs, le fichier est placé en tête
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.2.2";
+const VERSION = "0.3.0";
+// éditeur : module à part (maquette-editeur.js, à côté de ce fichier), chargé à la première ouverture, une seule fois par page ;
+// même requête que la carte (?hacstag=… de HACS, ?v=… d'un déploiement) pour suivre ses mises à jour, sinon ?v=<version>.
+// Déjà là s'il a été chargé autrement (ressource ajoutée à la main, ancienne version d'un seul fichier) ; échec : on pourra réessayer.
+let _chargementEditeur = null;
+function chargerEditeur() {
+  if (globalThis.MaquetteEditeur) return Promise.resolve(globalThis.MaquetteEditeur);
+  return (_chargementEditeur ||= (async () => {
+    const ici = new URL(import.meta.url);
+    await import(new URL(`maquette-editeur.js${ici.search || `?v=${VERSION}`}`, ici).href);
+    // le module attend que la carte soit définie : elle l'est déjà ici
+    if (!globalThis.MaquetteEditeur) throw new Error("maquette-editeur.js : EditeurPlan absent");
+    return globalThis.MaquetteEditeur;
+  })().catch((e) => { _chargementEditeur = null; throw e; }));
+}
 const ACTIFS = new Set(["on", "open", "opening", "closing", "playing", "heating", "cooling", "cleaning", "detected", "home"]);
 const fmt = globalThis.MaquetteI18n.nombre; // nombre à la locale de l'interface
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));

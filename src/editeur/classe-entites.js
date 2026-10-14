@@ -89,7 +89,7 @@ class EditeurPlan { // @assemblage
     const clavier = !!(o.echap || o.touche || o.pieger);
     if (clavier) window.addEventListener("keydown", touche, true);
     const fermer = () => { voile.remove(); if (clavier) window.removeEventListener("keydown", touche, true); };
-    if (html != null) { poserHTML(voile, html); this.R.querySelector("ha-card").append(voile); }
+    if (html != null) { poserHTML(voile, html); this._hote().append(voile); } // dans la bibliothèque ouverte (couche supérieure), sinon la carte
     return { voile, fermer };
   }
 

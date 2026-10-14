@@ -17,14 +17,15 @@ class EditeurPlan { // @assemblage
     };
     const nDef = items.filter((x) => x.niveau === "defaut").length, nStyle = items.filter((x) => x.niveau === "style").length;
     const copies = this._copiesNettoyage().length;
-    const lienCopies = copies ? `<button class="ed-btn texte" data-x="copies"><ha-icon icon="mdi:history"></ha-icon>${_t("Plans d'avant nettoyage ({n})", { n: copies })}</button>` : "";
+    // (+ entités introuvables dans HA, s'il y en a : classe-diagnostic.js)
+    const lienCopies = (copies ? `<button class="ed-btn texte" data-x="copies"><ha-icon icon="mdi:history"></ha-icon>${_t("Plans d'avant nettoyage ({n})", { n: copies })}</button>` : "") + this._lienIntrouvables();
     const { voile, fermer } = this._voile("ed-plein-tel", null, { echap: () => fermer() });
     // plan propre, sans rien de facultatif : un message et rien à faire
     if (!visibles.length) {
       poserHTML(voile, `<div class="ed-dialogue ed-net ed-net-petit" role="dialog" aria-modal="true" aria-label="${titre}"><header><h2>${titre}</h2></header>
         <div class="ed-net-vide" role="status"><ha-icon icon="mdi:check-circle-outline"></ha-icon><b>${_t("Plan propre")}</b><span>${_t("Rien à corriger.")}</span></div>
         <footer>${lienCopies}<span class="ed-espace"></span><button class="ed-btn plein" data-x="fermer">${_t("Fermer")}</button></footer></div>`);
-      voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.x); if (ev.target === voile || b?.dataset.x === "fermer") fermer(); else if (b?.dataset.x === "copies") { fermer(); this.copiesNettoyage(); } };
+      voile.onclick = (ev) => { const b = ev.composedPath().find((n) => n.dataset?.x); if (ev.target === voile || b?.dataset.x === "fermer") fermer(); else if (b?.dataset.x === "copies") { fermer(); this.copiesNettoyage(); } else if (b?.dataset.x === "diag") { fermer(); this.diagnosticEntites(); } };
       this.R.querySelector("ha-card").append(voile);
       voile.querySelector('[data-x="fermer"]').focus();
       return;
@@ -140,6 +141,7 @@ class EditeurPlan { // @assemblage
       if (x === "fermer") return fermer();
       if (x === "tout") { sel = null; formulaire(); return zoomer(null); }
       if (x === "copies") { fermer(); return this.copiesNettoyage(); }
+      if (x === "diag") { fermer(); return this.diagnosticEntites(); } // classe-diagnostic.js
       if (x === "appliquer") { fermer(); this.appliquerNettoyage(choix()); }
     };
     this.R.querySelector("ha-card").append(voile);
@@ -242,14 +244,17 @@ class EditeurPlan { // @assemblage
     ta.remove();
     return ok;
   }
-  // « Restaurer un plan d'avant nettoyage » : les 3 dernières copies de ce navigateur, aperçu, restauration ou copie en YAML (autre appareil)
+  // « Restaurer un plan d'avant nettoyage » : les 3 dernières copies de ce compte HA (ou de ce navigateur), aperçu, restauration ou copie en YAML (autre appareil)
   copiesNettoyage() {
     const copies = this._copiesNettoyage();
-    if (!copies.length) return this.snack(_t("Aucun plan d'avant nettoyage dans ce navigateur."));
+    const compte = this._versionsDuCompte(); // rangées dans le compte HA, ou dans ce navigateur seulement
+    if (!copies.length) return this.snack(compte ? _t("Aucun plan d'avant nettoyage dans ce compte.") : _t("Aucun plan d'avant nettoyage dans ce navigateur."));
     let j = 0;
     const date = (t) => new Date(t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "short" });
     const { voile, fermer } = this._voile("ed-plein-tel", `<div class="ed-dialogue ed-net" role="dialog" aria-modal="true" aria-label="${esc(_t("Plans d'avant nettoyage"))}"><header><h2>${_t("Plans d'avant nettoyage")}</h2>
-        <div class="ed-aide">${this._etageActif() == null ? _t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures (annulable).")
+        <div class="ed-aide">${this._etageActif() == null ? (compte ? _t("Les 3 derniers, gardés dans ce compte Home Assistant. « Restaurer » remplace pièces, murs et ouvertures (annulable).")
+          : _t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures (annulable)."))
+          : compte ? _t("Les 3 derniers, gardés dans ce compte Home Assistant. « Restaurer » remplace pièces, murs et ouvertures de leur étage, les autres étages restent tels quels (annulable).")
           : _t("Les 3 derniers, gardés dans ce navigateur. « Restaurer » remplace pièces, murs et ouvertures de leur étage, les autres étages restent tels quels (annulable).")}</div></header>
       <div class="ed-cat ed-net-corps"><div class="ed-net-apercu"><div class="ed-net-w"></div></div>
         <div class="ed-versions" role="listbox" aria-label="${esc(_t("Plans d'avant nettoyage"))}">${copies.map((v, i) => `<button type="button" role="option" data-c="${i}" aria-selected="${i === 0}" class="${i === 0 ? "on" : ""}"><span>${esc(date(v.t))}<small> · ${_t("{n} correction|{n} corrections", { n: v.nettoyage })}${v.etage != null ? ` · ${esc(this._nomEtageNet(v.etage, v.nom_etage))}` : ""}</small></span></button>`).join("")}</div></div>

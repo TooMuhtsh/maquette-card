@@ -1,11 +1,21 @@
 // CSS de l'éditeur : barre, plan, panneaux, téléphone — morceau de src/maquette-editeur.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 const CSS = `
-.ed-barre{display:flex;flex-wrap:nowrap;align-items:center;gap:8px;margin:0 0 12px;padding:8px;border-radius:16px;background:var(--md-surface-container-high);flex:none;min-width:0}
-.ed-defile{flex:1 1 auto;min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
+.ed-barre{display:flex;flex-wrap:wrap;row-gap:4px;align-items:center;gap:8px;margin:0 0 12px;padding:8px;border-radius:16px;background:var(--md-surface-container-high);flex:none;min-width:0}
+.ed-defile{flex:1 1 0;min-width:0;display:flex;align-items:center;gap:8px;overflow-x:auto;scrollbar-width:none}
 .ed-defile::-webkit-scrollbar{display:none}
 .ed-defile>*{flex:none}
 .ed-defile.deborde{-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 32px),transparent)}
 .ed-fin{flex:none;display:flex;align-items:center;gap:4px}
+/* PC : 2e ligne, commandes de panneaux avec libellés (débordement : défilement horizontal, comme la 1re) */
+.ed-ligne2{flex:1 0 100%;min-width:0;display:flex;align-items:center;gap:2px;overflow-x:auto;scrollbar-width:none;padding-top:4px;border-top:1px solid var(--md-outline-variant)}
+.ed-ligne2::-webkit-scrollbar{display:none}
+.ed-ligne2>*{flex:none}
+.ed-ligne2 .ed-btn{height:36px;padding:0 12px}
+.ed-ligne2 .ed-btn.on{background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
+.ed-ligne2 .ed-sep{margin:0 6px}
+/* PC étroit (barre < 1150 px) : la 1re ligne garde tous ses boutons, les libellés secondaires laissent la place (icône et infobulle restent) */
+.ed-barre{container-type:inline-size}
+@container (max-width:1150px){.ed-defile .ed-menu-btn .lib,.ed-fin [data-a=quitter] .lib,.ed-fin [data-a=appliquer] .lib{display:none}}
 ha-card.ed-etroit .ed-fin .lib,ha-card.ed-etroit .ed-fin .ed-info{display:none}
 ha-card.ed-etroit .ed-fin .ed-btn{padding:0 10px;min-width:44px;justify-content:center}
 .ed-bulle{position:absolute;z-index:4;pointer-events:none;padding:4px 8px;border-radius:8px;background:var(--md-inverse-surface,#313033);color:var(--md-inverse-on-surface,#f4eff4);font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 1px 3px #0005}
@@ -154,6 +164,7 @@ ha-card.ed-etroit .ed-snack{bottom:56px}
 .ed-snack{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:10;background:var(--md-on-surface);color:var(--md-surface);
   border-radius:4px;padding:6px 8px 6px 16px;display:flex;align-items:center;gap:8px;min-height:40px;box-shadow:0 3px 6px #0004;
   font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);max-width:calc(100vw - 32px)}
-.ed-snack button{background:none;border:none;color:color-mix(in srgb,var(--md-primary) 60%,var(--md-surface));font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);cursor:pointer;padding:8px 12px;border-radius:20px}
+.ed-snack>span{min-width:0}
+.ed-snack button{flex-shrink:0;background:none;border:none;color:color-mix(in srgb,var(--md-primary) 60%,var(--md-surface));font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);cursor:pointer;padding:8px 12px;border-radius:20px}
 .ed-dialogue.large{width:min(760px,100%)}
 ` // @assemblage

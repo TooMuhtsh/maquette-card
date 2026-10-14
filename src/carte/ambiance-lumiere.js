@@ -1,6 +1,8 @@
 // ambiance : couches, météo, lune, calculs de la lumière (taches, baies, voisins, lampes) — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 // ---------- ambiance (`ambiance`) : jour / nuit d'après sun.sun, météo de HA sur les extérieurs, traces des derniers changements ----------
 const INTENSITES = { discret: 0.45, normal: 0.7, fort: 1 };
+// fondus par paliers de l'ambiance (aube, crépuscule) : durée totale et intervalle minimal entre deux paliers (ms), voir _palier
+const PALIER_DUREE = 40000, PALIER_MIN = 500;
 const intensiteAmb = (a) => (typeof a?.intensite === "number" ? Math.min(1, Math.max(0, a.intensite)) : INTENSITES[a?.intensite] ?? INTENSITES.discret);
 // couche : absente si false ; true / absente = réglages par défaut ; objet = ses réglages
 const objAmb = (v, def) => (v === false || v == null && !def ? null : v && typeof v === "object" && !Array.isArray(v) ? v : {});
@@ -17,7 +19,9 @@ const alea = (graine) => { let x = graine; return () => ((x = (x * 9301 + 49297)
 const borne = (v, a, b) => Math.min(b, Math.max(a, v));
 // météo peinte sur les extérieurs (vue de dessus) : ombres de nuages qui passent, pluie, neige, grêle, vent, brouillard, éclairs ;
 // tout part dans le sens du vent (wind_bearing = d'où il vient) ; tirages au hasard mais toujours les mêmes (graine fixe).
-// Pluie, neige, grêle et vent = motifs répétés (densité constante, quelques nœuds seulement) qui glissent en SMIL (pauseAnimations hors écran)
+// Pluie, neige, grêle et vent = motifs répétés (densité constante, quelques nœuds seulement) qui glissent ; nuages = ombres qui défilent.
+// Aucun SMIL : nuages et motifs glissent en animation CSS de `transform` (couches.css.js : m-defile, m-glisse), que Chromium mène sur le
+// compositeur, sans redessiner le plan à chaque image (mesuré : par pas, `steps()`, ce serait plus cher) ; effets légers : nuages immobiles
 function dessinMeteo(w, b, nord, I, fixe = false, pre = "amb", e = 1, sens = 135) {
   const at = w.attributes || {}, cond = w.state;
   const S = Math.hypot(b.W, b.H) * 1.05, cx = b.x0 + b.W / 2, cy = b.y0 + b.H / 2, r = alea(7);
@@ -30,9 +34,12 @@ function dessinMeteo(w, b, nord, I, fixe = false, pre = "amb", e = 1, sens = 135
   const motif = (T0, k, forme, duree, op) => {
     const T = T0 * e, id = `${pre}-m${n++}`, l = [];
     for (let q = 0; q < k; q++) { const x = r() * T, y = r() * T; l.push(forme(x, y), forme(x, y - T), forme(x - T, y), forme(x - T, y - T)); }
-    const anim = fixe ? "" : `<animateTransform attributeName="patternTransform" type="translate" from="0 0" to="0 ${T}" dur="${duree}s" repeatCount="indefinite" additive="sum"/>`;
-    h += `<pattern id="${id}" width="${T}" height="${T}" patternUnits="userSpaceOnUse" patternTransform="rotate(${a})">${l.join("")}${anim}</pattern>
-      <rect x="${b.x0}" y="${b.y0}" width="${b.W}" height="${b.H}" fill="url(#${id})" opacity="${op.toFixed(3)}"/>`;
+    // glisse de T en `duree` s (comme l'ancien animateTransform du patternTransform) : le rectangle, agrandi de T de chaque côté, avance
+    // de T le long de l'axe tourné, et le motif, attaché à son repère, le suit. Figé : rectangle nu
+    const ra = (+a * Math.PI) / 180, rect = fixe ? `x="${b.x0}" y="${b.y0}" width="${b.W}" height="${b.H}"`
+      : `class="m-glisse" style="--g-x:${f0(-T * Math.sin(ra))}px;--g-y:${f0(T * Math.cos(ra))}px;--g-d:${duree}s" x="${b.x0 - T}" y="${b.y0 - T}" width="${b.W + 2 * T}" height="${b.H + 2 * T}"`;
+    h += `<pattern id="${id}" width="${T}" height="${T}" patternUnits="userSpaceOnUse" patternTransform="rotate(${a})">${l.join("")}</pattern>
+      <rect ${rect} fill="url(#${id})" opacity="${op.toFixed(3)}"/>`;
   };
   const L = (lg, ep, col) => (x, y) => `<line x1="${f0(x)}" y1="${f0(y)}" x2="${f0(x)}" y2="${f0(y + lg * e)}" stroke="${col}" stroke-width="${f0(ep * e)}" stroke-linecap="round"/>`;
   const C = (ray, col) => (x, y) => `<circle cx="${f0(x)}" cy="${f0(y)}" r="${f0(ray * e)}" fill="${col}"/>`;

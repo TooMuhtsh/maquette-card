@@ -1,13 +1,14 @@
 // onglets des widgets, champs (texte, nombre, entité, icône), _modif, câblage — morceau de src/maquette-editeur.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class EditeurPlan { // @assemblage
-  _ongletsWidget(w) {
+  // opt.atelier : formulaire de la bibliothèque (modèle) : ni position, ni bandeau de copie, ni actions
+  _ongletsWidget(w, opt = {}) {
     for (const cle of ["lignes", "entites"]) if (Array.isArray(w[cle])) w[cle] = w[cle].map((x) => (typeof x === "string" ? { entite: x } : x));
     const NOMS = { tuile: _t("Tuile + courbe"), jauge: _t("Jauge"), entites: _t("Liste d'entités"), tarif: _t("Tarif en direct"), ve: _t("Véhicule électrique"), periodes: _t("Périodes"), separateur: _t("Séparateur"), climat: _t("Climat des pièces"), thermostat: _t("Thermostat"), commande: _t("Commande"), serrure: _t("Serrure") };
     const E = (label, k, dom = "") => this._champEntite(label, k, k.split(".").reduce((x, p) => x?.[p], w), true, dom);
     // où est le widget, en court : « Panneau gauche · 1/3 » (le titre et l'aperçu disent le reste)
-    const ou = _t("{ou} · {n}/{total}", { ou: this._ouWidget(), n: this.sel.i + 1, total: this._wl(this.sel).length });
+    const ou = opt.atelier ? "" : _t("{ou} · {n}/{total}", { ou: this._ouWidget(), n: this.sel.i + 1, total: this._wl(this.sel)?.length ?? 1 });
     let tete = [w.icone || "mdi:view-dashboard-outline", w.titre || NOMS[w.type] || _t("Widget")];
-    let h = `${this._champTexte(_t("Titre"), "titre", w.titre)}
+    let h = `${opt.atelier ? "" : this._bandeauCopie(w)}${this._champTexte(_t("Titre"), "titre", w.titre)}
       ${this._champTexte(_t("Icône"), "icone", w.icone, "mdi:…")}${this._champTexte(_t("Couleur d'accent"), "couleur", w.couleur, "#1a73e8")}
       <div class="ed-couleurs">${this._pastilles(w.couleur)}</div>`;
     const lignes = (cle = "lignes", titre = _t("Lignes")) => `<div class="ed-champ${!(w[cle] || []).length && this._aCompleter(cle) ? " a-completer" : ""}"><label>${titre}${!(w[cle] || []).length && this._aCompleter(cle) ? _t(" · à compléter") : ""}</label>${(w[cle] || []).map((l, j) => `<div class="ed-sous">
@@ -66,11 +67,12 @@ class EditeurPlan { // @assemblage
         ${this._champTexte(_t("Note sous le tableau"), "note", w.note)}`;
     }
     if (w.type === "separateur") tete = ["mdi:minus", w.titre || _t("Séparateur")], h = `${this._champTexte(_t("Titre de section (option)"), "titre", w.titre, _t("sans titre : simple trait"))}${this._champNombre(_t("Espace au-dessus et au-dessous (px)"), "espace", w.espace, 1, "0")}`;
-    const n = this._wl(this.sel).length;
+    const n = this._wl(this.sel)?.length ?? 1;
+    if (opt.atelier) return { icone: tete[0], titre: NOMS[w.type] || (w.type === "separateur" ? _t("Séparateur") : _t("Type inconnu : {type}", { type: w.type || "?" })), onglets: [["general", _t("Général"), "mdi:tune-variant", h]] };
     return { icone: tete[0], titre: tete[1], resumeH: ou, aide: "", apercu: "widget", onglets: [["general", _t("Général"), "mdi:tune-variant", h]],
       actions: `${ibAct("w-monter", "mdi:arrow-up", _t("Monter"), this.sel.i ? "" : "disabled")}${ibAct("w-descendre", "mdi:arrow-down", _t("Descendre"), this.sel.i < n - 1 ? "" : "disabled")}
       ${this.sel.cote === "fiche" ? "" : ibAct("w-cote", this.sel.cote === "gauche" ? "mdi:arrow-right" : "mdi:arrow-left", this.sel.cote === "gauche" ? _t("Vers le panneau droit") : _t("Vers le panneau gauche"))}
-      ${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser ce widget (Ajouter › Mes modèles)"))}` };
+      ${ibAct("modele", "mdi:bookmark-plus-outline", _t("Modèle : réutiliser ce widget (Ajouter › Mes modèles)"))}${ibAct("partager", "mdi:share-variant-outline", _t("Partager (sans tes entités)"))}` };
   }
 
   // où est le widget sélectionné, en court (texte déjà échappé) : « Panneau gauche », « Panneau droit · Séjour », « Fiche · Borne »
@@ -273,6 +275,7 @@ class EditeurPlan { // @assemblage
       if (ds.couleur) return this._modif(ds.ck || "couleur", ds.couleur);
       if (ds.type) return this._modif("type", ds.type);
       if (ds.dehors) return this._modif("dehors", ds.dehors.split(",").map(Number));
+      if (ds.act?.startsWith("bib:")) return this._actionCopie(ds.act); // copie d'un modèle de la bibliothèque
       if (ds.act) this._action(ds.act);
     };
     P.querySelectorAll("input[data-act-chk]").forEach((inp) => { inp.onchange = () => this._action(inp.dataset.actChk); });

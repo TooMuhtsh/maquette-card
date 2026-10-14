@@ -49,6 +49,7 @@ checked when the card reads its configuration: an invalid one is removed, with a
 | `interaction` | object | — | Room tap, locked view, back to the whole plan, see [Interaction](#interaction-wall-tablet-and-animation-level-interaction-tablet-animation_level) |
 | `tablet` | bool / object | `false` | Wall tablet mode |
 | `animation_level` | `full` / `reduced` / `none` | `full` | Animation level |
+| `effects` | `auto` / `full` / `light` | `auto` | Visual effects: `light` on touch screens by default, see [Interaction](#interaction-wall-tablet-and-animation-level-interaction-tablet-animation_level) |
 | `demo` | bool | — | Built-in demo apartment with simulated states (the rest of the config is ignored, except `title` and `language`); also the card `custom:maquette-card-demo` |
 
 Keys Home Assistant adds to any card (`view_layout`, `layout_options`, `grid_options`, `visibility`, `card_mod`) are kept as
@@ -367,8 +368,13 @@ background:                    # in floors[n], or at the root of a plan without 
   pos: [-40, -40]              # top-left corner (cm)
   width: 620                   # cm; the height keeps the proportions
   opacity: 0.6
+  room_opacity: 0.6            # room floors over the image (default 0.6; 1 = opaque, the image no longer shows under rooms)
   show: always                 # default: editor (drawn while editing only, not even loaded in the view)
 ```
+
+While the image is drawn (in the editor, or in the view with `show: always`), room floors are see-through
+(`room_opacity`, *Room floors* in the editor): you see the image through the rooms, and the temperature tint stays on the
+floor. Do not hide the *Rooms* layer to see the image: that also removes the floors and their temperature colours.
 
 ![A scanned plan under the drawing](../images/etages-fond.png)
 
@@ -612,7 +618,14 @@ default the plan width).
 ## Settings panel and global options
 
 **Saving.** *Apply* (Ctrl+S) saves the card and keeps the editor open, with a « Plan saved. » message; *Save* saves and
-leaves the editor. **Locking.** `locked: true` on a room, opening, badge, text or furniture (padlock in its floating toolbar and its edit
+leaves the editor. **Previous versions.** Each save keeps the card as it was before (the last 5, plus the last 3
+plans from before a clean-up): *Export / import › Versions of this account* loads one into the text box, *Import* restores it.
+They are stored in your **Home Assistant user data** (the same per-user storage the frontend uses for its own settings,
+`frontend/set_user_data`, key `maquette-versions:<id>`), so they follow your account on every device; each user has their
+own history, also when several Maquette cards share one installation. Nothing is sent anywhere but your Home Assistant.
+A copy stays in the browser (`localStorage`) and is used when Home Assistant refuses (older version, error): the list is then
+titled *Previous versions*, and the next opening merges both, without duplicates. In Home Assistant the list is compressed
+and limited to 1 MB per card: beyond that the oldest entries go first, never the latest version. **Locking.** `locked: true` on a room, opening, badge, text or furniture (padlock in its floating toolbar and its edit
 dialog): it stays selectable and editable in its edit dialog, but no longer moves or resizes with the mouse or the arrow keys, and a click on it goes
 to what lies underneath. Walls and fences lock by layer only (`layers.locked`, above).
 
@@ -681,19 +694,21 @@ interaction:
   reset_after: 0        # seconds without interaction before going back to the whole plan; 0 (default) = never
 tablet: true            # or {summary: false, panels: false, burn_in: true}
 animation_level: full   # full (default) | reduced | none
+effects: auto           # auto (default: light on a touch screen, full otherwise) | full | light
 ```
 
 | Key | Type | Default | Description |
 |---|---|---|---|
 | `interaction.room_tap` | `room_view` / `more_info` / `none` | `room_view` | Tapping a room (its floor or its label): open the room view; open Home Assistant's « more info » of the room's `tap` entity (otherwise its `temperature`; nothing if it has neither); or do nothing. A room with `zoom: false` keeps its own behaviour (its label opens its entity) |
 | `interaction.lock_view` | bool | `false` | No panning, no wheel / pinch zoom (not even in a room view), zoom buttons hidden. Tapping rooms, badges, furniture and openings still works |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | `auto` | Where the zoom buttons (+, −, whole plan) sit: on the map, in the header (off the map), or hidden (pinch, drag and room taps still work, unlike `lock_view`). `auto`: in the header on a phone (narrow touch screen), on the map otherwise. Always on the map in the editor |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | `auto` | Where the zoom buttons (+, −, whole plan) sit: on the map, in the header (off the map), or hidden (pinch, drag and room taps still work, unlike `lock_view`). `auto`: in the header on a phone (narrow touch screen), on the map otherwise. In the editor they are never hidden: in the header on a phone (unless `map`) or with `header`, on the map otherwise |
 | `interaction.reset_after` | number (s, 0–86400) | `0` | After this many seconds without any interaction with the card: room view closed, initial zoom, cards and layer menu closed, a paused replay back to live. Never while editing or while a replay is playing. `0` = never |
 | `tablet` | bool / object | `false` | Wall tablet mode, see below |
 | `tablet.summary` | bool | `false` | Show the summary chips in tablet mode |
 | `tablet.panels` | bool | `false` | Show the side panels (home and rooms) in tablet mode; the room view's own card stays |
 | `tablet.burn_in` | bool | `true` | Burn-in protection: the whole card moves by one pixel every 3 minutes, within 2 px of its place, back and forth (never a jump) |
 | `animation_level` | `full` / `reduced` / `none` | `full` | `full`: every animation (the system « reduce motion » setting is still respected). `reduced`: nothing loops (pulses, waves, blinking, weather, energy flows, alert pulse), state changes stay visible with short transitions. `none`: no animation and no transition at all, as with « reduce motion ». The replay and the showcase follow it |
+| `effects` | `auto` / `full` / `light` | `auto` | Cost of the visual effects. `light`: window light without blur (sharp-edged sun patches, single sky beam), still cloud shadows and fog (rain and snow keep their smooth animation, which costs less than moving in steps). `full`: everything. `auto`: `light` when the main pointer is a touch screen (phone, tablet), `full` otherwise. Independent of `animation_level`: `reduced` / `none` (or the system « reduce motion » setting) still freeze every loop, whatever the effects; `effects` only changes how the moving and blurred parts are drawn while they are allowed |
 
 **Tablet mode** (`tablet: true` = `{summary: false, panels: false, burn_in: true}`; an object sets each point, missing keys
 keep these values): the summary chips and side panels are hidden and the plan fills the whole card, full page (like
@@ -730,6 +745,26 @@ furniture templates add `type`, `category` (`living`, `dining`, `kitchen`, `bedr
 `outdoor`) and `keywords`, and `ask: [entity]` with `domain` for a connected piece (without `domain`, any entity can be
 chosen); `domain` also narrows the entity picker of a badge template.
 
+**Widget library.** *Add › Widgets › Widget library* (or *Library* in *Add a widget*) opens the widget templates in one
+window: list and search, real preview at PC panel and phone size, the widget's own settings, and per entity field *Ask each
+time it is placed* (`ask`). *Place left* / *Place right* add a copy to the home or a room panel; the copy keeps the
+template's `id` in `template`. In the copy's window: *Update* (from the template, keeping its own "ask" entities), *Open*,
+*Detach*. In the library: *Update the N copies* (same rule, one undo step) and *Delete* (copies are detached, nothing
+breaks). Older templates without `id` get one when a first copy is placed. A widget type unknown to this version is kept
+as is.
+
+```yaml
+templates:
+  - id: k3v9q2xa
+    name: Car
+    kind: widget
+    item: {type: ev, title: Car, power: sensor.charger_power}
+    ask: [battery]              # chosen again for each copy
+panels:
+  right:
+    - {type: ev, title: Car, battery: sensor.car_battery, power: sensor.charger_power, template: k3v9q2xa}
+```
+
 **Ready-made widgets.** *Add a widget* also offers about 65 ready-made widgets by category (air, light, security, water,
 energy, openings, heating, appliances, media, outdoor, network, presence, vehicle), built on the types below with sensible
 bounds (CO₂ 400–2000 ppm with `severity`, illuminance 0–1000 lx…). On insertion, matching entities are looked up by
@@ -745,7 +780,9 @@ a toggle and a scene / script / button an *Activate* button, as in `entities`. `
 
 `confirm: true` asks for confirmation before every service the widget calls, even a safe one (row toggles, *Activate*,
 thermostat −/+, cover and lock buttons); a sensitive service (script, unlock, open a garage door…) is confirmed anyway,
-even with `confirm: false`. In the editor: *Always ask for confirmation* (lists, thermostat, widgets whose rows have a
+even with `confirm: false`. When you pick a `switch` for a widget, a badge, a piece of furniture or a room button, the
+editor asks whether to confirm every tap (*Yes* preselected when it looks like a door, a gate or a garage: see
+[Security](reference.md#security)). In the editor: *Always ask for confirmation* (lists, thermostat, widgets whose rows have a
 toggle or an *Activate* button) or *Confirm before acting* (`cover`, `lock`).
 
 | `type` | Keys |
@@ -833,6 +870,12 @@ YAML import uses [js-yaml](https://github.com/nodeca/js-yaml) (MIT), bundled, wi
 An export made before the English keys (French keys `pieces`, `murs`…) is refused with a message: convert it first (see the
 [CHANGELOG](../CHANGELOG.md#former-french-keys)).
 
+**Share** (*Share…* in this dialog, *Share* on a selected widget or object, or in the widget library) exports chosen
+templates, widgets and objects in a separate format (`maquette_share: 1`), YAML or compact code (`MAQ1:`), without your
+entities by default: each one becomes a placeholder matched on import. Pasting a share here opens the share import
+(summary, commands, matching, destination); it never replaces the plan. Format and rules:
+[reference › Share format](reference.md#share-format).
+
 ## Clean up the plan
 
 In the editor, **Clean up the plan** (magic wand in the toolbar, *More* on a phone) checks walls and openings against the
@@ -856,7 +899,7 @@ room outlines, which are the reference. A dialog shows the plan with each defect
 **Apply** is a single undoable action (Ctrl+Z, or *Undo* in the notification). Running it again right after finds
 nothing more. The result does not depend on how walls were drawn nor on the plan's orientation.
 
-Before applying, a copy of `rooms`, `walls` and `openings` is kept in this browser (the last 3, next to the saved
-versions). **Plans before clean-up** (link in the dialog, *More › Restore a plan from before clean-up* on a phone)
+Before applying, a copy of `rooms`, `walls` and `openings` is kept with the saved versions (the last 3, in your Home
+Assistant account, see *Previous versions* above). **Plans before clean-up** (link in the dialog, *More › Restore a plan from before clean-up* on a phone)
 previews them, restores one (undoable), or copies it as YAML to paste on another device. No new configuration key.
 

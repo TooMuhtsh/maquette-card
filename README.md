@@ -14,7 +14,19 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
 
 ![Maquette: the demo apartment, live, dark theme](images/plan-pc-dark.png)
 
-## New in 0.2.0
+## New in 0.3.0
+
+This one is mostly about speed. The editor now lives in its own file and only loads when you open it: the card is about
+a third of its former size, and an idle plan barely uses the CPU any more, even under rain or snow on a phone. A new
+`effects` setting draws a lighter plan on phones and tablets. On the editor side: a widget library with linked copies,
+sharing templates, widgets and objects as text (your entities replaced by placeholders), a list of the entities that no
+longer exist, saved versions that follow your Home Assistant account instead of one browser, and a toolbar on two
+rows with the panel commands named. Over a background image, room floors are now see-through and keep their
+temperature colours. A manual install now
+needs **two files** (see below). The details are on the wiki:
+[What's new in 0.3.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-030).
+
+### 0.2: light and floors
 
 The big piece is light: sun and sky coming in through the windows (shutters and weather included), the moon at night,
 and lamp halos that blend their colors. A plan can now have several floors, with stairs that take you from one to the
@@ -39,6 +51,8 @@ The editor lost its side panel: each element opens in its own dialog, with a liv
   element. Saves into the dashboard configuration.
 - **Workshops**: *Create an opening*, *Create furniture* (draw your own pieces from shapes) and *Create a widget*,
   with a live preview, saved to *My templates*.
+- **Widget library and sharing**: every widget template in one window, linked copies you update in one click, and
+  templates, widgets or objects shared as text or a compact code, with placeholders instead of your entities.
 - **65 ready-made widgets** (CO₂, leak, lock, EV, tariff, pool pH…) on top of 11 widget types, for the side panels and
   for the card each element opens on tap. Entity fields are filled from Home Assistant.
 - **Ambience**: day and night from the sun, real weather on outdoor areas, fading traces of what just changed, energy
@@ -114,9 +128,11 @@ Screenshots come from the built-in demo apartment.
 
 ### Manual
 
-1. Download `maquette-card.js` from the [latest release](https://github.com/TooMuhtsh/maquette-card/releases/latest).
-2. Copy it to `/config/www/maquette-card.js`.
-3. Settings → Dashboards → ⋮ → **Resources** → add `/local/maquette-card.js` as a **JavaScript module**.
+1. Download `maquette-card.js` **and** `maquette-editeur.js` from the
+   [latest release](https://github.com/TooMuhtsh/maquette-card/releases/latest).
+2. Copy both to `/config/www/` (same folder).
+3. Settings → Dashboards → ⋮ → **Resources** → add `/local/maquette-card.js` as a **JavaScript module** (only this
+   one: the card loads the editor by itself when you open it).
 
 ## Getting started
 

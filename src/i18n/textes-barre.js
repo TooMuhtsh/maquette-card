@@ -3,6 +3,7 @@
 const EN = { // @assemblage
     // ---- barre d'outils, modale des paramètres, aide aux raccourcis ----
     "Outils": "Tools",
+    "Exporter / importer": "Export / import",
     "Pas de la grille : {v} cm": "Grid step: {v} cm",
     "Pas de la grille": "Grid step",
     "Grille :": "Grid:",

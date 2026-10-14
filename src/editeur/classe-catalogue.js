@@ -1,4 +1,4 @@
-// catalogue « Ajouter », modèles, zones, intégrer une pièce, choix d'entité, puces du résumé — morceau de src/maquette-editeur.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
+// catalogue et modèles, zones importées, ouvertures à placer, intégration — morceau de src/maquette-editeur.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class EditeurPlan { // @assemblage
   // ---------- catalogue et modèles ----------
   ouvrirCatalogue(opt = {}) {
@@ -13,6 +13,7 @@ class EditeurPlan { // @assemblage
     const W = [...CATALOGUE.panneaux.map((m) => ({ ...m, cat: "generiques" })), ...PRETS_WIDGETS()], NOMS_CAT = Object.fromEntries(CATS_WIDGETS.map(([c, , t]) => [c, _t(t)]));
     const tuile = (m, ref, c, hors) => `<div class="ed-tuile${m.creer ? " ed-tuile-creer" : ""}" data-m="${ref}" data-cat="${c}"${hors ? ` data-recherche="1"` : ""} data-txt="${esc(sansAccent(`${m.nom} ${m.desc || ""} ${m.detail || ""} ${m.mots || ""} ${m.genre === "widget" && m.cat ? NOMS_CAT[m.cat] || "" : ""}`))}" role="button" tabindex="0"${m.detail ? ` title="${esc(m.detail)}"` : ""}>${ref[0] === "z" ? apercuSZ : m.genre === "meuble" && m.objet && (MEUBLES()[m.type] || m.type === "forme") ? apercuObj({ ...m.objet, type: m.type }) : m.genre === "meuble" && MEUBLES()[m.type] ? apercu(m.type) : `<ha-icon icon="${esc(m.icone || "mdi:shape-outline")}"></ha-icon>`}<b>${esc(m.nom)}</b>${m.desc ? `<small>${esc(m.desc)}</small>` : ""}
       ${ref.startsWith("u") && m.genre === "meuble" && m.type === "forme" ? `<button class="ib modif" data-modif="${ref.slice(1)}" title="${_t("Modifier ce modèle")}" aria-label="${_t("Modifier ce modèle")}"><ha-icon icon="mdi:pencil-outline"></ha-icon></button>` : ""}
+      ${ref.startsWith("u") && m.genre === "widget" && m.objet && typeof m.objet === "object" ? `<button class="ib modif" data-bib-modif="${ref.slice(1)}" title="${_t("Modifier dans la bibliothèque")}" aria-label="${_t("Modifier dans la bibliothèque")}"><ha-icon icon="mdi:pencil-outline"></ha-icon></button>` : ""}
       ${m.genre === "widget" && opt.cote !== "fiche" && ref !== "W" ? `<span class="cotes"><span data-cote="gauche" title="${_t("Panneau gauche")}" aria-label="${_t("Panneau gauche")}"><ha-icon icon="mdi:arrow-left"></ha-icon></span><span data-cote="droite" title="${_t("Panneau droit")}" aria-label="${_t("Panneau droit")}"><ha-icon icon="mdi:arrow-right"></ha-icon></span></span>` : ""}
       ${ref.startsWith("u") ? `<button class="ib suppr" data-suppr="${ref.slice(1)}" title="${_t("Supprimer ce modèle")}"><ha-icon icon="mdi:delete-outline"></ha-icon></button>` : ""}</div>`;
     const plan = CATALOGUE.plan.map((m, i) => [m, `p${i}`]), ordre = ["zone", "assistant", "outil"];
@@ -38,7 +39,7 @@ class EditeurPlan { // @assemblage
         ["ouvertures", _t("Ouvertures"), [[{ nom: _t("Créer une ouverture"), icone: "mdi:plus-box-outline", desc: _t("Type, capteurs, aperçu"), mots: "nouvelle ouverture personnalisee", creer: true }, "CO"], ...plan.filter(([m]) => cat(m) === "ouvertures")]],
         ["meubles", _t("Sous-zones (cuisine, douche…)"), sousZones],
         ...meubles.map(([c, l]) => ["meubles", _t("Meubles · {cat}", { cat: esc(_t(c)) }), l]),
-        ["widgets", _t("Widgets des panneaux (maison)"), [...Wi.filter(([m]) => m.cat === "generiques"), [{ nom: _t("Tous les widgets"), icone: "mdi:view-grid-plus-outline", desc: _t("{n} prêts à l'emploi", { n: W.length - CATALOGUE.panneaux.length }), mots: "plus widgets catalogue" }, "W"],
+        ["widgets", _t("Widgets des panneaux (maison)"), [...Wi.filter(([m]) => m.cat === "generiques"), [{ nom: _t("Bibliothèque de widgets"), icone: "mdi:bookshelf", desc: _t("Mes modèles, aperçu, copies"), mots: "bibliotheque modeles atelier copies" }, "B"], [{ nom: _t("Tous les widgets"), icone: "mdi:view-grid-plus-outline", desc: _t("{n} prêts à l'emploi", { n: W.length - CATALOGUE.panneaux.length }), mots: "plus widgets catalogue" }, "W"],
           ...Wi.filter(([m]) => m.cat !== "generiques").map(([m, r]) => [m, r, true])]]];
     const autres = mod.map((m, i) => [m, i]).filter(([m]) => !persos.some(([x]) => x === m));
     if (autres.length) sections.push(["modeles", _t("Mes modèles"), autres.map(([m, i]) => [{ ...m, desc: m.desc || ((dg) => dg && _t(dg))(({ point: _tk("Objet du plan"), ouverture: _tk("Ouverture"), widget: _tk("Widget (panneau ou fiche)") })[m.genre]) }, `u${i}`])]);
@@ -48,7 +49,7 @@ class EditeurPlan { // @assemblage
     let onglet = opt.onglet && onglets.some(([c]) => c === opt.onglet) ? opt.onglet : opt.widgets ? "tous" : !d.pieces.length ? "pieces" : "tous";
     const ou = opt.widgets ? (pourFiche ? _t("Fiche « {nom} »", { nom: esc(this._nomElement(pf)) }) : opt.piece != null ? _t("Pièce « {nom} »", { nom: esc(d.pieces[opt.piece].nom) }) : "") : "";
     const { voile, fermer } = this._voile(opt.widgets ? "ed-plein-tel" : "", `<div class="ed-dialogue large${opt.widgets ? " ed-cat-widgets" : ""}" role="dialog" aria-modal="true" aria-labelledby="ed-cat-titre"><header>
-        ${opt.widgets ? `<div class="ed-titre-ligne"><h2 id="ed-cat-titre">${_t("Ajouter un widget")}</h2><button class="ed-btn tonal" data-creer="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Créer un widget")}</button></div>${ou ? `<div class="ed-aide ed-ou">${ou}</div>` : ""}` : `<h2 id="ed-cat-titre">${_t("Ajouter")}</h2>`}
+        ${opt.widgets ? `<div class="ed-titre-ligne"><h2 id="ed-cat-titre">${_t("Ajouter un widget")}</h2><span class="ed-cat-boutons"><button class="ed-btn texte" data-biblio="1"><ha-icon icon="mdi:bookshelf"></ha-icon>${_t("Bibliothèque")}</button><button class="ed-btn tonal" data-creer="1"><ha-icon icon="mdi:plus"></ha-icon>${_t("Créer un widget")}</button></span></div>${ou ? `<div class="ed-aide ed-ou">${ou}</div>` : ""}` : `<h2 id="ed-cat-titre">${_t("Ajouter")}</h2>`}
         <div class="ed-recherche"><ha-icon icon="mdi:magnify"></ha-icon><input type="search" placeholder="${this._etroit() ? _t("Rechercher…") : opt.widgets ? _t("Rechercher (co2, fuite, serrure…)") : _t("Rechercher (lumière, fenêtre, jauge…)")}" aria-label="${_t("Rechercher")}"></div>
         <div class="ed-filtres ed-cat-filtres${opt.widgets ? " ed-cat-defile" : ""}" role="tablist">${onglets.map(([c, t]) => `<button role="tab" data-onglet="${c}">${esc(t)}</button>`).join("")}</div></header>
       <div class="ed-cat">${sections.map(([c, t, l]) => `<section data-sec="${c}"><h4>${t}</h4><div class="ed-grille">${l.map(([m, ref, hors]) => tuile(m, ref, c, hors)).join("")}</div></section>`).join("")}
@@ -79,6 +80,8 @@ class EditeurPlan { // @assemblage
     voile.addEventListener("click", (ev) => {
       const chemin = ev.composedPath();
       if (ev.target === voile || chemin.some((n) => n.dataset?.fermer)) return fermer();
+      const bi = chemin.find((n) => n.dataset?.biblio || n.dataset?.bibModif != null || n.dataset?.m === "B");
+      if (bi) { const u = bi.dataset.bibModif != null ? this.d.modeles.indexOf(mod[+bi.dataset.bibModif]) : null; fermer(); return this.ouvrirBibliotheque({ u: u >= 0 ? u : null }); }
       const cr = chemin.find((n) => n.dataset?.creer);
       if (cr) return this.creerWidget({ ...opt, apres: fermer, retour: cr, dessous: voile });
       const mf = chemin.find((n) => n.dataset?.modif);
@@ -135,6 +138,8 @@ class EditeurPlan { // @assemblage
       if (m.auto && objs.length === 1) manquants = await this._preRemplir(objs[0], m.auto, this._contexteWidget(piece, pf), m.nom);
       if (Array.isArray(m.demander) && objs.length === 1) for (const c of m.demander) if (typeof c === "string") { poserChemin(objs[0], c, c === "entites" || c === "lignes" ? [] : ""); manquants.add(c); }
       this.commit(() => {
+        // copie d'un modèle de la bibliothèque : liée par `origine` (id attribué ici au besoin, dans le même pas d'annulation)
+        if (objs.length === 1 && m.objet && (this.d.modeles || []).includes(m)) { m.id ||= idModele(); objs[0].origine = m.id; }
         const l = this._wl(cote === "fiche" ? { cote, ...ref } : { cote, piece }, true), i0 = l.length;
         l.push(...objs);
         this.sel = { type: "widget", cote, i: i0, ...(cote === "fiche" ? ref : piece != null ? { piece } : {}) };
@@ -292,178 +297,18 @@ class EditeurPlan { // @assemblage
     const r = await this.demander(_t("Enregistrer comme modèle"), defaut, _t("Garder les entités (sinon elles seront demandées à chaque usage)"));
     if (!r) return;
     let objet = clone(o);
-    delete objet.pos; delete objet.seg; delete objet.piece;
+    delete objet.pos; delete objet.seg; delete objet.piece; delete objet.origine;
     if (!r.coche) {
       const valeurPropre = objet.valeur && objet.valeur === objet.entite;
       objet = sansEntites(objet);
       if (valeurPropre) objet.valeur = "$entite";
     }
-    const m = { nom: r.nom, genre, icone: o.icone || (genre === "ouverture" ? (o.type === "fenetre" ? "mdi:window-closed-variant" : o.type === "portail" ? "mdi:garage-variant" : "mdi:door") : "mdi:shape-outline"), objet };
+    const m = { ...(genre === "widget" ? { id: idModele() } : {}), nom: r.nom, genre, icone: o.icone || (genre === "ouverture" ? (o.type === "fenetre" ? "mdi:window-closed-variant" : o.type === "portail" ? "mdi:garage-variant" : "mdi:door") : "mdi:shape-outline"), objet };
     if (genre === "point" && o.entite) m.domaine = o.entite.split(".")[0];
     // ouverture sans ses entités : ses capteurs seront cherchés dans la pièce à chaque pose
     if (genre === "ouverture" && !r.coche) { const dem = ["contact", "volet", "entite"].filter((c) => o[c]); if (dem.length) m.demander = dem; }
     this.commit(() => (this.d.modeles ||= []).push(m));
     this.snack(_t("Modèle « {nom} » ajouté (Ajouter › Mes modèles).", { nom: r.nom }));
-  }
-
-  // ---------- appareils ----------
-  choisirEntite({ titre, domaine = "", obligatoire = false } = {}) {
-    return new Promise((fin) => {
-      const hass = this.hass, deja = new Set([...(this.d.points || []), ...(this.d.meubles || [])].map((p) => p.entite).filter(Boolean));
-      let filtre = domaine;
-      const { voile, fermer: retirer } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true"><header><h2>${esc(titre)}</h2>
-        <label class="ed-recherche"><ha-icon icon="mdi:magnify"></ha-icon><input type="text" placeholder="${this._etroit() ? _t("Rechercher…") : _t("Rechercher une entité, une pièce…")}" aria-label="${_t("Rechercher une entité, une pièce…")}" autocomplete="off"></label>
-        <div class="ed-filtres">${DOMAINES.map(([d, n]) => `<button data-f="${d}" class="${d === filtre ? "on" : ""}">${_t(n)}</button>`).join("")}</div></header>
-        <div class="ed-resultats"></div>
-        <footer>${obligatoire ? "" : `<button class="ed-btn texte" data-r="">${_t("Aucune")}</button>`}<button class="ed-btn texte" data-r="annuler">${_t("Annuler")}</button></footer></div>`, { echap: () => fermer(null) });
-      const champ = voile.querySelector("input"), res = voile.querySelector(".ed-resultats");
-      const tous = Object.keys(hass.states).sort();
-      const rendre = () => {
-        const q = champ.value.trim().toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-        const l = [];
-        for (const e of tous) {
-          if (filtre && !e.startsWith(filtre + ".")) continue;
-          const s = hass.states[e], n = String(s.attributes.friendly_name || e);
-          const cle = `${e} ${n}`.toLowerCase().normalize("NFD").replace(/\p{Diacritic}/gu, "");
-          if (q && !q.split(/\s+/).every((m) => cle.includes(m))) continue;
-          l.push([e, n, s]);
-          if (l.length >= 120) break;
-        }
-        poserHTML(res, l.length ? l.map(([e, n, s]) => `<button data-r="${esc(e)}" class="${deja.has(e) ? "deja" : ""}"><ha-icon icon="${esc(iconeEntite(hass, e))}"></ha-icon>
-          <span class="n"><span>${esc(n)}</span><small>${esc(e)}${deja.has(e) ? _t(" · déjà sur le plan") : ""}</small></span><span class="etat">${esc(hass.formatEntityState?.(s) ?? s.state)}</span></button>`).join("")
-          : `<div class="ed-aide" style="padding:16px">${_t("Aucune entité trouvée.")}</div>`);
-      };
-      const fermer = (v) => { retirer(); fin(v); };
-      voile.addEventListener("click", (ev) => {
-        if (ev.target === voile) return fermer(null);
-        const b = ev.composedPath().find((n) => n.dataset && (n.dataset.f != null || n.dataset.r != null));
-        if (!b) return;
-        if (b.dataset.f != null) { filtre = b.dataset.f; voile.querySelectorAll("[data-f]").forEach((x) => x.classList.toggle("on", x === b)); rendre(); return; }
-        fermer(b.dataset.r === "annuler" ? null : b.dataset.r);
-      });
-      champ.addEventListener("input", rendre);
-      champ.addEventListener("keydown", (ev) => { if (ev.key === "Enter") { const b = res.querySelector("button"); if (b) fermer(b.dataset.r); } });
-      rendre();
-      this._indiceDefilement(voile.querySelector(".ed-filtres"));
-      setTimeout(() => champ.focus(), 30);
-    });
-  }
-
-  // ---------- résumé en tête (puces) ----------
-  _puces(creer) {
-    if (Array.isArray(this.d.resume)) return this.d.resume;
-    if (!creer) return this.carte._puces();
-    return (this.d.resume = this.carte._puces());
-  }
-
-  _ongletsPuce(o) {
-    const t0 = PUCES.find((x) => x[0] === o.type), t = t0 ? [t0[0], t0[1], _t(t0[2]), _t(t0[3])] : [o.type, "mdi:help", o.type, ""], l = this._puces(), i = this.sel.i;
-    let h = "";
-    if (o.type === "entite") h += `${this._champEntite(_t("Entité"), "entite", o.entite, false)}
-      ${this._champTexte(_t("Texte après la valeur"), "nom", o.nom, o.entite ? this.carte._nom(o.entite) : _t("nom de l'entité"))}
-      <div class="ed-ligne">${this._champTexte(_t("Unité"), "unite", o.unite, _t("auto"))}${this._champNombre(_t("Décimales"), "decimales", o.decimales, 1, _t("auto"))}</div>
-      <h4>${_t("Alerte (puce rouge)")}</h4>
-      <div class="ed-ligne">${this._champTexte(_t("Quand l'état vaut"), "alerte_etat", o.alerte_etat, _t("ex. on"))}${this._champNombre(_t("Ou au-dessus de"), "alerte_au_dessus", o.alerte_au_dessus, 1, "—")}</div>
-      ${this._champTexte(_t("Masquer la puce quand l'état vaut"), "masquer_si", o.masquer_si, _t("ex. off"))}`;
-    h += `<div class="ed-champ"><label>${_t("Afficher la puce")}</label><select data-k="afficher">${[["", _t("Toujours")], ["absent", _t("Seulement quand personne n'est à la maison")], ["present", _t("Seulement quand quelqu'un est à la maison")]].map(([v, n]) => `<option value="${esc(v)}" ${(o.afficher || "") === v ? "selected" : ""}>${n}</option>`).join("")}</select></div>
-      ${o.afficher ? this._champEntite(this.d.presence ? _t("Présence (défaut : celle des paramètres)") : _t("Présence (défaut : zone Maison)"), "presence", o.presence, true) : ""}
-      ${this._champTexte(_t("Icône"), "icone", o.icone, _t("auto ({icone})", { icone: t[1] }))}
-      <h4>${_t("Place")}${bulleI(_t("Glisse la puce : à côté d'une autre, sous elle (pile) ou sous toutes (nouvelle ligne)."))}</h4>
-      ${i ? this._inter(_t("Sous la puce précédente (pile)"), "sous", o.sous) : ""}
-      ${i && !o.sous ? this._inter(_t("Commencer une nouvelle ligne"), "ligne", o.ligne) : ""}`;
-    return { icone: o.icone || t[1], titre: o.type === "entite" ? o.nom || (o.entite ? this.carte._nom(o.entite) : t[2]) : t[2], resume: _t("Puce {i} sur {n}", { i: i + 1, n: l.length }),
-      aide: t[3] ? `${_t("Puce du résumé, en tête du plan.")} ${t[3]}.` : _t("Puce du résumé, en tête du plan."), apercu: "puce", onglets: [["general", _t("Général"), "mdi:tune-variant", h]],
-      actions: `${ibAct("p-avant", "mdi:arrow-left", _t("Avant"), i ? "" : "disabled")}${ibAct("p-apres", "mdi:arrow-right", _t("Après"), i < l.length - 1 ? "" : "disabled")}` };
-  }
-
-  // glisser une puce du résumé : à gauche / à droite d'une autre (dans sa ligne), sous elle (pile), ou sous toutes (nouvelle ligne)
-  glisserPuce(ev, el) {
-    if (ev.button > 0) return;
-    ev.preventDefault(); // ni sélection de texte ni glisser natif du navigateur (qui annulerait le pointeur)
-    getSelection?.()?.removeAllRanges?.();
-    const tete = el.closest(".tete"), i0 = +el.dataset.puce, x0 = ev.clientX, y0 = ev.clientY;
-    let actif = false, cible = null;
-    const ind = document.createElement("div");
-    ind.className = "puce-depot";
-    this.carte._glissePuce = true; // plus de redessin du résumé jusqu'au relâchement
-    const mv = (e) => {
-      if (!el.isConnected) el = tete.querySelector(`.chip[data-puce="${i0}"]`) || el;
-      if (!actif) {
-        if (Math.hypot(e.clientX - x0, e.clientY - y0) < 6) return;
-        actif = true; el.classList.add("glisse"); tete.append(ind);
-      }
-      e.preventDefault();
-      el.style.transform = `translate(${e.clientX - x0}px, ${e.clientY - y0}px)`;
-      cible = this._ciblePuce(tete, el, e.clientX, e.clientY);
-      const T = tete.getBoundingClientRect();
-      ind.hidden = !cible;
-      if (!cible) return;
-      const r = cible.r, place = (x, y, w, h) => Object.assign(ind.style, { left: `${x - T.left}px`, top: `${y - T.top}px`, width: `${w}px`, height: `${h}px` });
-      if (cible.mode === "avant") place(r.left - 6, r.top, 3, r.height);
-      else if (cible.mode === "apres") place(r.right + 3, r.top, 3, r.height);
-      else if (cible.mode === "sous") place(r.left, r.bottom + 2, r.width, 3);
-      else place(T.left, T.bottom - 2, T.width, 3);
-    };
-    const fin = (e) => {
-      window.removeEventListener("pointermove", mv); window.removeEventListener("pointerup", fin); window.removeEventListener("pointercancel", fin);
-      el.style.transform = ""; el.classList.remove("glisse"); ind.remove();
-      this.carte._glissePuce = false;
-      if (!actif) return;
-      this.carte._puceGlissee = true;
-      setTimeout(() => { this.carte._puceGlissee = false; }, 0);
-      if (e.type === "pointerup" && cible) this.deplacerPuce(i0, cible.mode, cible.j);
-    };
-    window.addEventListener("pointermove", mv, { passive: false }); window.addEventListener("pointerup", fin); window.addEventListener("pointercancel", fin);
-  }
-  _ciblePuce(tete, el, x, y) {
-    const l = [...tete.querySelectorAll(".chip[data-puce]")].filter((c) => c !== el).map((c) => ({ j: +c.dataset.puce, r: c.getBoundingClientRect() }));
-    if (!l.length) return null;
-    const dans = l.find(({ r }) => x >= r.left - 4 && x <= r.right + 4 && y >= r.top - 3 && y <= r.bottom + 3);
-    if (dans) return { ...dans, mode: y > dans.r.top + dans.r.height * 0.62 ? "sous" : x < dans.r.left + dans.r.width / 2 ? "avant" : "apres" };
-    if (y > Math.max(...l.map(({ r }) => r.bottom)) + 4) return { mode: "ligne", j: null, r: null };
-    // dans la bande d'une ligne, hors des puces : à côté de la plus proche
-    const bande = l.filter(({ r }) => y >= r.top - 4 && y <= r.bottom + 4);
-    if (!bande.length) return null;
-    const p = bande.reduce((a, b) => (Math.min(Math.abs(x - a.r.left), Math.abs(x - a.r.right)) <= Math.min(Math.abs(x - b.r.left), Math.abs(x - b.r.right)) ? a : b));
-    return { ...p, mode: x > p.r.right ? "apres" : "avant" };
-  }
-  // déplacement d'une puce ; en la retirant, sa place (début de ligne, tête de pile) passe à la suivante
-  deplacerPuce(i0, mode, j) {
-    if (mode !== "ligne" && (j == null || j === i0)) return;
-    this.commit(() => {
-      const l = this._puces(true), p = l[i0], n = l[i0 + 1];
-      if (!p) return;
-      if (!p.sous && n) { if (n.sous) { delete n.sous; if (p.ligne) n.ligne = true; } else if (p.ligne) n.ligne = true; }
-      l.splice(i0, 1);
-      delete p.sous; delete p.ligne;
-      const jj = j == null ? null : j > i0 ? j - 1 : j;
-      const tete = (k) => { while (k > 0 && l[k].sous) k--; return k; }, fin = (k) => { while (l[k + 1]?.sous) k++; return k; };
-      let k;
-      if (mode === "avant") { k = tete(jj); if (l[k].ligne) { p.ligne = true; delete l[k].ligne; } }
-      else if (mode === "apres") k = fin(jj) + 1;
-      else if (mode === "sous") { k = jj + 1; p.sous = true; }
-      else { k = l.length; if (k) p.ligne = true; }
-      l.splice(k, 0, p);
-      if (l[0]) delete l[0].ligne;
-      this.sel = { type: "puce", i: k };
-    });
-  }
-
-  ajouterPuce() {
-    const l = this._puces(), dispo = PUCES.filter(([t]) => t === "entite" || !l.some((p) => p.type === t));
-    const { voile } = this._voile("", `<div class="ed-dialogue" role="dialog" aria-modal="true" style="width:min(440px,100%)"><header><h2>${_t("Ajouter une puce")}</h2></header>
-      <div class="ed-resultats">${dispo.map(([t, ic, n, d]) => `<button data-t="${t}"><ha-icon icon="${ic}"></ha-icon><span class="n"><span>${esc(_t(n))}</span><small>${esc(_t(d))}</small></span></button>`).join("")}</div>
-      <footer><button class="ed-btn texte" data-t="">${_t("Annuler")}</button></footer></div>`);
-    voile.onclick = async (ev) => {
-      const b = ev.composedPath().find((n) => n.dataset?.t != null);
-      if (ev.target !== voile && !b) return;
-      voile.remove();
-      const t = b?.dataset.t;
-      if (!t) return;
-      const p = { type: t };
-      if (t === "entite") { p.entite = await this.choisirEntite({ titre: _t("Puce : choisir une entité"), obligatoire: true }); if (!p.entite) return; }
-      this.commit(() => { const L = this._puces(true); L.push(p); this.sel = { type: "puce", i: L.length - 1 }; });
-    };
   }
 
 } // @assemblage

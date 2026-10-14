@@ -1,144 +1,4 @@
-// calques, booléens, géométrie, normaliserConfig ; sécurité : filet HTML, services sensibles, assainirConfig — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
-// ---------- calques : un par genre d'élément ; deux groupes ordonnables, le HTML (étiquettes, pastilles) toujours au-dessus du SVG ----------
-// ordre par défaut = ordre de dessin d'avant les calques (une config sans `calques` s'affiche à l'identique)
-const CALQUES_SVG = ["pieces", "sous_zones", "halos", "meubles", "limites", "murs", "ouvertures"];
-const CALQUES_HTML = ["etiquettes", "libelles", "appareils", "textes"];
-// image de fond (`background`) : sous tout le dessin, dessinée à part (crochet _dessinerFond de _construire) ; acceptée dans les
-// listes de `layers` (ordre, masqués, verrouillés)
-const CALQUE_FOND = "fond", CALQUES_SVG_CONFIG = [CALQUE_FOND, ...CALQUES_SVG];
-const NOMS_CALQUES = { fond: _tk("Image de fond"), pieces: _tk("Pièces"), sous_zones: _tk("Sous-zones"), halos: _tk("Halos de lumière"), meubles: _tk("Meubles"), limites: _tk("Limites"), murs: _tk("Murs"), ouvertures: _tk("Ouvertures"),
-  etiquettes: _tk("Étiquettes des pièces"), libelles: _tk("Étiquettes des zones"), appareils: _tk("Appareils"), textes: _tk("Textes") };
-const ICONES_CALQUES = { fond: "mdi:image-outline", pieces: "mdi:floor-plan", sous_zones: "mdi:selection-drag", halos: "mdi:lightbulb-on-outline", meubles: "mdi:sofa-outline", limites: "mdi:fence", murs: "mdi:wall",
-  ouvertures: "mdi:window-closed-variant", etiquettes: "mdi:label-outline", libelles: "mdi:format-letter-case", appareils: "mdi:circle-slice-8", textes: "mdi:format-text" };
-// ordre effectif : les calques connus de la liste, puis ceux qui manquent dans l'ordre par défaut
-const ordreCalques = (l, def) => [...new Set([...(Array.isArray(l) ? l.filter((x) => def.includes(x)) : []), ...def])];
-// YAML écrit à la main : listes de calques inconnus retirés, valeurs invalides supprimées (jamais d'erreur)
-function normaliserCalques(q) {
-  if (!q || typeof q !== "object" || Array.isArray(q)) return null;
-  const n = { ...q }, tous = [...CALQUES_SVG_CONFIG, ...CALQUES_HTML];
-  for (const [k, ok] of [["ordre_svg", CALQUES_SVG_CONFIG], ["ordre_html", CALQUES_HTML], ["masques", tous], ["verrous", tous]]) {
-    if (!(k in n)) continue;
-    if (Array.isArray(n[k])) n[k] = [...new Set(n[k].filter((x) => ok.includes(x)))]; else delete n[k];
-  }
-  if ("bouton_vue" in n && typeof n.bouton_vue !== "boolean") n.bouton_vue = !!n.bouton_vue;
-  return n;
-}
-// `niveau` (ordre dans son calque) et `masque` (caché en vue) par élément : nombre et booléen, sinon retirés
-const normaliserNiveaux = (l) => (Array.isArray(l) ? l.map((o) => {
-  if (!o || typeof o !== "object" || Array.isArray(o) || !("niveau" in o || "masque" in o)) return o;
-  const n = { ...o };
-  if ("niveau" in n) { if ((typeof n.niveau === "number" || (typeof n.niveau === "string" && n.niveau.trim())) && Number.isFinite(+n.niveau)) n.niveau = +n.niveau; else delete n.niveau; }
-  if ("masque" in n && typeof n.masque !== "boolean") n.masque = !!n.masque;
-  return n;
-}) : l);
-// booléens écrits en texte dans le YAML (« false », « non », « 0 »…) : remis en vrai booléen, partout dans la config ; les autres textes ne sont pas touchés
-const CLES_BOOL = new Set(["sous_zone", "dehors", "zoom", "masque", "teinte", "protege", "miroir", "alerte", "volet_seul", "auto_actions", "automatismes", "confirmer",
-  "plein_ecran", "bouton_vue", "jour_nuit", "si_absent", "moyenne", "pastilles", "marqueur", "afficher_meubles", "vitrine", "replay", "edition", "legende", "teinte_temperature", "verrouille", "zoom_seul"]);
-const FAUX = /^\s*(false|faux|non|no|off|0)\s*$/i, VRAI = /^\s*(true|vrai|oui|yes|on|1)\s*$/i;
-// (les clés __proto__, constructor et prototype d'un fichier importé sont écartées au passage)
-const CLES_PROTO = new Set(["__proto__", "constructor", "prototype"]);
-const booleens = (v, k) => (Array.isArray(v) ? v.map((x) => booleens(x)) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([c]) => !CLES_PROTO.has(c)).map(([c, x]) => [c, booleens(x, c)]))
-  : typeof v === "string" && CLES_BOOL.has(k) ? (FAUX.test(v) ? false : VRAI.test(v) ? true : v) : v);
-// géométrie écrite à la main : nombres en texte convertis ; pièce sans contour (3 sommets valides), mur, ouverture, pastille ou texte sans coordonnées : ignorés
-const num = (v) => (typeof v === "number" ? Number.isFinite(v) : typeof v === "string" && v.trim() !== "" && Number.isFinite(+v));
-const point = (q) => Array.isArray(q) && q.length >= 2 && num(q[0]) && num(q[1]);
-const seg = (s) => Array.isArray(s) && s.length >= 4 && s.slice(0, 4).every(num);
-// coordonnées réduites à leurs nombres : rien d'autre qu'un nombre fini n'arrive dans un attribut du SVG (un sommet [x, y, "…"]
-// perd sa 3e valeur) ; un mur ou une limite garde seulement son groupe en 5e valeur (identifiant sûr)
-const ID_SUR = /^[\w.:-]{1,80}$/;
-const nbs = (q, n) => q.slice(0, n).map(Number);
-// (pre : chemin interne de la géométrie, [] à la racine, ["etages", n] pour un étage ; le rapport cumule les étages)
-function normaliserGeometrie(c, rapport, pre = []) {
-  let ign = 0;
-  const retires = [];
-  const garde = (l, ok, fix) => { if (!Array.isArray(l)) return l; const r = []; l.forEach((o, j) => { if (ok(o)) r.push(fix(o, j)); else ign++; }); return r; };
-  c.pieces = garde(c.pieces, (p) => p && typeof p === "object" && !Array.isArray(p) && Array.isArray(p.poly) && p.poly.filter(point).length >= 3, (p, i) => {
-    const n = { ...p, poly: p.poly.filter(point).map((q) => nbs(q, 2)) };
-    if (p.poly.some((q) => !point(q) || q.length > 2)) retires.push(["pieces", i, "poly"]);
-    if ("etiquette" in n) {
-      if (point(n.etiquette)) { if (n.etiquette.length > 2) retires.push(["pieces", i, "etiquette"]); n.etiquette = nbs(n.etiquette, 2); }
-      else { delete n.etiquette; retires.push(["pieces", i, "etiquette"]); }
-    }
-    return n;
-  });
-  for (const k of ["murs", "limites"]) c[k] = garde(c[k], seg, (s, i) => {
-    const g = s.length === 5 && typeof s[4] === "string" && ID_SUR.test(s[4]) ? [s[4]] : [];
-    if (s.length > 4 + g.length) retires.push([k, i]);
-    return [...nbs(s, 4), ...g];
-  });
-  c.ouvertures = garde(c.ouvertures, (o) => o && typeof o === "object" && seg(o.seg), (o, i) => { if (o.seg.length > 4) retires.push(["ouvertures", i, "seg"]); return { ...o, seg: nbs(o.seg, 4) }; });
-  for (const k of ["points", "textes"]) c[k] = garde(c[k], (o) => o && typeof o === "object" && point(o.pos), (o, i) => { if (o.pos.length > 2) retires.push([k, i, "pos"]); return { ...o, pos: nbs(o.pos, 2) }; });
-  if (rapport) { rapport.ignores = (rapport.ignores || 0) + ign; if (retires.length) (rapport.retires ||= []).push(...retires.map((r) => cheminPublic([...pre, ...r]))); }
-  return c;
-}
-// géométrie d'un plan (racine d'un plan à un étage, ou un étage) : coordonnées, meubles, fiches, ouvertures, panneaux des pièces, niveaux
-function normaliserGeo(c, rapport, pre = []) {
-  if (!("pieces" in c)) c.pieces = [];
-  if (!Array.isArray(c.pieces)) throw new Error(`maquette-card : « ${cheminPublic([...pre, "pieces"])} » must be a list`);
-  normaliserGeometrie(c, rapport, pre);
-  if ("meubles" in c) c.meubles = normaliserMeubles(c.meubles);
-  for (const k of ["ouvertures", "points"]) if (Array.isArray(c[k])) c[k] = normaliserPorteurs(c[k]);
-  if (Array.isArray(c.ouvertures)) c.ouvertures = normaliserOuvertures(c.ouvertures);
-  c.pieces = c.pieces.map((p) => { const q = p?.panneaux && normaliserPanneaux(p.panneaux); return q && q !== p.panneaux ? { ...p, panneaux: q } : p; });
-  for (const k of ["pieces", "points", "textes", "ouvertures", "meubles"]) if (Array.isArray(c[k])) c[k] = normaliserNiveaux(c[k]);
-  if ("panneaux" in c) c.panneaux = normaliserPanneaux(c.panneaux);
-  return c;
-}
-// ---------- étages (`floors`) : chaque étage porte sa géométrie (et au besoin ses panneaux, son fond) ; tout le reste est commun ----------
-const CLES_GEO = ["pieces", "murs", "limites", "ouvertures", "points", "textes", "meubles", "groupes"];
-// structure des étages (avant la géométrie) : liste, géométrie absente de la racine, éléments objets, identifiants sûrs et uniques,
-// étage par défaut connu ; ret : chemins internes des valeurs retirées ou corrigées
-function normaliserEtages(c, ret) {
-  if (!("etages" in c)) return;
-  if (!Array.isArray(c.etages)) throw new Error("maquette-card : « floors » must be a list of floors");
-  if (!c.etages.length) { delete c.etages; ret.push(["etages"]); return; }
-  const vide = (v) => v == null || (Array.isArray(v) && !v.length);
-  const racine = [...CLES_GEO, "fond"].filter((k) => k in c && !vide(c[k]));
-  if (racine.length) throw new Error(`maquette-card : with « floors », the plan is drawn floor by floor: move ${racine.map((k) => `« ${cheminPublic([k])} »`).join(", ")} into floors[n] (each floor has its own rooms, walls, openings…)`);
-  for (const k of [...CLES_GEO, "fond"]) delete c[k];
-  const l = [];
-  c.etages.forEach((e, i) => { if (objetSimple(e)) l.push(e); else ret.push(["etages", i]); });
-  if (!l.length) { delete c.etages; return; }
-  // identifiants : les valides gardés (le premier d'un doublon), les autres remplacés (floor_<rang>) ou suffixés (_2, _3…)
-  const pris = new Set(), libre = (base) => { let id = base, k = 2; while (pris.has(id)) id = `${base}_${k++}`; return id; };
-  const ok = l.map((e) => { const v = typeof e.id === "string" && ID_SUR.test(e.id) && !pris.has(e.id) ? e.id : null; if (v) pris.add(v); return v; });
-  l.forEach((e, n) => {
-    if (ok[n]) return;
-    const base = typeof e.id === "string" && ID_SUR.test(e.id) ? e.id.slice(0, 74) : `floor_${n + 1}`;
-    e.id = libre(base); pris.add(e.id);
-    ret.push(["etages", n, "id"]);
-  });
-  c.etages = l;
-  if ("etage_defaut" in c && !pris.has(c.etage_defaut)) { delete c.etage_defaut; ret.push(["etage_defaut"]); }
-}
-// `floor` d'un meuble : seulement sur un escalier, vers un autre étage connu (sinon retiré)
-function normaliserEscaliers(g, ids, propre, pre, ret) {
-  (Array.isArray(g.meubles) ? g.meubles : []).forEach((m, j) => {
-    if (!m || !("etage" in m) || (m.type === "escalier" && ids.includes(m.etage) && m.etage !== propre)) return;
-    delete m.etage; ret.push([...pre, "meubles", j, "etage"]);
-  });
-}
-// toute la normalisation de `setConfig` (sans la démo) : aussi utilisée par l'éditeur pour reconnaître la carte stockée
-// plan à étages : rendu replié (`floors`, sans géométrie à la racine) ; une config dépliée (`etage_actif`) est rendue dépliée sur le même étage
-function normaliserConfig(config, rapport) {
-  if (objetSimple(config?.etage_actif)) return deplier(normaliserConfig(replier(config), rapport), config.etage_actif.id);
-  config = booleens({ pieces: [], ...config });
-  const ret = [];
-  normaliserEtages(config, ret);
-  const ids = idsEtages(config);
-  if (ids.length) config.etages.forEach((e, n) => { normaliserGeo(e, rapport, ["etages", n]); normaliserEscaliers(e, ids, e.id, ["etages", n], ret); });
-  else { normaliserGeo(config, rapport); normaliserEscaliers(config, [], null, [], ret); if ("etage_defaut" in config) { delete config.etage_defaut; ret.push(["etage_defaut"]); } }
-  if (ids.length && "panneaux" in config) config.panneaux = normaliserPanneaux(config.panneaux); // panneaux communs à la maison
-  if (rapport && ret.length) (rapport.retires ||= []).push(...ret.map(cheminPublic));
-  if (Array.isArray(config.modeles)) config.modeles = normaliserModeles(config.modeles);
-  if ("calques" in config) { const q = normaliserCalques(config.calques); if (q) config.calques = q; else delete config.calques; }
-  if ("interaction" in config || "tablette" in config) normaliserInteraction(config);
-  // étiquettes des pièces : { nom, temperature, humidite } (des clés qui ne sont pas booléennes ailleurs) : « false » écrit en texte → false
-  const ep = config.etiquettes_pieces;
-  if (ep && typeof ep === "object" && !Array.isArray(ep)) config.etiquettes_pieces = Object.fromEntries(Object.entries(ep).map(([k, v]) => [k, typeof v === "string" ? (FAUX.test(v) ? false : VRAI.test(v) ? true : v) : v]));
-  return assainirConfig(config, rapport);
-}
-
+// sécurité : filet HTML, services sensibles, assainirConfig — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 // ---------- sécurité (2/3) : filet du HTML, tout innerHTML de la carte et de l'éditeur passe par poserHTML ----------
 // Le HTML est d'abord lu dans un <template> (document inerte : rien ne s'y charge ni ne s'y exécute), nettoyé, puis posé.
 // Retirés : balises hors de la liste (script, iframe, object, a, form, foreignObject, animate, set…), attributs on*, is,
@@ -205,6 +65,32 @@ const SERVICES_SURS = (() => {
 const OUVRIR_COVER = ["open_cover", "open_cover_tilt", "set_cover_position", "set_cover_tilt_position", "toggle", "toggle_cover_tilt"];
 const COVERS_SURES = ["shade", "shutter", "blind", "curtain", "awning", "window"];
 const coverSure = (hass, e) => e.startsWith("cover.") && COVERS_SURES.includes(hass?.states?.[e]?.attributes?.device_class);
+// un `switch` (ou un `input_boolean`) peut commander un portail, une porte de garage ou une gâche : il reste un service sûr,
+// mais l'éditeur demande, quand on choisit un tel interrupteur, s'il faut confirmer chaque appui (`confirm`), et présélectionne
+// « Oui » s'il ressemble à un accès (même règle pour « Nettoyer le plan »). Accès = (a) un mot d'accès (porte, portail, garage, serrure, door, gate, lock…, sans accents ni
+// pluriel, mot entier) dans son identifiant, son nom, son icône ou le nom / modèle de son appareil, sauf si son propre
+// identifiant ou son nom dit lumière, prise ou appareil (lumiere, lampe, light, prise, plug, chauffage, congelateur…) ou qu'il est de classe `outlet` ;
+// ou (b) son appareil porte une serrure (lock.*), une cover garage / portail / porte, ou un capteur de porte de garage.
+const MOTS_ACCES = new Set(["porte", "portail", "portillon", "garage", "barriere", "serrure", "verrou", "verrouillage", "gache", "interphone",
+  "door", "gate", "barrier", "lock", "unlock", "latch", "opener", "intercom"]);
+const MOTS_NON_ACCES = new Set(["lumiere", "lampe", "eclairage", "ampoule", "applique", "plafonnier", "spot", "guirlande", "projecteur",
+  "light", "lamp", "bulb", "prise", "plug", "outlet", "socket", "enfant", "child", "chauffage", "radiateur", "heater", "ventilateur", "ventilation", "fan",
+  "congelateur", "frigo", "refrigerateur", "freezer", "fridge", "chargeur", "charger"]);
+// mots d'un texte : minuscules, sans accents, découpé sur tout ce qui n'est pas lettre ou chiffre, pluriel en « s » retiré
+const motsDe = (...t) => t.filter((x) => typeof x === "string").join(" ").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  .split(/[^a-z0-9]+/).filter(Boolean).map((m) => (m.length > 3 && m.endsWith("s") ? m.slice(0, -1) : m));
+const DOMAINES_INTERRUPTEUR = ["switch", "input_boolean"];
+function interrupteurAcces(hass, e) {
+  if (typeof e !== "string" || !DOMAINES_INTERRUPTEUR.includes(e.split(".")[0])) return false;
+  const st = hass?.states?.[e], at = st?.attributes || {}, reg = hass?.entities?.[e], dev = reg?.device_id ? hass?.devices?.[reg.device_id] : null;
+  const propres = motsDe(e.split(".").slice(1).join("."), at.friendly_name, reg?.name);
+  const mots = [...propres, ...motsDe(at.icon, reg?.icon, dev?.name, dev?.name_by_user, dev?.model)];
+  if (mots.some((m) => MOTS_ACCES.has(m)) && !propres.some((m) => MOTS_NON_ACCES.has(m)) && at.device_class !== "outlet") return true;
+  if (!reg?.device_id || !hass?.entities) return false;
+  return Object.entries(hass.entities).some(([id, r]) => r?.device_id === reg.device_id && id !== e && (id.startsWith("lock.")
+    || (id.startsWith("cover.") && ["garage", "gate", "door"].includes(hass.states?.[id]?.attributes?.device_class))
+    || (id.startsWith("binary_sensor.") && hass.states?.[id]?.attributes?.device_class === "garage_door")));
+}
 // entités visées par un appel (cible et données : entity_id, area_id ; un appareil n'est pas résolu) ; null = inconnues
 function entitesAppel(hass, dom, donnees, cible) {
   const l = [], vers = (v) => (Array.isArray(v) ? v : v == null ? [] : [v]);
@@ -343,7 +229,7 @@ function assainirConfig(c, rapport) {
   const fond = (v, ch) => {
     if (!objetSimple(v)) return undefined;
     fixer(v, { image: urlFond, pos: pt, largeur: positif, hauteur: positif, rotation: (x) => (num(x) ? ((+x % 360) + 360) % 360 : undefined),
-      opacite: (x) => (num(x) ? Math.min(1, Math.max(0, +x)) : undefined), afficher: parmi(["editeur", "toujours"]) }, ch);
+      opacite: (x) => (num(x) ? Math.min(1, Math.max(0, +x)) : undefined), opacite_sol: (x) => (num(x) ? Math.min(1, Math.max(0, +x)) : undefined), afficher: parmi(["editeur", "toujours"]) }, ch);
     return v.image && v.largeur ? v : undefined;
   };
   const GEO = { pieces: liste(objet(R_PIECE)), ouvertures: liste(objet(R_OUV)), points: liste(objet(R_POINT)), textes: liste(objet(R_TEXTE)), meubles: liste(objet(R_MEUBLE)),
@@ -356,6 +242,7 @@ function assainirConfig(c, rapport) {
     palette: (v) => (objetSimple(v) ? Object.fromEntries(palette({ palette: v })) : undefined),
     ...GEO, etages: (l, ch) => (Array.isArray(l) ? l.map((e, i) => (objetSimple(e) ? fixer(e, R_ETAGE, [...ch, i]) : e)) : undefined),
     selecteur_etages: parmi(["ascenseur", "onglets"]), etage_defaut: idg,
+    effets: parmi(EFFETS),
     panneaux, modeles: liste(modele), animations: objet(anims),
     resume: (v, ch) => (Array.isArray(v) ? liste(objet({ icone: ico, decimales: nbF, alerte_au_dessus: nbF }))(v, ch) : v),
     alertes: liste(objet({ icone: ico, au_dessus: nbF, au_dessous: nbF, niveau: parmi(Object.keys(NIVEAUX_ALERTE)) })),

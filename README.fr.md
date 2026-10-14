@@ -15,7 +15,20 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ![Maquette : l'appartement de démonstration en direct, thème sombre](images/plan-pc-dark.png)
 
-## Nouveautés de la 0.2.0
+## Nouveautés de la 0.3.0
+
+Cette version est surtout une affaire de vitesse. L'éditeur vit maintenant dans son propre fichier et ne se charge qu'à
+l'ouverture : la carte fait environ un tiers de sa taille d'avant, et un plan au repos n'occupe presque plus le
+processeur, même sous la pluie ou la neige sur un téléphone. Un nouveau réglage `effects` dessine un plan plus léger sur
+téléphone et tablette. Côté éditeur : une bibliothèque de widgets avec copies liées, le partage de modèles, widgets et
+objets sous forme de texte (vos entités remplacées par des espaces réservés), la liste des entités qui n'existent plus,
+des versions enregistrées qui suivent votre compte Home Assistant au lieu d'un seul navigateur, et une barre
+d'outils sur deux lignes avec les commandes de panneaux nommées. Sur une image de fond, le sol des pièces est
+maintenant translucide et garde la couleur des températures. L'installation
+manuelle demande maintenant **deux fichiers** (voir plus bas). Le détail est sur le wiki :
+[Nouveautés de la 0.3.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-030).
+
+### 0.2 : la lumière et les étages
 
 Le gros morceau, c'est la lumière : le soleil et le ciel qui entrent par les fenêtres (volets et météo compris), la lune
 la nuit, et des halos de lampes qui mélangent leurs couleurs. Un plan peut maintenant avoir plusieurs étages, avec des
@@ -42,6 +55,9 @@ fenêtre, avec un aperçu en direct. Une habitude à changer : **Enregistrer** q
   d'édition avec aperçu en direct pour chaque élément. Enregistrement direct dans la configuration du tableau de bord.
 - **Ateliers** : *Créer une ouverture*, *Créer un meuble* (dessinez vos propres meubles à partir de formes) et *Créer
   un widget*, avec un aperçu en direct, enregistrés dans *Mes modèles*.
+- **Bibliothèque de widgets et partage** : tous les modèles de widgets dans une fenêtre, des copies liées mises à
+  jour en un clic, et des modèles, widgets ou objets partagés en texte ou en code compact, avec des espaces réservés à
+  la place de vos entités.
 - **65 widgets prêts à l'emploi** (CO₂, fuite, serrure, voiture, tarif, pH de piscine…) en plus des 11 types de
   widgets, pour les panneaux latéraux et pour la fiche que chaque élément ouvre au toucher. Les entités sont
   pré-remplies depuis Home Assistant.
@@ -122,10 +138,11 @@ profil Home Assistant (français ou anglais).
 
 ### Manuelle
 
-1. Téléchargez `maquette-card.js` depuis la [dernière version](https://github.com/TooMuhtsh/maquette-card/releases/latest).
-2. Copiez-le dans `/config/www/maquette-card.js`.
+1. Téléchargez `maquette-card.js` **et** `maquette-editeur.js` depuis la
+   [dernière version](https://github.com/TooMuhtsh/maquette-card/releases/latest).
+2. Copiez les deux dans `/config/www/` (même dossier).
 3. Paramètres → Tableaux de bord → ⋮ → **Ressources** → ajoutez `/local/maquette-card.js` en tant que **module
-   JavaScript**.
+   JavaScript** (celui-ci seulement : la carte charge l'éditeur d'elle-même quand vous l'ouvrez).
 
 ## Premiers pas
 

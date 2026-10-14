@@ -1,6 +1,25 @@
 // textes : sécurité (services sensibles, récapitulatif d'import) — morceau de src/maquette-i18n.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 (() => { // @assemblage
 const EN = { // @assemblage
+    // ---- sécurité : interrupteurs ajoutés dans l'éditeur (confirmer chaque appui ?) ----
+    "Confirmer chaque appui sur « {nom} » ?": "Confirm every tap on “{nom}”?",
+    "Oui présélectionné : il ressemble à un accès (porte, portail, garage…).": "Yes preselected: it looks like an access (door, gate, garage…).",
+    "Non présélectionné.": "No preselected.",
+    "Oui": "Yes",
+    "{n} interrupteurs ajoutés : confirmer chaque appui ?": "{n} switches added: confirm every tap?",
+    "Oui présélectionné pour ceux qui ressemblent à un accès ({k}).": "Yes preselected for those that look like an access ({k}).",
+    // ---- sécurité : éléments invalides du plan enregistré (avant d'enregistrer) ----
+    "{n} élément sans coordonnées valides (pièce sans contour, mur sans extrémités…) est ignoré : à l'enregistrement, tu choisiras de le retirer ou de le garder.|{n} éléments sans coordonnées valides (pièce sans contour, mur sans extrémités…) sont ignorés : à l'enregistrement, tu choisiras de les retirer ou de les garder.": "{n} element without valid coordinates (room without outline, wall without ends…) is ignored: when saving, you will choose to remove or keep it.|{n} elements without valid coordinates (room without outline, wall without ends…) are ignored: when saving, you will choose to remove or keep them.",
+    "valeur invalide : {chemin}": "invalid value: {chemin}",
+    "clé inconnue : {chemin}": "unknown key: {chemin}",
+    "valeur inconnue : {chemin}": "unknown value: {chemin}",
+    "coordonnées invalides ou hors du plan (± 1 km)": "invalid coordinates or off the plan (± 1 km)",
+    "Pastille": "Badge",
+    "Réglage « {cle} »": "Setting “{cle}”",
+    "Éléments invalides dans le plan enregistré": "Invalid items in the saved plan",
+    "La carte ignore ces éléments ou valeurs (invisibles dans l'éditeur). Les retirer, ou les garder tels quels dans la config (toujours ignorés à l'affichage) ?": "The card ignores these items or values (not visible in the editor). Remove them, or keep them as they are in the config (still ignored on display)?",
+    "Les garder tels quels": "Keep them as they are",
+    "Les retirer": "Remove them",
     // ---- sécurité : confirmation des services sensibles ----
     "{action} ?": "{action}?",
     "Bouton « {nom} »": "Button “{nom}”",

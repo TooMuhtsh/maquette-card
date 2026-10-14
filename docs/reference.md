@@ -66,6 +66,9 @@ valid YAML example and where to find it in the built-in editor.
   numbers must be finite numbers (a point keeps only its `x` and `y`), enumerated values must be known, colours and icons
   must have the formats above. An invalid value is removed (never an error) with one warning in the browser console
   (`maquette-card : invalid value(s) removed: …`); texts are always shown as text. See [Security](#security).
+- **Bounds.** Plan coordinates are bounded to ± 100,000 cm (1 km): a wall, room vertex, opening, badge, text or piece of
+  furniture placed further away (e.g. `1e12`) is ignored like one without valid coordinates, with a console warning,
+  instead of breaking the framing and the editor. Most other numbers are bounded to ± 10,000,000. *New in 0.3.0*.
 - **Unknown keys.** A key that is not in this page, or an enumerated value written with its former French name, is
   ignored with a warning in the browser console (`maquette-card : unknown key « … » (ignored)`). A configuration written
   entirely with the former French keys (`pieces`, `murs`…) is refused with a message; see the [CHANGELOG](../CHANGELOG.md#former-french-keys).
@@ -117,6 +120,7 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `interaction` | object | | — | [Interaction](#interaction) |
 | `tablet` | bool / object | | — | [Wall tablet](#wall-tablet) |
 | `animation_level` | enum | `full` `reduced` `none` | `full` | [Animation level](#animation-level) |
+| `effects` | enum | `auto` `full` `light` | `auto` | [Animation level](#animation-level) (effects). *New in 0.3.0* |
 | `demo` | bool | | — | [Demo](#demo) |
 | `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend` | | | | [Global settings](#global-settings) |
 | `view_layout`, `layout_options`, `grid_options`, `visibility`, `card_mod` | | | | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
@@ -132,8 +136,11 @@ walls:
   - [0, 0, 500, 0]
 ```
 
-Editor: the card is added from the Home Assistant card picker (*Maquette*); `title` is in ⚙ Settings › General; `id`
-is written automatically on the first save.
+Editor: the card is added from the Home Assistant card picker: **Maquette** (`custom:maquette-card`, starts with one
+4 × 3 m room and its walls, title "My plan") or **Maquette — demo** (`custom:maquette-card-demo`, always the demo). *Add
+dashboard* offers the strategies **Maquette** (`custom:maquette`: a dashboard "Home" with a panel view "Plan" and an
+empty card `id: plan`, converted to normal views on the first save) and **Maquette — demo** (`custom:maquette-demo`).
+`title` is in ⚙ Settings › General; `id` is written automatically on the first save.
 
 ## Global settings
 
@@ -173,9 +180,36 @@ temperature_tint:
 legend: false
 ```
 
-Editor: ⚙ Settings › General (`title`, `language`, `full_page`, `margin`, `editor`), › Display (`show_furniture`,
-`layers.view_button`), › Features (`replay`, `showcase`, `presence`; *Set elsewhere*: links to Full-plan alerts and
-Summary chips), › Rooms and legend (`room_labels`, `temperature_tint`, `legend`). Help texts are behind the ⓘ buttons.
+Editor: ⚙ Settings. Every field, its key and its range:
+
+| Tab › section | Field | Key | Values | Default |
+|---|---|---|---|---|
+| General | Title | `title` | text | — |
+| General | Card language | `language` | Automatic / English / Français | `auto` |
+| General | Full height on large screens | `full_page` | switch | `true` |
+| General | Margin around the plan | `margin` | 0–2000 cm, step 10 | `40` |
+| General | Edit button (pencil) | `editor` | switch (confirmation before hiding) | `true` |
+| Display | Furniture shown | `show_furniture` | Always / Large screens (`desktop`) / Never | `true` |
+| Display | Layers button for viewers | `layers.view_button` | switch | `false` |
+| Display | Named colors | `palette` | name → colour, see [Card root](#card-root) | — |
+| Features | Replay the day | `replay` | switch | off |
+| Features | Replayed period (with replay) | `replay.hours` | 1–72 h | `24` |
+| Features | Starting speed (with replay) | `replay.speed` | ×60 / ×300 / ×900 / ×3600 | `900` |
+| Features | Examples below the plan | `showcase` | switch | off |
+| Features | Default presence | `presence` | entity | `zone.home` |
+| Features › Set elsewhere | Full-plan alerts, Summary chips | — | links | — |
+| Rooms and legend › On room labels | Room name / Temperature / Humidity | `room_labels.name` / `.temperature` / `.humidity` | switches | `true` |
+| Rooms and legend › Room color | Tint by temperature | `temperature_tint` | switch (`false` when off) | on |
+| Rooms and legend › Room color | Blue at / Red at (with the tint) | `temperature_tint.min` / `.max` | −30–60 °C, step 0.5, blue below red | `17` / `28` |
+| Rooms and legend | Legend below the plan | `legend` | switch | `true` |
+| People on the plan (only with `ambience.people`) | People away / People at home / Avatar | `ambience.people.away` / `.at_home` / `.avatar` | see [People](#people) | `direction` / `grouped` / `picture` |
+| Device badges | Unavailable device / Inactive device / Badge size / Values in badges | `badge_style.*` | see [Badge style](#badge-style) | |
+| Interaction | Tapping a room / Locked view / Zoom buttons / Back to the whole plan after | `interaction.*` | see [Interaction](#interaction); `reset_after` 0–86400 s, step 10 | |
+| Interaction › Wall tablet | Tablet mode, then Summary chips / Side panels / Screen burn-in protection | `tablet`, `tablet.*` | see [Wall tablet](#wall-tablet) | |
+| Interaction › Animations | Animation level | `animation_level` | Full / Reduced / None | `full` |
+
+A setting put back to its default is removed from the YAML; a number out of range is refused. Help texts are behind the
+ⓘ buttons.
 
 ## Floors and background image
 
@@ -268,6 +302,7 @@ A scanned plan or a photo drawn under everything else. It is the `background` la
 | `background.height` | number (cm) | > 0 | keeps the image ratio | Height; leave it out to keep the proportions |
 | `background.rotation` | number (°) | 0–360 | `0` | Clockwise rotation |
 | `background.opacity` | number | 0–1 | `0.5` | Opacity |
+| `background.room_opacity` | number | 0–1 | `0.6` | Opacity of the room floors while the image is drawn: the image shows through the rooms, the temperature tint stays. `1` = opaque floors (before 0.3.0). *New in 0.3.0*. |
 | `background.show` | enum | `editor` `always` | `editor` | `editor`: the image is drawn while editing only, and not even loaded in the view. `always`: also in the view (unless the layer is hidden) |
 
 ```yaml
@@ -490,7 +525,7 @@ Editor: toolbar *Opening (O)*, or *Add › Openings*: presets (*Window + shutter
 *French window + shutter + contact*, *Sliding bay window*, *Tilt and turn window*, *Garage door*, *Gate*…) and *Create an
 opening* (type, leaves, swing, sensors, animation, preview; *Add* then draw it, or *Save to My templates*). Drawn on a
 wall, its sensors are looked up among the free entities of the bordering room (room `area`, else the HA area with the same
-name): one match is linked, several open a short list (that room first, *Other entity…*, *Skip*), none is highlighted
+name, else the only area whose name contains it or is contained in it): one match is linked, several open a short list (that room first, *Other entity…*, *Skip*), none is highlighted
 “to complete” (the edit dialog then opens on *Sensors*); `outside` points away from the indoor room. Select it for the
 floating toolbar, then *Edit* (or double-click, Enter) for its edit dialog, previewed in its room: tabs *General* (*Type*,
 *Leaves*, *Opening*, *Outside side*, *Bay (grouped leaves)*, position), *Sensors* (*Contact*, *Shutter*, motorised
@@ -513,13 +548,13 @@ halo, animation and card.
 | `color` | colour | | HA active state colour (`--state-active-color`, else yellow) | Colour when active |
 | `light_color` | bool | | guessed from `color` | The colour is light: the icon is drawn dark when active |
 | `halo` | number (cm) / bool | | — | Light halo radius while active; `true` = 130 |
-| `room` | string / `false` | a room `name` | the room it sits in (with the ambience light) | Clip the halo to this room and the rooms open onto it (shared edge with no wall or opening); `false` = free halo |
+| `room` | string / `false` | a room `name` | the room it sits in (with the ambience light) | Clip the halo to this room and the rooms open onto it (shared edge with no wall or opening); `false` = free halo. *New in 0.2.1*. |
 | `alert` | bool | | `false` | Alert badge: uses `animations.alert` (pulse) when active |
 | `active` | entity | | `entity` | Entity that defines “active” |
 | `active_attribute` | attribute | | — | Use this attribute of the active entity instead of its state |
 | `threshold` | number | | — | Active when the active value is above this number. Without it: active for `on`, `open`, `opening`, `closing`, `playing`, `heating`, `cooling`, `cleaning`, `detected`, `home` |
 | `value` | entity | | — | Numeric value shown in the badge |
-| `attribute` | attribute | | — | Show this attribute of `entity` as the value (wins over `value`) |
+| `attribute` | attribute | | — | Show this attribute of `entity` as the value (wins over `value`)A thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
 | `unit` | string | | entity unit | Unit after the value (written as is, e.g. `" °C"`) |
 | `decimals` | number | 0–6 | `0` (`attribute`: 1) | Decimals of `value`, or of a numeric `attribute` |
 | `tap` | enum | `card` `more_info` `none` | `card` with a `card`, else more-info | See [Cards](#cards) |
@@ -710,11 +745,13 @@ furniture:
 | Outdoor | `bike` | Bike | 60 × 180 |  |
 | Outdoor | `tree` | Tree / shrub | 200 × 200 | round |
 | Outdoor | `pool` | Pool | 800 × 400 |  |
+| Outdoor | `pergola` | Pergola | 400 × 300 | posts and louvres; linked to a `cover`, the louvres narrow as they open (`current_tilt_position`, else `current_position`). *New in 0.2.1* |
+| Outdoor | `shed` | Garden shed | 250 × 200 | two-sided roof seen from above. *New in 0.2.1* |
 
 Rugs and named areas are drawn under the other furniture (`level: -1` by default). *Round* types have no mirror button.
 The *colour* is the default accent of connected furniture of that type.
 
-Editor: *Add › Furniture* (tabs by category, search), click to place; select it for size, rotation (±15°, ±90°),
+Editor: *Add › Furniture* (one tab, with *Create furniture*, the sub-areas and a section per category; search), click to place; select it for size, rotation (±15°, ±90°),
 *Mirror*, *Chairs*, *Template*.
 
 ### Custom furniture
@@ -762,11 +799,11 @@ badge, and a tap target that opens its card or more-info. Same keys and meaning 
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
 | `entity` | entity | | — | Main entity: state, active look, on / off in its card |
-| `value` | entity | | — | Numeric value shown in a badge on the furniture (hidden below 24 px on screen) |
+| `value` | entity | | — | Numeric value shown in a badge on the furniture (hidden only when the piece is smaller than 24 px on screen both ways: a thin electrical panel, radiator or TV unit keeps its badge) |
 | `active` | entity | | `entity` | Entity that defines “active” |
 | `active_attribute` | attribute | | — | Attribute of the active entity |
 | `threshold` | number | | — | Active above this value (e.g. `50` W for a charger) |
-| `attribute` | attribute | | — | Show this attribute of `entity` as the value |
+| `attribute` | attribute | | — | Show this attribute of `entity` as the valueA thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
 | `unit` | string | | entity unit | Unit of the value |
 | `decimals` | number | 0–6 | `0` | Decimals of the value |
 | `color` | colour | `#rgb`…`#rrggbbaa`, CSS name, `var(--…)` | per type, else theme primary | Accent colour (see the catalogue) |
@@ -892,6 +929,7 @@ type adds its own (one key always means the same thing).
 | `icon` | icon | | per type | Header icon |
 | `color` | colour | | — | Accent colour (`gauge`: arc colour) |
 | `rows` | list | | — | Extra lines under `tile`, `gauge`, `tariff`, `ev`, `cover`, `lock` and `thermostat`, see below |
+| `template` | text | a template `id` | — | Copy of a [template](#templates) of the widget library, written by the editor: *Update from the template* and *Update the N copies* refresh it, *Detach* removes the key |
 | `confirm` | bool | | `false` (`cover`, `lock`: see their section) | `true`: every service of the widget asks for confirmation, even a safe one: switches and *Activate* buttons of its rows, thermostat set point, cover and lock buttons. `false` never skips the confirmation of a sensitive service |
 
 **Rows** (`rows[]`, also `entities[]` of the [entities](#widget-entities) widget): an entity id, or an object:
@@ -919,6 +957,7 @@ panels:
 
 Editor: *Add › Widgets*, or *Add widget* in a panel or a card; click the widget, then *Edit* in its floating toolbar: the
 edit dialog shows the widget itself as its preview (← or Esc goes back to the room or the card it belongs to).
+The editor also offers about 65 ready-made widgets built on these types, by category (*Add › Widgets*).
 
 ### Widget: tariff
 
@@ -1299,7 +1338,7 @@ Reusable elements saved by the editor and offered again in *Add › My templates
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
 | `name` | string | | — | Template name |
-| `id` | string | | — | Short identifier written by the editor (widget templates) |
+| `id` | string | | — | Short identifier written by the editor: by the workshops (*Create a widget*, *Create an opening*, *Create furniture*), and for a widget template when its first copy is placed ([linked copies](#widget-library)). A template without `id` keeps working as it is |
 | `kind` | enum | `badge` `opening` `furniture` `widget` | — | What `item` is |
 | `icon` | icon | | — | Icon in the catalogue |
 | `description` | string | | — | Subtitle in the catalogue |
@@ -1363,6 +1402,65 @@ templates:
 Editor: select an element › *Template* (*Save as template*); a card › *Save card as template*; *Add a widget › Create a
 widget*, *Add › Create an opening* or *Create furniture* › *Save to My templates*; reuse from *Add › My templates*.
 
+### Widget library
+
+*New in 0.3.0*. One window for all widget templates: *Add › Widgets › Widget library*, *Library* in *Add a widget*, or the pencil on
+a widget that is a copy of a template. It offers a search, a real preview at PC panel or phone size, the widget's own
+settings and, under each entity field, *Ask each time it is placed* (`ask`). *Place left* / *Place right* add a copy to
+the home or a room panel. *New template*, *Duplicate*, *Delete* (the copies are detached, nothing breaks). Undo works
+inside the window. It is a real modal dialog: Esc closes it, focus stays inside and is given back.
+
+**Linked copies.** A widget placed from a template keeps its `id` in `template`. Its window shows *Copy of the “…”
+template* with *Update* (applies the template, keeps the copy's own “ask” entities), *Open* and *Detach* (removes the
+key). *Update the N copies* in the library does the same for every copy of the plan, after a confirmation, in one undo
+step. A widget type unknown to this version is shown as such and kept as is.
+
+### Share format
+
+*New in 0.3.0*.
+
+*Share* (floating bar of a selected widget, badge, opening or furniture; *Share* in the widget library; *Share…* in
+*Export / import the plan*) writes templates in a separate, readable format. Nothing is sent anywhere: copy the text or
+download the file.
+
+| Key | Type | Values | Description |
+|---|---|---|---|
+| `maquette_share` | integer | `1` | Format version (a newer version is refused with a clear message) |
+| `elements` | list | [templates](#templates) | The shared elements: `kind` `widget`, `badge`, `opening` or `furniture`, `item`, `name`, `icon`… (no `id`) |
+| `placeholders` | map | role → `{label, domain, device_class?, unit?, state_class?}` | Entities to match on import; in `item`, an entity is written `"<<role>>"` |
+
+By default (*Keep my entities* unticked) every entity becomes a placeholder named after its field (`battery`, `range`,
+`power`…) or its device class / domain (`light`, `lock`…); row and badge names, action data and links are removed, as are
+`template`, `group`, positions, segments, `room`, `area` and `locked`. Titles, icons, colours and settings are kept.
+
+```yaml
+maquette_share: 1
+elements:
+  - name: Car
+    kind: widget
+    item: {type: ev, title: Car, battery: "<<battery>>", range: "<<range>>"}
+placeholders:
+  battery: {label: Battery, domain: sensor, device_class: battery, unit: "%"}
+  range: {label: Range, domain: sensor, device_class: distance, unit: km}
+```
+
+**Compact code**: `MAQ1:` followed by the same content as JSON, compressed (deflate-raw) and base64url-encoded, for
+messaging apps.
+
+**Import** (*Import a share…*, or paste a share in *Export / import the plan*: plan, share and compact code are detected):
+before anything changes, the dialog lists the elements, the commands they hold (*Sensitive* ones marked), what was ignored
+(unknown kind or widget type, unknown or invalid settings) and one row per placeholder: *Choose…* lists the entities of
+the same domain (device class and unit first), *Fill from a device* proposes a whole device (e.g. a car: battery, range,
+power), a single match is proposed; nothing is applied silently. A placeholder left empty becomes a field *to complete*
+(*ask* in a template). Destination: *Add to my templates* (default) or *Place on the plan* (widgets in the chosen panel; a
+single object is placed with a click). The plan itself is never replaced. Every imported command gets `confirm: true`.
+Same safety as a plan import: 2 MB of text (1 MB once decompressed), 200 elements, `__proto__` removed, the card's own
+validation (colours, icons, numbers), unknown keys dropped, new template ids.
+
+**Missing entities** (*New in 0.3.0*): *Clean up the plan* shows *Missing entities (N)* when entities of the plan no longer exist in
+Home Assistant: where each one is used (rooms, buttons, badges, openings, furniture, cards, widgets, chips, ambience,
+templates) and *Choose…* to replace it everywhere, in one undo step.
+
 ## Ambience
 
 Optional, discreet layers drawn under the badges: night tint and sunlight, weather on outdoor rooms, traces of recent
@@ -1392,8 +1490,8 @@ ambience:
   people: true
 ```
 
-Editor: toolbar *Ambience and animations* › *Plan ambience* (day / night, weather, traces) (with *Plan north*),
-*Energy flow*, *People*.
+Editor: toolbar *Ambience and animations* › **Plan ambience**, then *Intensity*, **Plan north (°)**, *Day and night*,
+*Weather*, *Traces* (duration 0–240 min, step 5), *Energy flow*, *People*.
 
 ### Day and night
 
@@ -1645,7 +1743,7 @@ replay:
   speed: 3600
 ```
 
-Editor: ⚙ Settings › Features › *“Replay the day” button*, *Replayed period*, *Starting speed*.
+Editor: ⚙ Settings › Features › *Replay the day*, *Replayed period*, *Starting speed*.
 
 ## Showcase
 
@@ -1664,7 +1762,7 @@ showcase:
   width: 1200
 ```
 
-Editor: ⚙ Settings › Features › *Examples below the plan (animations, weather, ambience)*.
+Editor: ⚙ Settings › Features › *Examples below the plan*.
 
 ## Interaction
 
@@ -1674,7 +1772,7 @@ How the card reacts to touch. Without these keys it behaves as before. Never app
 |---|---|---|---|---|
 | `interaction.room_tap` | enum | `room_view` `more_info` `none` | `room_view` | Tapping a room: room view; more-info of its `tap` entity (else `temperature`); nothing. A room with `zoom: false` keeps its own behaviour |
 | `interaction.lock_view` | bool | | `false` | No panning nor wheel / pinch zoom, zoom buttons hidden; taps still work |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise; in the editor: never hidden, header on a phone unless `map`. *New in 0.2.1*; in the editor on a phone the buttons move to the header too (*New in 0.3.0*). |
 | `interaction.reset_after` | number (s) | 0–86400 (editor: step 10) | `0` | Back to the whole plan after this many seconds without interaction (room view, zoom, cards closed, paused replay back to live); `0` = never |
 
 ```yaml
@@ -1715,12 +1813,16 @@ A global limit on motion. The system “reduce motion” setting is always respe
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
 | `animation_level` | enum | `full` `reduced` `none` | `full` | `full`: every animation; `reduced`: nothing loops (pulses, waves, weather, flows), short transitions; `none`: no animation nor transition. Replay and showcase follow it |
+| `effects` | enum | `auto` `full` `light` | `auto` | `light`: window light without blur, still clouds and fog; `auto`: `light` on a touch screen (`pointer: coarse`), `full` otherwise. *New in 0.3.0*. |
+
+How they combine: `animation_level` (and the system setting) decides **whether** things move; `effects` decides **how costly** what is shown may be. `reduced` + `full` = frozen loops, blurred light; `full` + `light` = moving flows and rain, still clouds, light without blur.
 
 ```yaml
 animation_level: reduced
+effects: light
 ```
 
-Editor: ⚙ Settings › Interaction › *Animations* › *Animation level*.
+Editor: ⚙ Settings › Interaction › *Animations* › *Animation level*, *Effects*.
 
 ## Demo
 
@@ -1737,7 +1839,8 @@ title: Demo
 language: en
 ```
 
-Editor: none; the card picker offers a demo card and blank / demo dashboards.
+Editor: none (the demo has no editor). The card picker offers **Maquette — demo** (`custom:maquette-card-demo`), and *Add
+dashboard* the **Maquette — demo** strategy.
 
 ## Preserved Home Assistant keys
 
@@ -1787,6 +1890,17 @@ view) and widgets (switches and *Activate* of their rows, thermostat −/+, cove
 door, a gate or a heater driven by a `switch`. `confirm: false` never removes the confirmation of a sensitive service.
 `protected: true` (badges, openings, furniture) keeps the device from being turned off from the plan.
 
+**Switches: the editor asks** (*New in 0.3.0*). A `switch` can drive a gate, a garage door or a door strike, but it stays a safe service
+on the plan. When you give a badge, a piece of furniture, an opening, a room button or a widget a `switch.*` entity, the
+editor writes `confirm` at once and asks in a notification: *Confirm every tap on “…”?* **Yes** / **No**. *Yes* is
+preselected when the switch looks like an access: an access word (`porte`, `portail`, `portillon`, `garage`,
+`barriere`, `serrure`, `verrou`, `gache`, `interphone`, `door`, `gate`, `barrier`, `lock`, `latch`, `opener`,
+`intercom`; whole words, accents and a final *s* ignored) in its entity id, name, icon or device name / model, unless
+its own id or name says light, plug or appliance (`lumiere`, `lampe`, `eclairage`, `light`, `prise`, `plug`, `outlet`,
+`chauffage`, `congelateur`, `child`…) or its `device_class` is `outlet`; or when its device also has a `lock`, a garage /
+gate / door `cover` or a `garage_door` sensor. Examples: `switch.porte_garage`, *Portail d'entrée*, `mdi:gate` → *Yes*;
+*Lumière garage*, *Prise portail*, `switch.outdoor_lights` → *No*. Switches already in a plan are left as they are.
+
 **Import check.** *Export / import › Import* first shows a summary and applies nothing until you confirm: the services of
 the room buttons (sensitive ones marked), the entities controlled by widgets (cover, lock, thermostat, *Activate* rows),
 the *More info* links, the values removed as invalid (with their path, e.g. `rooms[0].poly`), elements without valid
@@ -1794,6 +1908,20 @@ coordinates, and the dashboard keys of the file that are ignored. Re-importing t
 Limits: 2 MB of text, 200,000 values, 40 levels of nesting, 5,000 items per list; YAML is read without its extended
 types; `__proto__`, `constructor` and `prototype` keys are dropped. Drafts and copies kept in the browser are read back the
 same way.
+
+**Saving a plan with invalid items** (*New in 0.3.0*). The editor only sees what the card accepted. Before saving, if the card's
+configuration in the dashboard holds items or values the card ignores (no valid coordinates, a value out of its list,
+an unknown key…), the editor lists them (what, where, why) and asks: **Remove them** (the plan is saved as drawn),
+**Keep them as they are** (copied unchanged from the dashboard, still ignored on display) or *Cancel*. The choice holds
+for the rest of the editing session. An item you changed or deleted in the editor is saved as drawn.
+
+**Saved versions** (*New in 0.3.0*). The last 5 saved versions of the plan and the last 3 plans from before a *Clean up the plan*
+are stored in your Home Assistant user data (`frontend/set_user_data`, key `maquette-versions:<id>`, no server-side
+integration), not only in the browser: they follow your account on every device, and each user has their own history
+(*Versions of this account* in the editor). Nothing is sent anywhere but your Home Assistant. The browser copy stays as
+a fallback (older Home Assistant, error); versions already kept in a browser are merged into your account the first time
+the editor opens, without duplicates. In Home Assistant the list is compressed and limited to 1 MB per card; beyond
+that the oldest entries go first, never the latest version.
 
 **What is never drawn as code.** Texts, names and HA states are escaped; numbers, enumerated values, colours, icons and links
 are checked (see [Conventions](#conventions)); every piece of HTML the card or the editor builds goes through a filter
@@ -1859,6 +1987,7 @@ Every public key, alphabetically, with the sections that document it.
 | `domain` | [Templates](#templates) |
 | `drawing_order` | [Layers](#layers) |
 | `duration` | [Widgets](#widgets), [Widget: climate](#widget-climate), [Animations](#animations), [Traces](#traces) |
+| `effects` | [Card root](#card-root), [Animation level](#animation-level) |
 | `editor` | [Global settings](#global-settings) |
 | `enabled` | [Full-plan alerts](#full-plan-alerts) |
 | `energy` | [Energy flows](#energy-flows), [Ambience](#ambience) |
@@ -1994,6 +2123,7 @@ Every public key, alphabetically, with the sections that document it.
 | `temperature` | [Rooms and sub-areas](#rooms-and-sub-areas), [Global settings](#global-settings) |
 | `temperature_attribute` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `temperature_tint` | [Global settings](#global-settings) |
+| `template` | [Widgets](#widgets) |
 | `templates` | [Card root](#card-root), [Templates](#templates) |
 | `text` | [Texts and info boxes](#texts-and-info-boxes) |
 | `texts` | [Card root](#card-root), [Texts and info boxes](#texts-and-info-boxes) |
@@ -2035,7 +2165,7 @@ Every enumerated value, by key.
 | `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` |
 | `alerts[].level` | `critical` `warning` `info` |
 | `alerts[].type` | `openings` |
-| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `skylight` `custom` |
+| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `pergola` `shed` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
@@ -2049,6 +2179,7 @@ Every enumerated value, by key.
 | `badge_style.unavailable` | `dimmed` `dashed` `hidden` |
 | `badge_style.values` | `always` `hover` `never` |
 | `badges[].tap`<br>`furniture[].tap`<br>`openings[].tap` | `card` `more_info` `none` |
+| `effects` | `auto` `full` `light` |
 | `floor_selector` | `elevator` `tabs` |
 | `floors[].background.show`<br>`background.show` | `editor` `always` |
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |

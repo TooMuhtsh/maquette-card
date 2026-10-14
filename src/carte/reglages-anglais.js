@@ -58,6 +58,8 @@ const N_WIDGET = nObj({ type: ["type", nEnum(V_WIDGETS)], titre: "title", icone:
   periodes: ["periods", nListe(nEnum(V_PERIODES))], note: "note",
   colonnes: ["columns", nListe(nObj({ nom: "name", unite: "unit", stat: "stat", facteur: "factor", decimales: "decimals", jour: "day", semaine: "week", mois: "month",
     annee: "year", source: ["source", nEnum({ stat: "stat", entites: "entities" })] }))],
+  // copie d'un modèle de la bibliothèque : id du modèle (`templates[].id`)
+  origine: "template",
   espace: "spacing", confirmer: "confirm", duree: "duration", pieces: "rooms", dehors: "outside", moyenne: "average",
   stable_t: "stable_t", alerte_t: "alert_t", stable_h: "stable_h", alerte_h: "alert_h", t_min: "t_min", t_max: "t_max", h_min: "h_min", h_max: "h_max",
   // jauge : couleur selon la valeur, comme la carte Jauge de HA (chaque couleur s'applique à partir de sa valeur)
@@ -143,7 +145,7 @@ const N_MODELE = nObj({ id: "id", demander: ["ask", N_DEMANDER], nom: "name", ge
 const K_GEOMETRIE = { pieces: ["rooms", nListe(N_PIECE)], murs: "walls", limites: "fences", ouvertures: ["openings", nListe(N_OUVERTURE)], points: ["badges", nListe(N_POINT)],
   textes: ["texts", nListe(N_TEXTE)], meubles: ["furniture", nListe(N_MEUBLE)], groupes: ["groups", nListe(nObj({ id: "id", nom: "name" }))] };
 // image de fond (plan scanné, photo) : coin haut gauche et taille en cm, rotation, opacité, affichée en édition seulement ou toujours
-const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "height", rotation: "rotation", opacite: "opacity",
+const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "height", rotation: "rotation", opacite: "opacity", opacite_sol: "room_opacity",
   afficher: ["show", nEnum({ editeur: "editor", toujours: "always" })] });
 // un étage (`floors`, du bas vers le haut) : identifiant, nom, nom court, icône, sa géométrie, ses panneaux (facultatifs) et son fond
 const N_ETAGE = nObj({ id: "id", nom: "name", court: "short", icone: "icon", ...K_GEOMETRIE, panneaux: ["panels", N_PANNEAUX], fond: ["background", N_FOND] });
@@ -162,6 +164,7 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
     boutons_zoom: ["zoom_buttons", nEnum({ auto: "auto", plan: "map", entete: "header", caches: "hidden" })] })],
   tablette: ["tablet", nObj({ resume: "summary", panneaux: "panels", anti_marquage: "burn_in" })],
   niveau_animation: ["animation_level", nEnum({ complet: "full", reduit: "reduced", aucun: "none" })],
+  effets: ["effects", nEnum({ auto: "auto", complets: "full", legers: "light" })],
   // clés que Home Assistant ajoute à toute carte : gardées telles quelles
   view_layout: "view_layout", layout_options: "layout_options", grid_options: "grid_options", visibility: "visibility", card_mod: "card_mod" });
 // tables de chaque nœud (interne → anglais et retour), préparées au premier usage ; un nom anglais en double est une erreur du schéma

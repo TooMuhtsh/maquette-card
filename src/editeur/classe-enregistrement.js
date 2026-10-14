@@ -12,7 +12,7 @@ class EditeurPlan { // @assemblage
     s.setAttribute("role", erreur ? "alert" : "status");
     poserHTML(s, `<span>${esc(txt)}</span>${actions.map(([n]) => `<button>${esc(n)}</button>`).join("")}`);
     s.querySelectorAll("button").forEach((b, j) => { b.onclick = () => { s.remove(); actions[j][1](); }; });
-    this.R.querySelector("ha-card").append(s);
+    this._hote().append(s);
     setTimeout(() => s.remove(), duree);
   }
 
@@ -134,15 +134,108 @@ class EditeurPlan { // @assemblage
     return toutes.some((c) => c.id == null) ? { erreur: "modifiée", conflit: true } : { erreur: "introuvable" };
   }
 
-  // 5 dernières versions enregistrées (avant écrasement), gardées dans ce navigateur : la carte telle qu'elle était dans le dashboard (format anglais, `en: 1` ;
-  // les plus anciennes, en clés françaises, sont converties une fois au chargement de la carte)
-  // La même clé garde aussi les 3 dernières copies d'avant nettoyage (`nettoyage: n`, `cles` : rooms, walls, openings), à part dans les listes.
-  _toutesVersions(id) { try { const l = JSON.parse(localStorage.getItem(cleVersions(id)) || "[]"); return Array.isArray(l) ? l.filter((v) => v && typeof v === "object") : []; } catch (e) { return []; } }
+  // ---------- versions ----------
+  // 5 dernières versions enregistrées (avant écrasement : la carte telle qu'elle était dans le dashboard, format anglais, `en: 1`) et
+  // 3 dernières copies d'avant nettoyage (`nettoyage: n`, `cles` : rooms, walls, openings), dans une même liste, à part dans les dialogues.
+  // Rangées dans les données utilisateur du frontend de HA (frontend/get_user_data et frontend/set_user_data, clé `maquette-versions:<id>`,
+  // fichier .storage/frontend.user_data_<utilisateur>) : elles suivent le compte HA sur tous ses appareils, chaque utilisateur a les siennes,
+  // sans intégration côté serveur ; rien ne part ailleurs que dans HA. Copie dans ce navigateur (localStorage, même clé) : repli quand HA
+  // refuse (ancienne version, erreur, déconnexion). Lecture synchrone (listes, dialogues) dans un cache rempli à l'ouverture de l'éditeur
+  // par la fusion navigateur + HA, sans doublon (empreinte : date + contenu). Dans HA, la liste entière compressée (deflate-raw, base64),
+  // 1 Mo au plus par carte : au-delà, les plus anciennes partent d'abord, jamais la dernière version enregistrée.
+  static PLAFOND_VERSIONS_HA = 1e6;
+  _empreinteVersion(v) {
+    let h = 0;
+    for (const c of JSON.stringify(v.config ?? v.cles ?? null) || "") h = (h * 31 + c.charCodeAt(0)) | 0;
+    return `${v.t}-${v.nettoyage ? "n" : "v"}-${(h >>> 0).toString(36)}`;
+  }
+  // liste lue (navigateur ou HA) ou à écrire : objets seulement, anciennes clés françaises converties, sans doublon, plus récentes d'abord
+  _listeVersions(l) {
+    if (!Array.isArray(l)) return [];
+    const vues = new Set(), out = [];
+    for (let v of l) {
+      if (!v || typeof v !== "object" || Array.isArray(v)) continue;
+      if (!v.en && v.config && typeof v.config === "object") try { v = { ...v, config: versAnglais(v.config), en: 1 }; } catch (e) { continue; }
+      const k = this._empreinteVersion(v);
+      if (!vues.has(k)) { vues.add(k); out.push(v); }
+    }
+    out.sort((a, b) => (+b.t || 0) - (+a.t || 0));
+    return [...out.filter((v) => !v.nettoyage).slice(0, 5), ...out.filter((v) => v.nettoyage && v.cles).slice(0, 3)];
+  }
+  _toutesVersions(id) {
+    const c = this._cacheVersions?.[id];
+    if (c) return c;
+    try { return this._listeVersions(JSON.parse(localStorage.getItem(cleVersions(id)) || "[]")); } catch (e) { return []; }
+  }
   _versions(id = this._ident()) { return this._toutesVersions(id).filter((v) => !v.nettoyage); }
   _copiesNettoyage(id = this._ident()) { return this._toutesVersions(id).filter((v) => v.nettoyage && v.cles); }
-  _ecrireVersions(id, versions, copies) { localStorage.setItem(cleVersions(id), JSON.stringify([...versions.slice(0, 5), ...copies.slice(0, 3)])); }
-  _garderVersion(id, config) {
-    try { this._ecrireVersions(id, [{ t: Date.now(), config, en: 1 }, ...this._versions(id)], this._copiesNettoyage(id)); } catch (e) { /* stockage plein ou indisponible */ }
+  // versions rangées dans le compte HA (sinon : dans ce navigateur seulement)
+  _versionsDuCompte(id = this._ident()) { return this._versionsHA?.[id] === true; }
+  _titreVersions(n) {
+    return this._versionsDuCompte() ? _t("Versions de ce compte ({n}) : reprendre un plan enregistré avant", { n })
+      : _t("Versions précédentes ({n}) : reprendre un plan enregistré avant", { n });
+  }
+  _poserVersions(id, l) {
+    (this._cacheVersions ||= {})[id] = l;
+    try { localStorage.setItem(cleVersions(id), JSON.stringify(l)); } catch (e) { /* stockage plein ou indisponible : HA garde la liste */ }
+  }
+  _ecrireVersions(id, versions, copies) {
+    this._poserVersions(id, this._listeVersions([...versions.slice(0, 5), ...copies.slice(0, 3)]));
+    void this._synchroniserVersions(id);
+  }
+  _garderVersion(id, config) { this._ecrireVersions(id, [{ t: Date.now(), config, en: 1 }, ...this._versions(id)], this._copiesNettoyage(id)); }
+
+  // valeur rangée dans HA : { format: 1, z: <deflate-raw en base64> } (ou { format: 1, liste } sans CompressionStream)
+  async _encoderVersions(l) {
+    if (typeof CompressionStream !== "function") return { format: 1, liste: l };
+    const o = new Uint8Array(await new Response(new Blob([JSON.stringify(l)]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer());
+    let s = "";
+    for (let i = 0; i < o.length; i += 0x8000) s += String.fromCharCode(...o.subarray(i, i + 0x8000));
+    return { format: 1, z: btoa(s) };
+  }
+  // rien (null) : liste vide ; format inconnu (version plus récente de Maquette) ou illisible : erreur, HA n'est alors pas réécrit
+  async _decoderVersions(val) {
+    if (val == null) return [];
+    if (typeof val !== "object" || val.format !== 1) throw new Error("format inconnu");
+    if (Array.isArray(val.liste)) return val.liste;
+    if (typeof val.z !== "string" || typeof DecompressionStream !== "function") throw new Error("format illisible");
+    const b = Uint8Array.from(atob(val.z), (c) => c.charCodeAt(0));
+    return JSON.parse(await new Response(new Blob([b]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text());
+  }
+  // au-delà du plafond : la plus ancienne part (copies comprises), jamais la dernière version ; null si elle seule le dépasse
+  async _encoderPlafonne(l) {
+    l = [...l];
+    for (;;) {
+      const val = await this._encoderVersions(l);
+      if (JSON.stringify(val).length <= this.constructor.PLAFOND_VERSIONS_HA) return { val, liste: l };
+      const derniere = l.find((v) => !v.nettoyage), autres = l.filter((v) => v !== derniere);
+      if (!autres.length) return null;
+      l.splice(l.indexOf(autres.reduce((a, b) => ((+b.t || 0) < (+a.t || 0) ? b : a))), 1);
+    }
+  }
+  // fusion navigateur + HA, puis HA complété s'il lui manque quelque chose ; une synchronisation à la fois par carte
+  _synchroniserVersions(id = this._ident()) {
+    const f = (this._fileVersions ||= {});
+    return (f[id] = (f[id] || Promise.resolve()).then(() => this._synchroniser(id)).catch(() => { (this._versionsHA ||= {})[id] = false; return false; }));
+  }
+  async _synchroniser(id) {
+    const hass = this.hass, cle = cleVersions(id), etat = (this._versionsHA ||= {});
+    if (typeof hass?.callWS !== "function") { etat[id] = false; return false; }
+    const brut = await this._decoderVersions((await hass.callWS({ type: "frontend/get_user_data", key: cle }))?.value), ha = this._listeVersions(brut);
+    const avant = this._toutesVersions(id), fusion = this._listeVersions([...avant, ...ha]), emp = (l) => l.map((v) => this._empreinteVersion(v)).join();
+    // une écriture arrivée entre-temps garde la main : la synchronisation suivante (déjà en file) la reprendra
+    const poser = (l) => { if (this._toutesVersions(id) === avant || !this._cacheVersions?.[id]) this._poserVersions(id, l); };
+    let liste = fusion;
+    // HA réécrit s'il lui manque une version, ou si sa liste a dû être corrigée (anciennes clés françaises, entrée invalide)
+    if (emp(fusion) !== emp(ha) || !Array.isArray(brut) || brut.length !== ha.length || brut.some((v) => !v?.en)) {
+      const r = await this._encoderPlafonne(fusion);
+      if (!r) { etat[id] = false; poser(fusion); return false; } // dernière version trop grosse pour HA : liste gardée dans ce navigateur seulement
+      await hass.callWS({ type: "frontend/set_user_data", key: cle, value: r.val });
+      liste = r.liste;
+    }
+    etat[id] = true;
+    poser(liste);
+    return true;
   }
 
   _dialogueConflit(message, ecrasable = true) {
@@ -187,17 +280,21 @@ class EditeurPlan { // @assemblage
       }
       if (!ref) throw new Error(erreur === "introuvable" ? _t("carte introuvable dans ce dashboard (aperçu, ou dashboard modifié) : recharge la page") : erreur);
       const avant = clone(ref);
+      // éléments ou valeurs que la carte rejette dans la config du dashboard : prévenir avant, les retirer ou les garder tels quels
+      const rejets = await this._choisirRejets(avant);
+      if (rejets === "annuler") return;
       // une carte sans id (ou dupliquée avec le même id) en reçoit un, pour être retrouvée à coup sûr aux prochains enregistrements
       if (this.d.id == null || nouvelId) {
         this._retirerBrouillon();
         const ancien = this._ident(), copies = this._copiesNettoyage(ancien);
         this.d.id = `plan-${Math.random().toString(36).slice(2, 8)}`;
         // les copies d'avant nettoyage suivent la carte sous son nouvel id
-        if (copies.length) try { this._ecrireVersions(this.d.id, this._versions(this.d.id), [...copies, ...this._copiesNettoyage(this.d.id)]); } catch (e) { /* stockage plein ou indisponible */ }
+        if (copies.length) this._ecrireVersions(this.d.id, this._versions(this.d.id), [...copies, ...this._copiesNettoyage(this.d.id)]);
       }
       Object.keys(ref).forEach((k) => delete ref[k]);
       // enregistré replié (versAnglais replie, `floors` dans l'ordre, aucune clé interne)
       Object.assign(ref, versAnglais(this.d));
+      if (rejets) this._remettreRejets(ref, rejets);
       const fige = JSON.stringify(this._replie());
       // HA recrée la carte après l'enregistrement : la nouvelle instance rouvre l'éditeur au même endroit (même étage)
       if (rester) stockSession.ecrire(cleRouvrir(this.d.id), JSON.stringify({ sel: this.sel, grille: this.grille, etage: this._etageActif(), t: Date.now() }));

@@ -24,7 +24,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     // vue figée (lock_view) : pas de zoom, le pincement et « Toute la maison » sont coupés et n'en sortiraient pas
     const ok = Array.isArray(centrer) && Number.isFinite(+centrer[0]) && Number.isFinite(+centrer[1]);
     this._centrerAttente = ok && !this._figee() ? [+centrer[0], +centrer[1]] : null;
-    if (!this._hass) return true; // construit à l'arrivée de hass, centrage compris (_apresConstruireEtages)
+    if (!this._hass) return true; // construit à l'arrivée de hass, centrage compris (_quand_construit_etages)
     this._construire();
     // fondu court (rien sans animation ou si le système demande moins de mouvement)
     const z = R?.querySelector(".zone");
@@ -45,8 +45,8 @@ class MaquetteCard extends HTMLElement { // @assemblage
     return i < 0 ? null : l[i + sens] ?? null;
   }
 
-  // crochet de fin de _construire : sélecteur dessiné (ou retiré) selon le nombre d'étages, l'option et l'édition
-  _apresConstruireEtages() {
+  // point d'accroche « construit » (fin de _construire) : sélecteur dessiné (ou retiré) selon le nombre d'étages, l'option et l'édition
+  _quand_construit_etages() {
     const R = this.shadowRoot, card = R?.querySelector("ha-card");
     if (!card) return;
     const ed = !!this._editeur, E = parEtage(this._config).filter((e) => e.id != null);

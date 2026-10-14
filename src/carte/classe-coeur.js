@@ -39,6 +39,16 @@ class MaquetteCard extends HTMLElement {
     TAILLE_MEUBLE_MAX, CHAMPS_ENTITE_WIDGET, stock, stockSession, cleRouvrir, cleVersions };
   static REGLAGES = { vitesses: VITESSES_REPLAY, teinte: TEINTE_DEF, presence: "zone.home", heures: 24, vitesse: 900, marge: 40 };
 
+  // points d'accroche : un morceau (src/carte/classe-*.js) se branche sur un moment de la carte sans modifier ce fichier, en
+  // définissant une méthode « _quand_<moment>_<sujet>(…) » ; toutes celles d'un moment sont appelées dans l'ordre de src/assemblage.mjs.
+  // Moments : construit (fin de _construire, plan dessiné)
+  static ACCROCHES = new Map();
+  _accroches(moment, ...args) {
+    const P = MaquetteCard.prototype, pre = `_quand_${moment}_`;
+    let l = MaquetteCard.ACCROCHES.get(moment);
+    if (!l) MaquetteCard.ACCROCHES.set(moment, (l = Object.getOwnPropertyNames(P).filter((n) => n.startsWith(pre) && typeof Object.getOwnPropertyDescriptor(P, n).value === "function")));
+    for (const n of l) this[n](...args);
+  }
   setConfig(config) {
     if (!config || typeof config !== "object" || Array.isArray(config)) throw new Error("maquette-card : invalid configuration");
     // format public en anglais → config interne (clés françaises) ; clés inconnues ignorées avec un avertissement
@@ -141,7 +151,7 @@ class MaquetteCard extends HTMLElement {
     return w;
   }
 
-  disconnectedCallback() { this._desabonner?.(); this._desabonner = null; if (this._rp) this._replayFermer(); if (this._editeur) this._editeur.fermer(true); this.shadowRoot?.querySelector("dialog.mf")?.close(); clearInterval(this._tm); this._tm = 0; this._vu?.disconnect(); this._vu = null; clearInterval(this._tmBi); this._tmBi = 0; clearTimeout(this._tmRetour); this._tmRetour = 0; }
+  disconnectedCallback() { this._desabonner?.(); this._desabonner = null; if (this._rp) this._replayFermer(); if (this._editeur) this._editeur.fermer(true); this.shadowRoot?.querySelector("dialog.mf")?.close(); clearInterval(this._tm); this._tm = 0; this._vu?.disconnect(); this._vu = null; if (this._visi) document.removeEventListener("visibilitychange", this._visi); this._visi = null; clearInterval(this._tmBi); this._tmBi = 0; clearTimeout(this._tmRetour); this._tmRetour = 0; }
   connectedCallback() {
     if (this._sim && this._hassBrut) this.hass = this._hassBrut; // la simulation reprend
     if (this._sq) requestAnimationFrame(() => { this._mise(); this._majCrayon(); if (this._ok) this._minuterie(); });
@@ -159,13 +169,11 @@ class MaquetteCard extends HTMLElement {
     if (!bi && this._bi != null) { this._bi = null; this.shadowRoot?.querySelector("ha-card")?.style.removeProperty("transform"); }
     const z = this.shadowRoot?.querySelector(".zone");
     if (z && !this._vu && typeof IntersectionObserver === "function") {
-      this._vu = new IntersectionObserver((l) => { for (const e of l) {
-        e.target.classList.toggle("hors-ecran", !e.isIntersecting);
-        const sv = e.target.querySelector("svg"); // animations SMIL (météo)
-        if (sv?.pauseAnimations) { if (e.isIntersecting) sv.unpauseAnimations(); else sv.pauseAnimations(); }
-      } });
+      this._vu = new IntersectionObserver((l) => { for (const e of l) { this._horsVue = !e.isIntersecting; this._pauseAnimations(); } });
       this._vu.observe(z);
     }
+    // page cachée (autre onglet, écran éteint) : animations en pause aussi (classe-ambiance.js)
+    if (!this._visi) { this._visi = () => this._pauseAnimations(); document.addEventListener("visibilitychange", this._visi); }
   }
 
   // réglages effectifs : interaction, mode tablette (jamais en édition : l'éditeur montre tout), niveau d'animation
@@ -247,7 +255,8 @@ class MaquetteCard extends HTMLElement {
     this._tailleBadges();
   }
 
-  // badge de valeur masqué quand le meuble fait moins de 24 px à l'écran (recalculé au zoom et au redimensionnement)
+  // badge de valeur masqué quand le meuble fait moins de 24 px à l'écran dans les deux sens (un meuble fin, tableau électrique,
+  // radiateur, garde son badge tant que sa longueur dépasse 24 px ; recalculé au zoom et au redimensionnement)
   _tailleBadges(v = this.vue()) {
     const R = this.shadowRoot, z = R?.querySelector(".zone"), l = R?.querySelectorAll(".calque>.mb");
     // textes figés sur le plan : ils grossissent et rapetissent avec le zoom comme le dessin (1 = plan entier de la vue)
@@ -258,7 +267,7 @@ class MaquetteCard extends HTMLElement {
     const k = z.clientWidth / v.W;
     l.forEach((b) => {
       const m = this._config.meubles?.[+b.dataset.mbq], t = m && (m.taille || MEUBLES[m.type]?.taille || [60, 60]);
-      if (t) b.classList.toggle("petit", Math.min(nb(t[0], 60), nb(t[1], 60)) * k < 24);
+      if (t) b.classList.toggle("petit", Math.max(nb(t[0], 60), nb(t[1], 60)) * k < 24);
     });
   }
 
@@ -445,10 +454,25 @@ class MaquetteCard extends HTMLElement {
     if (this._rp) this._replayFermer();
     this._ouverture = true;
     try {
-      // l'éditeur est embarqué dans le même fichier (build.mjs : globalThis.MaquetteEditeur)
-      const EditeurPlan = globalThis.MaquetteEditeur;
-      if (EditeurPlan && this.isConnected) new EditeurPlan(this, reprise);
+      // l'éditeur est un module à part, chargé à la première ouverture (chargerEditeur, en tête de la carte)
+      let EditeurPlan;
+      try { EditeurPlan = await chargerEditeur(); } catch (e) {
+        // module introuvable (installation manuelle d'un seul fichier) : la carte continue sans éditeur, message clair
+        console.error("maquette-card : editor module not loaded", e);
+        return this._avisEditeur(_t("Éditeur introuvable : copier maquette-editeur.js à côté de maquette-card.js (même dossier), puis recharger la page."));
+      }
+      // fichier d'une autre version (cache du navigateur, copie oubliée) : refusé plutôt qu'un éditeur incohérent
+      if (EditeurPlan.VERSION && EditeurPlan.VERSION !== VERSION) {
+        return this._avisEditeur(_t("maquette-editeur.js (v{a}) ne correspond pas à la carte (v{b}) : le remplacer, puis recharger la page.", { a: EditeurPlan.VERSION, b: VERSION }));
+      }
+      if (this.isConnected) new EditeurPlan(this, reprise);
     } finally { this._ouverture = false; }
+  }
+
+  // message de chargement de l'éditeur : notification de Home Assistant (bandeau en bas) et console
+  _avisEditeur(message) {
+    console.warn(`maquette-card : ${message}`);
+    this.dispatchEvent(new CustomEvent("hass-notification", { detail: { message }, bubbles: true, composed: true }));
   }
 
   // boutons de l'état vide : ouvre l'éditeur puis lance l'assistant, l'outil rectangle ou l'import

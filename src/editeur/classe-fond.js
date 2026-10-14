@@ -32,7 +32,7 @@ class EditeurPlan { // @assemblage
     const actif = this.R.activeElement, garde = V.contains(actif) && actif.dataset?.fk ? `[data-fk="${actif.dataset.fk}"]` : V.contains(actif) && actif.dataset?.fact ? `[data-fact="${actif.dataset.fact}"]` : null;
     const f = this.d.fond, url = f && this.carte.constructor.urlFond(f.image), admin = !!this.hass?.user?.is_admin;
     const libre = !this.carte._fondVerrouille(), num = (v) => (Number.isFinite(+v) ? Math.round(+v * 10) / 10 : "");
-    const op = Number.isFinite(+f?.opacite) ? +f.opacite : 0.5;
+    const op = Number.isFinite(+f?.opacite) ? +f.opacite : 0.5, ops = Number.isFinite(+f?.opacite_sol) ? +f.opacite_sol : 0.6;
     const envoyer = admin ? `<button type="button" class="ed-btn${f ? " contour" : ""}" data-fact="envoyer"><ha-icon icon="mdi:upload"></ha-icon>${_t("Envoyer une image")}</button>
       <input type="file" accept="image/png,image/jpeg,image/webp" hidden data-fond-fichier>` : "";
     const avert = this._fondAvertiLu() ? "" : `<div class="ed-fond-avert" role="note"><ha-icon icon="mdi:shield-alert-outline"></ha-icon><div>${_t("Confidentialité : ce qui est dans /local et /api/image/serve est lisible sans connexion si Home Assistant est exposé sur Internet. N'y mets pas un plan que tu ne veux pas rendre public.")}
@@ -44,6 +44,7 @@ class EditeurPlan { // @assemblage
       ${chemin}
       <div class="ed-actions">${envoyer}${url ? `<button type="button" class="ed-btn contour" data-fact="calibrer" title="${_t("Deux points de l'image et leur distance réelle (ou un mur du plan) : l'image est mise à l'échelle.")}"><ha-icon icon="mdi:ruler"></ha-icon>${_t("Calibrer")}</button>` : ""}</div>
       ${champCurseur(_t("Opacité"), 'data-fk="opacite"', 0, 1, 0.05, op, `${Math.round(op * 100)} %`)}
+      ${champCurseur(`${_t("Sol des pièces")}${bulleI(_t("Les pièces sont dessinées au-dessus de l'image, translucides : on voit l'image et la couleur des températures. 100 % : sol opaque, l'image ne se voit plus sous les pièces."))}`, 'data-fk="opacite_sol"', 0, 1, 0.05, ops, `${Math.round(ops * 100)} %`)}
       <div class="ed-ligne">${this._champFond(_t("Position X (cm)"), "x", num(f.pos?.[0] ?? 0))}${this._champFond(_t("Position Y (cm)"), "y", num(f.pos?.[1] ?? 0))}</div>
       <div class="ed-ligne">${this._champFond(_t("Largeur (cm)"), "largeur", num(f.largeur), _t("La hauteur suit (même proportion)."))}${this._champFond(_t("Rotation (°)"), "rotation", num(f.rotation || 0))}</div>
       <label class="ed-inter"><span>${_t("Afficher aussi en vue")}${bulleI(_t("Sinon, l'image n'apparaît que pendant l'édition (rien n'est chargé en vue)."))}</span><input type="checkbox" data-fk="afficher" ${f.afficher === "toujours" ? "checked" : ""}></label>
@@ -90,6 +91,10 @@ class EditeurPlan { // @assemblage
         const out = inp.parentElement.querySelector("output"), im = () => this.carte.shadowRoot.querySelector(".zone svg .fond-image");
         inp.oninput = () => { out.textContent = `${Math.round(+inp.value * 100)} %`; im()?.setAttribute("opacity", inp.value); }; // aperçu en direct, une seule étape au relâcher
         inp.onchange = () => this._modifFond(k, +inp.value);
+      } else if (k === "opacite_sol") {
+        const out = inp.parentElement.querySelector("output"), zone = () => this.carte.shadowRoot.querySelector(".zone");
+        inp.oninput = () => { out.textContent = `${Math.round(+inp.value * 100)} %`; zone()?.style.setProperty("--sol-fond", inp.value); };
+        inp.onchange = () => this._modifFond(k, +inp.value);
       } else if (inp.type === "checkbox") inp.onchange = () => this._modifFond(k, inp.checked);
       else inp.onchange = () => this._modifFond(k, inp.type === "number" ? (inp.value === "" ? null : +inp.value) : inp.value.trim());
     });
@@ -119,6 +124,7 @@ class EditeurPlan { // @assemblage
     if ((k === "x" || k === "y" || k === "rotation") && v != null && !Number.isFinite(v)) return this._panneauFond();
     this.commit(() => {
       if (k === "opacite") f.opacite = Math.min(1, Math.max(0, v));
+      else if (k === "opacite_sol") f.opacite_sol = Math.min(1, Math.max(0, v));
       else if (k === "x" || k === "y") { const p = Array.isArray(f.pos) ? [...f.pos] : [0, 0]; p[k === "x" ? 0 : 1] = v ?? 0; f.pos = p; }
       else if (k === "largeur") { const v2 = Math.min(1e6, v); if (+f.hauteur > 0 && +f.largeur > 0) f.hauteur = Math.round(f.hauteur * v2 / f.largeur * 10) / 10; f.largeur = v2; }
       else if (k === "rotation") { const r = (((v ?? 0) % 360) + 360) % 360; if (r) f.rotation = r; else delete f.rotation; }
@@ -150,7 +156,7 @@ class EditeurPlan { // @assemblage
     const cadre = this._cadreFond(), haut = Math.round(cadre.largeur * dims[1] / dims[0] * 10) / 10;
     this.commit(() => {
       const f = this.d.fond;
-      this.d.fond = { ...(f && Number.isFinite(+f.opacite) ? { opacite: f.opacite } : {}), ...(f?.afficher ? { afficher: f.afficher } : {}), image: url, ...cadre, hauteur: haut };
+      this.d.fond = { ...(f && Number.isFinite(+f.opacite) ? { opacite: f.opacite } : {}), ...(f && Number.isFinite(+f.opacite_sol) ? { opacite_sol: f.opacite_sol } : {}), ...(f?.afficher ? { afficher: f.afficher } : {}), image: url, ...cadre, hauteur: haut };
     });
     if (Math.max(...dims) > 4096) this._alerteFond(_t("Image très grande ({l} × {h} px) : au-delà de 4096 px, l'affichage peut être lent sur une tablette ou un téléphone.", { l: dims[0], h: dims[1] }));
     else this.snack(_t("Image envoyée et posée sous le plan."));

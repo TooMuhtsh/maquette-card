@@ -40,6 +40,7 @@ const SERVICES = LANGUE === "fr" ? ["Allumer", "Éteindre", "Basculer", "Ouvrir"
 const unite = (u) => (!u ? "" : LANGUE !== "fr" && u === "%" ? u : " " + u);
 
 export function creerHass({ etats, areas, devices, entities, lies, config, appliquer }) {
+  const donneesUtilisateur = Object.create(null);
   const hass = {
     states: etats, areas, devices, entities, user: { name: LANGUE === "fr" ? "Démo" : "Demo", is_admin: true }, language: LANGUE,
     locale: { language: LOCALE, number_format: "language", time_format: "language" },
@@ -86,6 +87,9 @@ export function creerHass({ etats, areas, devices, entities, lies, config, appli
         return { [id]: l };
       }
       if (m.type === "search/related") return lies[m.item_id] || {};
+      // données utilisateur du frontend (versions du plan gardées par l'éditeur) : en mémoire, comme .storage/frontend.user_data_<utilisateur>
+      if (m.type === "frontend/get_user_data") return { value: donneesUtilisateur[m.key] ?? null };
+      if (m.type === "frontend/set_user_data") { donneesUtilisateur[m.key] = JSON.parse(JSON.stringify(m.value)); return null; }
       if (m.type === "lovelace/config") return { views: [{ cards: [JSON.parse(JSON.stringify(config.actuelle))] }] };
       if (m.type === "lovelace/config/save") {
         const c = m.config.views[0].cards[0];

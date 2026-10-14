@@ -9,8 +9,10 @@ function dessinFlux(l, rb, fixe) {
     const qx = (sx + tx) / 2 - (dy / L) * L * 0.15, qy = (sy + ty) / 2 + (dx / L) * L * 0.15;
     const d = `M${sx.toFixed(0)} ${sy.toFixed(0)}Q${qx.toFixed(0)} ${qy.toFixed(0)} ${tx.toFixed(0)} ${ty.toFixed(0)}`;
     const dur = borne(5 / (0.4 + Math.log10(1 + w / 20)), 0.7, 9), n = 1 + Math.min(3, Math.floor(Math.log10(Math.max(1, w))));
-    const billes = fixe ? "" : Array.from({ length: n }, (_, k) => `<circle r="${rb.toFixed(1)}" fill="${col}"><animateMotion dur="${dur.toFixed(2)}s" begin="${(-k * dur / n).toFixed(2)}s" repeatCount="indefinite" path="${d}"/></circle>`).join("");
-    return `<path d="${d}" fill="none" stroke="${col}" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="2 5" vector-effect="non-scaling-stroke"/>${billes}`;
+    // billes : placées le long du chemin par _billes (10 positions par seconde), en avance de k × dur / n secondes l'une sur l'autre
+    const billes = fixe ? "" : Array.from({ length: n }, (_, k) => `<circle class="bille" r="${rb.toFixed(1)}" fill="${col}" data-dur="${dur.toFixed(2)}" data-dec="${(k * dur / n).toFixed(2)}"/>`).join("");
+    const trajet = `<path d="${d}" fill="none" stroke="${col}" stroke-opacity=".3" stroke-width="1.5" stroke-dasharray="2 5" vector-effect="non-scaling-stroke"/>`;
+    return billes ? `<g>${trajet}${billes}</g>` : trajet;
   }).join("");
 }
 // personnes (`ambiance.personnes`) : à la maison autour d'un point (`maison`), dehors au bord du plan dans leur direction réelle
@@ -182,3 +184,8 @@ function dessinBattants(o) {
 // niveau dans le calque Meubles : tapis et espaces dessous (-1) quel que soit l'ordre de pose, sauf niveau choisi
 const niveauMeuble = (m) => nb(m.niveau, MEUBLES[m.type]?.niveau === 0 ? -1 : 0);
 
+// écritures du DOM seulement quand la valeur change : _maj repasse sur tout le plan à chaque état reçu de HA ; une écriture identique
+// coûte quand même une mutation (et, pour un attribut SVG, une invalidation du dessin)
+const attrSi = (el, k, v) => { if (el && el.getAttribute(k) !== (v = String(v))) el.setAttribute(k, v); };
+const texteSi = (el, v) => { if (el && el.textContent !== (v = String(v))) el.textContent = v; };
+const titreSi = (el, v) => { if (el && el.title !== v) el.title = v; };

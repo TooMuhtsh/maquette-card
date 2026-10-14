@@ -1,16 +1,18 @@
 // export, lecture d'un plan importé, récapitulatif de sécurité — morceau de src/maquette-editeur.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class EditeurPlan { // @assemblage
   // ---------- export / import ----------
-  exporter() {
+  // opt : texte (déjà collé, à la place du plan en cours) et message (partage : un plan complet a été collé dans l'import d'un partage)
+  exporter(opt = {}) {
     let format = this._format || "yaml";
     const nomFichier = () => `plan-${(this.d.id || "maison").replace(/[^\w-]+/g, "-")}.${format === "json" ? "json" : "yaml"}`;
     const texte = () => { const o = versAnglais(this.d); return format === "json" ? JSON.stringify(o, null, 2) : versYaml(o) + "\n"; };
     const { voile, fermer } = this._voile("", `<div class="ed-dialogue large" role="dialog" aria-modal="true"><header><h2>${_t("Exporter / importer le plan")}</h2>
         <div class="ed-aide">${tactile() ? _t("Le plan complet. « Importer » remplace le plan en cours (annulable).") : _t("Le plan complet. « Importer » remplace le plan en cours (Ctrl+Z pour annuler).")}</div>
-        <span class="ed-seg petit" style="margin-top:12px">${["yaml", "json"].map((f) => `<button data-f="${f}" class="${f === format ? "on" : ""}">${f.toUpperCase()}</button>`).join("")}</span></header>
+        <div class="ed-ie-tete"><span class="ed-seg petit">${["yaml", "json"].map((f) => `<button data-f="${f}" class="${f === format ? "on" : ""}">${f.toUpperCase()}</button>`).join("")}</span>
+          <button class="ed-btn texte" data-x="partager" title="${_t("Partager des widgets ou des objets, sans tes entités (ou importer un partage)")}"><ha-icon icon="mdi:share-variant-outline"></ha-icon>${_t("Partager…")}</button></div></header>
       <div class="ed-cat">${(() => { const vs = this._versions(); if (!vs.length) return "";
           const res = (c) => { const n = resumeVersion(c); return _t("{p} pièces, {a} appareils, {w} widgets", { p: n.pieces, a: n.appareils, w: n.widgets }); };
-          return `<details class="ed-avance ed-versions-bloc"><summary>${_t("Versions précédentes ({n}) : reprendre un plan enregistré avant", { n: vs.length })}</summary><div class="ed-versions">${vs.map((v, j) => `<button data-v="${j}"><span>${_t("Remplacée le {date}", { date: new Date(v.t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "medium" }) })}<small> · ${res(v.config)}</small></span><span>${_t("Charger")}</span></button>`).join("")}</div></details>`; })()}
+          return `<details class="ed-avance ed-versions-bloc"><summary>${this._titreVersions(vs.length)}</summary><div class="ed-versions">${vs.map((v, j) => `<button data-v="${j}"><span>${_t("Remplacée le {date}", { date: new Date(v.t).toLocaleString(_loc(), { dateStyle: "short", timeStyle: "medium" }) })}<small> · ${res(v.config)}</small></span><span>${_t("Charger")}</span></button>`).join("")}</div></details>`; })()}
         <textarea class="ed-code" spellcheck="false" aria-label="${_t("Plan au format texte")}"></textarea><div class="ed-erreur" hidden></div></div>
       <footer style="flex-wrap:wrap"><button class="ed-btn texte" data-x="copier"><ha-icon icon="mdi:content-copy"></ha-icon>${_t("Copier")}</button>
         <button class="ed-btn texte" data-x="telecharger"><ha-icon icon="mdi:download"></ha-icon>${_t("Télécharger")}</button>
@@ -19,7 +21,8 @@ class EditeurPlan { // @assemblage
         <input type="file" accept=".yaml,.yml,.json,application/json,text/yaml" hidden></footer></div>`, { echap: () => fermer() });
     const ta = voile.querySelector("textarea"), err = voile.querySelector(".ed-erreur"), fichier = voile.querySelector("input[type=file]");
     const erreur = (m) => { err.hidden = !m; err.textContent = m || ""; };
-    ta.value = texte();
+    ta.value = opt.texte ?? texte();
+    if (opt.message) erreur(opt.message);
     fichier.onchange = async () => {
       const f = fichier.files?.[0];
       if (!f) return;
@@ -47,19 +50,12 @@ class EditeurPlan { // @assemblage
       const x = b.dataset.x;
       if (x === "fermer") return fermer();
       if (x === "ouvrir") return fichier.click();
-      if (x === "copier") {
-        const ok = () => this.snack(_t("Plan copié dans le presse-papiers."));
-        if (navigator.clipboard && window.isSecureContext) return navigator.clipboard.writeText(ta.value).then(ok, () => erreur(_t("Copie refusée par le navigateur : sélectionne le texte et copie-le.")));
-        ta.select();
-        return document.execCommand("copy") ? ok() : erreur(_t("Copie impossible : sélectionne le texte et copie-le."));
-      }
-      if (x === "telecharger") {
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob([ta.value], { type: format === "json" ? "application/json" : "text/yaml" }));
-        a.download = nomFichier();
-        this.R.append(a); a.click(); a.remove();
-        setTimeout(() => URL.revokeObjectURL(a.href), 5000);
-        return;
+      if (x === "partager") { fermer(); return this.partager({ retour: this.barre?.querySelector('[data-a="exporter"]') }); }
+      if (x === "copier") return this._copierZone(ta).then((ok) => (ok ? this.snack(_t("Plan copié dans le presse-papiers.")) : erreur(_t("Copie impossible : sélectionne le texte et copie-le."))));
+      if (x === "telecharger") return this._telechargerTexte(ta.value, nomFichier(), format === "json" ? "application/json" : "text/yaml");
+      // partage (maquette_share ou code compact MAQ1:) collé ici : lu par l'import d'un partage (jamais de remplacement du plan)
+      if (x === "importer" && (/^\s*MAQ\d{1,4}:/.test(ta.value) || /^(?:\s*#[^\n]*\n)*\s*["']?maquette_share["']?\s*:/m.test(ta.value.slice(0, 2000)) || /^\s*\{\s*"maquette_share"/.test(ta.value))) {
+        const t = ta.value; fermer(); return this.importerPartage({ texte: t });
       }
       if (x === "importer") {
         let o;

@@ -83,6 +83,7 @@ class EditeurPlan { // @assemblage
     }
     const o = this._objet();
     if (a === "modele") return this.enregistrerModele();
+    if (a === "partager") return this.partagerSelection(); // classe-partage.js
     if (a.startsWith("retirer:")) { const [, cle, j] = a.split(":"); return this.commit(() => o[cle].splice(+j, 1)); }
     if (a.startsWith("ajouter-ligne:")) {
       const cle = a.split(":")[1];

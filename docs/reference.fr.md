@@ -75,6 +75,10 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
   icônes aux formats ci-dessus. Une valeur invalide est retirée (jamais d'erreur), avec un avertissement unique dans la
   console du navigateur (`maquette-card : invalid value(s) removed: …`) ; les textes s'affichent toujours comme du texte.
   Voir [Sécurité](#sécurité).
+- **Bornes.** Les coordonnées du plan sont bornées à ± 100 000 cm (1 km) : un mur, un sommet de pièce, une ouverture, une
+  pastille, un texte ou un meuble placé plus loin (par ex. `1e12`) est ignoré comme un élément sans coordonnées valides,
+  avec un avertissement dans la console, au lieu de casser le cadrage et l'éditeur. La plupart des autres nombres sont
+  bornés à ± 10 000 000. *Nouveau en 0.3.0*.
 - **Clés inconnues.** Une clé absente de cette page, ou une valeur énumérée écrite sous son ancien nom français, est
   ignorée avec un avertissement dans la console du navigateur (`maquette-card : unknown key « … » (ignored)`). Une
   configuration écrite entièrement avec les anciennes clés françaises (`pieces`, `murs`…) est refusée avec un message ;
@@ -130,6 +134,7 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `interaction` | objet | | — | [Interaction](#interaction) |
 | `tablet` | booléen / objet | | — | [Tablette murale](#tablette-murale) |
 | `animation_level` | énum | `full` `reduced` `none` | `full` | [Niveau d'animation](#niveau-danimation) |
+| `effects` | énum | `auto` `full` `light` | `auto` | [Niveau d'animation](#niveau-danimation) (effets). *Nouveau en 0.3.0* |
 | `demo` | booléen | | — | [Démo](#démo) |
 | `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend` | | | | [Réglages généraux](#réglages-généraux) |
 | `view_layout`, `layout_options`, `grid_options`, `visibility`, `card_mod` | | | | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
@@ -145,8 +150,12 @@ walls:
   - [0, 0, 500, 0]
 ```
 
-Éditeur : la carte s'ajoute depuis le sélecteur de cartes de Home Assistant (*Maquette*) ; `title` se trouve dans
-⚙ Paramètres › Général ; `id` est écrit automatiquement au premier enregistrement.
+Éditeur : la carte s'ajoute depuis le sélecteur de cartes de Home Assistant : **Maquette** (`custom:maquette-card`, part
+d'une pièce de 4 × 3 m avec ses murs, titre « Mon plan ») ou **Maquette — démo** (`custom:maquette-card-demo`, toujours la
+démo). *Ajouter un tableau de bord* propose les stratégies **Maquette** (`custom:maquette` : un tableau de bord « Maison »
+avec une vue panneau « Plan » et une carte vide `id: plan`, convertie en vues ordinaires au premier enregistrement) et
+**Maquette — démo** (`custom:maquette-demo`). `title` se trouve dans ⚙ Paramètres › Général ; `id` est écrit
+automatiquement au premier enregistrement.
 
 ## Réglages généraux
 
@@ -186,10 +195,36 @@ temperature_tint:
 legend: false
 ```
 
-Éditeur : ⚙ Paramètres › Général (`title`, `language`, `full_page`, `margin`, `editor`), › Affichage (`show_furniture`,
-`layers.view_button`), › Fonctions (`replay`, `showcase`, `presence` ; *Réglés ailleurs* : liens vers les alertes plein
-plan et les puces du résumé), › Pièces et légende (`room_labels`, `temperature_tint`, `legend`). Les aides sont derrière
-les boutons ⓘ.
+Éditeur : ⚙ Paramètres. Chaque champ, sa clé et ses bornes :
+
+| Onglet › section | Champ | Clé | Valeurs | Défaut |
+|---|---|---|---|---|
+| Général | Titre | `title` | texte | — |
+| Général | Langue de la carte | `language` | Automatique / English / Français | `auto` |
+| Général | Pleine hauteur sur grand écran | `full_page` | interrupteur | `true` |
+| Général | Marge autour du plan | `margin` | 0–2000 cm, pas de 10 | `40` |
+| Général | Bouton d'édition (crayon) | `editor` | interrupteur (confirmation avant de le masquer) | `true` |
+| Affichage | Meubles affichés | `show_furniture` | Toujours / Grands écrans (`desktop`) / Jamais | `true` |
+| Affichage | Bouton Calques pour les visiteurs | `layers.view_button` | interrupteur | `false` |
+| Affichage | Couleurs nommées | `palette` | nom → couleur, voir [Racine de la carte](#racine-de-la-carte) | — |
+| Fonctions | Revoir la journée | `replay` | interrupteur | désactivé |
+| Fonctions | Période revue (avec le replay) | `replay.hours` | 1–72 h | `24` |
+| Fonctions | Vitesse au départ (avec le replay) | `replay.speed` | ×60 / ×300 / ×900 / ×3600 | `900` |
+| Fonctions | Exemples sous le plan | `showcase` | interrupteur | désactivé |
+| Fonctions | Présence par défaut | `presence` | entité | `zone.home` |
+| Fonctions › Réglés ailleurs | Alertes plein plan, Puces du résumé | — | liens | — |
+| Pièces et légende › Sur les étiquettes | Nom de la pièce / Température / Humidité | `room_labels.name` / `.temperature` / `.humidity` | interrupteurs | `true` |
+| Pièces et légende › Couleur des pièces | Teinte selon la température | `temperature_tint` | interrupteur (`false` désactivé) | activée |
+| Pièces et légende › Couleur des pièces | Bleu à / Rouge à (avec la teinte) | `temperature_tint.min` / `.max` | −30–60 °C, pas de 0,5, bleu sous rouge | `17` / `28` |
+| Pièces et légende | Légende sous le plan | `legend` | interrupteur | `true` |
+| Personnes sur le plan (seulement avec `ambience.people`) | Personnes absentes / à la maison / Avatar | `ambience.people.away` / `.at_home` / `.avatar` | voir [Personnes](#personnes) | `direction` / `grouped` / `picture` |
+| Pastilles d'appareils | Appareil indisponible / inactif / Taille / Valeurs | `badge_style.*` | voir [Style des pastilles](#style-des-pastilles) | |
+| Interaction | Toucher une pièce / Vue figée / Boutons de zoom / Retour au plan entier après | `interaction.*` | voir [Interaction](#interaction) ; `reset_after` 0–86400 s, pas de 10 | |
+| Interaction › Tablette murale | Mode tablette, puis Puces / Panneaux / Protection contre le marquage | `tablet`, `tablet.*` | voir [Tablette murale](#tablette-murale) | |
+| Interaction › Animations | Niveau d'animation | `animation_level` | Complet / Réduit / Aucun | `full` |
+
+Un réglage remis à sa valeur par défaut sort du YAML ; un nombre hors bornes est refusé. Les aides sont derrière les
+boutons ⓘ.
 
 ## Étages et image de fond
 
@@ -282,6 +317,7 @@ Un plan scanné ou une photo, dessiné sous tout le reste. C'est le calque `back
 | `background.height` | nombre (cm) | > 0 | garde le rapport de l'image | Hauteur ; l'omettre garde les proportions |
 | `background.rotation` | nombre (°) | 0–360 | `0` | Rotation dans le sens horaire |
 | `background.opacity` | nombre | 0–1 | `0.5` | Opacité |
+| `background.room_opacity` | nombre | 0–1 | `0.6` | Opacité du sol des pièces quand l'image est dessinée : l'image se voit à travers les pièces, la teinte des températures reste. `1` = sol opaque (avant la 0.3.0). *Nouveau en 0.3.0*. |
 | `background.show` | énum | `editor` `always` | `editor` | `editor` : l'image n'est dessinée qu'en édition, et même pas chargée en vue. `always` : aussi en vue (sauf si le calque est masqué) |
 
 ```yaml
@@ -530,7 +566,7 @@ simple quand les vantaux partagent un segment.
 volet + contact*, *Porte-fenêtre + volet + contact*, *Baie coulissante*, *Fenêtre oscillo-battante*, *Porte de garage*,
 *Portail*…) et *Créer une ouverture* (type, vantaux, ouverture, capteurs, animation, aperçu ; *Ajouter* puis la tracer, ou
 *Enregistrer dans Mes modèles*). Tracée sur un mur, ses capteurs sont cherchés parmi les entités libres de la pièce bordée
-(`area` de la pièce, sinon l'aire HA de même nom) : une seule est reliée d'office, plusieurs ouvrent une petite liste (cette
+(`area` de la pièce, sinon la pièce HA de même nom, sinon la seule dont le nom contient le sien ou y est contenu) : une seule est reliée d'office, plusieurs ouvrent une petite liste (cette
 pièce d'abord, *Autre entité…*, *Ignorer*), aucune laisse le champ surligné « à compléter » ; `outside` part à l'opposé de la
 pièce intérieure (un champ « à compléter » ouvre la modale sur *Capteurs*). La sélectionner pour la barre flottante, puis
 *Modifier* (ou double-clic, Entrée) pour sa modale, avec l'aperçu dans sa pièce : onglets *Général* (*Type*, *Vantaux*,
@@ -554,13 +590,13 @@ valeur, un halo lumineux, une animation et une fiche.
 | `color` | couleur | | couleur d'état actif de HA (`--state-active-color`, sinon jaune) | Couleur quand elle est active |
 | `light_color` | booléen | | déduit de `color` | La couleur est claire : l'icône est dessinée en sombre quand la pastille est active |
 | `halo` | nombre (cm) / booléen | | — | Rayon du halo lumineux quand elle est active ; `true` = 130 |
-| `room` | texte / `false` | un `name` de pièce | pièce où il est posé (avec la lumière de l'ambiance) | Limiter le halo à cette pièce et aux pièces ouvertes sur elle (bord commun sans mur ni ouverture) ; `false` = halo libre |
+| `room` | texte / `false` | un `name` de pièce | pièce où il est posé (avec la lumière de l'ambiance) | Limiter le halo à cette pièce et aux pièces ouvertes sur elle (bord commun sans mur ni ouverture) ; `false` = halo libre. *Nouveau en 0.2.1*. |
 | `alert` | booléen | | `false` | Pastille d'alerte : utilise `animations.alert` (pulsation) quand elle est active |
 | `active` | entité | | `entity` | Entité qui définit l'état « actif » |
 | `active_attribute` | attribut | | — | Utiliser cet attribut de l'entité active au lieu de son état |
 | `threshold` | nombre | | — | Active quand la valeur active dépasse ce nombre. Sans lui : active pour `on`, `open`, `opening`, `closing`, `playing`, `heating`, `cooling`, `cleaning`, `detected`, `home` |
 | `value` | entité | | — | Valeur numérique affichée dans la pastille |
-| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur (prime sur `value`) |
+| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur (prime sur `value`)Un thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
 | `unit` | texte | | unité de l'entité | Unité après la valeur (écrite telle quelle, par exemple `" °C"`) |
 | `decimals` | nombre | 0–6 | `0` (`attribute` : 1) | Décimales de `value`, ou d'un `attribute` numérique |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une `card`, sinon plus d'infos | Voir [Fiches](#fiches) |
@@ -752,11 +788,13 @@ furniture:
 | Extérieur | `bike` | Vélo | 60 × 180 |  |
 | Extérieur | `tree` | Arbre / arbuste | 200 × 200 | rond |
 | Extérieur | `pool` | Piscine | 800 × 400 |  |
+| Extérieur | `pergola` | Pergola | 400 × 300 | poteaux et lames ; reliée à un `cover`, les lames s'affinent en s'ouvrant (`current_tilt_position`, sinon `current_position`). *Nouveau en 0.2.1* |
+| Extérieur | `shed` | Abri de jardin / cabanon | 250 × 200 | toit à deux pans vu du dessus. *Nouveau en 0.2.1* |
 
 Les tapis et les espaces nommés sont dessinés sous les autres meubles (`level: -1` par défaut). Les types *ronds* n'ont
 pas de bouton miroir. La *couleur* est l'accent par défaut des meubles connectés de ce type.
 
-Éditeur : *Ajouter › Meubles* (onglets par catégorie, recherche), cliquer pour poser ; le sélectionner pour la taille,
+Éditeur : *Ajouter › Meubles* (un onglet, avec *Créer un meuble*, les sous-zones et une section par catégorie ; recherche), cliquer pour poser ; le sélectionner pour la taille,
 la rotation (±15°, ±90°), *Miroir*, *Chaises*, *Modèle*.
 
 ### Meubles personnalisés
@@ -807,11 +845,11 @@ de valeur, et zone tactile qui ouvre sa fiche ou sa fenêtre plus d'infos. Même
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `entity` | entité | | — | Entité principale : état, aspect actif, allumer / éteindre dans sa fiche |
-| `value` | entité | | — | Valeur numérique affichée dans une pastille sur le meuble (masquée en dessous de 24 px à l'écran) |
+| `value` | entité | | — | Valeur numérique affichée dans une pastille sur le meuble (masquée seulement quand la pièce fait moins de 24 px à l'écran dans les deux sens : un tableau électrique, un radiateur ou un meuble TV fin garde sa pastille) |
 | `active` | entité | | `entity` | Entité qui définit l'état « actif » |
 | `active_attribute` | attribut | | — | Attribut de l'entité active |
 | `threshold` | nombre | | — | Actif au-dessus de cette valeur (par exemple `50` W pour une borne de recharge) |
-| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur |
+| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeurUn thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
 | `unit` | texte | | unité de l'entité | Unité de la valeur |
 | `decimals` | nombre | 0–6 | `0` | Décimales de la valeur |
 | `color` | couleur | `#rgb`…`#rrggbbaa`, nom CSS, `var(--…)` | selon le type, sinon couleur principale du thème | Couleur d'accent (voir le catalogue) |
@@ -940,6 +978,7 @@ ci-dessous sont communes, et chaque type ajoute les siennes (une même clé a to
 | `icon` | icône | | selon le type | Icône de l'en-tête |
 | `color` | couleur | | — | Couleur d'accent (`gauge` : couleur de l'arc) |
 | `rows` | liste | | — | Lignes supplémentaires sous `tile`, `gauge`, `tariff`, `ev`, `cover`, `lock` et `thermostat`, voir ci-dessous |
+| `template` | texte | un `id` de modèle | — | Copie d'un [modèle](#modèles) de la bibliothèque de widgets, écrite par l'éditeur : *Mettre à jour depuis le modèle* et *Mettre à jour les N copies* la rafraîchissent, *Détacher* retire la clé |
 | `confirm` | booléen | | `false` (`cover`, `lock` : voir leur section) | `true` : chaque service du widget demande confirmation, même sûr : interrupteurs et boutons *Activer* de ses lignes, consigne du thermostat, boutons de cover et de serrure. `false` ne retire jamais la confirmation d'un service sensible |
 
 **Lignes** (`rows[]`, ainsi que `entities[]` du widget [entities](#widget-entities)) : un id d'entité, ou un objet :
@@ -968,6 +1007,7 @@ panels:
 Éditeur : *Ajouter › Widgets*, ou *Ajouter un widget* dans un panneau ou une fiche ; cliquer sur le widget, puis
 *Modifier* dans sa barre flottante : la fenêtre d'édition montre le widget lui-même en aperçu (← ou Échap revient à la
 pièce ou à la fiche qui le porte).
+L'éditeur propose aussi environ 65 widgets prêts à l'emploi construits sur ces types, par catégorie (*Ajouter › Widgets*).
 
 ### Widget `tariff`
 
@@ -1354,7 +1394,7 @@ membre sélectionne le groupe, un second clic l'élément seul.
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `name` | texte | | — | Nom du modèle |
-| `id` | texte | | — | Identifiant court écrit par l'éditeur (modèles de widget) |
+| `id` | texte | | — | Identifiant court écrit par l'éditeur : par les ateliers (*Créer un widget*, *Créer une ouverture*, *Créer un meuble*), et pour un modèle de widget quand sa première copie est posée ([copies liées](#bibliothèque-de-widgets)). Un modèle sans `id` continue de fonctionner tel quel |
 | `kind` | énum | `badge` `opening` `furniture` `widget` | — | Nature de `item` |
 | `icon` | icône | | — | Icône dans le catalogue |
 | `description` | texte | | — | Sous-titre dans le catalogue |
@@ -1419,6 +1459,69 @@ templates:
 widget › Créer un widget*, *Ajouter › Créer une ouverture* ou *Créer un meuble* › *Enregistrer dans Mes modèles* ;
 réutiliser depuis *Ajouter › Mes modèles*.
 
+### Bibliothèque de widgets
+
+*Nouveau en 0.3.0*. Une seule fenêtre pour tous les modèles de widget : *Ajouter › Widgets › Bibliothèque de widgets*, *Bibliothèque* dans
+*Ajouter un widget*, ou le crayon d'un widget qui est une copie de modèle. Elle propose une recherche, un vrai aperçu à la
+taille d'un panneau de PC ou d'un téléphone, les réglages propres au widget et, sous chaque champ entité, *Demander à
+chaque pose* (`ask`). *Poser à gauche* / *Poser à droite* ajoutent une copie au panneau de la maison ou d'une pièce.
+*Nouveau modèle*, *Dupliquer*, *Supprimer* (les copies sont détachées, rien ne casse). L'annulation fonctionne dans la
+fenêtre. C'est une vraie boîte de dialogue modale : Échap la ferme, le focus reste dedans puis est rendu.
+
+**Copies liées.** Un widget posé depuis un modèle garde son `id` dans `template`. Sa fenêtre affiche *Copie du modèle
+« … »* avec *Mettre à jour* (applique le modèle, garde les entités « à demander » propres à la copie), *Ouvrir* et
+*Détacher* (retire la clé). *Mettre à jour les N copies* dans la bibliothèque fait de même pour toutes les copies du
+plan, après confirmation, en un seul pas d'annulation. Un type de widget inconnu de cette version est montré tel quel et
+conservé.
+
+### Format de partage
+
+*Nouveau en 0.3.0*.
+
+*Partager* (barre flottante d'un widget, d'une pastille, d'une ouverture ou d'un meuble sélectionné ; *Partager* dans la
+bibliothèque de widgets ; *Partager…* dans *Exporter / importer le plan*) écrit des modèles dans un format à part, lisible.
+Rien n'est envoyé : on copie le texte ou on télécharge le fichier.
+
+| Clé | Type | Valeurs | Description |
+|---|---|---|---|
+| `maquette_share` | entier | `1` | Version du format (une version plus récente est refusée avec un message clair) |
+| `elements` | liste | [modèles](#modèles) | Les éléments partagés : `kind` `widget`, `badge`, `opening` ou `furniture`, `item`, `name`, `icon`… (sans `id`) |
+| `placeholders` | table | rôle → `{label, domain, device_class?, unit?, state_class?}` | Entités à associer à l'import ; dans `item`, une entité s'écrit `"<<rôle>>"` |
+
+Par défaut (*Garder mes entités* décoché), chaque entité devient un emplacement nommé d'après son champ (`battery`,
+`range`, `power`…) ou sa classe d'appareil / son domaine (`light`, `lock`…) ; noms des lignes et des pastilles, données
+d'action et liens sont retirés, comme `template`, `group`, positions, segments, `room`, `area` et `locked`. Titres, icônes,
+couleurs et réglages sont gardés.
+
+```yaml
+maquette_share: 1
+elements:
+  - name: Voiture
+    kind: widget
+    item: {type: ev, title: Voiture, battery: "<<battery>>", range: "<<range>>"}
+placeholders:
+  battery: {label: Batterie, domain: sensor, device_class: battery, unit: "%"}
+  range: {label: Autonomie, domain: sensor, device_class: distance, unit: km}
+```
+
+**Code compact** : `MAQ1:` suivi du même contenu en JSON, compressé (deflate-raw) et encodé en base64url, pour les
+messageries.
+
+**Import** (*Importer un partage…*, ou un partage collé dans *Exporter / importer le plan* : plan, partage et code compact
+sont reconnus) : avant tout changement, le dialogue liste les éléments, les commandes qu'ils portent (*Sensible* signalé),
+ce qui est ignoré (sorte ou type de widget inconnus, réglages inconnus ou invalides) et une ligne par emplacement :
+*Choisir…* propose les entités du même domaine (classe d'appareil et unité d'abord), *Remplir d'après un appareil*
+propose un appareil entier (une voiture : batterie, autonomie, puissance), une seule correspondance est proposée ; rien
+n'est appliqué en silence. Un emplacement laissé vide devient un champ *à compléter* (*ask* dans un modèle). Destination :
+*Ajouter à mes modèles* (défaut) ou *Placer dans le plan* (widgets dans le panneau choisi ; un objet seul se pose d'un
+clic). Le plan n'est jamais remplacé. Toute commande importée reçoit `confirm: true`. Même sécurité qu'un import de plan :
+2 Mo de texte (1 Mo une fois décompressé), 200 éléments, `__proto__` retiré, validation de la carte (couleurs, icônes,
+nombres), clés inconnues écartées, nouveaux identifiants de modèles.
+
+**Entités introuvables** (*Nouveau en 0.3.0*) : *Nettoyer le plan* montre *Entités introuvables (N)* quand des entités du plan n'existent plus
+dans Home Assistant : où chacune sert (pièces, boutons, pastilles, ouvertures, meubles, fiches, widgets, puces, ambiance,
+modèles) et *Choisir…* pour la remplacer partout, en un seul pas d'annulation.
+
 ## Ambiance
 
 Calques facultatifs et discrets, dessinés sous les pastilles : teinte de nuit et ensoleillement, météo sur les pièces
@@ -1448,8 +1551,8 @@ ambience:
   people: true
 ```
 
-Éditeur : barre d'outils *Ambiance et animations* › *Ambiance du plan (jour / nuit, météo, traces)* (avec *Nord du
-plan*), *Flux d'énergie*, *Personnes*.
+Éditeur : barre d'outils *Ambiance et animations* › **Ambiance du plan**, puis *Intensité*, **Nord du plan (°)**,
+*Jour et nuit*, *Météo*, *Traces* (durée 0–240 min, pas de 5), *Flux d'énergie*, *Personnes*.
 
 ### Jour et nuit
 
@@ -1702,7 +1805,7 @@ replay:
   speed: 3600
 ```
 
-Éditeur : ⚙ Paramètres › Fonctions › *Bouton « Revoir la journée » (replay)*, *Période revue*, *Vitesse au départ*.
+Éditeur : ⚙ Paramètres › Fonctions › *Revoir la journée*, *Période revue*, *Vitesse au départ*.
 
 ## Exemples sous le plan
 
@@ -1721,7 +1824,7 @@ showcase:
   width: 1200
 ```
 
-Éditeur : ⚙ Paramètres › Fonctions › *Exemples sous le plan (animations, météo, ambiance)*.
+Éditeur : ⚙ Paramètres › Fonctions › *Exemples sous le plan*.
 
 ## Interaction
 
@@ -1731,7 +1834,7 @@ La réaction de la carte au toucher. Sans ces clés, elle se comporte comme avan
 |---|---|---|---|---|
 | `interaction.room_tap` | énum | `room_view` `more_info` `none` | `room_view` | Toucher une pièce : vue de la pièce ; plus d'infos de son entité `tap` (sinon `temperature`) ; rien. Une pièce avec `zoom: false` garde son propre comportement |
 | `interaction.lock_view` | booléen | | `false` | Ni déplacement ni zoom à la molette / au pincement, boutons de zoom masqués ; les touchers fonctionnent toujours |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon ; dans l'éditeur : jamais cachés, en-tête sur téléphone sauf `map`. *Nouveau en 0.2.1* ; dans l'éditeur sur téléphone, les boutons passent aussi dans l'en-tête (*Nouveau en 0.3.0*). |
 | `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
 
 ```yaml
@@ -1773,12 +1876,16 @@ Une limite globale aux mouvements. Le réglage système « réduire les animatio
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `animation_level` | énum | `full` `reduced` `none` | `full` | `full` : toutes les animations ; `reduced` : rien ne tourne en boucle (pulsations, ondes, météo, flux), transitions courtes ; `none` : ni animation ni transition. La relecture et les exemples sous le plan le suivent |
+| `effects` | énum | `auto` `full` `light` | `auto` | `light` : lumière des fenêtres sans flou, nuages et brouillard immobiles ; `auto` : `light` sur écran tactile (`pointer: coarse`), `full` sinon. *Nouveau en 0.3.0*. |
+
+Comment ils se combinent : `animation_level` (et le réglage système) décide **si** ça bouge ; `effects` décide **ce que coûte** ce qui est montré. `reduced` + `full` = boucles figées, lumière floue ; `full` + `light` = flux et pluie qui bougent, nuages immobiles, lumière sans flou.
 
 ```yaml
 animation_level: reduced
+effects: light
 ```
 
-Éditeur : ⚙ Paramètres › Interaction › *Animations* › *Niveau d'animation*.
+Éditeur : ⚙ Paramètres › Interaction › *Animations* › *Niveau d'animation*, *Effets*.
 
 ## Démo
 
@@ -1795,7 +1902,8 @@ title: Démo
 language: en
 ```
 
-Éditeur : aucun ; le sélecteur de cartes propose une carte de démo et des tableaux de bord vierge / de démo.
+Éditeur : aucun (la démo n'a pas d'éditeur). Le sélecteur de cartes propose **Maquette — démo**
+(`custom:maquette-card-demo`) et *Ajouter un tableau de bord* la stratégie **Maquette — démo**.
 
 ## Clés Home Assistant conservées
 
@@ -1847,6 +1955,18 @@ de serrure). Cas typique : une porte de garage, un portail ou un chauffage comma
 retire jamais la confirmation d'un service sensible. `protected: true` (pastilles, ouvertures, meubles) empêche
 d'éteindre l'appareil depuis le plan.
 
+**Interrupteurs : l'éditeur demande** (*Nouveau en 0.3.0*). Un `switch` peut commander un portail, une porte de garage ou une gâche, mais il
+reste un service sûr sur le plan. Quand vous donnez une entité `switch.*` à une pastille, un meuble, une ouverture, un
+bouton de pièce ou un widget, l'éditeur écrit `confirm` aussitôt et demande dans une notification : *Confirmer chaque
+appui sur « … » ?* **Oui** / **Non**. *Oui* est présélectionné quand l'interrupteur ressemble à un accès : un mot d'accès
+(`porte`, `portail`, `portillon`, `garage`, `barriere`, `serrure`, `verrou`, `gache`, `interphone`, `door`, `gate`,
+`barrier`, `lock`, `latch`, `opener`, `intercom` ; mots entiers, sans tenir compte des accents ni d'un *s* final) dans son
+identifiant, son nom, son icône ou le nom / modèle de son appareil, sauf si son propre identifiant ou son nom dit lumière,
+prise ou appareil (`lumiere`, `lampe`, `eclairage`, `light`, `prise`, `plug`, `outlet`, `chauffage`, `congelateur`,
+`child`…) ou que sa `device_class` est `outlet` ; ou quand son appareil porte aussi une `lock`, une `cover` garage /
+portail / porte ou un capteur `garage_door`. Exemples : `switch.porte_garage`, *Portail d'entrée*, `mdi:gate` → *Oui* ;
+*Lumière garage*, *Prise portail*, `switch.outdoor_lights` → *Non*. Les interrupteurs déjà dans un plan restent tels quels.
+
 **Vérification à l'import.** *Exporter / importer › Importer* montre d'abord un récapitulatif et n'applique rien avant
 votre accord : services des boutons des pièces (les sensibles marqués), entités commandées par les widgets (cover, lock,
 thermostat, lignes *Activer*), liens *Plus d'infos*, valeurs retirées car invalides (avec leur chemin, par exemple
@@ -1854,6 +1974,22 @@ thermostat, lignes *Activer*), liens *Plus d'infos*, valeurs retirées car inval
 changement l'applique directement. Limites : 2 Mo de texte, 200 000 valeurs, 40 niveaux d'imbrication, 5 000 éléments par
 liste ; le YAML est lu sans ses types étendus ; les clés `__proto__`, `constructor` et `prototype` sont écartées. Les
 brouillons et copies gardés dans le navigateur sont relus de la même façon.
+
+**Enregistrer un plan qui contient des éléments invalides** (*Nouveau en 0.3.0*). L'éditeur ne voit que ce que la carte a accepté. Avant
+d'enregistrer, si la config de la carte dans le dashboard contient des éléments ou valeurs que la carte ignore (sans
+coordonnées valides, valeur hors de sa liste, clé inconnue…), l'éditeur les liste (quoi, où, pourquoi) et demande :
+**Les retirer** (le plan est enregistré tel que dessiné), **Les garder tels quels** (recopiés à l'identique depuis le
+dashboard, toujours ignorés à l'affichage) ou *Annuler*. Le choix vaut pour le reste de la session d'édition. Un
+élément modifié ou supprimé dans l'éditeur est enregistré tel que dessiné.
+
+**Versions enregistrées** (*Nouveau en 0.3.0*). Les 5 dernières versions enregistrées du plan et les 3 derniers plans d'avant un *Nettoyer le plan*
+sont rangés dans les données utilisateur de Home Assistant (`frontend/set_user_data`, clé `maquette-versions:<id>`, aucune
+intégration côté serveur), et plus seulement dans le navigateur : elles suivent votre compte sur chaque appareil, et
+chaque utilisateur a son propre historique (*Versions de ce compte* dans l'éditeur). Rien n'est envoyé ailleurs que vers
+votre Home Assistant. La copie du navigateur reste en secours (Home Assistant ancien, erreur) ; les versions déjà gardées
+dans un navigateur sont fusionnées dans votre compte à la première ouverture de l'éditeur, sans doublon. Dans Home
+Assistant, la liste est compressée et limitée à 1 Mo par carte ; au-delà, les plus anciennes partent d'abord, jamais la
+dernière version.
 
 **Ce qui n'est jamais dessiné comme du code.** Les textes, noms et états HA sont échappés ; nombres, valeurs énumérées,
 couleurs, icônes et liens sont contrôlés (voir [Conventions](#conventions)) ; tout le HTML construit par la carte ou
@@ -1919,6 +2055,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `domain` | [Modèles](#modèles) |
 | `drawing_order` | [Calques](#calques) |
 | `duration` | [Widgets](#widgets), [Widget `climate`](#widget-climate), [Animations](#animations), [Traces](#traces) |
+| `effects` | [Racine de la carte](#racine-de-la-carte), [Niveau d'animation](#niveau-danimation) |
 | `editor` | [Réglages généraux](#réglages-généraux) |
 | `enabled` | [Alertes plein plan](#alertes-plein-plan) |
 | `energy` | [Flux d'énergie](#flux-dénergie), [Ambiance](#ambiance) |
@@ -2054,6 +2191,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `temperature` | [Pièces et sous-zones](#pièces-et-sous-zones), [Réglages généraux](#réglages-généraux) |
 | `temperature_attribute` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `temperature_tint` | [Réglages généraux](#réglages-généraux) |
+| `template` | [Widgets](#widgets) |
 | `templates` | [Racine de la carte](#racine-de-la-carte), [Modèles](#modèles) |
 | `text` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `texts` | [Racine de la carte](#racine-de-la-carte), [Textes et zones d'informations](#textes-et-zones-dinformations) |
@@ -2096,7 +2234,7 @@ Chaque valeur énumérée, par clé.
 | `<widget>.type` | `tariff` `ev` `gauge` `tile` `entities` `periods` `divider` `cover` `lock` `thermostat` `climate` |
 | `alerts[].level` | `critical` `warning` `info` |
 | `alerts[].type` | `openings` |
-| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `area` `rect` `circle` `stairs` `skylight` `custom` |
+| `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `pergola` `shed` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
@@ -2110,6 +2248,7 @@ Chaque valeur énumérée, par clé.
 | `badge_style.unavailable` | `dimmed` `dashed` `hidden` |
 | `badge_style.values` | `always` `hover` `never` |
 | `badges[].tap`<br>`furniture[].tap`<br>`openings[].tap` | `card` `more_info` `none` |
+| `effects` | `auto` `full` `light` |
 | `floor_selector` | `elevator` `tabs` |
 | `floors[].background.show`<br>`background.show` | `editor` `always` |
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |

@@ -26,6 +26,7 @@ export class EditeurPlan {
     carte._editeur = this;
     this._monterUI();
     this._cablerAides(); // avant les raccourcis : Échap ferme d'abord une bulle ouverte
+    void this._synchroniserVersions(); // versions du compte HA (fusionnées avec celles de ce navigateur), lues en tâche de fond
     this._touche = this._touche.bind(this);
     window.addEventListener("keydown", this._touche, true);
     // dernier bouton enfoncé au pointeur : Espace ne le réactive pas (Chrome le passe en :focus-visible dès la touche enfoncée)
@@ -43,7 +44,7 @@ export class EditeurPlan {
     carte._construire();
     if (reprise) { this._barre(); this._panneau(); this.snack(_t("Plan enregistré.")); } else {
       const n = carte._ignores;
-      if (n) this.snack(_t("{n} élément sans coordonnées valides (pièce sans contour, mur sans extrémités…) est ignoré : il sera retiré à l'enregistrement.|{n} éléments sans coordonnées valides (pièce sans contour, mur sans extrémités…) sont ignorés : ils seront retirés à l'enregistrement.", { n }), null, null, 12000);
+      if (n) this.snack(_t("{n} élément sans coordonnées valides (pièce sans contour, mur sans extrémités…) est ignoré : à l'enregistrement, tu choisiras de le retirer ou de le garder.|{n} éléments sans coordonnées valides (pièce sans contour, mur sans extrémités…) sont ignorés : à l'enregistrement, tu choisiras de les retirer ou de les garder.", { n }), null, null, 12000);
       this._proposerBrouillon();
       this._cadrerPlan();
     }
@@ -102,7 +103,10 @@ export class EditeurPlan {
     const a = this.R.activeElement, garde = a && this.barre.contains(a) ? (a.dataset.a ? `[data-a="${a.dataset.a}"]` : a.dataset.outil ? `[data-outil="${a.dataset.outil}"]` : null) : null;
     const o = (id, ic, t) => `<button data-outil="${id}" class="${this.outil === id ? "on" : ""}" title="${_t(t)}" aria-label="${_t(t)}" aria-pressed="${this.outil === id}"><ha-icon icon="${ic}"></ha-icon></button>`;
     const ib = (a, ic, t, on, pc = true) => `<button class="ib${on ? " on" : ""}${pc ? " ed-pc" : ""}" data-a="${a}" title="${t}" aria-label="${t}"${on != null ? ` aria-pressed="${!!on}"` : ""}><ha-icon icon="${ic}"></ha-icon></button>`;
-    // PC : historique | outils | grille, recadrer | panneaux (calques, ambiance) | import / export, paramètres, raccourcis
+    // bouton à libellé de la 2e ligne (PC seulement : sur téléphone, ces commandes sont dans le menu « Plus »)
+    const lb = (a, ic, t, lib, on, ext = "") => `<button class="ed-btn texte ed-pc${on ? " on" : ""}" data-a="${a}" title="${t}" aria-label="${t}"${on != null ? ` aria-pressed="${!!on}"` : ""}${ext}><ha-icon icon="${ic}"></ha-icon><span class="lib">${lib}</span></button>`;
+    // PC, deux lignes : historique | outils | grille, recadrer … Ajouter, Quitter, Appliquer, Enregistrer
+    //                   étages, calques, ambiance | nettoyer, import / export, paramètres, raccourcis (avec libellés)
     // Sélection et Main partagent un bouton : il montre le dernier des deux choisi, et le retoucher bascule de l'un à l'autre
     const cur = this.outil === "main" || this.outil === "selection" ? this.outil : this._curseur || "selection";
     const bascule = { selection: ["mdi:cursor-default-outline", _tk("Sélection (V) · retoucher : main (H)")], main: ["mdi:hand-back-right-outline", _tk("Main : déplacer la vue (H) · retoucher : sélection (V)")] };
@@ -115,23 +119,23 @@ export class EditeurPlan {
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
-      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}
-      <span class="ed-sep ed-pc"></span>
-      ${ib("etages", "mdi:layers-triple-outline", _t("Gérer les étages"))}
-      ${ib("calques", "mdi:layers-outline", _t("Calques"), !!this.vueCalques)}
-      ${ib("ambiance", "mdi:weather-partly-cloudy", _t("Ambiance et animations"), !!this.vueAmbiance)}
-      <span class="ed-sep ed-pc"></span>
-      ${ib("nettoyer", "mdi:auto-fix", _t("Nettoyer le plan"))}
-      ${ib("exporter", "mdi:file-swap-outline", _t("Exporter / importer le plan (YAML, JSON)"))}
-      <button class="ib ed-pc${this.vueParametres ? " on" : ""}" data-a="parametres" title="${_t("Paramètres")}" aria-label="${_t("Paramètres")}" aria-haspopup="dialog" aria-expanded="${!!this.vueParametres}"><ha-icon icon="mdi:cog-outline"></ha-icon></button>
-      ${sansClavier() ? "" : `<button class="ib ed-pc" data-a="aide" title="${_t("Raccourcis clavier (?)")}" aria-label="${_t("Raccourcis clavier (?)")}" aria-haspopup="dialog"><ha-icon icon="mdi:keyboard-outline"></ha-icon></button>`}</div>
+      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}</div>
       <div class="ed-fin"><button class="ib ed-plus" data-a="plus" title="${_t("Plus d'outils")}" aria-label="${_t("Plus d'outils")}" aria-haspopup="menu" aria-expanded="false"><ha-icon icon="mdi:dots-vertical"></ha-icon></button>
       <button class="ed-btn tonal" data-a="ajouter" title="${tactile() ? _t("Ajouter un objet ou un widget") : _t("Ajouter un objet ou un widget (A)")}" aria-label="${_t("Ajouter")}"><ha-icon icon="mdi:plus"></ha-icon><span class="lib">${_t("Ajouter")}</span></button>
       <span class="ed-info"></span>
       <button class="ed-btn texte" data-a="quitter" title="${_t("Quitter l'éditeur")}" aria-label="${_t("Quitter l'éditeur")}"><ha-icon icon="mdi:exit-to-app"></ha-icon><span class="lib">${_t("Quitter")}</span></button>
       <button class="ed-btn texte ed-pc" data-a="appliquer" ${this.modifie ? "" : "disabled"} title="${tactile() ? _t("Appliquer : enregistrer sans quitter l'éditeur") : _t("Appliquer : enregistrer sans quitter l'éditeur (Ctrl+S)")}" aria-label="${_t("Appliquer : enregistrer sans quitter l'éditeur")}"><ha-icon icon="mdi:check"></ha-icon><span class="lib">${_t("Appliquer")}</span></button>
       <button class="ed-btn plein${this.modifie ? " modifie" : ""}" data-a="enregistrer" ${this.modifie ? "" : "disabled"} title="${_t("Enregistrer et quitter l'éditeur")}" aria-label="${this.modifie ? _t("Enregistrer (modifications non enregistrées)") : _t("Enregistrer")}"><ha-icon icon="mdi:content-save-outline"></ha-icon><span class="lib">${_t("Enregistrer")}</span></button>
-      <span class="ed-saut"></span></div>`);
+      <span class="ed-saut"></span></div>
+      <div class="ed-ligne2 ed-pc" role="group" aria-label="${_t("Plus d'outils")}">
+      ${lb("etages", "mdi:layers-triple-outline", _t("Gérer les étages"), _t("Étages"))}
+      ${lb("calques", "mdi:layers-outline", _t("Calques"), _t("Calques"), !!this.vueCalques)}
+      ${lb("ambiance", "mdi:weather-partly-cloudy", _t("Ambiance et animations"), _t("Ambiance"), !!this.vueAmbiance)}
+      <span class="ed-sep"></span>
+      ${lb("nettoyer", "mdi:auto-fix", _t("Nettoyer le plan"), _t("Nettoyer le plan"))}
+      ${lb("exporter", "mdi:file-swap-outline", _t("Exporter / importer le plan (YAML, JSON)"), _t("Exporter / importer"))}
+      ${lb("parametres", "mdi:cog-outline", _t("Paramètres"), _t("Paramètres"), null, ` aria-haspopup="dialog" aria-expanded="${!!this.vueParametres}"`).replace('class="ed-btn texte ed-pc"', `class="ed-btn texte ed-pc${this.vueParametres ? " on" : ""}"`)}
+      ${sansClavier() ? "" : lb("aide", "mdi:keyboard-outline", _t("Raccourcis clavier (?)"), _t("Raccourcis clavier"), null, ' aria-haspopup="dialog"')}</div>`);
     // indice de défilement quand tous les outils ne tiennent pas
     const df = this.barre.querySelector(".ed-defile"), indice = () => df.classList.toggle("deborde", df.scrollWidth > df.clientWidth + 2 && df.scrollLeft + df.clientWidth < df.scrollWidth - 2);
     df.onscroll = indice;
@@ -280,6 +284,7 @@ export class EditeurPlan {
     if (this.sel && !(n[this.sel.type] || [])[this.sel.i]) this.sel = null;
   }
   _wl(s, creer = false) {
+    if (s.cote === "modele") { const m = this._biblio && this.d.modeles?.[this._biblio.u]; return m?.objet && typeof m.objet === "object" ? [m.objet] : null; } // bibliothèque (classe-atelier.js)
     if (s.cote === "fiche") {
       const pf = porteurDe(s), m = pf && this.d[GENRES_FICHE[pf.genre]]?.[pf.i];
       if (!m) return null;
@@ -306,7 +311,7 @@ export class EditeurPlan {
     if (this.d.groupes || this._toutesCles().some((k) => this._gr(k))) this._nettoyerGroupes();
     // une seule copie repliée : comparaison avec l'original, carte, brouillon
     const plein = this._replie();
-    this._apresGestionEtages?.(plein, sansHisto); // noms de pièce en double dans la maison : avertissement
+    this._accroches("modifie", plein, sansHisto); // morceaux branchés ici (étages : noms de pièce en double dans la maison)
     this.modifie = this._estModifie(plein);
     this._suivreCarte(plein);
     this._boite();
@@ -317,7 +322,17 @@ export class EditeurPlan {
     this._barre();
     this._panneau();
   }
-  commit(fn) { this._instantane(); fn(); this._apres(); }
+  // points d'accroche : un morceau (src/editeur/classe-*.js) se branche sur un moment de l'éditeur sans modifier ce fichier, en
+  // définissant une méthode « _quand_<moment>_<sujet>(…) » ; toutes celles d'un moment sont appelées dans l'ordre de src/assemblage.mjs.
+  // Moments : modifie (fin de _apres, après chaque modification, annuler / rétablir compris ; arguments : plan replié, sansHisto)
+  static ACCROCHES = new Map();
+  _accroches(moment, ...args) {
+    const P = EditeurPlan.prototype, pre = `_quand_${moment}_`;
+    let l = EditeurPlan.ACCROCHES.get(moment);
+    if (!l) EditeurPlan.ACCROCHES.set(moment, (l = Object.getOwnPropertyNames(P).filter((n) => n.startsWith(pre) && typeof Object.getOwnPropertyDescriptor(P, n).value === "function")));
+    for (const n of l) this[n](...args);
+  }
+  commit(fn) { this._instantane(); const sw = this._avantInterrupteurs(); fn(); this._questionInterrupteurs(sw); this._apres(); }
   // « Annuler » d'une notification : n'annule que si rien n'a été fait depuis
   _annulation() {
     const marque = this.histo.length;

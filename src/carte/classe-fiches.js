@@ -213,7 +213,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
     this._escaliers();
     const R = this.shadowRoot, f = R.querySelector(".fiche"), c = this._config;
     const iso = this._iso != null && !this._editeur ? c.pieces[this._iso] : null;
-    f.hidden = !iso;
+    if (f.hidden !== !iso) f.hidden = !iso; // pas de réécriture identique (une mutation à chaque mise à jour)
     if (!iso) { poserHTML(f, ""); return; }
     const t = this._num(iso.temperature, iso.attribut_temperature), h = this._num(iso.humidite, iso.attribut_humidite);
     const etat = (s) => (s ? this._hass.formatEntityState?.(s) ?? s.state : _t("indisponible"));

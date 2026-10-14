@@ -112,7 +112,6 @@ const EN = { // @assemblage
     "valeur affichée": "displayed value",
     "état actif": "active state",
     "Plan enregistré.": "Plan saved.",
-    "{n} élément sans coordonnées valides (pièce sans contour, mur sans extrémités…) est ignoré : il sera retiré à l'enregistrement.|{n} éléments sans coordonnées valides (pièce sans contour, mur sans extrémités…) sont ignorés : ils seront retirés à l'enregistrement.": "{n} element without valid coordinates (room without outline, wall without ends…) is ignored: it will be removed when saving.|{n} elements without valid coordinates (room without outline, wall without ends…) are ignored: they will be removed when saving.",
     "Annuler (Ctrl+Z)": "Undo (Ctrl+Z)",
     "Rétablir (Ctrl+Y)": "Redo (Ctrl+Y)",
     "Exporter / importer le plan (YAML, JSON)": "Export / import the plan (YAML, JSON)",

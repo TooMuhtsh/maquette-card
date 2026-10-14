@@ -5,11 +5,13 @@ void ` // @assemblage
 .pt.trace,.mb.trace{box-shadow:0 0 0 calc(2px + 5px*var(--t,0)) color-mix(in srgb,var(--trace-c,var(--md-primary)) calc(var(--t,0)*60%),transparent),0 1px 2px #0003}
 /* ambiance */
 .amb{pointer-events:none}
-.amb .amb-n,.amb .amb-sol{transition:opacity 40s linear}
 .m-defile{animation:m-defile var(--m-d) linear infinite}
+.m-glisse{animation:m-glisse var(--g-d) linear infinite}
 .m-brume{animation:respire 14s ease-in-out infinite;--a-i:1}
+/* effets légers (\`effects: light\`) : nuages et brouillard immobiles */
+.effets-legers :is(.m-defile,.m-brume){animation:none}
 .m-eclair{opacity:0;animation:m-eclair 9s linear infinite}
-.calque>.amb-astre{pointer-events:auto;color:#f9a825;opacity:.85;--mdc-icon-size:1.35em;filter:drop-shadow(0 0 4px #f9a82580);transition:left 40s linear,top 40s linear}
+.calque>.amb-astre{pointer-events:auto;color:#f9a825;opacity:.85;--mdc-icon-size:1.35em;filter:drop-shadow(0 0 4px #f9a82580)}
 .calque>.amb-astre[hidden]{display:none}
 .zone.hors-ecran *,.zone.hors-ecran *::before{animation-play-state:paused!important}
 /* zone d'informations */
@@ -135,16 +137,20 @@ span.mb{pointer-events:none}
 @keyframes halo-mb{50%{stroke-width:calc(2px + 5px*var(--a-i,1));stroke-opacity:.5}}
 @keyframes onde-mb{from{stroke-width:2px;stroke-opacity:1}70%{stroke-width:calc(2px + 12px*var(--a-i,1));stroke-opacity:0}to{stroke-width:2px;stroke-opacity:0}}
 @keyframes m-defile{to{transform:translateY(var(--m-s))}}
+@keyframes m-glisse{to{transform:translate(var(--g-x),var(--g-y))}}
 @keyframes m-eclair{0%,92%,100%{opacity:0}93%{opacity:1}94%{opacity:0}95.5%{opacity:.7}97%{opacity:0}}
-@media (prefers-reduced-motion:reduce){.alerte-voile,.ouv .trait,.ouv .cible,.volet,.pt,.pt::before,.mb::before,.zone svg .meuble,.zone svg .meuble *,.m-defile,.m-brume{animation:none!important}.m-eclair{display:none}}
+@media (prefers-reduced-motion:reduce){.alerte-voile,.ouv .trait,.ouv .cible,.volet,.pt,.pt::before,.mb::before,.zone svg .meuble,.zone svg .meuble *,.m-defile,.m-glisse,.m-brume{animation:none!important}.m-eclair{display:none}}
 /* niveau d'animation (\`animation_level\`) : reduced = aucune boucle permanente (pulsations, ondes, météo, flux), changements d'état
    par des transitions courtes ; none = ni animation ni transition. Halos et ondes figés : liseré discret plutôt qu'un trait plein */
-:is(.anim-reduit,.anim-aucune) :is(.alerte-voile,.ouv .trait,.ouv .cible,.volet,.pt,.mb,.zone svg .meuble,.zone svg .meuble *,.m-defile,.m-brume),
+:is(.anim-reduit,.anim-aucune) :is(.alerte-voile,.ouv .trait,.ouv .cible,.volet,.pt,.mb,.zone svg .meuble,.zone svg .meuble *,.m-defile,.m-glisse,.m-brume),
   :is(.anim-reduit,.anim-aucune) :is(.pt,.mb)::before{animation:none!important}
 :is(.anim-reduit,.anim-aucune) .m-eclair{display:none}
 :is(.anim-reduit,.anim-aucune) .ouv:is(.ouvert.a-halo,.ouvert.a-onde,.en-alerte) .cible{stroke-opacity:.3}
-.anim-reduit .piece,.anim-reduit .halo,.anim-reduit .volet,.anim-reduit .pers .av,.anim-reduit .amb .amb-n,.anim-reduit .amb .amb-sol{transition-duration:.2s}
-.anim-reduit .calque>.pers,.anim-reduit .calque>.amb-astre{transition-duration:.25s}
+.anim-reduit .piece,.anim-reduit .halo,.anim-reduit .volet,.anim-reduit .pers .av{transition-duration:.2s}
+.anim-reduit .calque>.pers{transition-duration:.25s}
+/* aube et crépuscule : par paliers en JS au niveau complet (_palier) ; transition courte au niveau réduit */
+.anim-reduit .amb .amb-n,.anim-reduit .amb .amb-sol{transition:opacity .2s linear}
+.anim-reduit .calque>.amb-astre{transition:left .25s linear,top .25s linear}
 .anim-aucune,.anim-aucune *,.anim-aucune *::before,.anim-aucune *::after{transition:none!important;animation:none!important}
 /* vue figée (\`interaction.lock_view\`) : ni déplacement ni zoom à la main, même dans la vue d'une pièce */
 .zone.zoome.figee{touch-action:pan-y;cursor:auto}

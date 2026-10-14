@@ -7,9 +7,11 @@ class MaquetteCard extends HTMLElement { // @assemblage
   static urlFond(v) { return urlFond(v) || null; }
   _dessinerFond(c, { ed, Q }) {
     const f = c.fond, url = f && urlFond(f.image);
-    this._fondAPoser = null;
+    this._fondAPoser = null; this._solFond = null;
     if (!url || !(+f.largeur > 0) || (!ed && (f.afficher !== "toujours" || Q.masques.has(CALQUE_FOND)))) return "";
     this._fondAPoser = { f, url };
+    // sol des pièces translucide au-dessus de l'image (teinte des températures gardée) ; 1 = opaque comme avant la 0.3.0
+    this._solFond = Number.isFinite(+f.opacite_sol) ? Math.min(1, Math.max(0, +f.opacite_sol)) : 0.6;
     queueMicrotask(() => this._poserFond());
     const cls = `${Q.masques.has(CALQUE_FOND) ? " c-masque" : ""}${ed && this._fondVerrouille() ? " c-verrou" : ""}`;
     return `<g class="cq fond${cls}" data-cq="${CALQUE_FOND}" aria-hidden="true"></g>`;

@@ -13,12 +13,16 @@ class MaquetteCard extends HTMLElement { // @assemblage
   // (azimut + `nord`), plus chaude au lever et au coucher ; repère du soleil au bord du plan ; météo redessinée quand elle change
   _majAmbiance() {
     this._majVelux();
+    this._pauseAnimations();
     const R = this.shadowRoot, A = this._config.ambiance, g = R?.querySelector(".zone svg .amb");
+    // effets légers (classe effets-legers, couches.css.js) : nuages et brouillard immobiles ; voir _effetsLegers
+    R?.querySelector("ha-card")?.classList.toggle("effets-legers", this._effetsLegers());
     if (!A || !g) return;
     const I = intensiteAmb(A), b = this._box, nord = +A.nord || 0, jn = coucheJour(A);
     const so = jn && this._etat(jn.soleil || "sun.sun"), e = so ? parseFloat(so.attributes.elevation) : NaN, az = so ? parseFloat(so.attributes.azimuth) : NaN;
     const Ij = I * borne(+(jn?.intensite ?? 1), 0, 2), nuit = isNaN(e) ? 0 : borne((2 - e) / 14, 0, 1), dore = isNaN(e) || e < -4 ? 0 : Math.max(0, 1 - Math.abs(e - 3) / 9);
-    const op = (sel, v) => g.querySelector(sel)?.setAttribute("opacity", v.toFixed(3));
+    // teinte de nuit et lumière du soleil : fondu par paliers (voir _palier) au lieu d'une transition continue de 40 s
+    const op = (sel, v) => this._palier(g.querySelector(sel), "opacity", v.toFixed(3), 0.004);
     // thème sombre : le bleu nuit sur un fond déjà sombre ne se voit presque pas en « discret » ; on le renforce (normal et fort inchangés)
     const In = I > 0 && I < INTENSITES.normal && this._sombre() ? Math.min(INTENSITES.normal * 1.5, I * 2.3) / I : 1;
     op(".amb-ni", Ij * In * nuit * 0.22); op(".amb-ne", Ij * In * nuit * 0.5);
@@ -26,19 +30,19 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const lg = g.querySelector("#amb-g"), astre = R.querySelector(".calque>.amb-astre"), jour = !isNaN(az) && e > 0;
     if (lg && jour) {
       const rr = Math.max(b.W, b.H) / 2;
-      [["x1", cx + ux * rr], ["y1", cy + uy * rr], ["x2", cx - ux * rr * 0.3], ["y2", cy - uy * rr * 0.3]].forEach(([k, v]) => lg.setAttribute(k, v.toFixed(0)));
+      [["x1", cx + ux * rr], ["y1", cy + uy * rr], ["x2", cx - ux * rr * 0.3], ["y2", cy - uy * rr * 0.3]].forEach(([k, v]) => attrSi(lg, k, v.toFixed(0)));
       const col = dore > 0.5 ? "#ffb74d" : "#fff59d";
-      lg.querySelectorAll("stop").forEach((st) => st.setAttribute("stop-color", col));
+      lg.querySelectorAll("stop").forEach((st) => attrSi(st, "stop-color", col));
     }
     op(".amb-sol", jour ? Ij * (0.18 + 0.32 * dore) : 0);
     if (astre) {
-      astre.hidden = !jour;
+      if (astre.hidden !== !jour) astre.hidden = !jour;
       if (jour) {
         // au bord du plan, dans la direction du soleil (2,5 % de marge)
         const k = Math.min(Math.abs(ux) > 1e-6 ? 0.475 / Math.abs(ux) : Infinity, Math.abs(uy) > 1e-6 ? 0.475 / Math.abs(uy) : Infinity);
-        astre.style.left = `${(50 + ux * k * 100).toFixed(2)}%`; astre.style.top = `${(50 + uy * k * 100).toFixed(2)}%`;
+        this._palier(astre, "left", (50 + ux * k * 100).toFixed(2), 0.05, "%"); this._palier(astre, "top", (50 + uy * k * 100).toFixed(2), 0.05, "%");
         const hm = (iso) => { const d = iso ? new Date(iso) : null; return d && !isNaN(d) ? d.toLocaleTimeString(_loc(), { hour: "2-digit", minute: "2-digit" }) : "?"; };
-        astre.title = _t("Soleil : hauteur {h}°, azimut {az}° · coucher {coucher}", { h: Math.round(e), az: Math.round(az), coucher: hm(so.attributes.next_setting) });
+        titreSi(astre, _t("Soleil : hauteur {h}°, azimut {az}° · coucher {coucher}", { h: Math.round(e), az: Math.round(az), coucher: hm(so.attributes.next_setting) }));
       }
     }
     const me = coucheMeteo(A), w = me && this._etat(me.entite), zm = g.querySelector(".amb-meteo");
@@ -47,6 +51,54 @@ class MaquetteCard extends HTMLElement { // @assemblage
     // nuages : quasi invisibles la nuit (sinon, clairs sur fond sombre, on les prendrait pour des halos de lumière)
     zm?.querySelectorAll(".m-nuages").forEach((n) => { n.style.opacity = (+n.dataset.op * (1 - 0.85 * nuit)).toFixed(3); });
     this._majLumiere(I, nord);
+  }
+
+  // animations du plan (minuterie : billes des flux ; CSS : météo, nuages, pulsations, brouillard, éclairs…) en pause quand le plan n'est pas à l'écran
+  // (hors de la vue, carte cachée : IntersectionObserver de _minuterie) ou que la page est cachée ; elles reprennent où elles en étaient.
+  // Rappelée après chaque mise à jour : un plan reconstruit hors de la vue (nouveau <svg>) reste en pause
+  _pauseAnimations() {
+    const z = this.shadowRoot?.querySelector(".zone");
+    if (!z) return;
+    const p = !!this._horsVue || document.visibilityState === "hidden";
+    z.classList.toggle("hors-ecran", p);
+    for (const sv of z.querySelectorAll(":scope>svg")) if (sv.pauseAnimations && sv.animationsPaused() !== p) { if (p) sv.pauseAnimations(); else sv.unpauseAnimations(); }
+    // billes des flux (minuterie, classe-personnes-alertes.js) : arrêtées ou relancées avec le reste
+    const avant = this._enPause;
+    this._enPause = p;
+    if (avant !== p || (!p && !this._tmBilles)) this._billes();
+  }
+
+  // effets (`effets`) : légers = ce qui coûte sans apporter beaucoup est allégé (lumière des fenêtres sans flou, nuages et brouillard
+  // immobiles ; pluie et neige gardent leur animation CSS, moins chère que par pas) ; auto = légers sur un écran tactile
+  // principal (pointer: coarse : téléphone, tablette), complets sinon. Indépendant du niveau d'animation (`niveau_animation`) et du
+  // mouvement réduit du système, qui figent les boucles quels que soient les effets
+  _effetsLegers() { const e = effetsDe(this._config); return e === "legers" || (e === "auto" && matchMedia("(pointer: coarse)").matches); }
+
+  // fondu par paliers (aube, crépuscule : teinte de nuit, lumière du soleil, marqueur du soleil) : la valeur affichée va vers la cible
+  // en PALIER_DUREE (40 s, comme l'ancienne transition CSS), par petits pas réguliers (au plus `pas`, au plus un toutes les PALIER_MIN ms),
+  // invisibles à l'œil ; au lieu d'une transition continue redessinée à chaque image de l'écran pendant tout le lever et le coucher.
+  // Opacité : l'attribut porte la cible, le style le palier en cours (retiré à la fin) ; left / top : le style. Première écriture sur un
+  // élément (plan neuf) ou niveau d'animation réduit / aucun (transition CSS courte, ou aucune) : valeur posée directement
+  _palier(el, k, v, pas, u = "") {
+    if (!el) return;
+    const P = (this._paliers ||= new WeakMap()), attr = k === "opacity";
+    let m = P.get(el);
+    const neuf = !m;
+    if (neuf) P.set(el, (m = {}));
+    const f = m[k], x = +v, lu = parseFloat(attr ? el.getAttribute(k) : el.style[k]);
+    if (x === (f ? f.vers : lu)) return;
+    if (f) { clearInterval(f.tm); m[k] = null; }
+    const de = f ? f.v : lu, fin = () => { if (attr) el.style.removeProperty(k); else el.style[k] = `${v}${u}`; };
+    if (attr) el.setAttribute(k, v);
+    const n = Math.min(Math.ceil(Math.abs(x - de) / pas), Math.floor(PALIER_DUREE / PALIER_MIN));
+    if (neuf || !Number.isFinite(de) || n < 2 || this._niveauAnim() !== "complet") return fin();
+    const g = (m[k] = { vers: x, v: de, i: 0 }), ecrire = (y) => { el.style[k] = attr ? y.toFixed(3) : `${y.toFixed(2)}${u}`; };
+    ecrire(de);
+    g.tm = setInterval(() => {
+      if (++g.i >= n || !el.isConnected || !this.isConnected) { clearInterval(g.tm); if (m[k] === g) m[k] = null; return fin(); }
+      g.v = de + ((x - de) * g.i) / n;
+      ecrire(g.v);
+    }, PALIER_DUREE / n);
   }
 
   // store des fenêtres de toit reliées à un `cover` : hauteur du store dessiné selon current_position (ambiance ou non) ;
@@ -106,9 +158,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
     });
     // fenêtres de toit : [meuble, part dégagée par le store] (contact : sans effet sur la lumière)
     const vel = (c.meubles || []).map((m, i) => [m, m?.type === "fenetre_toit" ? ouvertVelux(m.entite, m.entite ? this._etat(m.entite) : null) : null, i]).filter((x) => x[1] != null);
-    const M = LU.mult, K = LU.kelvin, D = LU.diffusion;
+    // effets légers : aucune copie floue (feGaussianBlur) : tache au bord net, faisceau du ciel en lueur douce (dégradé seul)
+    const M = LU.mult, K = LU.kelvin, leger = this._effetsLegers(), D = leger ? 0 : LU.diffusion;
     const cle = [vel.map(([m, v]) => `${v.toFixed(2)}@${JSON.stringify([m.pos, m.taille, m.rotation, m.miroir, m.pente, m.hauteur])}`).join(";"), M.ciel, D, M.rediffusion, M.soleil, K.ciel, K.soleil, jour ? Math.round(az) : "", jour || ciel > 0 ? Math.round(e) : "", ciel.toFixed(2), direct, nuitL.toFixed(2), phase, I, nord, sombre, ouv.map((v) => (v == null ? "" : v.toFixed(2))).join(","),
-      PL ? `${Math.round(PL.az)},${Math.round(PL.haut)}` : "", trans.map((v) => v.toFixed(2)).join(",")].join("|");
+      PL ? `${Math.round(PL.az)},${Math.round(PL.haut)}` : "", trans.map((v) => v.toFixed(2)).join(","), leger].join("|");
     if (cle === this._lumCle) return;
     this._lumCle = cle;
     const pieces = c.pieces.map((p, k) => [p, k]).filter(([p]) => !p.dehors && !p.sous_zone && Array.isArray(p.poly) && p.poly.length > 2);
@@ -137,9 +190,9 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const id = `lum-g${n++}`, sd = borne(2 + t.loin * 0.02, 2, 10), xs = t.poly.map((p) => p[0]), ys = t.poly.map((p) => p[1]), m = sd * 3;
       const x0 = Math.min(...xs) - m, y0 = Math.min(...ys) - m;
       defs += `<linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="${t.de[0]}" y1="${t.de[1]}" x2="${t.vers[0]}" y2="${t.vers[1]}"><stop offset="0" stop-color="${col}"/><stop offset="1" stop-color="${col}" stop-opacity="${fin}"/></linearGradient>`
-        + `<filter id="${id}f" filterUnits="userSpaceOnUse" x="${f0(x0)}" y="${f0(y0)}" width="${f0(Math.max(...xs) + m - x0)}" height="${f0(Math.max(...ys) + m - y0)}"><feGaussianBlur stdDeviation="${f0(sd)}"/></filter>`;
+        + (leger ? "" : `<filter id="${id}f" filterUnits="userSpaceOnUse" x="${f0(x0)}" y="${f0(y0)}" width="${f0(Math.max(...xs) + m - x0)}" height="${f0(Math.max(...ys) + m - y0)}"><feGaussianBlur stdDeviation="${f0(sd)}"/></filter>`);
       clips.add(k);
-      h += `<polygon class="lum-tache lum-b" points="${ptsSvg(t.poly)}" fill="url(#${id})" filter="url(#${id}f)" opacity="${op.toFixed(3)}" clip-path="url(#lum-cp${k})"/>`;
+      h += `<polygon class="lum-tache lum-b" points="${ptsSvg(t.poly)}" fill="url(#${id})"${leger ? "" : ` filter="url(#${id}f)"`} opacity="${op.toFixed(3)}" clip-path="url(#lum-cp${k})"/>`;
     };
     // lumière du ciel : faisceau qui entre par la baie (trapèze qui s'évase vers l'intérieur), plus lumineux contre la vitre, fondu en
     // profondeur, à bords doux ; dégradé linéaire de la baie (`de`) vers le fond du faisceau. Diffusion D (0 à 1) : faisceau plus évasé,
@@ -148,15 +201,18 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const faisceau = (k, B, p, col, op) => {
       if (op < 0.004) return;
       const [a, b, d, ff] = B.seg, [nx, ny] = B.dehors, L = Math.hypot(d - a, ff - b), vx = (d - a) / L, vy = (ff - b) / L, w = p * (0.35 + 0.4 * D);
+      // effets légers : lueur douce (dégradé radial, sans filtre) centrée sur la vitre, aussi large que la baie et le faisceau, aussi
+      // profonde que lui ; la moitié dehors est coupée par la pièce
+      if (leger) return lueur("lum-ciel", k, [(a + d) / 2, (b + ff) / 2], [vx, vy], L / 2 + w * 0.6, p, col, op * 0.9);
       const id = `lum-f${n++}`, m = [(a + d) / 2, (b + ff) / 2], sd = borne(4 + L * 0.03, 4, 14);
       const poly = [[a, b], [d, ff], [d - nx * p + vx * w, ff - ny * p + vy * w], [a - nx * p - vx * w, b - ny * p - vy * w]];
       const xs = poly.map((q) => q[0]), ys = poly.map((q) => q[1]), pts = ptsSvg(poly.map((q) => q.map((v) => +v.toFixed(1))));
       const grad = (j, stops) => `<linearGradient id="${id}${j}" gradientUnits="userSpaceOnUse" x1="${f0(m[0])}" y1="${f0(m[1])}" x2="${f0(m[0] - nx * p)}" y2="${f0(m[1] - ny * p)}">${stops.map(([o, v]) => `<stop offset="${o}" stop-color="${col}"${v < 1 ? ` stop-opacity="${+v.toFixed(3)}"` : ""}/>`).join("")}</linearGradient>`;
       const flou = (j, s) => `<filter id="${id}${j}b" filterUnits="userSpaceOnUse" x="${f0(Math.min(...xs) - s * 3)}" y="${f0(Math.min(...ys) - s * 3)}" width="${f0(Math.max(...xs) - Math.min(...xs) + s * 6)}" height="${f0(Math.max(...ys) - Math.min(...ys) + s * 6)}"><feGaussianBlur stdDeviation="${f0(s)}"/></filter>`;
-      const copie = (j, cls) => `<polygon class="${cls}" points="${pts}" fill="url(#${id}${j})" filter="url(#${id}${j}b)" opacity="${op.toFixed(3)}"/>`;
+      const copie = (j, cls) => `<polygon class="${cls}" points="${pts}" fill="url(#${id}${j})"${leger ? "" : ` filter="url(#${id}${j}b)"`} opacity="${op.toFixed(3)}"/>`;
       clips.add(k);
       if (D <= 0) {
-        defs += grad("", [[0, 1], [0.3, 0.55], [1, 0]]) + flou("", sd);
+        defs += grad("", [[0, 1], [0.3, 0.55], [1, 0]]) + (leger ? "" : flou("", sd));
         h += `<g class="lum-b" clip-path="url(#lum-cp${k})">${copie("", "lum-ciel")}</g>`;
         return;
       }

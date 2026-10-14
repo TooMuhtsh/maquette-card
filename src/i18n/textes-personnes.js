@@ -380,7 +380,6 @@ const EN = { // @assemblage
     "Importer": "Import",
     "Version chargée dans la zone de texte : « Importer » pour la reprendre.": "Version loaded in the text box: “Import” to restore it.",
     "Plan copié dans le presse-papiers.": "Plan copied to the clipboard.",
-    "Copie refusée par le navigateur : sélectionne le texte et copie-le.": "Copy blocked by the browser: select the text and copy it.",
     "Copie impossible : sélectionne le texte et copie-le.": "Copy failed: select the text and copy it.",
     "Plan importé : « Enregistrer » pour le garder, Ctrl+Z pour revenir.": "Plan imported: “Save” to keep it, Ctrl+Z to go back.",
     "Rien à importer : colle un plan ou ouvre un fichier.": "Nothing to import: paste a plan or open a file.",

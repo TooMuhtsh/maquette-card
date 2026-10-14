@@ -79,6 +79,8 @@ ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,1
 svg{display:block;width:100%;height:auto;user-select:none}
 .piece{stroke:none;transition:fill .6s var(--md-sys-motion)}
 .piece.dehors{fill:var(--md-surface-container-high)}
+/* image de fond affichée : sol des pièces translucide (background.room_opacity), la teinte des températures reste visible */
+.zone.sur-fond svg .piece:not(.sous-zone){fill-opacity:var(--sol-fond,.6)}
 .zone svg .piece.sous-zone{fill:color-mix(in srgb,var(--md-primary) 5%,transparent);stroke:color-mix(in srgb,var(--md-primary) 55%,transparent);stroke-width:1.5px;stroke-dasharray:6 4;vector-effect:non-scaling-stroke;pointer-events:none}
 .edition .zone svg .piece.sous-zone{pointer-events:visiblePainted;cursor:pointer}
 .calque>.zone-etq{pointer-events:none}

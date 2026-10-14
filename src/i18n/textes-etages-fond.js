@@ -25,6 +25,8 @@ const EN = { // @assemblage
   "La largeur doit être plus grande que 0.": "The width must be greater than 0.",
   "Les clics atteignent les pièces et les murs dessous. Déverrouillée : elle peut être déplacée sur le plan, le temps de l'édition.": "Clicks reach the rooms and walls underneath. Unlocked: it can be moved on the plan, for this editing session.",
   "Opacité": "Opacity",
+  "Sol des pièces": "Room floors",
+  "Les pièces sont dessinées au-dessus de l'image, translucides : on voit l'image et la couleur des températures. 100 % : sol opaque, l'image ne se voit plus sous les pièces.": "Rooms are drawn over the image, see-through: you see both the image and the temperature colours. 100 %: opaque floors, the image no longer shows under the rooms.",
   "Pose un plan scanné ou une photo sous le dessin pour le recopier. Visible pendant l'édition seulement, sauf si tu choisis de l'afficher aussi en vue.": "Put a scanned plan or a photo under the drawing to trace over it. Shown while editing only, unless you choose to show it in view mode too.",
   "Position X (cm)": "Position X (cm)",
   "Position Y (cm)": "Position Y (cm)",

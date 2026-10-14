@@ -2,6 +2,63 @@
 
 ## Unreleased
 
+## 0.3.0 – 2026-10-14
+
+### Changed
+
+- Editor toolbar on two rows on desktop: drawing tools, grid, fit and *Add* / *Exit* / *Apply* / *Save* on the first row; *Floors*, *Layers*, *Ambience*, *Clean up the plan*, *Export / import*, *Settings* and *Keyboard shortcuts*, now with their names, on the second. On a narrower window the grid, *Exit* and *Apply* keep only their icon. Phones are unchanged (these commands stay in the ⋮ menu).
+- Templates (`templates`) stay the single library: older templates keep working as they are; one without `id` gets one when a first copy is placed. A widget type unknown to this version is shown as such and kept as is.
+- Rain, downpour, snow, hail and wind no longer use SMIL: they slide with a CSS animation (same direction, distance and speed), which Chromium-based browsers and the Android app run on the compositor without repainting the plan. On the real test plan (phone, CPU slowed down 4×), rain or snow went from about 85 % CPU and 60 repaints per second to about 20 %, the same as with no weather. Paused when the card is off screen or the page is hidden, as before.
+- Energy flow dots now move at 10 steps per second (same path, same speed) instead of being redrawn on every screen frame, on desktop and on phones: the plan no longer keeps the browser busy while it sits idle. With `animation_level: reduced` or the system "reduce motion" setting, flows still show only their dashed lines, without dots.
+- Dawn and dusk fades (night tint, sunlight, sun marker) now advance in small regular steps (at most two per second, below what the eye can see) over the same 40 seconds, instead of a continuous transition repainted on every frame.
+- **Faster loading**: the editor now lives in its own file, `maquette-editeur.js`, loaded only the first time you open it (with the plan clean-up engine, the YAML reader and the editor texts). The card itself is about a third of its former size (≈ 300 KB instead of ≈ 920 KB in the release), so dashboards show the plan sooner, and people who never edit never download the editor. HACS installs both files; a manual install needs both in the same folder (only `maquette-card.js` is added as a resource). If the editor file is missing or from another version, the card keeps working and says so when you try to edit.
+- Plan animations (energy flows, weather, pulses) now also pause while the page is hidden (other tab, screen off), not only when the card is off screen, and stay paused when the plan is redrawn meanwhile.
+- **Previous versions follow your Home Assistant account.** The last 5 saved versions and the last 3 plans from before a clean-up are now stored in your Home Assistant user data (`frontend/set_user_data`, key `maquette-versions:<id>`, no server-side integration) instead of this browser only: they are available on every device you sign in with, and each user has their own history. The editor shows *Versions of this account*. Nothing is sent anywhere but your Home Assistant.
+- The browser copy stays as a fallback (older Home Assistant, error): versions already kept in a browser are merged into your account the first time the editor opens, without duplicates. In Home Assistant the list is compressed and limited to 1 MB per card; beyond that the oldest entries go first, never the latest version.
+
+### Fixed
+
+- Editor on a 1440 px wide screen: the keyboard shortcuts button was cut off under *Add* since the *Manage floors* button was added.
+- Phone: with the zoom buttons in the header, the card title wrapped onto two lines. The header buttons are now flat icon buttons like the edit button, and the title stays on one line (slightly smaller on screens up to 380 px, cut with “…” only when it really cannot fit).
+- Energy flow dots in the showcase under the plan move along their path again (since the flow dots stopped using SMIL, they stayed still in the plan's top-left corner).
+- Fewer DOM writes at rest: each state update no longer rewrites identical tooltips, classes, opacities, gradient colours, labels, summary chips or alert outlines (about 200 writes per 20 s down to about 10 on a real plan).
+- Editor on a phone: the zoom buttons move to the card header like outside the editor (`interaction.zoom_buttons: auto`,
+  `header` or `hidden`), instead of covering the plan; `map` keeps them on the plan. Desktop unchanged.
+- An invalid `level` of a room, opening, badge, text or piece of furniture is now reported in the console and the import
+  summary like the other removed values.
+- A piece of furniture or a badge on a thermostat (`climate`) without `attribute` or `value` shows its target temperature
+  (or its low – high range) instead of nothing.
+- Thin furniture (electrical panel, radiator, TV stand) keeps its value badge as long as its length is over 24 px on
+  screen; the badge is hidden only when the piece is smaller than 24 px both ways.
+- Empty plan: the zoom buttons no longer appear on hover.
+- Editor, electrical panel card suggestion: the kWh price and the Tempo colours are chosen (current price rather than
+  off-peak / peak, a colour rather than a count of remaining days) instead of the first sensor found; when two candidates
+  are equally likely, none is picked.
+
+### Added
+
+- **Widget library** in the editor (*Add › Widgets › Widget library*, *Library* in *Add a widget*, pencil on a widget template): one window for all widget templates, with search, a real preview at PC panel or phone size, the widget's own settings and, under each entity field, *Ask each time it is placed*. *Place left* / *Place right* add a copy to the home or a room panel. *New template*, *Duplicate*, *Delete* (copies are detached, nothing breaks). Undo works inside the window. It is a real modal dialog: Esc, focus kept inside and given back.
+- **Linked copies**: a widget placed from a template keeps its `id` in `template`. Its window shows *Copy of the “…” template* with *Update* (applies the template, keeps the copy's own “ask” entities), *Open* and *Detach*. *Update the N copies* in the library does the same for every copy of the plan, after a confirmation, in one undo step.
+- New `effects` setting (`auto` by default, `full`, `light`; editor: ⚙ Settings › Interaction › *Animations* › *Effects*). `light` draws less while keeping the card alive: window light without blur (sun patches with sharp edges, soft sky glow drawn with gradients only), still cloud shadows and fog. `auto` picks `light` when the main pointer is a touch screen (phones, tablets) and `full` otherwise. It is independent of `animation_level`: `reduced` / `none` and the system "reduce motion" setting still freeze every loop, whatever the effects.
+- **Share** templates, widgets and objects: *Share* on a selected widget, badge, opening or piece of furniture (floating bar), in the widget library, or *Share…* in *Export / import the plan*. Tick what to share; the text is a readable YAML (`maquette_share: 1`) or a *compact code* (`MAQ1:`, compressed) for messaging apps. By default your entities are replaced by placeholders (`"<<battery>>"`, with domain, device class and unit), and row and badge names, action data and links are removed; *Keep my entities* shares them as they are. Copy (with a fallback when the clipboard is blocked) or download; nothing is sent anywhere.
+- **Import a share**: paste it or open a file, in the same dialog as the plan import (plan, share and compact code are detected). Before anything changes: what is imported, the commands it holds (sensitive ones marked), what was ignored (unknown kind or widget type, unknown or invalid settings), and one row per placeholder to match with your entities (*Fill from a device* proposes a whole device, a single match is proposed, nothing is applied silently; an empty one becomes a field to complete). Add to my templates (default) or place on the plan; the plan is never replaced.
+- **Missing entities**: *Clean up the plan* shows *Missing entities (N)* when entities of the plan no longer exist in Home Assistant, with where each one is used, and replaces one everywhere in a single undo step.
+- Editor: giving a badge, a piece of furniture, an opening, a room button or a widget a `switch.*` entity now asks
+  “Confirm every tap?” (Yes / No, in a notification, nothing blocking) and writes `confirm`. *Yes* is preselected when
+  the switch looks like an access (door, gate, garage, lock… in its id, name, icon or device, or a lock / garage door on
+  the same device), since a switch can drive a gate. Switches already in a plan, and the card itself, are unchanged.
+- Editor: before saving, the items and values the card ignores in the dashboard configuration (no valid coordinates,
+  invalid or unknown values, unknown keys) are listed (what, where, why), with *Remove them* or *Keep them as they are*
+  (copied unchanged, still ignored on display). They used to be dropped silently.
+- `background.room_opacity` (editor: *Layers › Background image › Room floors*, default `0.6`): while a background image is drawn (in the editor, or in the view with `show: always`), room floors are see-through, so the image shows through the rooms and the temperature tint stays on the floor. `1` keeps opaque floors. Before, the floors hid the image and hiding the *Rooms* layer to see it also removed the temperature colours.
+
+### Security
+
+- Every command imported from a share asks for confirmation (`confirm: true`). A share goes through the same checks as a plan import (size, nesting, `__proto__`, colours, icons, numbers, unknown keys dropped), and a cap on the decompressed size of a compact code (zip bomb) and on the number of elements; template ids are regenerated and links to templates (`template`) removed.
+- Plan coordinates are bounded to ± 100,000 cm (1 km): a wall, room vertex, opening, badge, text or piece of furniture
+  placed further away (e.g. `1e12`) is ignored like one without valid coordinates, with a console warning, instead of
+  breaking the framing and the editor. Normal plans are unchanged.
+
 ## 0.2.2 – 2026-10-13
 
 ### Changed

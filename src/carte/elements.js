@@ -24,6 +24,15 @@ const normaliserMeubles = (liste) => (Array.isArray(liste) ? liste : []).filter(
   normaliserFiche(n);
   return n;
 });
+// valeur affichée d'un meuble ou d'une pastille sur un thermostat (climate) sans `attribute` ni `value` : sa consigne (température
+// voulue, ou plage basse – haute), avec l'unité de HA ; rien d'autre (état « Chauffe » seul) si le thermostat n'en donne pas
+const consigneClimat = (s, p, hass) => {
+  if (!s || p.attribut || !String(p.entite || "").startsWith("climate.")) return "";
+  const a = s.attributes || {}, u = p.unite ?? ` ${hass?.config?.unit_system?.temperature || "°C"}`, f = (x) => fmt(+x, p.decimales ?? 1), ok = (x) => x !== null && x !== "" && Number.isFinite(+x);
+  if (ok(a.temperature)) return `${f(a.temperature)}${u}`;
+  if (ok(a.target_temp_low) && ok(a.target_temp_high)) return `${f(a.target_temp_low)} – ${f(a.target_temp_high)}${u}`;
+  return "";
+};
 // `clic`, `protege` et `fiche` d'un meuble, d'une ouverture ou d'une pastille (objet déjà copié) : valeur invalide retirée ou corrigée
 function normaliserFiche(n) {
   if ("clic" in n && !CLICS_MEUBLE.includes(n.clic)) delete n.clic;
@@ -181,6 +190,9 @@ const tabletteDe = (c) => {
   return { resume: o.resume === true, panneaux: o.panneaux === true, anti_marquage: o.anti_marquage !== false };
 };
 const niveauAnimDe = (c) => (NIVEAUX_ANIM.includes(c?.niveau_animation) ? c.niveau_animation : "complet");
+// effets (`effets`) : auto (défaut : légers sur un écran tactile principal, complets sinon) / complets / legers ; voir _effetsLegers
+const EFFETS = ["auto", "complets", "legers"];
+const effetsDe = (c) => (EFFETS.includes(c?.effets) ? c.effets : "auto");
 // anti-marquage : la carte se décale d'un pixel toutes les 3 minutes, en serpentin sur un carré de 5 × 5 px parcouru en aller-retour
 // (jamais plus de 2 px par axe, 2,8 px au plus du point de départ, jamais de saut) ; position 12 = au centre, sans décalage
 const PAS_ANTI_MARQUAGE = 180000;

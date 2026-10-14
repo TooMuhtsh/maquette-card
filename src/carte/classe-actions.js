@@ -1,5 +1,7 @@
 // pièces : entités, actions, liens ; appels de service confirmés ; glisser des widgets — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class MaquetteCard extends HTMLElement { // @assemblage
+  // interrupteur qui ressemble à un accès (porte, portail, garage…) : l'éditeur y présélectionne la confirmation
+  static interrupteurAcces = interrupteurAcces;
   // entités de la pièce : celles placées dans son contour + celles de la pièce HA liée
   entitesPiece(pi) {
     const c = this._config, p = c.pieces[pi], l = new Set();
