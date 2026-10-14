@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.3.1 – 2026-10-14
+
+### Fixed
+
+- Saving failed with “Assignment to constant variable” (Firefox: “invalid assignment to const”) in a dashboard created from *Add dashboard › Maquette*: the first save, which turns that dashboard into normal views, never went through. Saving now works there, as in any other dashboard.
+
 ## 0.3.0 – 2026-10-14
 
 ### Changed

@@ -267,7 +267,7 @@ class EditeurPlan { // @assemblage
     const seg = decodeURIComponent(location.pathname.split("/")[1] || "");
     const url_path = !seg || seg === "lovelace" ? null : seg;
     try {
-      const cfg = await this.hass.callWS({ type: "lovelace/config", url_path });
+      let cfg = await this.hass.callWS({ type: "lovelace/config", url_path });
       // dashboard créé par notre stratégie « Plan de la maison » : on reprend la main (vues explicites) avant d'enregistrer
       if (cfg?.strategy && /^custom:(maquette|plan-maison)$/.test(cfg.strategy.type)) cfg = await customElements.get("ll-strategy-dashboard-maquette").generate(cfg.strategy, this.hass);
       else if (cfg?.strategy) throw new Error(_t("ce dashboard est généré automatiquement : prends le contrôle du dashboard dans HA pour pouvoir enregistrer"));

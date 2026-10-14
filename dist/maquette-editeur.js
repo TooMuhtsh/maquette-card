@@ -1,4 +1,4 @@
-/*! Maquette v0.3.0 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.3.1 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
 (() => {
 const demarrer = () => {
 if (globalThis.MaquetteEditeur) return;
@@ -11374,7 +11374,7 @@ class EditeurPlan {
     const seg = decodeURIComponent(location.pathname.split("/")[1] || "");
     const url_path = !seg || seg === "lovelace" ? null : seg;
     try {
-      const cfg = await this.hass.callWS({ type: "lovelace/config", url_path });
+      let cfg = await this.hass.callWS({ type: "lovelace/config", url_path });
       // dashboard créé par notre stratégie « Plan de la maison » : on reprend la main (vues explicites) avant d'enregistrer
       if (cfg?.strategy && /^custom:(maquette|plan-maison)$/.test(cfg.strategy.type)) cfg = await customElements.get("ll-strategy-dashboard-maquette").generate(cfg.strategy, this.hass);
       else if (cfg?.strategy) throw new Error(_t("ce dashboard est généré automatiquement : prends le contrôle du dashboard dans HA pour pouvoir enregistrer"));
@@ -11471,7 +11471,7 @@ class EditeurPlan {
   }
 }
 
-EditeurPlan.VERSION = "0.3.0";
+EditeurPlan.VERSION = "0.3.1";
 globalThis.MaquetteEditeur = EditeurPlan;
 };
 if (customElements.get("maquette-card")) demarrer(); else customElements.whenDefined("maquette-card").then(demarrer);

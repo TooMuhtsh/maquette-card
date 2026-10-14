@@ -1,4 +1,4 @@
-/*! Maquette v0.3.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.3.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -706,7 +706,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.3.0";
+const VERSION = "0.3.1";
 // éditeur : module à part (maquette-editeur.js, à côté de ce fichier), chargé à la première ouverture, une seule fois par page ;
 // même requête que la carte (?hacstag=… de HACS, ?v=… d'un déploiement) pour suivre ses mises à jour, sinon ?v=<version>.
 // Déjà là s'il a été chargé autrement (ressource ajoutée à la main, ancienne version d'un seul fichier) ; échec : on pourra réessayer.

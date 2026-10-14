@@ -1,6 +1,6 @@
 {
   "name": "maquette-card",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Live, editable floor plan card for Home Assistant (Material Design 3)",
   "type": "module",
   "license": "MIT",
