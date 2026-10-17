@@ -30,6 +30,8 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .w.sel{outline:3px solid var(--md-primary);outline-offset:2px}
 .w-ajout{display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;border-radius:16px;border:2px dashed var(--md-outline-variant);background:none;
   color:var(--md-primary);cursor:pointer;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
+/* écarté du widget au-dessus : son contour de sélection (3 px + 2 px) ne passe plus dessous */
+.w+.w-ajout{margin-top:12px}
 .w-ajout:hover{background:color-mix(in srgb,var(--md-primary) 8%,transparent)}
 .edition .w{cursor:pointer;user-select:none;-webkit-user-select:none}
 .w.w-sep{background:none;padding:2px 4px;flex-direction:row;align-items:center;gap:12px;min-height:0;color:var(--md-on-surface-variant);
@@ -106,7 +108,7 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .w-activer{flex:none;height:28px;padding:0 12px;border-radius:14px;border:none;background:var(--md-secondary-container);color:var(--md-on-secondary-container);cursor:pointer;
   font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);white-space:nowrap}
 .w-activer:hover{background:color-mix(in srgb,var(--md-on-secondary-container) 8%,var(--md-secondary-container))}
-.w-activer.fait{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.w-activer.fait{background:var(--md-primary);color:var(--md-on-primary)}
 .w-activer[aria-disabled=true]{opacity:.38;cursor:default}
 .w-cmd-btns .cta{justify-content:center;padding:0 12px;min-width:0;white-space:nowrap}
 .w-cmd-btns .cta[aria-disabled=true]{opacity:.38;cursor:default}
@@ -129,9 +131,12 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 1px 3px #0004,0 4px 8px 3px #0001}
 .zoom button ha-icon{--mdc-icon-size:22px}
 .zoom button[hidden]{display:none}
-/* souris seule : les boutons de zoom n'apparaissent que quand le curseur est sur le plan (ou au clavier) ; toujours visibles dès qu'un écran tactile est présent (portable tactile avec souris) */
-@media (hover:hover) and (pointer:fine) and (not (any-pointer:coarse)){.zoom{opacity:0;pointer-events:none;transition:opacity .2s var(--md-sys-motion)}
-  .plan:hover .zoom,.zoom:focus-within{opacity:1;pointer-events:auto}}
+/* souris : boutons estompés 5 s après la sortie du curseur (classe « repli », classe-zoom.js) ; jamais au clavier (focus visible) ni menu Calques ouvert ;
+   un toucher sur un bouton estompé le fait revenir sans agir (classe-zoom.js).
+   Ordre fixe : « tout le plan » au-dessus (la colonne part du bas : rien ne bouge quand il apparaît), plus et moins toujours à la même place */
+.zoom{transition:opacity .2s var(--md-sys-motion)}
+.zoom.repli:not(.en-tete):not(:has(:focus-visible)):not(:has(.menu-cq)){opacity:0}
+.zoom [data-z=tout]{order:-1}
 @media (prefers-reduced-motion:reduce){.zoom{transition:none}}
 /* boutons de zoom dans l'en-tête (téléphone, ou interaction.boutons_zoom: header) : en ligne, hors du plan ; cachés : plus, moins, tout le plan */
 .zoom.en-tete{position:static;flex-direction:row;gap:0;opacity:1;pointer-events:auto;flex:none}
@@ -139,7 +144,7 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .zoom.en-tete button{width:32px;height:32px;border-radius:50%;background:transparent;box-shadow:none;color:var(--md-on-surface-variant)}
 .zoom.en-tete button:hover{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent)}
 .zoom.en-tete button ha-icon{--mdc-icon-size:20px}
-.zoom.en-tete button.on{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.zoom.en-tete button.on{background:var(--md-primary);color:var(--md-on-primary)}
 .barre:has(>.zoom.en-tete) .titre{min-width:0;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:380px){.barre:has(>.zoom.en-tete) .titre{font-size:18px}}
 .zoom.caches [data-z=plus],.zoom.caches [data-z=moins],.zoom.caches [data-z=tout]{display:none}
@@ -180,13 +185,13 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .bascule{appearance:none;width:52px;height:32px;border-radius:16px;border:2px solid var(--md-outline);background:var(--md-surface-container-high);position:relative;cursor:pointer;flex:none;margin:0}
 .bascule::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--md-outline);top:6px;left:6px;transition:all .2s var(--md-sys-motion)}
 .bascule:checked{background:var(--md-primary);border-color:var(--md-primary)}
-.bascule:checked::before{width:24px;height:24px;top:2px;left:22px;background:var(--text-primary-color,#fff)}
+.bascule:checked::before{width:24px;height:24px;top:2px;left:22px;background:var(--md-on-primary)}
 .fiche .vide{padding:8px 16px 12px;color:var(--md-on-surface-variant)}
 .actions{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px 4px}
 .cta{height:40px;padding:0 20px 0 16px;border-radius:20px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
   background:var(--md-secondary-container);color:var(--md-on-secondary-container);font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);letter-spacing:.1px}
 .cta ha-icon{--mdc-icon-size:18px}
-.cta.plein{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.cta.plein{background:var(--md-primary);color:var(--md-on-primary)}
 .cta.confirmer{background:var(--md-error);color:#fff}
 .cta.fait{background:#188038;color:#fff}
 /* mini-fiche d'un meuble connecté : fenêtre MD3 sur PC, feuille du bas au téléphone */
@@ -201,7 +206,7 @@ dialog.mf[open]{animation:mf-entree .2s var(--md-sys-motion)}
 .mf-in{display:flex;flex-direction:column;max-height:inherit}
 .mf header{display:flex;align-items:center;gap:12px;padding:20px 12px 12px 20px;flex:none}
 .mf header .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
-.mf header .ic.on{background:var(--mb-couleur,var(--md-primary));color:var(--text-primary-color,#fff)}
+.mf header .ic.on{background:var(--mb-couleur,var(--md-primary));color:var(--md-on-primary)}
 .mf header .ic.on.clair{color:#2b2000}
 .mf header .ic.alerte{background:var(--md-error-container);color:var(--md-on-error-container)}
 .mf header .n{flex:1;min-width:0}

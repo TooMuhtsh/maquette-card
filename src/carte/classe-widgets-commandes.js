@@ -6,13 +6,21 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const s = this._etat(w.entite), a = s?.attributes || {}, indispo = !s || ["unavailable", "unknown"].includes(s.state);
     const cons = nb(a.temperature, NaN), mes = nb(a.current_temperature, NaN), pas = nb(a.target_temp_step, 0.5) || 0.5;
     const ACTION = { heating: [_t("Chauffe"), "#e8710a"], cooling: [_t("Refroidit"), "#1a73e8"], idle: [_t("Au repos"), ""], off: [_t("Arrêté"), ""], drying: [_t("Déshumidifie"), ""], fan: [_t("Ventile"), ""] };
-    const [act, coul] = ACTION[a.hvac_action] || [a.hvac_action || "", ""];
+    // valeurs d'attributs traduites par HA (préréglage « manual », action inconnue de la table) ; brutes sans traduction
+    // préréglages courants que HA ne traduit pas pour toutes les intégrations (Zigbee2MQTT : « manual »…)
+    const PRESET = { manual: _t("Manuel"), eco: _t("Éco"), comfort: _t("Confort"), away: _t("Absence"), home: _t("Présence"), sleep: _t("Sommeil"), boost: _t("Boost"), activity: _t("Activité"), holiday: _t("Vacances"), schedule: _t("Programme"), program: _t("Programme"), auto: _t("Auto") };
+    const attr = (k) => {
+      if (a[k] == null || a[k] === "") return "";
+      const brut = String(a[k]), v = this._hass.formatEntityAttributeValue?.(s, k) ?? brut;
+      return k === "preset_mode" && v === brut && PRESET[brut.toLowerCase()] ? PRESET[brut.toLowerCase()] : v;
+    };
+    const [act, coul] = ACTION[a.hvac_action] || [attr("hvac_action"), ""];
     const bouton = (k, ic, nom) => `<button class="ib th-b" data-th="${k}"${indispo || isNaN(cons) ? ` aria-disabled="true"` : ""} aria-label="${nom}" title="${nom}"><ha-icon icon="${ic}"></ha-icon></button>`;
     return `${this._tete({ ...w, titre: w.titre || this._nom(w.entite) }, "mdi:thermostat", act ? `<span class="pastille forte" style="--p-couleur:${coul || "var(--md-surface-container-high)"};--p-texte:${coul ? "#fff" : "var(--md-on-surface)"}">${esc(act)}</span>` : "")}
       <div class="w-th" data-te="${esc(w.entite)}" data-ti="${esc(id)}"${w.confirmer === true ? ` data-cf="1"` : ""}>
         <div class="mes" data-e="${esc(w.entite)}"><small>${_t("Mesurée")}</small><b>${isNaN(mes) ? "—" : esc(fmt(mes, 1))}<small> °C</small></b></div>
         <div class="cons">${bouton("moins", "mdi:minus", _t("Baisser la consigne"))}<div><small>${_t("Consigne")}</small><b>${isNaN(cons) ? "—" : esc(fmt(cons, pas < 1 ? 1 : 0))}<small> °C</small></b></div>${bouton("plus", "mdi:plus", _t("Monter la consigne"))}</div>
-        <div class="mode"><small>${esc(indispo ? _t("Indisponible") : [this._hass.formatEntityState?.(s) ?? s.state, a.preset_mode && a.preset_mode !== "none" ? a.preset_mode : ""].filter(Boolean).join(" · "))}</small></div>
+        <div class="mode"><small>${esc(indispo ? _t("Indisponible") : [this._hass.formatEntityState?.(s) ?? s.state, a.preset_mode && a.preset_mode !== "none" ? attr("preset_mode") : ""].filter(Boolean).join(" · "))}</small></div>
       </div>${w.lignes?.length ? this._lignes(w.lignes, w) : ""}`;
   }
 

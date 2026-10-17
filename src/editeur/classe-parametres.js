@@ -38,6 +38,9 @@ class EditeurPlan { // @assemblage
       if (!o) l.push((o = { id, titre: S.titre, icone: S.icone || "mdi:cog-outline", sections: [] }));
       o.sections.push({ S, champs });
     }
+    // onglet rendu par son propre morceau (Apparence : classe-apparence.js), placé après l'onglet `apres`
+    const ap = this._ongletApparence?.();
+    if (ap) l.splice(l.findIndex((o) => o.id === ap.apres) + 1 || l.length, 0, { ...ap, sections: [] });
     return l;
   }
   ongletParametres(id) {
@@ -72,7 +75,7 @@ class EditeurPlan { // @assemblage
     };
     // un onglet = son titre puis ses sections ; une section porte un sous-titre seulement si l'onglet en regroupe plusieurs (sauf la première, du même nom)
     const panneaux = onglets.map((o) => {
-      const t = _t(o.titre), secs = o.sections.map(({ S, champs: l }, n) => {
+      const t = _t(o.titre), secs = o.html ? o.html() : o.sections.map(({ S, champs: l }, n) => {
         const sous = o.sections.length > 1 && !(n === 0 && _t(S.titre) === t), id = esc(S.id);
         return `<section class="ed-par-sec" data-sec="${id}" aria-labelledby="${sous ? `par-sec-${id}` : `par-pan-t-${esc(o.id)}`}">${sous ? `<h4><span id="par-sec-${id}">${esc(_t(S.titre))}</span>${S.aide ? bulleI(_t(S.aide)) : ""}</h4>` : ""}${champs(l)}</section>`;
       }).join("");
@@ -85,6 +88,7 @@ class EditeurPlan { // @assemblage
       <div class="ed-mcorps">${this._navOnglets("par", _t("Sections des paramètres"), onglets.map((o) => [o.id, _t(o.titre), o.icone]), this._ongletPar)}
         <div class="ed-mcontenu">${panneaux}</div></div></div>`);
     this._cablerChamps(V);
+    this._cablerApparence?.(V);
     V.querySelectorAll("[data-pal-coul]").forEach((inp) => { inp.onchange = () => this.commit(() => { (this.d.palette ||= {})[inp.dataset.palCoul] = inp.value; }); });
     const c = V.querySelector(".ed-mcontenu");
     if (c) c.scrollTop = defile;

@@ -1,5 +1,12 @@
 // statistiques, historique et courbes des widgets — morceau de src/maquette-card.js, recollé par build.mjs (ordre : src/assemblage.mjs) // @assemblage
 class MaquetteCard extends HTMLElement { // @assemblage
+  // réponses de HA (statistiques, historique) : les widgets sont redessinés une fois pour toutes les réponses arrivées ensemble
+  // (une requête par courbe ou statistique, envoyées au même rendu) au lieu d'une fois par réponse
+  _widgetsBientot() {
+    if (this._wBientot) return;
+    this._wBientot = setTimeout(() => { this._wBientot = null; this._widgets(); }, 40);
+  }
+
   // statistiques HA (variation sur la période calendaire : jour, semaine, mois, année), en cache 5 min
   _stat(id, periode) {
     if (!id) return null; // widget pas encore configuré
@@ -8,7 +15,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
       if (!c?.enCours) {
         (this._cacheStat[cle] = { ...(c || {}), enCours: true, t: c?.t || 0 });
         this._hass.callWS({ type: "recorder/statistic_during_period", statistic_id: id, calendar: { period: periode }, types: ["change"] })
-          .then((r) => { this._cacheStat[cle] = { v: r?.change ?? null, t: Date.now() }; this._widgets(); })
+          .then((r) => { this._cacheStat[cle] = { v: r?.change ?? null, t: Date.now() }; this._widgetsBientot(); })
           .catch(() => { this._cacheStat[cle] = { v: null, t: Date.now() }; });
       }
     }
@@ -27,7 +34,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
           .then((r) => {
             const pts = (r?.[id] || []).map((x) => [(x.lu ?? x.lc ?? 0) * 1000, parseFloat(x.s)]).filter((p) => !isNaN(p[1]));
             this._cacheHisto[cle] = { v: { pts, debut: Date.now() - heures * 3600e3 }, t: Date.now() };
-            this._widgets();
+            this._widgetsBientot();
           }).catch(() => { this._cacheHisto[cle] = { v: null, t: Date.now() }; });
       }
     }

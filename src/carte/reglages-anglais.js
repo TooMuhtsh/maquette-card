@@ -149,12 +149,16 @@ const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "he
   afficher: ["show", nEnum({ editeur: "editor", toujours: "always" })] });
 // un étage (`floors`, du bas vers le haut) : identifiant, nom, nom court, icône, sa géométrie, ses panneaux (facultatifs) et son fond
 const N_ETAGE = nObj({ id: "id", nom: "name", court: "short", icone: "icon", ...K_GEOMETRIE, panneaux: ["panels", N_PANNEAUX], fond: ["background", N_FOND] });
+// `theme:` objet : base + une clé par variable publique (interne française ↔ nom de la variable avec « _ »), voir themes-variables.js
+const N_THEME = nObj({ base: "base", ...Object.fromEntries(VARIABLES_THEME.map((v) => [v.cle, cleAnglaiseTheme(v)])) });
 const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summary", nListe(N_PUCE)], plein_ecran: "full_page", edition: "editor", marge: "margin",
   ...K_GEOMETRIE, afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })], fond: ["background", N_FOND],
   etages: ["floors", nListe(N_ETAGE)], etage_defaut: "default_floor", selecteur_etages: ["floor_selector", nEnum({ ascenseur: "elevator", onglets: "tabs" })],
   calques: ["layers", N_CALQUES], panneaux: ["panels", N_PANNEAUX],
   modeles: ["templates", nListe(N_MODELE)], ambiance: ["ambience", N_AMBIANCE], animations: ["animations", N_ANIMATIONS], alertes: ["alerts", nListe(N_ALERTE)],
   style_pastilles: ["badge_style", N_STYLE_PASTILLES], palette: "palette",
+  // apparence : thème (nom du registre, ou { base, <variable>… } : clés tirées de VARIABLES_THEME) et CSS personnalisé
+  theme: ["theme", N_THEME], css: "css",
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
   // réglages globaux (panneau ⚙ Paramètres de l'éditeur) : présence par défaut, étiquettes des pièces, teinte de température, légende
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],

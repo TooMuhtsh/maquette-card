@@ -180,7 +180,12 @@ function iconeEntite(hass, e) {
   const parDc = { motion: "mdi:motion-sensor", occupancy: "mdi:motion-sensor", door: "mdi:door", window: "mdi:window-closed-variant",
     temperature: "mdi:thermometer", humidity: "mdi:water-percent", power: "mdi:flash", energy: "mdi:lightning-bolt", illuminance: "mdi:brightness-5",
     garage: "mdi:garage-variant", shade: "mdi:window-shutter", shutter: "mdi:window-shutter", tv: "mdi:television", outlet: "mdi:power-socket-eu", co2: "mdi:molecule-co2", carbon_dioxide: "mdi:molecule-co2", carbon_monoxide: "mdi:molecule-co" };
-  return parDc[dc] || (ICONES[dom] || ICONES._)[0];
+  if (parDc[dc]) return parDc[dc];
+  // sans device_class (capteur template, MQTT…) : d'après l'unité, sinon l'icône par défaut de HA (jamais un thermomètre pour un capteur inconnu)
+  const u = s?.attributes.unit_of_measurement, parUnite = { W: "mdi:flash", kW: "mdi:flash", Wh: "mdi:lightning-bolt", kWh: "mdi:lightning-bolt", MWh: "mdi:lightning-bolt",
+    "°C": "mdi:thermometer", "°F": "mdi:thermometer", K: "mdi:thermometer", lx: "mdi:brightness-5", ppm: "mdi:molecule-co2", V: "mdi:sine-wave", A: "mdi:current-ac" };
+  if (dom === "sensor") return parUnite[u] || "mdi:eye";
+  return (ICONES[dom] || ICONES._)[0];
 }
 
 function pointPour(hass, e, pos) {

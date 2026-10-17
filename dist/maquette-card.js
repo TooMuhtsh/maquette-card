@@ -12,6 +12,15 @@
 const MaquetteI18n = (() => {
   const EN = {
     "{n} capteur indisponible|{n} capteurs indisponibles": "{n} sensor unavailable|{n} sensors unavailable",
+    "Manuel": "Manual",
+    "Éco": "Eco",
+    "Confort": "Comfort",
+    "Absence": "Away",
+    "Sommeil": "Sleep",
+    "Boost": "Boost",
+    "Activité": "Activity",
+    "Vacances": "Holiday",
+    "Programme": "Schedule",
     "CO₂ du séjour": "Living room CO₂",
     "Luminosité du bureau": "Office illuminance",
     "Serrure de l'entrée": "Front door lock",
@@ -19,6 +28,7 @@ const MaquetteI18n = (() => {
     "Verrouiller": "Lock",
     "Ouvrir##serrure": "Open",
     "Choisis la serrure (entité lock).": "Choose the lock (lock entity).",
+    "Présence": "Presence",
     "jamais": "never",
     "à l'instant": "just now",
     "il y a {n} min": "{n} min ago",
@@ -297,6 +307,7 @@ const MaquetteI18n = (() => {
     "Lumières allumées": "Lights on",
     "Volets baissés": "Shutters down",
     "Déverrouiller": "Unlock",
+    "Auto": "Auto",
     "Ouverture alors que la maison est vide": "Opening while the home is empty",
     "Borne": "Charger",
     "Chauffage": "Heating",
@@ -405,12 +416,22 @@ const MaquetteI18n = (() => {
   }
   const _tk = (cle) => cle;
 
+  // formateurs de nombres gardés par locale et décimales : toLocaleString en recrée un à chaque appel (coûteux, des centaines par
+  // mise à jour de hass) ; même résultat (Number.prototype.toLocaleString = Intl.NumberFormat(locale, options).format)
+  const formats = new Map();
+  const formatNombre = (d) => {
+    const cle = `${locale}|${d}`;
+    let f = formats.get(cle);
+    if (!f) { f = new Intl.NumberFormat(locale, { maximumFractionDigits: d }); formats.set(cle, f); }
+    return f;
+  };
+
   definir(null);
   return {
     _t, _tk, definir, DICO, manquantes,
     langue: () => langue,
     locale: () => locale,
-    nombre: (v, d = 1) => Number(v).toLocaleString(locale, { maximumFractionDigits: d }),
+    nombre: (v, d = 1) => formatNombre(d).format(Number(v)),
     // espace avant « % » : aucune en anglais (45%), une en français (45 %), comme Home Assistant
     pct: () => (langue === "fr" ? " %" : "%"),
     // unité après un nombre : espace avant, sauf « % » et « ° » en anglais (45%, 12°) ; en français toujours une espace
@@ -739,36 +760,97 @@ function couleurTemp(t) {
   return PALIERS[PALIERS.length - 1][1];
 }
 
+// ---------- variables publiques du thème ----------
+// Une ligne par variable publique stable `--maquette-<nom>` (anglais, jamais renommée). Elle sert à la fois :
+//  - au CSS de la carte : chaque jeton interne `jeton` est déclaré sur :host (plan.css.js, CSS_JETONS_THEME) par
+//      <jeton>: var(--maquette-<nom>, var(--mq-t-<nom>, <defaut>))
+//    → la variable publique (thème HA, card-mod — jetons redéclarés sur ha-card —, CSS personnalisé de la carte) prime sur le thème choisi (`theme:`,
+//      posé en --mq-t-<nom> par themes.js), qui prime sur la valeur par défaut (= rendu Material d'avant les thèmes) ;
+//  - au format public : clé `cle` (interne, française) ↔ `nom` avec « _ » (YAML : `theme: {base: ocean, room_fill: "#eee"}`) ;
+//  - à l'éditeur (liste cliquable, MaquetteCard.prototype.variablesTheme) et à la doc (tableVariablesTheme, générée → toujours exacte).
+// type : couleur | longueur | police (validation : themes.js, valeurTheme). css: false = pas de jeton déclaré en CSS (la police
+// est posée par la carte sur --ha-font-family-body de son hôte, que tous ses styles lisent déjà).
+// Ajouter une variable : une ligne ici, puis utiliser son jeton dans le CSS (le rendu par défaut ne doit pas changer).
+const VARIABLES_THEME = [
+  { nom: "accent", cle: "accent", type: "couleur", jeton: "--md-primary", defaut: "var(--primary-color,#03a9f4)",
+    fr: "Couleur d'accent (portes fermées, icônes, boutons, sélection)", en: "Accent color (closed doors, icons, buttons, selection)" },
+  { nom: "on-accent", cle: "sur_accent", type: "couleur", jeton: "--md-on-primary", defaut: "var(--text-primary-color,#fff)",
+    fr: "Texte et icônes posés sur l'accent", en: "Text and icons on the accent color" },
+  { nom: "surface", cle: "surface", type: "couleur", jeton: "--md-surface", defaut: "var(--ha-card-background,var(--card-background-color,#fff))",
+    fr: "Fond du plan et des surfaces (base des teintes)", en: "Plan and surface background (base of the tints)" },
+  { nom: "card-background", cle: "fond_carte", type: "couleur", jeton: "--md-surface-container-low", defaut: "color-mix(in srgb,var(--md-primary) 4%,var(--md-surface))",
+    fr: "Fond de la carte (autour du plan)", en: "Card background (around the plan)" },
+  { nom: "surface-variant", cle: "surface_variante", type: "couleur", jeton: "--md-surface-container", defaut: "color-mix(in srgb,var(--md-primary) 8%,var(--md-surface))",
+    fr: "Surfaces secondaires (menus, panneaux, champs)", en: "Secondary surfaces (menus, panels, fields)" },
+  { nom: "text", cle: "texte", type: "couleur", jeton: "--md-on-surface", defaut: "var(--primary-text-color,#1c1b1f)",
+    fr: "Texte principal", en: "Primary text" },
+  { nom: "text-secondary", cle: "texte_secondaire", type: "couleur", jeton: "--md-on-surface-variant", defaut: "var(--secondary-text-color,#49454f)",
+    fr: "Texte secondaire (valeurs, détails)", en: "Secondary text (values, details)" },
+  { nom: "outline", cle: "contour", type: "couleur", jeton: "--md-outline", defaut: "color-mix(in srgb,var(--md-on-surface) 45%,transparent)",
+    fr: "Contours marqués (limites, boutons)", en: "Strong outlines (fences, buttons)" },
+  { nom: "outline-variant", cle: "contour_discret", type: "couleur", jeton: "--md-outline-variant", defaut: "color-mix(in srgb,var(--md-on-surface) 14%,transparent)",
+    fr: "Contours discrets (puces, séparateurs)", en: "Subtle outlines (chips, dividers)" },
+  { nom: "error", cle: "erreur", type: "couleur", jeton: "--md-error", defaut: "var(--error-color,#b3261e)",
+    fr: "Erreurs et alertes", en: "Errors and alerts" },
+  { nom: "wall", cle: "mur", type: "couleur", jeton: "--plan-mur", defaut: "var(--md-on-surface)",
+    fr: "Murs", en: "Walls" },
+  { nom: "room-fill", cle: "sol", type: "couleur", jeton: "--plan-sol", defaut: "var(--secondary-background-color)",
+    fr: "Sol des pièces (sans teinte de température)", en: "Room floor (without temperature tint)" },
+  { nom: "room-text", cle: "texte_piece", type: "couleur", jeton: "--plan-etq", defaut: "var(--md-on-surface)",
+    fr: "Texte des étiquettes de pièce", en: "Room label text" },
+  { nom: "door-closed", cle: "porte_fermee", type: "couleur", jeton: "--plan-ferme", defaut: "var(--md-primary)",
+    fr: "Porte ou fenêtre fermée", en: "Closed door or window" },
+  { nom: "door-open", cle: "porte_ouverte", type: "couleur", jeton: "--plan-ouvert", defaut: "var(--md-error)",
+    fr: "Porte ou fenêtre ouverte", en: "Open door or window" },
+  { nom: "shutter", cle: "volet", type: "couleur", jeton: "--plan-volet", defaut: "color-mix(in srgb,#8d6e4a 85%,var(--md-on-surface))",
+    fr: "Volets", en: "Shutters" },
+  { nom: "furniture", cle: "meuble", type: "couleur", jeton: "--plan-meuble", defaut: "color-mix(in srgb,var(--md-surface) 40%,transparent)",
+    fr: "Remplissage des meubles", en: "Furniture fill" },
+  { nom: "furniture-stroke", cle: "meuble_trait", type: "couleur", jeton: "--plan-meuble-trait", defaut: "color-mix(in srgb,var(--md-on-surface) 70%,transparent)",
+    fr: "Trait des meubles", en: "Furniture stroke" },
+  { nom: "chip-background", cle: "puce_fond", type: "couleur", jeton: "--plan-puce-fond", defaut: "var(--md-surface)",
+    fr: "Fond des puces du résumé", en: "Summary chip background" },
+  { nom: "chip-text", cle: "puce_texte", type: "couleur", jeton: "--plan-puce-texte", defaut: "var(--md-on-surface-variant)",
+    fr: "Texte des puces du résumé", en: "Summary chip text" },
+  { nom: "badge-background", cle: "pastille_fond", type: "couleur", jeton: "--md-secondary-container", defaut: "color-mix(in srgb,var(--md-primary) 18%,var(--md-surface))",
+    fr: "Fond des pastilles d'appareil (inactives)", en: "Device badge background (inactive)" },
+  { nom: "badge-text", cle: "pastille_texte", type: "couleur", jeton: "--md-on-secondary-container", defaut: "var(--md-on-surface)",
+    fr: "Texte et icône des pastilles (inactives)", en: "Badge text and icon (inactive)" },
+  { nom: "radius", cle: "rayon", type: "longueur", jeton: "--plan-rayon", defaut: "var(--ha-card-border-radius,16px)",
+    fr: "Rayon des coins de la carte", en: "Card corner radius" },
+  { nom: "font", cle: "police", type: "police", jeton: "--ha-font-family-body", css: false, defaut: "var(--ha-font-family-body,Roboto,system-ui,sans-serif)",
+    fr: "Police des textes", en: "Text font" },
+];
+// clé YAML (anglais) d'une variable : son nom avec « _ » (room-fill → room_fill)
+const cleAnglaiseTheme = (v) => v.nom.replace(/-/g, "_");
+// déclarations des jetons sur :host (insérées dans plan.css.js)
+const CSS_JETONS_THEME = VARIABLES_THEME.filter((v) => v.css !== false).map((v) => `${v.jeton}:var(--maquette-${v.nom},var(--mq-t-${v.nom},${v.defaut}));`).join("\n  ");
+// table de la doc (Markdown), générée : `| Variable | Rôle | Défaut |` (langue : "fr" | "en")
+const tableVariablesTheme = (langue = "en") => [
+  langue === "fr" ? "| Variable | Clé `theme:` | Rôle | Type | Défaut |" : "| Variable | `theme:` key | Role | Type | Default |", "|---|---|---|---|---|",
+  ...VARIABLES_THEME.map((v) => `| \`--maquette-${v.nom}\` | \`${cleAnglaiseTheme(v)}\` | ${langue === "fr" ? v.fr : v.en} | ${langue === "fr" ? v.type : { couleur: "color", longueur: "length", police: "font" }[v.type]} | \`${v.defaut}\` |`),
+].join("\n");
 const CSS = `
 /* Material Design 3 : rôles de couleur dérivés du thème HA (primary-color, card-background-color, textes) */
 :host{display:block;
-  --md-primary:var(--primary-color,#03a9f4);
-  --md-surface:var(--ha-card-background,var(--card-background-color,#fff));
-  --md-on-surface:var(--primary-text-color,#1c1b1f);
-  --md-on-surface-variant:var(--secondary-text-color,#49454f);
-  --md-surface-container-low:color-mix(in srgb,var(--md-primary) 4%,var(--md-surface));
-  --md-surface-container:color-mix(in srgb,var(--md-primary) 8%,var(--md-surface));
+  /* jetons publics (table unique VARIABLES_THEME, themes-variables.js) : --maquette-* > thème (--mq-t-*) > valeur par défaut */
+  ${CSS_JETONS_THEME}
   --md-surface-container-high:color-mix(in srgb,var(--md-primary) 12%,var(--md-surface));
-  --md-secondary-container:color-mix(in srgb,var(--md-primary) 18%,var(--md-surface));
-  --md-on-secondary-container:var(--md-on-surface);
-  --md-outline:color-mix(in srgb,var(--md-on-surface) 45%,transparent);
-  --md-outline-variant:color-mix(in srgb,var(--md-on-surface) 14%,transparent);
-  --md-error:var(--error-color,#b3261e);
   --md-error-container:color-mix(in srgb,var(--md-error) 16%,var(--md-surface));
   --md-on-error-container:color-mix(in srgb,var(--md-error) 75%,var(--md-on-surface));
-  --plan-ferme:var(--md-primary);
-  --plan-volet:color-mix(in srgb,#8d6e4a 85%,var(--md-on-surface));
-  --plan-meuble:color-mix(in srgb,var(--md-surface) 40%,transparent);
-  --plan-meuble-trait:color-mix(in srgb,var(--md-on-surface) 70%,transparent);
-  --md-sys-motion:cubic-bezier(.2,0,0,1)}
-ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,16px);background:var(--md-surface-container-low)}
+  --md-sys-motion:cubic-bezier(.2,0,0,1);
+  --mq-police-hote:var(--ha-font-family-body)}
+/* mêmes jetons recalculés sur ha-card : un --maquette-* posé par card-mod (sur ha-card) y prime aussi ; sans lui, valeurs identiques (héritées) */
+ha-card{${CSS_JETONS_THEME}
+  --ha-font-family-body:var(--maquette-font,var(--mq-police-hote))}
+ha-card{padding:16px;overflow:hidden;border-radius:var(--plan-rayon);background:var(--md-surface-container-low)}
 .titre{font:500 22px/28px var(--ha-font-family-body,Roboto,system-ui,sans-serif);color:var(--md-on-surface);margin:0 4px 12px}
 .tete{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .plein .tete{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:none}
 .plein .tete::-webkit-scrollbar{display:none}
 .plein .chip{flex:none}
 .chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px 0 8px;border-radius:8px;
-  border:1px solid var(--md-outline-variant);background:var(--md-surface);color:var(--md-on-surface-variant);
+  border:1px solid var(--md-outline-variant);background:var(--plan-puce-fond);color:var(--plan-puce-texte);
   font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.1px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .chip ha-icon{--mdc-icon-size:18px;color:var(--md-primary);flex:none}
 /* texte trop long pour la largeur (téléphone : « 5 ouvertes : … ») : coupé proprement, la liste entière reste dans la bulle (title) ;
@@ -810,7 +892,7 @@ ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,1
 .etat-vide p{margin:0;max-width:420px}
 .etat-vide .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;pointer-events:auto}
 .etat-vide button{height:40px;padding:0 20px 0 14px;white-space:nowrap;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);border:1px solid var(--md-outline);background:none;color:var(--md-primary)}
-.etat-vide button.plein{background:var(--md-primary);color:var(--text-primary-color,#fff);border-color:transparent}
+.etat-vide button.plein{background:var(--md-primary);color:var(--md-on-primary);border-color:transparent}
 .etat-vide button ha-icon{--mdc-icon-size:18px}
 .plan:has(.zone.dessin) .etat-vide{display:none}
 .plan:has(.etat-vide) .zoom{display:none}
@@ -825,7 +907,7 @@ svg{display:block;width:100%;height:auto;user-select:none}
 .edition .zone svg .piece.sous-zone{pointer-events:visiblePainted;cursor:pointer}
 .calque>.zone-etq{pointer-events:none}
 .edition .calque>.zone-etq.sz{pointer-events:auto;cursor:grab}
-.murs{fill:none;stroke:var(--md-on-surface);stroke-width:9;stroke-linecap:square}
+.murs{fill:none;stroke:var(--plan-mur);stroke-width:9;stroke-linecap:square}
 .limites{fill:none;stroke:var(--md-outline);stroke-width:5;stroke-linecap:square}
 .ouv{cursor:pointer}
 .ouv .cible{stroke:transparent;stroke-width:46}
@@ -846,14 +928,14 @@ svg{display:block;width:100%;height:auto;user-select:none}
 .ouv.a-fiche:focus{outline:none}
 .ouv.a-fiche:focus-visible .cible{stroke:color-mix(in srgb,var(--md-primary) 40%,transparent)}
 .ouv.sans-clic{cursor:default}
-.ouv.ouvert .trait{stroke:var(--a-c,var(--md-error));stroke-width:12}
+.ouv.ouvert .trait{stroke:var(--a-c,var(--plan-ouvert));stroke-width:12}
 /* animations (bibliothèque) : a-<type> sur l'élément, --a-d durée, --a-i intensité, --a-c couleur ; jouées seulement dans l'état concerné */
 .ouv.ouvert.a-pulsation .trait{animation:pulse var(--a-d,1.6s) ease-in-out infinite}
 .ouv.ouvert.a-respiration .trait{animation:respire var(--a-d) ease-in-out infinite}
 .ouv.ouvert.a-clignote .trait{animation:clignote var(--a-d) steps(1) infinite}
 .ouv.ouvert.a-defilement .trait{stroke-dasharray:18 10;animation:defile var(--a-d) linear infinite}
-.ouv.ouvert.a-halo .cible{stroke:var(--a-c,var(--md-error));stroke-linecap:round;animation:halo-svg var(--a-d) ease-in-out infinite}
-.ouv.ouvert.a-onde .cible{stroke:var(--a-c,var(--md-error));stroke-linecap:round;animation:onde-svg var(--a-d) ease-out infinite}
+.ouv.ouvert.a-halo .cible{stroke:var(--a-c,var(--plan-ouvert));stroke-linecap:round;animation:halo-svg var(--a-d) ease-in-out infinite}
+.ouv.ouvert.a-onde .cible{stroke:var(--a-c,var(--plan-ouvert));stroke-linecap:round;animation:onde-svg var(--a-d) ease-out infinite}
 .ouv.bouge .trait{stroke:var(--warning-color,#f4b400);stroke-width:10;stroke-dasharray:18 10;animation:defile .8s linear infinite}
 .ouv.inconnu .trait{stroke:var(--disabled-text-color,#999);stroke-dasharray:6 6}
 .volet{fill:none;stroke:var(--plan-volet);stroke-width:8;stroke-linecap:butt;transition:opacity .4s var(--md-sys-motion)}
@@ -874,7 +956,7 @@ button:hover::after{opacity:.08}
 button:active::after{opacity:.12}
 button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 .etq{background:color-mix(in srgb,var(--md-surface) 88%,transparent);border:none;border-radius:12px;padding:.35em .75em;
-  color:var(--md-on-surface);font:inherit;text-align:center;cursor:pointer;box-shadow:0 1px 2px #0003,0 1px 3px 1px #0001}
+  color:var(--plan-etq);font:inherit;text-align:center;cursor:pointer;box-shadow:0 1px 2px #0003,0 1px 3px 1px #0001}
 .etq b{display:block;font-size:1.1em;font-weight:500}
 .etq .val{color:var(--md-on-surface-variant);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap}
 .etq .val:empty{display:none}
@@ -966,7 +1048,7 @@ button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
   background:var(--md-secondary-container);color:var(--md-on-secondary-container);font:500 12px/16px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.4px}
 /* replay de la journée */
 .plan.en-replay{box-shadow:inset 0 0 0 2px var(--md-primary)}
-.zoom button.on{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.zoom button.on{background:var(--md-primary);color:var(--md-on-primary)}
 .replay{position:absolute;left:16px;right:72px;bottom:16px;z-index:4;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:16px;
   background:color-mix(in srgb,var(--md-surface-container-high) 94%,transparent);color:var(--md-on-surface);box-shadow:0 2px 8px #0005;
   font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);font-variant-numeric:tabular-nums}
@@ -1000,7 +1082,7 @@ button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 .calque>.pers{display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;padding:0;cursor:pointer;font:inherit;color:var(--md-on-surface);overflow:visible;
   transform:translate(calc(-50% + var(--dx,0)*2.9em),calc(-50% + 2.4em));transition:left 1.6s var(--md-sys-motion),top 1.6s var(--md-sys-motion),transform .6s var(--md-sys-motion);z-index:2}
 .calque>.pers::after{display:none}
-.pers .av{width:2.3em;height:2.3em;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--md-primary);color:var(--text-primary-color,#fff);font-weight:600;
+.pers .av{width:2.3em;height:2.3em;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--md-primary);color:var(--md-on-primary);font-weight:600;
   box-shadow:0 0 0 2px var(--md-surface),0 0 0 4px var(--md-primary),0 2px 4px #0005;transition:filter .6s,opacity .6s}
 .pers .av img{width:100%;height:100%;object-fit:cover}
 .pers small{font-size:.8em;padding:0 .4em;border-radius:6px;background:color-mix(in srgb,var(--md-surface) 85%,transparent);white-space:nowrap}
@@ -1053,8 +1135,10 @@ button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 span.mb{pointer-events:none}
 .edition .calque>.mb{pointer-events:none}
 .mb .v{padding:.15em .55em;border-radius:999px;background:var(--md-surface-container-high);font-size:.9em;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 1px 2px #0003}
-.mb .v:empty,.mb.petit .v{display:none}
-.mb.actif .v{background:var(--mb-couleur,var(--md-primary));color:var(--text-primary-color,#fff)}
+.mb .v:empty{display:none}
+/* meuble de moins de 24 px à l'écran : badge resserré, police d'au moins 10 px (lisible), jamais masqué */
+.mb.petit .v{font-size:max(10px,.72em);padding:.05em .4em}
+.mb.actif .v{background:var(--mb-couleur,var(--md-primary));color:var(--md-on-primary)}
 .mb.actif.clair .v{color:#2b2000}
 .legende{display:flex;align-items:center;gap:8px 16px;justify-content:center;margin-top:12px;
   font:400 12px/16px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.4px;color:var(--md-on-surface-variant);flex-wrap:wrap}
@@ -1094,11 +1178,17 @@ span.mb{pointer-events:none}
 .etq.inerte::after{display:none}
 `;
 
+// fond assez clair pour un texte foncé (#2b2000) plutôt que blanc : on garde le plus contrasté des deux (WCAG 2.x) ;
+// accepte #rgb, #rrggbb(aa) et rgb()/rgba() ; autre chose (var(), nom) : texte blanc
 function clairPour(c) {
-  const m = /^#([0-9a-f]{6})$/i.exec(c || "");
-  if (!m) return false;
-  const [r, g, b] = m[1].match(/../g).map((h) => parseInt(h, 16) / 255);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55;
+  const s = String(c || "").trim();
+  let m = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(s), v;
+  if (m) { const h = m[1].length === 3 ? m[1].replace(/./g, "$&$&") : m[1].slice(0, 6); v = h.match(/../g).map((x) => parseInt(x, 16)); }
+  else if ((m = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i.exec(s))) v = m.slice(1, 4).map(Number);
+  else return false;
+  const lin = (x) => { x = Math.min(255, x) / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * lin(v[0]) + 0.7152 * lin(v[1]) + 0.0722 * lin(v[2]), FONCE = 0.0152; // luminance de #2b2000
+  return (L + 0.05) / (FONCE + 0.05) > 1.05 / (L + 0.05);
 }
 function dansPoly([x, y], poly) {
   let dedans = false;
@@ -1176,6 +1266,8 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .w.sel{outline:3px solid var(--md-primary);outline-offset:2px}
 .w-ajout{display:flex;align-items:center;justify-content:center;gap:8px;min-height:56px;border-radius:16px;border:2px dashed var(--md-outline-variant);background:none;
   color:var(--md-primary);cursor:pointer;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
+/* écarté du widget au-dessus : son contour de sélection (3 px + 2 px) ne passe plus dessous */
+.w+.w-ajout{margin-top:12px}
 .w-ajout:hover{background:color-mix(in srgb,var(--md-primary) 8%,transparent)}
 .edition .w{cursor:pointer;user-select:none;-webkit-user-select:none}
 .w.w-sep{background:none;padding:2px 4px;flex-direction:row;align-items:center;gap:12px;min-height:0;color:var(--md-on-surface-variant);
@@ -1252,7 +1344,7 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .w-activer{flex:none;height:28px;padding:0 12px;border-radius:14px;border:none;background:var(--md-secondary-container);color:var(--md-on-secondary-container);cursor:pointer;
   font:500 12px/16px var(--ha-font-family-body,Roboto,sans-serif);white-space:nowrap}
 .w-activer:hover{background:color-mix(in srgb,var(--md-on-secondary-container) 8%,var(--md-secondary-container))}
-.w-activer.fait{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.w-activer.fait{background:var(--md-primary);color:var(--md-on-primary)}
 .w-activer[aria-disabled=true]{opacity:.38;cursor:default}
 .w-cmd-btns .cta{justify-content:center;padding:0 12px;min-width:0;white-space:nowrap}
 .w-cmd-btns .cta[aria-disabled=true]{opacity:.38;cursor:default}
@@ -1275,9 +1367,12 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 1px 3px #0004,0 4px 8px 3px #0001}
 .zoom button ha-icon{--mdc-icon-size:22px}
 .zoom button[hidden]{display:none}
-/* souris seule : les boutons de zoom n'apparaissent que quand le curseur est sur le plan (ou au clavier) ; toujours visibles dès qu'un écran tactile est présent (portable tactile avec souris) */
-@media (hover:hover) and (pointer:fine) and (not (any-pointer:coarse)){.zoom{opacity:0;pointer-events:none;transition:opacity .2s var(--md-sys-motion)}
-  .plan:hover .zoom,.zoom:focus-within{opacity:1;pointer-events:auto}}
+/* souris : boutons estompés 5 s après la sortie du curseur (classe « repli », classe-zoom.js) ; jamais au clavier (focus visible) ni menu Calques ouvert ;
+   un toucher sur un bouton estompé le fait revenir sans agir (classe-zoom.js).
+   Ordre fixe : « tout le plan » au-dessus (la colonne part du bas : rien ne bouge quand il apparaît), plus et moins toujours à la même place */
+.zoom{transition:opacity .2s var(--md-sys-motion)}
+.zoom.repli:not(.en-tete):not(:has(:focus-visible)):not(:has(.menu-cq)){opacity:0}
+.zoom [data-z=tout]{order:-1}
 @media (prefers-reduced-motion:reduce){.zoom{transition:none}}
 /* boutons de zoom dans l'en-tête (téléphone, ou interaction.boutons_zoom: header) : en ligne, hors du plan ; cachés : plus, moins, tout le plan */
 .zoom.en-tete{position:static;flex-direction:row;gap:0;opacity:1;pointer-events:auto;flex:none}
@@ -1285,7 +1380,7 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .zoom.en-tete button{width:32px;height:32px;border-radius:50%;background:transparent;box-shadow:none;color:var(--md-on-surface-variant)}
 .zoom.en-tete button:hover{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent)}
 .zoom.en-tete button ha-icon{--mdc-icon-size:20px}
-.zoom.en-tete button.on{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.zoom.en-tete button.on{background:var(--md-primary);color:var(--md-on-primary)}
 .barre:has(>.zoom.en-tete) .titre{min-width:0;font-size:20px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 @media (max-width:380px){.barre:has(>.zoom.en-tete) .titre{font-size:18px}}
 .zoom.caches [data-z=plus],.zoom.caches [data-z=moins],.zoom.caches [data-z=tout]{display:none}
@@ -1326,13 +1421,13 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .bascule{appearance:none;width:52px;height:32px;border-radius:16px;border:2px solid var(--md-outline);background:var(--md-surface-container-high);position:relative;cursor:pointer;flex:none;margin:0}
 .bascule::before{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:var(--md-outline);top:6px;left:6px;transition:all .2s var(--md-sys-motion)}
 .bascule:checked{background:var(--md-primary);border-color:var(--md-primary)}
-.bascule:checked::before{width:24px;height:24px;top:2px;left:22px;background:var(--text-primary-color,#fff)}
+.bascule:checked::before{width:24px;height:24px;top:2px;left:22px;background:var(--md-on-primary)}
 .fiche .vide{padding:8px 16px 12px;color:var(--md-on-surface-variant)}
 .actions{display:flex;flex-wrap:wrap;gap:8px;padding:8px 16px 4px}
 .cta{height:40px;padding:0 20px 0 16px;border-radius:20px;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:8px;
   background:var(--md-secondary-container);color:var(--md-on-secondary-container);font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);letter-spacing:.1px}
 .cta ha-icon{--mdc-icon-size:18px}
-.cta.plein{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.cta.plein{background:var(--md-primary);color:var(--md-on-primary)}
 .cta.confirmer{background:var(--md-error);color:#fff}
 .cta.fait{background:#188038;color:#fff}
 /* mini-fiche d'un meuble connecté : fenêtre MD3 sur PC, feuille du bas au téléphone */
@@ -1347,7 +1442,7 @@ dialog.mf[open]{animation:mf-entree .2s var(--md-sys-motion)}
 .mf-in{display:flex;flex-direction:column;max-height:inherit}
 .mf header{display:flex;align-items:center;gap:12px;padding:20px 12px 12px 20px;flex:none}
 .mf header .ic{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
-.mf header .ic.on{background:var(--mb-couleur,var(--md-primary));color:var(--text-primary-color,#fff)}
+.mf header .ic.on{background:var(--mb-couleur,var(--md-primary));color:var(--md-on-primary)}
 .mf header .ic.on.clair{color:#2b2000}
 .mf header .ic.alerte{background:var(--md-error-container);color:var(--md-on-error-container)}
 .mf header .n{flex:1;min-width:0}
@@ -2496,6 +2591,9 @@ function attributSur(balise, nom, v) {
   if (n.startsWith("on") || n === "is" || n === "style" && !cssSur(v)) return false;
   if (ATTR_LIENS.has(n)) return (n === "src" && balise === "img" && /^(?:\/(?![/\\])|https?:)/i.test(v) && memeOrigine(v)) || ((n === "href" || n === "xlink:href") && /^#[\w-]*$/.test(v));
   if (n === "attributename") return ATTR_ANIMES.has(v);
+  // sans « : » ni « ( », aucun des motifs ci-dessous n'est possible (schéma javascript: / data:, url()) : sûr sans les expressions
+  // (cas de presque tous les attributs du plan : classes, coordonnées, data-*)
+  if (!v.includes(":") && !v.includes("(")) return true;
   return !/(?:java|vb)script\s*:|data\s*:\s*text/i.test(v.replace(/[\s\u0000-\u001f]/g, "")) && (!/url\s*\(/i.test(v) || cssSur(v));
 }
 const NS_SVG = "http://www.w3.org/2000/svg";
@@ -2733,6 +2831,23 @@ function assainirConfig(c, rapport) {
     vitrine: (v, ch) => (typeof v === "boolean" ? v : objet({ pos: pt, largeur: nbF })(v, ch)),
     teinte_temperature: (v, ch) => (v === false ? v : objet({ min: nbF, max: nbF })(v, ch)),
     interaction: objet({ retour_apres: nbF }),
+    // thème : nom du registre (themes.js), ou objet { base, <variable>… } aux valeurs validées par type (couleur : même règle que les autres)
+    theme: (v, ch) => {
+      if (typeof v === "string") return NOMS_THEMES.includes(v) ? v : undefined;
+      if (!objetSimple(v)) return undefined;
+      for (const k of Object.keys(v)) {
+        const d = VARIABLES_THEME.find((x) => x.cle === k);
+        if (k === "base" ? !NOMS_THEMES.includes(v.base) : !d || !valeurTheme(v[k], d.type)) { delete v[k]; retires.push([...ch, k]); }
+        else if (d) v[k] = typeof v[k] === "number" ? v[k] : v[k].trim();
+      }
+      return v;
+    },
+    // CSS personnalisé : refusé en entier (avertissement clair, rien d'injecté) s'il charge ou exécute quoi que ce soit, ou dépasse 20 Kio
+    css: (v) => {
+      const r = verifierCss(v);
+      if (!r.ok) avertir(`custom css refused (${r.raison}): nothing applied`);
+      return r.ok ? v : undefined;
+    },
   }, []);
   if (rapport && retires.length) (rapport.retires ||= []).push(...retires.map(cheminPublic));
   return c;
@@ -2888,12 +3003,16 @@ const N_FOND = nObj({ image: "image", pos: "pos", largeur: "width", hauteur: "he
   afficher: ["show", nEnum({ editeur: "editor", toujours: "always" })] });
 // un étage (`floors`, du bas vers le haut) : identifiant, nom, nom court, icône, sa géométrie, ses panneaux (facultatifs) et son fond
 const N_ETAGE = nObj({ id: "id", nom: "name", court: "short", icone: "icon", ...K_GEOMETRIE, panneaux: ["panels", N_PANNEAUX], fond: ["background", N_FOND] });
+// `theme:` objet : base + une clé par variable publique (interne française ↔ nom de la variable avec « _ »), voir themes-variables.js
+const N_THEME = nObj({ base: "base", ...Object.fromEntries(VARIABLES_THEME.map((v) => [v.cle, cleAnglaiseTheme(v)])) });
 const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summary", nListe(N_PUCE)], plein_ecran: "full_page", edition: "editor", marge: "margin",
   ...K_GEOMETRIE, afficher_meubles: ["show_furniture", nEnum({ pc: "desktop" })], fond: ["background", N_FOND],
   etages: ["floors", nListe(N_ETAGE)], etage_defaut: "default_floor", selecteur_etages: ["floor_selector", nEnum({ ascenseur: "elevator", onglets: "tabs" })],
   calques: ["layers", N_CALQUES], panneaux: ["panels", N_PANNEAUX],
   modeles: ["templates", nListe(N_MODELE)], ambiance: ["ambience", N_AMBIANCE], animations: ["animations", N_ANIMATIONS], alertes: ["alerts", nListe(N_ALERTE)],
   style_pastilles: ["badge_style", N_STYLE_PASTILLES], palette: "palette",
+  // apparence : thème (nom du registre, ou { base, <variable>… } : clés tirées de VARIABLES_THEME) et CSS personnalisé
+  theme: ["theme", N_THEME], css: "css",
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
   // réglages globaux (panneau ⚙ Paramètres de l'éditeur) : présence par défaut, étiquettes des pièces, teinte de température, légende
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
@@ -2983,6 +3102,103 @@ function depuisAnglais(cfg, rap) {
 
 // JSON indépendant de l'ordre des clés (HA et setConfig ne gardent pas toujours le même ordre)
 const canon = (o) => JSON.stringify(o, (k, v) => (v && typeof v === "object" && !Array.isArray(v) ? Object.fromEntries(Object.keys(v).sort().map((x) => [x, v[x]])) : v));
+// ---------- thèmes (`theme:` et `css:` de la config) ----------
+// Registre : nom public (identique en interne) → { clair: {variable: valeur}, sombre: {variable: valeur}, mode?, css? }
+//  - variable = `nom` d'une ligne de VARIABLES_THEME (themes-variables.js), sans le préfixe : "accent", "room-fill"… ;
+//    une variable absente garde sa valeur par défaut (celle du rendu Material) ;
+//  - clair / sombre : choisi selon le thème de HA (hass.themes.darkMode) ; mode: "sombre" = toujours la palette sombre (ex. Nuit) ;
+//  - css (facultatif) : règles de forme propres au thème (ex. `ha` : ombre et bordure de ha-card), ajoutées après les variables.
+// Le thème choisi est posé en --mq-t-<variable> sur :host (feuille construite) : une variable publique --maquette-<variable>
+// (thème HA, card-mod, CSS personnalisé) prime toujours dessus. `material` est vide : rendu d'avant les thèmes, à l'identique.
+// `ha` (Lovelace classique) ne pose que des var() du thème HA : il suit n'importe quel thème HA, clair ou sombre. Les cinq préréglages
+// sont des palettes MD3 complètes (tons de Material Theme Builder), clair ET sombre ; textes ≥ 4.5:1 sur leurs surfaces
+// (vérifié par tests/node/test_themes_palettes.mjs). Une couleur à canal alpha (#rrggbbaa) se pose sur le sol des pièces (meubles).
+// Palette MD3 d'un préréglage : rôles dans l'ordre de PALETTE_THEME (porte fermée = accent, porte ouverte = erreur, puces = surface / texte 2nd)
+const PALETTE_THEME = ["accent", "on-accent", "surface", "card-background", "surface-variant", "text", "text-secondary", "outline", "outline-variant", "error",
+  "wall", "room-fill", "shutter", "furniture", "furniture-stroke", "badge-background", "badge-text"];
+const paletteTheme = (...c) => {
+  const p = Object.fromEntries(PALETTE_THEME.map((n, i) => [n, c[i]]));
+  return { ...p, "room-text": p.text, "door-closed": p.accent, "door-open": p.error, "chip-background": p.surface, "chip-text": p["text-secondary"] };
+};
+// `ha` : variables privées --mq-ha-* (repli en chaîne sur le thème HA, impossible dans une valeur du registre qui n'admet qu'un var(--x)
+// sans repli), puis règles de forme : bordure / ombre / rayon de ha-card, extérieur sans teinte d'accent
+const THEME_HA_VARS = { "card-background": "var(--md-surface)", "surface-variant": "var(--mq-ha-variante)", "outline-variant": "var(--mq-ha-separateur)",
+  "room-text": "var(--primary-text-color)", "chip-background": "var(--md-surface)", "chip-text": "var(--primary-text-color)",
+  "badge-background": "var(--mq-ha-pastille)", "badge-text": "var(--primary-text-color)" };
+const THEME_HA_CSS = ":host{--mq-ha-separateur:var(--ha-card-border-color,var(--divider-color,#e0e0e0));"
+  + "--mq-ha-variante:color-mix(in srgb,var(--md-on-surface) 6%,var(--md-surface));--mq-ha-pastille:color-mix(in srgb,var(--state-inactive-color,#808080) 20%,var(--md-surface));"
+  + "--md-surface-container-high:color-mix(in srgb,var(--md-on-surface) 8%,var(--md-surface))}"
+  + "ha-card{border-radius:var(--maquette-radius,var(--mq-t-radius,var(--ha-card-border-radius,12px)));box-shadow:var(--ha-card-box-shadow,none);"
+  + "border:var(--ha-card-border-width,1px) solid var(--ha-card-border-color,var(--divider-color,#e0e0e0))}"
+  + ".tete .chip{border-radius:18px}.zone-etq{color:var(--md-on-surface-variant)}";
+const THEMES = {
+  material: { clair: {}, sombre: {} },
+  ha: { clair: THEME_HA_VARS, sombre: THEME_HA_VARS, css: THEME_HA_CSS },
+  //               accent     sur accent surface    fond carte surf. var. texte      texte 2nd  contour    contour d. erreur     mur        sol        volet      meuble       trait meuble pastille   txt pastille
+  ocean: { clair: paletteTheme("#006a6a", "#ffffff", "#f4fbfa", "#eef5f4", "#e3eae9", "#161d1d", "#3f4948", "#6f7979", "#bec9c8", "#ba1a1a", "#1f2a2a", "#dae5e4", "#4b607c", "#f4fbfa99", "#3f4948b3", "#cce8e7", "#051f1f"),
+    sombre: paletteTheme("#4cdada", "#003737", "#0e1515", "#161d1d", "#1a2121", "#dde4e3", "#bec9c8", "#889392", "#3f4948", "#ffb4ab", "#dde4e3", "#242b2b", "#b3c8e8", "#0e151599", "#bec9c8b3", "#324b4b", "#cce8e7") },
+  slate: { clair: paletteTheme("#4a5c72", "#ffffff", "#f8f9fc", "#f2f3f7", "#e6e8ed", "#191c20", "#43474e", "#73777f", "#c3c6cf", "#ba1a1a", "#2e3338", "#e0e2e8", "#6d5e4b", "#f8f9fc99", "#43474eb3", "#d5e3f7", "#0e1d2b"),
+    sombre: paletteTheme("#b2c7e0", "#1c3145", "#111418", "#191c20", "#1d2024", "#e1e2e8", "#c3c6cf", "#8d9199", "#43474e", "#ffb4ab", "#e1e2e8", "#272a2f", "#c9b79c", "#11141899", "#c3c6cfb3", "#3a4858", "#d5e3f7") },
+  sand: { clair: paletteTheme("#7d5800", "#ffffff", "#fff8f2", "#fbf2ea", "#f3e9df", "#1f1b16", "#4e4639", "#807667", "#d2c5b4", "#ba1a1a", "#3a3127", "#efe0cf", "#7a5a3a", "#fff8f299", "#4e4639b3", "#f8dfbb", "#261904"),
+    sombre: paletteTheme("#f5bd4f", "#422c00", "#17130e", "#1f1b16", "#241f1a", "#ebe1d9", "#d2c5b4", "#9b8f80", "#4e4639", "#ffb4ab", "#ebe1d9", "#2e2924", "#d9b48c", "#17130e99", "#d2c5b4b3", "#574425", "#f8dfbb") },
+  forest: { clair: paletteTheme("#2e6b30", "#ffffff", "#f7fbf1", "#f1f5ec", "#e6eae0", "#191d17", "#424940", "#72796f", "#c2c8bd", "#ba1a1a", "#2c3329", "#dfe4d8", "#6f5b40", "#f7fbf199", "#424940b3", "#d4e8cf", "#0f1f0f"),
+    sombre: paletteTheme("#93d68f", "#00390a", "#10140f", "#191d17", "#1d211b", "#e0e4da", "#c2c8bd", "#8c9388", "#424940", "#ffb4ab", "#e0e4da", "#272b25", "#cdb896", "#10140f99", "#c2c8bdb3", "#3a4b38", "#d4e8cf") },
+  // Nuit : toujours sombre (bleu nuit), quel que soit le thème de HA
+  night: { mode: "sombre", clair: {},
+    sombre: paletteTheme("#a8c7fa", "#062e6f", "#11131a", "#191b23", "#1d2028", "#e2e2ec", "#c4c6d0", "#8e909a", "#44474f", "#ffb4ab", "#e2e2ec", "#262a35", "#b9a07e", "#11131a99", "#c4c6d0b3", "#2b3a55", "#d8e2ff") },
+};
+const NOMS_THEMES = Object.keys(THEMES);
+const VAR_THEME = Object.fromEntries(VARIABLES_THEME.map((v) => [v.nom, v]));
+const VAR_THEME_CLE = Object.fromEntries(VARIABLES_THEME.map((v) => [v.cle, v]));
+// valeur d'une variable selon son type, ou null si elle n'est pas sûre (jamais « ; », « } », url(), expression…)
+// couleur : même règle que toutes les couleurs de la config (COULEUR_SURE) ; longueur : nombre (px) ou nombre + px|rem|em|% ;
+// police : noms de familles (lettres, chiffres, espaces, virgules, guillemets, tirets) ou var(--…)
+const LONGUEUR_SURE = /^\d{1,3}(?:\.\d{1,2})?(?:px|rem|em|%)$/, POLICE_SURE = /^(?:[\w\s,'"-]{1,160}|var\(--[\w-]{1,60}\))$/;
+function valeurTheme(v, type) {
+  if (type === "longueur") return typeof v === "number" && Number.isFinite(v) && v >= 0 && v <= 999 ? `${Math.round(v * 100) / 100}px` : typeof v === "string" && LONGUEUR_SURE.test(v.trim()) ? v.trim() : null;
+  if (typeof v !== "string") return null;
+  const t = v.trim();
+  if (type === "police") return POLICE_SURE.test(t) && /[^\s,'"]/.test(t) ? t : null;
+  return COULEUR_SURE.test(t) ? t : null;
+}
+// thème de la config (interne) → { base, retouches: {variable: valeur} } ; une chaîne = un nom du registre
+function themeDe(theme) {
+  if (typeof theme === "string") return { base: Object.hasOwn(THEMES, theme) ? theme : "material", retouches: {} };
+  const o = theme && typeof theme === "object" && !Array.isArray(theme) ? theme : {}, retouches = {};
+  for (const [k, x] of Object.entries(o)) {
+    const v = Object.hasOwn(VAR_THEME_CLE, k) ? VAR_THEME_CLE[k] : null, s = v && valeurTheme(x, v.type);
+    if (s) retouches[v.nom] = s;
+  }
+  return { base: typeof o.base === "string" && Object.hasOwn(THEMES, o.base) ? o.base : "material", retouches };
+}
+// variables effectives d'un thème : palette du registre (clair ou sombre) puis retouches ; { variable: valeur }
+function variablesDuTheme(theme, sombre = false) {
+  const { base, retouches } = themeDe(theme), t = THEMES[base];
+  return { ...((t.mode === "sombre" || sombre) && t.mode !== "clair" ? t.sombre : t.clair), ...retouches };
+}
+// feuille du thème : --mq-t-* sur :host, puis les règles de forme du thème ; "" pour material sans retouche (rien posé)
+function cssDuTheme(theme, sombre = false) {
+  const vars = Object.entries(variablesDuTheme(theme, sombre)).filter(([n]) => VAR_THEME[n]?.css !== false);
+  const regles = THEMES[themeDe(theme).base].css || "";
+  return `${vars.length ? `:host{${vars.map(([n, v]) => `--mq-t-${n}:${v}`).join(";")}}` : ""}${regles}`;
+}
+// police du thème (posée par la carte sur --ha-font-family-body de son hôte), ou null
+const policeDuTheme = (theme, sombre = false) => variablesDuTheme(theme, sombre).font || null;
+// CSS personnalisé (`css:`) : { ok: true, css } ou { ok: false, raison } (raison en anglais, pour la console et l'éditeur).
+// Refusés : plus de 20 Kio, @import, url() autre qu'une image data:, expression(), javascript: / vbscript:, -moz-binding, behavior,
+// </style, et toute barre oblique inverse (échappement CSS qui pourrait déguiser l'un d'eux). Commentaires retirés avant le contrôle.
+const CSS_PERSO_MAX = 20 * 1024;
+function verifierCss(t) {
+  if (typeof t !== "string") return { ok: false, raison: "not a text" };
+  if (new TextEncoder().encode(t).length > CSS_PERSO_MAX) return { ok: false, raison: `larger than ${CSS_PERSO_MAX / 1024} KiB` };
+  const s = t.replace(/\/\*[\s\S]*?(?:\*\/|$)/g, " ");
+  const refus = [[/\\/, "backslash escapes are not allowed"], [/<\/?style/i, "</style is not allowed"], [/@import/i, "@import is not allowed"],
+    [/expression\s*\(/i, "expression() is not allowed"], [/(?:java|vb)script\s*:/i, "javascript: is not allowed"], [/-moz-binding|behavior\s*:/i, "-moz-binding / behavior is not allowed"],
+    [/url\s*\(\s*(?!["']?\s*data:image\/(?:png|jpe?g|gif|webp|avif|svg\+xml)[;,])/i, "url() is only allowed with a data:image"],
+    [/(?:image-set|src)\s*\(/i, "image-set() / src() are not allowed"]];
+  for (const [re, raison] of refus) if (re.test(s)) return { ok: false, raison };
+  return { ok: true, css: s.trim() };
+}
 // ---------- étages (`floors`) : la carte garde la config repliée (this._plein) et l'étage affiché déplié à la racine (this._config) ----------
 // Repliée (forme stockée, normalisée) : la géométrie de chaque étage dans `etages[n]`, rien à la racine que le commun à la maison.
 // Dépliée sur un étage : sa géométrie (et ses panneaux s'il a les siens) à la racine, comme un plan à un étage, les autres étages
@@ -3086,7 +3302,7 @@ class MaquetteCard extends HTMLElement {
 
   // points d'accroche : un morceau (src/carte/classe-*.js) se branche sur un moment de la carte sans modifier ce fichier, en
   // définissant une méthode « _quand_<moment>_<sujet>(…) » ; toutes celles d'un moment sont appelées dans l'ordre de src/assemblage.mjs.
-  // Moments : construit (fin de _construire, plan dessiné)
+  // Moments : construit (fin de _construire, plan dessiné), hass (nouvel objet hass reçu, carte déjà construite : thème HA clair / sombre…)
   static ACCROCHES = new Map();
   _accroches(moment, ...args) {
     const P = MaquetteCard.prototype, pre = `_quand_${moment}_`;
@@ -3103,7 +3319,8 @@ class MaquetteCard extends HTMLElement {
     const relangue = this._langue();
     // `demo: true` : l'appartement de démonstration et ses états simulés (rien n'est commandé dans la maison)
     if (config.demo && typeof PlanDemo !== "undefined") {
-      config = { ...PlanDemo.config(), ...(typeof config.titre === "string" ? { titre: config.titre } : {}) };
+      // (titre, thème et CSS personnalisé gardés : la démo montre aussi les thèmes)
+      config = { ...PlanDemo.config(), ...Object.fromEntries(["titre", "theme", "css"].filter((k) => config[k] != null).map((k) => [k, config[k]])) };
       const brut = this._sim ? this._hassBrut : this._hass;
       this._sim ||= new PlanDemo.Simulation();
       if (relangue) this._sim.renommer();
@@ -3148,6 +3365,7 @@ class MaquetteCard extends HTMLElement {
     if (relangue) this._sim?.renommer();
     if (this._sim) { this._hassBrut = hass; hass = this._hassDemo(hass); }
     this._hass = hass;
+    if (this._ok) this._accroches("hass");
     if (!this._ok) this._construire();
     else if (relangue) this._relangue();
     else if (this._rp) return; // replay : le plan montre l'historique, pas le direct
@@ -3300,8 +3518,8 @@ class MaquetteCard extends HTMLElement {
     this._tailleBadges();
   }
 
-  // badge de valeur masqué quand le meuble fait moins de 24 px à l'écran dans les deux sens (un meuble fin, tableau électrique,
-  // radiateur, garde son badge tant que sa longueur dépasse 24 px ; recalculé au zoom et au redimensionnement)
+  // badge de valeur resserré (classe « petit », police d'au moins 10 px) quand le meuble fait moins de 24 px à l'écran dans les deux
+  // sens (un meuble fin, tableau électrique, radiateur, garde son badge normal tant que sa longueur dépasse 24 px ; recalculé au zoom et au redimensionnement)
   _tailleBadges(v = this.vue()) {
     const R = this.shadowRoot, z = R?.querySelector(".zone"), l = R?.querySelectorAll(".calque>.mb");
     // textes figés sur le plan : ils grossissent et rapetissent avec le zoom comme le dessin (1 = plan entier de la vue)
@@ -3545,6 +3763,7 @@ class MaquetteCard extends HTMLElement {
 
   // cadre du plan : celui de l'étage affiché, ou l'union de tous les étages (la carte ne change ni d'échelle ni de hauteur d'un étage
   // à l'autre ; l'image de fond n'y entre pas) — en vue, calculée une fois par config et par largeur affichée
+  static PX_BULLES = 32; // demi-emprise d'une pastille à l'écran (px, halo compris), réservée autour d'elle dans le cadre du plan
   bornes(sansVitrine = false) {
     const c = this._config, m = c.marge ?? 40;
     let b;
@@ -3590,6 +3809,15 @@ class MaquetteCard extends HTMLElement {
           const [x, y] = [+t.pos[0], +t.pos[1]];
           x0 = Math.min(x0, x - l / 2 - 8); x1 = Math.max(x1, x + l / 2 + 8); y0 = Math.min(y0, y - h / 2 - 8); y1 = Math.max(y1, y + h / 2 + 8);
         }
+      }
+    }
+    // pastilles (taille en px : environ 2,6 em, plus l'onde d'une pastille active, MaquetteCard.PX_BULLES) : jamais rognées par le bord du plan
+    const pts = (c.points || []).filter((p) => Array.isArray(p?.pos) && Number.isFinite(+p.pos[0]) && Number.isFinite(+p.pos[1]));
+    if (pts.length) {
+      const P = this.shadowRoot?.querySelector(".plan>.zone")?.clientWidth || this.clientWidth || 800;
+      for (let tour = 0; tour < 3; tour++) {
+        const r = (MaquetteCard.PX_BULLES * (x1 - x0)) / P;
+        for (const p of pts) { const x = +p.pos[0], y = +p.pos[1]; x0 = Math.min(x0, x - r); x1 = Math.max(x1, x + r); y0 = Math.min(y0, y - r); y1 = Math.max(y1, y + r); }
       }
     }
     return { x0, y0, W: x1 - x0, H: y1 - y0 };
@@ -3965,6 +4193,24 @@ class MaquetteCard extends HTMLElement {
     else if (!tete && z.parentElement === barre) R.querySelector(".plan").append(z);
     z.classList.toggle("en-tete", tete);
     z.classList.toggle("caches", !this._editeur && m === "caches");
+  }
+
+  // souris (PC) : boutons du plan (calques, zoom, revoir la journée) estompés 5 s après que le curseur a quitté le plan (ou 5 s après
+  // l'affichage s'il n'y est jamais venu), revenus dès qu'il y revient, au clavier (focus) ou au toucher ; écran tactile seul : toujours visibles
+  _quand_construit_zoom() {
+    const R = this.shadowRoot, plan = R?.querySelector(".plan");
+    if (!plan || plan.__repli) return;
+    plan.__repli = true;
+    const souris = matchMedia("(hover: hover) and (pointer: fine)"), z = () => R.querySelector(".zoom");
+    const montrer = () => { clearTimeout(this._tRepli); z()?.classList.remove("repli"); };
+    const armer = () => { montrer(); if (souris.matches) this._tRepli = setTimeout(() => z()?.classList.add("repli"), 5000); };
+    plan.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") montrer(); });
+    // toucher (portable tactile) sur un bouton estompé : il réapparaît sans agir, rien ne passe au plan dessous
+    plan.addEventListener("pointerdown", (e) => { this._avaleClic = e.pointerType !== "mouse" && !!z()?.classList.contains("repli") && e.composedPath().includes(z()) ? e.timeStamp : 0; montrer(); });
+    plan.addEventListener("click", (e) => { if (this._avaleClic && e.timeStamp - this._avaleClic < 1000) { this._avaleClic = 0; e.stopPropagation(); e.preventDefault(); } }, true);
+    plan.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") armer(); });
+    plan.addEventListener("focusin", montrer);
+    if (!plan.matches(":hover")) armer();
   }
 
   _pxVersCm(cx, cy) {
@@ -4707,20 +4953,38 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
     const ajout = (cote) => (this._editeur ? `<button class="w-ajout" data-ajouter="${cote}"><ha-icon icon="mdi:plus"></ha-icon>${cote === "fiche" ? _t("Ajouter un widget à la fiche") : this._modeMise === "large" ? _t("Ajouter un widget") : cote === "gauche" ? _t("Ajouter un widget (gauche)") : _t("Ajouter un widget (droite)")}</button>` : "");
     const rendu = (l, cote) => {
       this._sansBascule = cote === "fiche"; // aperçu fidèle : pas d'interrupteur dans une fiche
-      try { return l.map((w, i) => { try { return this._widget(w, cote, i, suf); } catch (e) { return `<div class="w" data-w="${cote}:${i}${suf}"><div class="w-note">${_t("Widget en erreur : {msg}", { msg: esc(e.message) })}</div></div>`; } }).join(""); }
+      try { return l.map((w, i) => { try { return this._widget(w, cote, i, suf); } catch (e) { return `<div class="w" data-w="${cote}:${i}${suf}"><div class="w-note">${_t("Widget en erreur : {msg}", { msg: esc(e.message) })}</div></div>`; } }); }
       finally { this._sansBascule = false; }
     };
     const es = this._editeur?.sel, sel = es?.type === "widget" ? `${es.cote}:${es.i}${es.piece != null ? `:${es.piece}` : porteurDe(es) ? sufFiche(porteurDe(es)) : ""}` : null;
     let change = false;
-    const poser = (el, html) => { if (el._html !== html) { poserHTML(el, html); el._html = html; change = true; } };
+    // colonne posée morceau par morceau (un widget = un élément) : seuls les widgets dont le HTML change sont reconstruits, au lieu de
+    // relire toute la colonne à chaque mise à jour de hass ; même DOM qu'une colonne posée d'un bloc (repli sur celle-ci au moindre doute)
+    const poser = (el, morceaux) => {
+      const parts = morceaux.flat().filter(Boolean), html = parts.join("");
+      if (el._html === html) return;
+      change = true;
+      const avant = el._parts;
+      if (avant?.length === parts.length && el.childNodes.length === parts.length) {
+        const neufs = parts.map((h, i) => (h === avant[i] ? null : fragmentSur(h, el)));
+        if (neufs.every((f) => !f || (f.childNodes.length === 1 && f.firstChild.nodeType === 1))) {
+          const enfants = [...el.childNodes];
+          neufs.forEach((f, i) => f && enfants[i].replaceWith(f));
+          el._html = html; el._parts = parts;
+          return;
+        }
+      }
+      poserHTML(el, html); el._html = html;
+      el._parts = el.childNodes.length === parts.length && [...el.childNodes].every((n) => n.nodeType === 1) ? parts : null;
+    };
     if (pf) {
       const t = this._enteteFiche(pf.genre, this._config[GENRES_FICHE[pf.genre]][pf.i]).titre;
       const note = { meuble: _t("Fiche « {t} » : ce qui s'ouvre au toucher du meuble", { t: esc(t) }), ouverture: _t("Fiche « {t} » : ce qui s'ouvre au toucher de l'ouverture", { t: esc(t) }),
         point: _t("Fiche « {t} » : ce qui s'ouvre au toucher de la pastille", { t: esc(t) }) }[pf.genre];
-      poser(R.querySelector(".col-g .widgets"), "");
-      poser(R.querySelector(".col-d .widgets"), `<div class="w-note w-fiche"><ha-icon icon="mdi:card-text-outline"></ha-icon>${note}</div>${rendu(d, "fiche")}${ajout("fiche")}`);
-    } else if (this._modeMise === "large") { poser(R.querySelector(".col-g .widgets"), rendu(g, "gauche") + ajout("gauche")); poser(R.querySelector(".col-d .widgets"), rendu(d, "droite") + ajout("droite")); }
-    else { poser(R.querySelector(".col-g .widgets"), ""); poser(R.querySelector(".col-d .widgets"), rendu(g, "gauche") + ajout("gauche") + rendu(d, "droite") + ajout("droite")); }
+      poser(R.querySelector(".col-g .widgets"), []);
+      poser(R.querySelector(".col-d .widgets"), [`<div class="w-note w-fiche"><ha-icon icon="mdi:card-text-outline"></ha-icon>${note}</div>`, rendu(d, "fiche"), ajout("fiche")]);
+    } else if (this._modeMise === "large") { poser(R.querySelector(".col-g .widgets"), [rendu(g, "gauche"), ajout("gauche")]); poser(R.querySelector(".col-d .widgets"), [rendu(d, "droite"), ajout("droite")]); }
+    else { poser(R.querySelector(".col-g .widgets"), []); poser(R.querySelector(".col-d .widgets"), [rendu(g, "gauche"), ajout("gauche"), rendu(d, "droite"), ajout("droite")]); }
     if (change) this._ajusterCols();
     R.querySelectorAll(".w.sel").forEach((n) => n.classList.remove("sel"));
     if (sel) R.querySelector(`.w[data-w="${sel}"]`)?.classList.add("sel");
@@ -4895,13 +5159,21 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
     const s = this._etat(w.entite), a = s?.attributes || {}, indispo = !s || ["unavailable", "unknown"].includes(s.state);
     const cons = nb(a.temperature, NaN), mes = nb(a.current_temperature, NaN), pas = nb(a.target_temp_step, 0.5) || 0.5;
     const ACTION = { heating: [_t("Chauffe"), "#e8710a"], cooling: [_t("Refroidit"), "#1a73e8"], idle: [_t("Au repos"), ""], off: [_t("Arrêté"), ""], drying: [_t("Déshumidifie"), ""], fan: [_t("Ventile"), ""] };
-    const [act, coul] = ACTION[a.hvac_action] || [a.hvac_action || "", ""];
+    // valeurs d'attributs traduites par HA (préréglage « manual », action inconnue de la table) ; brutes sans traduction
+    // préréglages courants que HA ne traduit pas pour toutes les intégrations (Zigbee2MQTT : « manual »…)
+    const PRESET = { manual: _t("Manuel"), eco: _t("Éco"), comfort: _t("Confort"), away: _t("Absence"), home: _t("Présence"), sleep: _t("Sommeil"), boost: _t("Boost"), activity: _t("Activité"), holiday: _t("Vacances"), schedule: _t("Programme"), program: _t("Programme"), auto: _t("Auto") };
+    const attr = (k) => {
+      if (a[k] == null || a[k] === "") return "";
+      const brut = String(a[k]), v = this._hass.formatEntityAttributeValue?.(s, k) ?? brut;
+      return k === "preset_mode" && v === brut && PRESET[brut.toLowerCase()] ? PRESET[brut.toLowerCase()] : v;
+    };
+    const [act, coul] = ACTION[a.hvac_action] || [attr("hvac_action"), ""];
     const bouton = (k, ic, nom) => `<button class="ib th-b" data-th="${k}"${indispo || isNaN(cons) ? ` aria-disabled="true"` : ""} aria-label="${nom}" title="${nom}"><ha-icon icon="${ic}"></ha-icon></button>`;
     return `${this._tete({ ...w, titre: w.titre || this._nom(w.entite) }, "mdi:thermostat", act ? `<span class="pastille forte" style="--p-couleur:${coul || "var(--md-surface-container-high)"};--p-texte:${coul ? "#fff" : "var(--md-on-surface)"}">${esc(act)}</span>` : "")}
       <div class="w-th" data-te="${esc(w.entite)}" data-ti="${esc(id)}"${w.confirmer === true ? ` data-cf="1"` : ""}>
         <div class="mes" data-e="${esc(w.entite)}"><small>${_t("Mesurée")}</small><b>${isNaN(mes) ? "—" : esc(fmt(mes, 1))}<small> °C</small></b></div>
         <div class="cons">${bouton("moins", "mdi:minus", _t("Baisser la consigne"))}<div><small>${_t("Consigne")}</small><b>${isNaN(cons) ? "—" : esc(fmt(cons, pas < 1 ? 1 : 0))}<small> °C</small></b></div>${bouton("plus", "mdi:plus", _t("Monter la consigne"))}</div>
-        <div class="mode"><small>${esc(indispo ? _t("Indisponible") : [this._hass.formatEntityState?.(s) ?? s.state, a.preset_mode && a.preset_mode !== "none" ? a.preset_mode : ""].filter(Boolean).join(" · "))}</small></div>
+        <div class="mode"><small>${esc(indispo ? _t("Indisponible") : [this._hass.formatEntityState?.(s) ?? s.state, a.preset_mode && a.preset_mode !== "none" ? attr("preset_mode") : ""].filter(Boolean).join(" · "))}</small></div>
       </div>${w.lignes?.length ? this._lignes(w.lignes, w) : ""}`;
   }
 
@@ -5000,6 +5272,13 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
     });
   }
 
+  // réponses de HA (statistiques, historique) : les widgets sont redessinés une fois pour toutes les réponses arrivées ensemble
+  // (une requête par courbe ou statistique, envoyées au même rendu) au lieu d'une fois par réponse
+  _widgetsBientot() {
+    if (this._wBientot) return;
+    this._wBientot = setTimeout(() => { this._wBientot = null; this._widgets(); }, 40);
+  }
+
   // statistiques HA (variation sur la période calendaire : jour, semaine, mois, année), en cache 5 min
   _stat(id, periode) {
     if (!id) return null; // widget pas encore configuré
@@ -5008,7 +5287,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       if (!c?.enCours) {
         (this._cacheStat[cle] = { ...(c || {}), enCours: true, t: c?.t || 0 });
         this._hass.callWS({ type: "recorder/statistic_during_period", statistic_id: id, calendar: { period: periode }, types: ["change"] })
-          .then((r) => { this._cacheStat[cle] = { v: r?.change ?? null, t: Date.now() }; this._widgets(); })
+          .then((r) => { this._cacheStat[cle] = { v: r?.change ?? null, t: Date.now() }; this._widgetsBientot(); })
           .catch(() => { this._cacheStat[cle] = { v: null, t: Date.now() }; });
       }
     }
@@ -5027,7 +5306,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
           .then((r) => {
             const pts = (r?.[id] || []).map((x) => [(x.lu ?? x.lc ?? 0) * 1000, parseFloat(x.s)]).filter((p) => !isNaN(p[1]));
             this._cacheHisto[cle] = { v: { pts, debut: Date.now() - heures * 3600e3 }, t: Date.now() };
-            this._widgets();
+            this._widgetsBientot();
           }).catch(() => { this._cacheHisto[cle] = { v: null, t: Date.now() }; });
       }
     }
@@ -5273,7 +5552,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
   // valeur affichée : un attribut de l'entité, ou l'état numérique de `valeur` avec son unité
   _texteValeur(p) {
     const s = this._etat(p.entite);
-    if (p.attribut && s) { const a = s.attributes[p.attribut]; return a != null ? `${typeof a === "number" ? fmt(a, p.decimales ?? 1) : a}${p.unite ?? ""}` : ""; }
+    if (p.attribut && s) { const a = s.attributes[p.attribut]; return a != null ? `${typeof a === "number" ? fmt(a, p.decimales ?? 1) : typeof a === "string" ? this._hass.formatEntityAttributeValue?.(s, p.attribut) ?? a : a}${p.unite ?? ""}` : ""; }
     if (p.valeur) { const n = this._num(p.valeur), sv = this._etat(p.valeur); if (n != null) return `${fmt(n, p.decimales ?? 0)} ${p.unite ?? sv.attributes.unit_of_measurement ?? ""}`.trim(); }
     return consigneClimat(s, p, this._hass);
   }
@@ -5291,7 +5570,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       const poly = R.querySelector(`[data-p="${i}"]`);
       if (!p.dehors && poly) {
         const col = teinte && couleurTempEchelle(t, teinte);
-        poly.style.fill = col ? `color-mix(in srgb, ${col} 28%, var(--md-surface))` : "var(--secondary-background-color)";
+        poly.style.fill = col ? `color-mix(in srgb, ${col} 28%, var(--md-surface))` : "var(--plan-sol)";
       }
       const etq = R.querySelector(`[data-l="${i}"] .val`);
       texteSi(etq, [t != null && EP.temperature ? `${fmt(t)} °C` : "", h != null && EP.humidite ? `${fmt(h, 0)}${globalThis.MaquetteI18n.pct()}` : ""].filter(Boolean).join(" · "));
@@ -5629,8 +5908,11 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       const n = o?.baie || o?.nom || this._nom(e), E = this._etageAilleurs(e);
       return E ? _t("{nom} ({etage})", { nom: n, etage: E.nom || E.court }) : n;
     };
+    // sous-titre : éléments concernés (sauf s'ils portent déjà le nom de l'alerte), puis le nombre d'autres alertes
+    const noms = [...new Set(a0.on.map(nomDe))].filter((n) => n !== a0.r.nom).join(", "), autres = l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : "";
+    const sousTitre = noms ? noms + autres : autres.replace(/^ · /, "");
     const html = `<ha-icon icon="${esc(a0.r.icone || NIVEAUX_ALERTE[a0.niv].icone)}"></ha-icon><span class="t"><b>${esc(a0.r.nom || _t("Alerte"))}</b>
-      <small>${esc([...new Set(a0.on.map(nomDe))].join(", "))}${l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : ""}</small></span>
+      <small>${esc(sousTitre)}</small></span>
       <button class="ib" data-al="infos" title="${_t("Détails")}" aria-label="${_t("Détails")}"><ha-icon icon="mdi:information-outline"></ha-icon></button>
       <button class="ib" data-al="masquer" title="${_t("Masquer jusqu'au prochain changement")}" aria-label="${_t("Masquer")}"><ha-icon icon="mdi:close"></ha-icon></button>`;
     if (bd._h !== html) { poserHTML(bd, html); bd._h = html; }
@@ -5890,6 +6172,81 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
     });
   }
 
+  // registre, table et outils purs (éditeur, doc, tests) : MaquetteCard.THEMES.registre[nom] = { clair, sombre, mode?, css? },
+  // .variables = VARIABLES_THEME, .resoudre(theme, sombre) = { variable: valeur }, .css(theme, sombre), .verifierCss(texte), .doc(langue)
+  static THEMES = { registre: THEMES, noms: NOMS_THEMES, variables: VARIABLES_THEME, resoudre: variablesDuTheme, css: cssDuTheme, verifierCss, valeur: valeurTheme,
+    doc: tableVariablesTheme, cleAnglaise: cleAnglaiseTheme, CSS_MAX: CSS_PERSO_MAX, jetonsCss: CSS_JETONS_THEME };
+
+  // moments : plan construit (config neuve ou modifiée), nouvel état de HA (le thème clair / sombre de HA a pu changer)
+  _quand_construit_themes() { this._appliquerTheme(); }
+  _quand_hass_themes() { if (!!this._hass?.themes?.darkMode !== this._thSombre) this._appliquerTheme(); }
+
+  // pose le thème (variables --mq-t-* + règles de forme) puis le CSS personnalisé, en dernier dans le shadow DOM (feuilles construites,
+  // après tous les <style> : la carte et l'éditeur) ; rien n'est posé pour material sans retouche ni CSS (rendu d'avant à l'identique)
+  _appliquerTheme() {
+    const R = this.shadowRoot;
+    if (!R) return;
+    const src = this._thApercu || { theme: this._plein?.theme ?? this._config?.theme, css: this._plein?.css ?? this._config?.css };
+    const sombre = (this._thSombre = !!this._hass?.themes?.darkMode);
+    let perso = "";
+    if (typeof src.css === "string" && src.css.trim()) {
+      const v = verifierCss(src.css);
+      if (v.ok) perso = v.css;
+      else if (this._thRefus !== v.raison) console.warn(`maquette-card : custom css refused (${v.raison}): nothing applied`);
+      this._thRefus = v.ok ? null : v.raison;
+    }
+    const empreinte = [cssDuTheme(src.theme, sombre), perso];
+    this._poserFeuille("theme", empreinte[0]);
+    this._poserFeuille("css", perso);
+    // police : --maquette-font (thème HA, CSS personnalisé…) sinon celle du thème, posée sur l'hôte (tous les styles lisent --ha-font-family-body)
+    const ext = typeof getComputedStyle === "function" ? getComputedStyle(this).getPropertyValue("--maquette-font").trim() : "";
+    const police = valeurTheme(ext, "police") || policeDuTheme(src.theme, sombre);
+    if (police) { this.style.setProperty("--ha-font-family-body", police); this._thPolice = true; }
+    else if (this._thPolice) { this.style.removeProperty("--ha-font-family-body"); this._thPolice = false; }
+    // le thème peut changer la boîte du plan sans changer la taille de l'hôte (bordure de ha-card de `ha`, police, CSS personnalisé) :
+    // le ResizeObserver de l'hôte reste muet, la mise en page est refaite ici (seulement si quelque chose a changé)
+    empreinte.push(police || "");
+    const cle = empreinte.join("\n");
+    if (cle !== (this._thEmpreinte ?? "\n\n") && this._ok) this._mise();
+    this._thEmpreinte = cle;
+  }
+  // une feuille par sujet (« theme » puis « css », toujours dans cet ordre, à la fin) ; texte vide = feuille retirée
+  _poserFeuille(sujet, texte) {
+    const R = this.shadowRoot, F = (this._thFeuilles ||= {});
+    const construites = typeof CSSStyleSheet === "function" && "replaceSync" in CSSStyleSheet.prototype && Array.isArray(R.adoptedStyleSheets);
+    if (construites) {
+      if (!texte && !F[sujet]) return;
+      const avant = F[sujet];
+      if (texte) (F[sujet] ||= new CSSStyleSheet()).replaceSync(texte); else F[sujet] = null;
+      // les autres feuilles adoptées (card-mod, autre outil) restent devant, les nôtres en dernier
+      const miennes = ["theme", "css"].map((k) => F[k]).filter(Boolean);
+      R.adoptedStyleSheets = [...R.adoptedStyleSheets.filter((s) => s !== avant && !miennes.includes(s)), ...miennes];
+      return;
+    }
+    // sans feuilles construites : un <style> à la fin du shadow DOM
+    let el = R.querySelector(`style[data-maquette-${sujet}]`);
+    if (!texte) { el?.remove(); return; }
+    if (!el) { el = document.createElement("style"); el.setAttribute(`data-maquette-${sujet}`, ""); }
+    el.textContent = texte;
+    R.append(el);
+    if (sujet === "theme") { const c = R.querySelector("style[data-maquette-css]"); if (c) R.append(c); }
+  }
+
+  // ---------- pour l'éditeur (onglet Apparence) ----------
+  // toutes les variables publiques, avec leur valeur calculée actuelle sur cette carte (liste cliquable, pastilles) :
+  // [{ nom, variable: "--maquette-<nom>", cle, yaml, type, role (langue de l'interface), fr, en, defaut, valeur }]
+  variablesTheme() {
+    const cs = typeof getComputedStyle === "function" ? getComputedStyle(this) : null, fr = globalThis.MaquetteI18n?.langue?.() === "fr";
+    return VARIABLES_THEME.map((v) => ({ nom: v.nom, variable: `--maquette-${v.nom}`, cle: v.cle, yaml: cleAnglaiseTheme(v), type: v.type, role: fr ? v.fr : v.en, fr: v.fr, en: v.en,
+      defaut: v.defaut, valeur: (cs?.getPropertyValue(v.jeton) || "").trim() || v.defaut }));
+  }
+  // aperçu d'un thème et / ou d'un CSS (config interne : `theme` chaîne ou objet aux clés internes, `css` texte), sans toucher la config ;
+  // apercuTheme(null) revient à la config. Renvoie les variables du thème appliqué ({ variable: valeur }).
+  apercuTheme(theme, css) {
+    this._thApercu = theme === null && css === undefined ? null : { theme: theme === undefined ? this._plein?.theme : theme, css: css === undefined ? this._plein?.css : css };
+    this._appliquerTheme();
+    return variablesDuTheme(this._thApercu ? this._thApercu.theme : this._plein?.theme, this._thSombre);
+  }
   // fenêtres de toit (calculs purs, voir carte/velux.js) : pour les tests et l'éditeur
   static VELUX = { tache: tacheVelux, ouvert: ouvertVelux, emprise: empriseVelux, pente: penteVelux, hauteur: hauteurVelux };
   // thème sombre : fond de la carte peu lumineux (sinon, carte transparente : réglage sombre de HA)

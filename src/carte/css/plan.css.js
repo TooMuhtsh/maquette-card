@@ -2,33 +2,24 @@
 const CSS = `
 /* Material Design 3 : rôles de couleur dérivés du thème HA (primary-color, card-background-color, textes) */
 :host{display:block;
-  --md-primary:var(--primary-color,#03a9f4);
-  --md-surface:var(--ha-card-background,var(--card-background-color,#fff));
-  --md-on-surface:var(--primary-text-color,#1c1b1f);
-  --md-on-surface-variant:var(--secondary-text-color,#49454f);
-  --md-surface-container-low:color-mix(in srgb,var(--md-primary) 4%,var(--md-surface));
-  --md-surface-container:color-mix(in srgb,var(--md-primary) 8%,var(--md-surface));
+  /* jetons publics (table unique VARIABLES_THEME, themes-variables.js) : --maquette-* > thème (--mq-t-*) > valeur par défaut */
+  ${CSS_JETONS_THEME}
   --md-surface-container-high:color-mix(in srgb,var(--md-primary) 12%,var(--md-surface));
-  --md-secondary-container:color-mix(in srgb,var(--md-primary) 18%,var(--md-surface));
-  --md-on-secondary-container:var(--md-on-surface);
-  --md-outline:color-mix(in srgb,var(--md-on-surface) 45%,transparent);
-  --md-outline-variant:color-mix(in srgb,var(--md-on-surface) 14%,transparent);
-  --md-error:var(--error-color,#b3261e);
   --md-error-container:color-mix(in srgb,var(--md-error) 16%,var(--md-surface));
   --md-on-error-container:color-mix(in srgb,var(--md-error) 75%,var(--md-on-surface));
-  --plan-ferme:var(--md-primary);
-  --plan-volet:color-mix(in srgb,#8d6e4a 85%,var(--md-on-surface));
-  --plan-meuble:color-mix(in srgb,var(--md-surface) 40%,transparent);
-  --plan-meuble-trait:color-mix(in srgb,var(--md-on-surface) 70%,transparent);
-  --md-sys-motion:cubic-bezier(.2,0,0,1)}
-ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,16px);background:var(--md-surface-container-low)}
+  --md-sys-motion:cubic-bezier(.2,0,0,1);
+  --mq-police-hote:var(--ha-font-family-body)}
+/* mêmes jetons recalculés sur ha-card : un --maquette-* posé par card-mod (sur ha-card) y prime aussi ; sans lui, valeurs identiques (héritées) */
+ha-card{${CSS_JETONS_THEME}
+  --ha-font-family-body:var(--maquette-font,var(--mq-police-hote))}
+ha-card{padding:16px;overflow:hidden;border-radius:var(--plan-rayon);background:var(--md-surface-container-low)}
 .titre{font:500 22px/28px var(--ha-font-family-body,Roboto,system-ui,sans-serif);color:var(--md-on-surface);margin:0 4px 12px}
 .tete{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
 .plein .tete{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;flex:none}
 .plein .tete::-webkit-scrollbar{display:none}
 .plein .chip{flex:none}
 .chip{display:inline-flex;align-items:center;gap:8px;height:32px;padding:0 16px 0 8px;border-radius:8px;
-  border:1px solid var(--md-outline-variant);background:var(--md-surface);color:var(--md-on-surface-variant);
+  border:1px solid var(--md-outline-variant);background:var(--plan-puce-fond);color:var(--plan-puce-texte);
   font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.1px;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .chip ha-icon{--mdc-icon-size:18px;color:var(--md-primary);flex:none}
 /* texte trop long pour la largeur (téléphone : « 5 ouvertes : … ») : coupé proprement, la liste entière reste dans la bulle (title) ;
@@ -70,7 +61,7 @@ ha-card{padding:16px;overflow:hidden;border-radius:var(--ha-card-border-radius,1
 .etat-vide p{margin:0;max-width:420px}
 .etat-vide .actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;pointer-events:auto}
 .etat-vide button{height:40px;padding:0 20px 0 14px;white-space:nowrap;border-radius:20px;cursor:pointer;display:inline-flex;align-items:center;gap:8px;font:500 14px/20px var(--ha-font-family-body,Roboto,sans-serif);border:1px solid var(--md-outline);background:none;color:var(--md-primary)}
-.etat-vide button.plein{background:var(--md-primary);color:var(--text-primary-color,#fff);border-color:transparent}
+.etat-vide button.plein{background:var(--md-primary);color:var(--md-on-primary);border-color:transparent}
 .etat-vide button ha-icon{--mdc-icon-size:18px}
 .plan:has(.zone.dessin) .etat-vide{display:none}
 .plan:has(.etat-vide) .zoom{display:none}
@@ -85,7 +76,7 @@ svg{display:block;width:100%;height:auto;user-select:none}
 .edition .zone svg .piece.sous-zone{pointer-events:visiblePainted;cursor:pointer}
 .calque>.zone-etq{pointer-events:none}
 .edition .calque>.zone-etq.sz{pointer-events:auto;cursor:grab}
-.murs{fill:none;stroke:var(--md-on-surface);stroke-width:9;stroke-linecap:square}
+.murs{fill:none;stroke:var(--plan-mur);stroke-width:9;stroke-linecap:square}
 .limites{fill:none;stroke:var(--md-outline);stroke-width:5;stroke-linecap:square}
 .ouv{cursor:pointer}
 .ouv .cible{stroke:transparent;stroke-width:46}
@@ -106,14 +97,14 @@ svg{display:block;width:100%;height:auto;user-select:none}
 .ouv.a-fiche:focus{outline:none}
 .ouv.a-fiche:focus-visible .cible{stroke:color-mix(in srgb,var(--md-primary) 40%,transparent)}
 .ouv.sans-clic{cursor:default}
-.ouv.ouvert .trait{stroke:var(--a-c,var(--md-error));stroke-width:12}
+.ouv.ouvert .trait{stroke:var(--a-c,var(--plan-ouvert));stroke-width:12}
 /* animations (bibliothèque) : a-<type> sur l'élément, --a-d durée, --a-i intensité, --a-c couleur ; jouées seulement dans l'état concerné */
 .ouv.ouvert.a-pulsation .trait{animation:pulse var(--a-d,1.6s) ease-in-out infinite}
 .ouv.ouvert.a-respiration .trait{animation:respire var(--a-d) ease-in-out infinite}
 .ouv.ouvert.a-clignote .trait{animation:clignote var(--a-d) steps(1) infinite}
 .ouv.ouvert.a-defilement .trait{stroke-dasharray:18 10;animation:defile var(--a-d) linear infinite}
-.ouv.ouvert.a-halo .cible{stroke:var(--a-c,var(--md-error));stroke-linecap:round;animation:halo-svg var(--a-d) ease-in-out infinite}
-.ouv.ouvert.a-onde .cible{stroke:var(--a-c,var(--md-error));stroke-linecap:round;animation:onde-svg var(--a-d) ease-out infinite}
+.ouv.ouvert.a-halo .cible{stroke:var(--a-c,var(--plan-ouvert));stroke-linecap:round;animation:halo-svg var(--a-d) ease-in-out infinite}
+.ouv.ouvert.a-onde .cible{stroke:var(--a-c,var(--plan-ouvert));stroke-linecap:round;animation:onde-svg var(--a-d) ease-out infinite}
 .ouv.bouge .trait{stroke:var(--warning-color,#f4b400);stroke-width:10;stroke-dasharray:18 10;animation:defile .8s linear infinite}
 .ouv.inconnu .trait{stroke:var(--disabled-text-color,#999);stroke-dasharray:6 6}
 .volet{fill:none;stroke:var(--plan-volet);stroke-width:8;stroke-linecap:butt;transition:opacity .4s var(--md-sys-motion)}
@@ -134,7 +125,7 @@ button:hover::after{opacity:.08}
 button:active::after{opacity:.12}
 button:focus-visible{outline:3px solid var(--md-primary);outline-offset:2px}
 .etq{background:color-mix(in srgb,var(--md-surface) 88%,transparent);border:none;border-radius:12px;padding:.35em .75em;
-  color:var(--md-on-surface);font:inherit;text-align:center;cursor:pointer;box-shadow:0 1px 2px #0003,0 1px 3px 1px #0001}
+  color:var(--plan-etq);font:inherit;text-align:center;cursor:pointer;box-shadow:0 1px 2px #0003,0 1px 3px 1px #0001}
 .etq b{display:block;font-size:1.1em;font-weight:500}
 .etq .val{color:var(--md-on-surface-variant);font-weight:400;font-variant-numeric:tabular-nums;white-space:nowrap}
 .etq .val:empty{display:none}

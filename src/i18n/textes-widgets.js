@@ -2,6 +2,9 @@
 (() => { // @assemblage
 const EN = { // @assemblage
     // ---- widgets prêts à l'emploi, atelier, serrure ----
+    // préréglages de thermostat non traduits par HA
+    "Manuel": "Manual", "Éco": "Eco", "Confort": "Comfort", "Absence": "Away", "Sommeil": "Sleep", "Boost": "Boost",
+    "Activité": "Activity", "Vacances": "Holiday", "Programme": "Schedule",
     "CO₂ du séjour": "Living room CO₂",
     "Luminosité du bureau": "Office illuminance",
     "Serrure de l'entrée": "Front door lock",

@@ -94,6 +94,24 @@ class MaquetteCard extends HTMLElement { // @assemblage
     z.classList.toggle("caches", !this._editeur && m === "caches");
   }
 
+  // souris (PC) : boutons du plan (calques, zoom, revoir la journée) estompés 5 s après que le curseur a quitté le plan (ou 5 s après
+  // l'affichage s'il n'y est jamais venu), revenus dès qu'il y revient, au clavier (focus) ou au toucher ; écran tactile seul : toujours visibles
+  _quand_construit_zoom() {
+    const R = this.shadowRoot, plan = R?.querySelector(".plan");
+    if (!plan || plan.__repli) return;
+    plan.__repli = true;
+    const souris = matchMedia("(hover: hover) and (pointer: fine)"), z = () => R.querySelector(".zoom");
+    const montrer = () => { clearTimeout(this._tRepli); z()?.classList.remove("repli"); };
+    const armer = () => { montrer(); if (souris.matches) this._tRepli = setTimeout(() => z()?.classList.add("repli"), 5000); };
+    plan.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse") montrer(); });
+    // toucher (portable tactile) sur un bouton estompé : il réapparaît sans agir, rien ne passe au plan dessous
+    plan.addEventListener("pointerdown", (e) => { this._avaleClic = e.pointerType !== "mouse" && !!z()?.classList.contains("repli") && e.composedPath().includes(z()) ? e.timeStamp : 0; montrer(); });
+    plan.addEventListener("click", (e) => { if (this._avaleClic && e.timeStamp - this._avaleClic < 1000) { this._avaleClic = 0; e.stopPropagation(); e.preventDefault(); } }, true);
+    plan.addEventListener("pointerleave", (e) => { if (e.pointerType === "mouse") armer(); });
+    plan.addEventListener("focusin", montrer);
+    if (!plan.matches(":hover")) armer();
+  }
+
   _pxVersCm(cx, cy) {
     const r = this.shadowRoot.querySelector(".zone").getBoundingClientRect(), v = this.vue();
     return [v.x0 + ((cx - r.left) / r.width) * v.W, v.y0 + ((cy - r.top) / r.height) * v.H];

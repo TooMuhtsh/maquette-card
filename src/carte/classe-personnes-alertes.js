@@ -179,8 +179,11 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const n = o?.baie || o?.nom || this._nom(e), E = this._etageAilleurs(e);
       return E ? _t("{nom} ({etage})", { nom: n, etage: E.nom || E.court }) : n;
     };
+    // sous-titre : éléments concernés (sauf s'ils portent déjà le nom de l'alerte), puis le nombre d'autres alertes
+    const noms = [...new Set(a0.on.map(nomDe))].filter((n) => n !== a0.r.nom).join(", "), autres = l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : "";
+    const sousTitre = noms ? noms + autres : autres.replace(/^ · /, "");
     const html = `<ha-icon icon="${esc(a0.r.icone || NIVEAUX_ALERTE[a0.niv].icone)}"></ha-icon><span class="t"><b>${esc(a0.r.nom || _t("Alerte"))}</b>
-      <small>${esc([...new Set(a0.on.map(nomDe))].join(", "))}${l.length > 1 ? _t(" · {n} autre alerte| · {n} autres alertes", { n: l.length - 1 }) : ""}</small></span>
+      <small>${esc(sousTitre)}</small></span>
       <button class="ib" data-al="infos" title="${_t("Détails")}" aria-label="${_t("Détails")}"><ha-icon icon="mdi:information-outline"></ha-icon></button>
       <button class="ib" data-al="masquer" title="${_t("Masquer jusqu'au prochain changement")}" aria-label="${_t("Masquer")}"><ha-icon icon="mdi:close"></ha-icon></button>`;
     if (bd._h !== html) { poserHTML(bd, html); bd._h = html; }

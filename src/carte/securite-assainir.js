@@ -22,6 +22,9 @@ function attributSur(balise, nom, v) {
   if (n.startsWith("on") || n === "is" || n === "style" && !cssSur(v)) return false;
   if (ATTR_LIENS.has(n)) return (n === "src" && balise === "img" && /^(?:\/(?![/\\])|https?:)/i.test(v) && memeOrigine(v)) || ((n === "href" || n === "xlink:href") && /^#[\w-]*$/.test(v));
   if (n === "attributename") return ATTR_ANIMES.has(v);
+  // sans « : » ni « ( », aucun des motifs ci-dessous n'est possible (schéma javascript: / data:, url()) : sûr sans les expressions
+  // (cas de presque tous les attributs du plan : classes, coordonnées, data-*)
+  if (!v.includes(":") && !v.includes("(")) return true;
   return !/(?:java|vb)script\s*:|data\s*:\s*text/i.test(v.replace(/[\s\u0000-\u001f]/g, "")) && (!/url\s*\(/i.test(v) || cssSur(v));
 }
 const NS_SVG = "http://www.w3.org/2000/svg";
@@ -259,6 +262,23 @@ function assainirConfig(c, rapport) {
     vitrine: (v, ch) => (typeof v === "boolean" ? v : objet({ pos: pt, largeur: nbF })(v, ch)),
     teinte_temperature: (v, ch) => (v === false ? v : objet({ min: nbF, max: nbF })(v, ch)),
     interaction: objet({ retour_apres: nbF }),
+    // thème : nom du registre (themes.js), ou objet { base, <variable>… } aux valeurs validées par type (couleur : même règle que les autres)
+    theme: (v, ch) => {
+      if (typeof v === "string") return NOMS_THEMES.includes(v) ? v : undefined;
+      if (!objetSimple(v)) return undefined;
+      for (const k of Object.keys(v)) {
+        const d = VARIABLES_THEME.find((x) => x.cle === k);
+        if (k === "base" ? !NOMS_THEMES.includes(v.base) : !d || !valeurTheme(v[k], d.type)) { delete v[k]; retires.push([...ch, k]); }
+        else if (d) v[k] = typeof v[k] === "number" ? v[k] : v[k].trim();
+      }
+      return v;
+    },
+    // CSS personnalisé : refusé en entier (avertissement clair, rien d'injecté) s'il charge ou exécute quoi que ce soit, ou dépasse 20 Kio
+    css: (v) => {
+      const r = verifierCss(v);
+      if (!r.ok) avertir(`custom css refused (${r.raison}): nothing applied`);
+      return r.ok ? v : undefined;
+    },
   }, []);
   if (rapport && retires.length) (rapport.retires ||= []).push(...retires.map(cheminPublic));
   return c;

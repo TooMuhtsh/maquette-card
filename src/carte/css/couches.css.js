@@ -31,7 +31,7 @@ void ` // @assemblage
   background:var(--md-secondary-container);color:var(--md-on-secondary-container);font:500 12px/16px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.4px}
 /* replay de la journée */
 .plan.en-replay{box-shadow:inset 0 0 0 2px var(--md-primary)}
-.zoom button.on{background:var(--md-primary);color:var(--text-primary-color,#fff)}
+.zoom button.on{background:var(--md-primary);color:var(--md-on-primary)}
 .replay{position:absolute;left:16px;right:72px;bottom:16px;z-index:4;display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:16px;
   background:color-mix(in srgb,var(--md-surface-container-high) 94%,transparent);color:var(--md-on-surface);box-shadow:0 2px 8px #0005;
   font:500 14px/20px var(--ha-font-family-body,Roboto,system-ui,sans-serif);font-variant-numeric:tabular-nums}
@@ -65,7 +65,7 @@ void ` // @assemblage
 .calque>.pers{display:flex;flex-direction:column;align-items:center;gap:2px;border:none;background:none;padding:0;cursor:pointer;font:inherit;color:var(--md-on-surface);overflow:visible;
   transform:translate(calc(-50% + var(--dx,0)*2.9em),calc(-50% + 2.4em));transition:left 1.6s var(--md-sys-motion),top 1.6s var(--md-sys-motion),transform .6s var(--md-sys-motion);z-index:2}
 .calque>.pers::after{display:none}
-.pers .av{width:2.3em;height:2.3em;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--md-primary);color:var(--text-primary-color,#fff);font-weight:600;
+.pers .av{width:2.3em;height:2.3em;border-radius:50%;display:grid;place-items:center;overflow:hidden;background:var(--md-primary);color:var(--md-on-primary);font-weight:600;
   box-shadow:0 0 0 2px var(--md-surface),0 0 0 4px var(--md-primary),0 2px 4px #0005;transition:filter .6s,opacity .6s}
 .pers .av img{width:100%;height:100%;object-fit:cover}
 .pers small{font-size:.8em;padding:0 .4em;border-radius:6px;background:color-mix(in srgb,var(--md-surface) 85%,transparent);white-space:nowrap}
@@ -118,8 +118,10 @@ void ` // @assemblage
 span.mb{pointer-events:none}
 .edition .calque>.mb{pointer-events:none}
 .mb .v{padding:.15em .55em;border-radius:999px;background:var(--md-surface-container-high);font-size:.9em;font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 1px 2px #0003}
-.mb .v:empty,.mb.petit .v{display:none}
-.mb.actif .v{background:var(--mb-couleur,var(--md-primary));color:var(--text-primary-color,#fff)}
+.mb .v:empty{display:none}
+/* meuble de moins de 24 px à l'écran : badge resserré, police d'au moins 10 px (lisible), jamais masqué */
+.mb.petit .v{font-size:max(10px,.72em);padding:.05em .4em}
+.mb.actif .v{background:var(--mb-couleur,var(--md-primary));color:var(--md-on-primary)}
 .mb.actif.clair .v{color:#2b2000}
 .legende{display:flex;align-items:center;gap:8px 16px;justify-content:center;margin-top:12px;
   font:400 12px/16px var(--ha-font-family-body,Roboto,system-ui,sans-serif);letter-spacing:.4px;color:var(--md-on-surface-variant);flex-wrap:wrap}
@@ -159,11 +161,17 @@ span.mb{pointer-events:none}
 .etq.inerte::after{display:none}
 `;
 
+// fond assez clair pour un texte foncé (#2b2000) plutôt que blanc : on garde le plus contrasté des deux (WCAG 2.x) ;
+// accepte #rgb, #rrggbb(aa) et rgb()/rgba() ; autre chose (var(), nom) : texte blanc
 function clairPour(c) {
-  const m = /^#([0-9a-f]{6})$/i.exec(c || "");
-  if (!m) return false;
-  const [r, g, b] = m[1].match(/../g).map((h) => parseInt(h, 16) / 255);
-  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.55;
+  const s = String(c || "").trim();
+  let m = /^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(s), v;
+  if (m) { const h = m[1].length === 3 ? m[1].replace(/./g, "$&$&") : m[1].slice(0, 6); v = h.match(/../g).map((x) => parseInt(x, 16)); }
+  else if ((m = /^rgba?\(\s*(\d+)[\s,]+(\d+)[\s,]+(\d+)/i.exec(s))) v = m.slice(1, 4).map(Number);
+  else return false;
+  const lin = (x) => { x = Math.min(255, x) / 255; return x <= 0.04045 ? x / 12.92 : ((x + 0.055) / 1.055) ** 2.4; };
+  const L = 0.2126 * lin(v[0]) + 0.7152 * lin(v[1]) + 0.0722 * lin(v[2]), FONCE = 0.0152; // luminance de #2b2000
+  return (L + 0.05) / (FONCE + 0.05) > 1.05 / (L + 0.05);
 }
 function dansPoly([x, y], poly) {
   let dedans = false;

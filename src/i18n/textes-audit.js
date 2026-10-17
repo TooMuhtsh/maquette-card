@@ -55,7 +55,7 @@ const EN = { // @assemblage
     "Fenêtre Ambiance": "Ambience dialog",
     "Grille": "Grid",
     "Grille (Alt : sans aimant)": "Grid (Alt: no snapping)",
-    "Recadrer : tout le plan avec 5 m de marge": "Reframe: the whole plan with a 5 m margin",
+    "Recadrer : tout le plan avec une marge pour dessiner": "Reframe: the whole plan with room to draw around it",
     "Enregistrer (modifications non enregistrées)": "Save (unsaved changes)",
     "Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.": "Drag it to move it (it snaps to nearby walls), pull a corner to resize it.",
     "Modèle : garder ce meuble à ces dimensions dans « Mes modèles »": "Template: keep this furniture at this size in “My templates”",

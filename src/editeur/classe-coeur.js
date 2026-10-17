@@ -50,7 +50,7 @@ export class EditeurPlan {
     }
   }
 
-  // téléphone : à l'ouverture, la vue est cadrée sur le plan (la zone de dessin garde ses 5 m de marge : « Toute la maison »,
+  // téléphone : à l'ouverture, la vue est cadrée sur le plan (la zone de dessin garde sa marge : « Toute la maison »,
   // dézoomer ou « Recadrer » pour y accéder) ; sur grand écran, tout reste visible d'emblée
   _cadrerPlan() {
     const c = this.carte, B = c._box;
@@ -119,7 +119,7 @@ export class EditeurPlan {
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
-      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}</div>
+      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec une marge pour dessiner"))}</div>
       <div class="ed-fin"><button class="ib ed-plus" data-a="plus" title="${_t("Plus d'outils")}" aria-label="${_t("Plus d'outils")}" aria-haspopup="menu" aria-expanded="false"><ha-icon icon="mdi:dots-vertical"></ha-icon></button>
       <button class="ed-btn tonal" data-a="ajouter" title="${tactile() ? _t("Ajouter un objet ou un widget") : _t("Ajouter un objet ou un widget (A)")}" aria-label="${_t("Ajouter")}"><ha-icon icon="mdi:plus"></ha-icon><span class="lib">${_t("Ajouter")}</span></button>
       <span class="ed-info"></span>

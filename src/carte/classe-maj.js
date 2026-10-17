@@ -41,7 +41,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
   // valeur affichée : un attribut de l'entité, ou l'état numérique de `valeur` avec son unité
   _texteValeur(p) {
     const s = this._etat(p.entite);
-    if (p.attribut && s) { const a = s.attributes[p.attribut]; return a != null ? `${typeof a === "number" ? fmt(a, p.decimales ?? 1) : a}${p.unite ?? ""}` : ""; }
+    if (p.attribut && s) { const a = s.attributes[p.attribut]; return a != null ? `${typeof a === "number" ? fmt(a, p.decimales ?? 1) : typeof a === "string" ? this._hass.formatEntityAttributeValue?.(s, p.attribut) ?? a : a}${p.unite ?? ""}` : ""; }
     if (p.valeur) { const n = this._num(p.valeur), sv = this._etat(p.valeur); if (n != null) return `${fmt(n, p.decimales ?? 0)} ${p.unite ?? sv.attributes.unit_of_measurement ?? ""}`.trim(); }
     return consigneClimat(s, p, this._hass);
   }
@@ -59,7 +59,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
       const poly = R.querySelector(`[data-p="${i}"]`);
       if (!p.dehors && poly) {
         const col = teinte && couleurTempEchelle(t, teinte);
-        poly.style.fill = col ? `color-mix(in srgb, ${col} 28%, var(--md-surface))` : "var(--secondary-background-color)";
+        poly.style.fill = col ? `color-mix(in srgb, ${col} 28%, var(--md-surface))` : "var(--plan-sol)";
       }
       const etq = R.querySelector(`[data-l="${i}"] .val`);
       texteSi(etq, [t != null && EP.temperature ? `${fmt(t)} °C` : "", h != null && EP.humidite ? `${fmt(h, 0)}${globalThis.MaquetteI18n.pct()}` : ""].filter(Boolean).join(" · "));

@@ -179,7 +179,6 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Extérieur et jardin": "Outdoor and garden",
     "Réseau et serveur": "Network and server",
     "Réseau##informatique": "Network",
-    "Présence": "Presence",
     "Véhicule": "Vehicle",
     "CO₂": "CO₂",
     "Jauge 400 à 2000 ppm": "Gauge 400 to 2000 ppm",
@@ -622,7 +621,6 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "« Placer sur le plan » : glisse les avatars à l'endroit voulu.": "“Place on the plan”: drag the avatars where you want them.",
     "Placer sur le plan": "Place on the plan",
     "Glisse les avatars sur le plan, puis Échap pour revenir à l'ambiance.": "Drag the avatars on the plan, then Esc to go back to the ambience.",
-    "Auto": "Auto",
     "Pièce fictive : baie avec volet au sud, fenêtre à l'est, lampe. Heure et météo de l'aperçu seulement : rien n'est enregistré.": "Sample room: a bay with a shutter facing south, a window facing east, a lamp. Preview time and weather only: nothing is saved.",
     "Heure de l'aperçu": "Preview time",
     "Météo de l'aperçu": "Preview weather",
@@ -1127,6 +1125,29 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Paramètres": "Settings",
     "Valeur refusée : de {min} à {max} {unite}.": "Value refused: from {min} to {max} {unite}.",
     "Présence (défaut : celle des paramètres)": "Presence (default: the one in Settings)",
+    "Apparence": "Appearance",
+    "Thème": "Theme",
+    "Océan": "Ocean",
+    "Ardoise": "Slate",
+    "Sable": "Sand",
+    "Forêt": "Forest",
+    "toujours sombre": "always dark",
+    "toujours clair": "always light",
+    "clair et sombre": "light and dark",
+    "Material : le rendu d'origine. Home Assistant : se fond dans le thème du tableau de bord. Chaque vignette montre le thème clair et sombre.": "Material: the original look. Home Assistant: blends into the dashboard theme. Each tile shows the light and dark theme.",
+    "Retouches": "Adjustments",
+    "Par-dessus le thème choisi, en clair comme en sombre. Les autres couleurs se règlent dans le CSS personnalisé.": "On top of the chosen theme, in light and dark. Other colors are set in the custom CSS.",
+    "Accent": "Accent",
+    "Fond": "Background",
+    "Rayon des coins": "Corner radius",
+    "Valeur du thème": "Theme value",
+    "Réinitialiser": "Reset",
+    "CSS personnalisé": "Custom CSS",
+    "Ajouté en dernier dans la carte. Refusés : @import, url() hors image data:, expression(), javascript:, barres obliques inverses, plus de {n} Kio.": "Added last in the card. Refused: @import, url() other than a data: image, expression(), javascript:, backslashes, more than {n} KiB.",
+    "Variables --maquette-*": "--maquette-* variables",
+    "Un clic insère la variable et sa valeur actuelle au curseur. Elles priment sur le thème, aussi depuis un thème Home Assistant ou card-mod.": "A click inserts the variable and its current value at the cursor. They override the theme, also from a Home Assistant theme or card-mod.",
+    "Insérer « {v} » dans le CSS": "Insert “{v}” into the CSS",
+    "CSS refusé ({raison}) : rien n'est appliqué.": "CSS refused ({raison}): nothing is applied.",
     "Outils": "Tools",
     "Exporter / importer": "Export / import",
     "Pas de la grille : {v} cm": "Grid step: {v} cm",
@@ -1477,7 +1498,7 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Fenêtre Ambiance": "Ambience dialog",
     "Grille": "Grid",
     "Grille (Alt : sans aimant)": "Grid (Alt: no snapping)",
-    "Recadrer : tout le plan avec 5 m de marge": "Reframe: the whole plan with a 5 m margin",
+    "Recadrer : tout le plan avec une marge pour dessiner": "Reframe: the whole plan with room to draw around it",
     "Enregistrer (modifications non enregistrées)": "Save (unsaved changes)",
     "Glisse-le pour le déplacer (il se colle aux murs proches), tire un coin pour changer sa taille.": "Drag it to move it (it snaps to nearby walls), pull a corner to resize it.",
     "Modèle : garder ce meuble à ces dimensions dans « Mes modèles »": "Template: keep this furniture at this size in “My templates”",
@@ -3059,7 +3080,12 @@ function iconeEntite(hass, e) {
   const parDc = { motion: "mdi:motion-sensor", occupancy: "mdi:motion-sensor", door: "mdi:door", window: "mdi:window-closed-variant",
     temperature: "mdi:thermometer", humidity: "mdi:water-percent", power: "mdi:flash", energy: "mdi:lightning-bolt", illuminance: "mdi:brightness-5",
     garage: "mdi:garage-variant", shade: "mdi:window-shutter", shutter: "mdi:window-shutter", tv: "mdi:television", outlet: "mdi:power-socket-eu", co2: "mdi:molecule-co2", carbon_dioxide: "mdi:molecule-co2", carbon_monoxide: "mdi:molecule-co" };
-  return parDc[dc] || (ICONES[dom] || ICONES._)[0];
+  if (parDc[dc]) return parDc[dc];
+  // sans device_class (capteur template, MQTT…) : d'après l'unité, sinon l'icône par défaut de HA (jamais un thermomètre pour un capteur inconnu)
+  const u = s?.attributes.unit_of_measurement, parUnite = { W: "mdi:flash", kW: "mdi:flash", Wh: "mdi:lightning-bolt", kWh: "mdi:lightning-bolt", MWh: "mdi:lightning-bolt",
+    "°C": "mdi:thermometer", "°F": "mdi:thermometer", K: "mdi:thermometer", lx: "mdi:brightness-5", ppm: "mdi:molecule-co2", V: "mdi:sine-wave", A: "mdi:current-ac" };
+  if (dom === "sensor") return parUnite[u] || "mdi:eye";
+  return (ICONES[dom] || ICONES._)[0];
 }
 
 function pointPour(hass, e, pos) {
@@ -3835,6 +3861,39 @@ ha-card.ed-etroit .ed-pt footer .ed-espace{display:none}
 .ed-pt-ou[hidden]{display:none}
 ha-card.ed-etroit .ed-pt-ou{margin-left:0}
 ha-card.ed-etroit .ed-pt-ou select{flex:1 1 100%}
+.ed-app-themes{display:grid;grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:8px}
+.ed-app-theme{display:flex;flex-direction:column;gap:6px;padding:6px 6px 8px;border-radius:12px;border:1px solid var(--md-outline-variant);background:var(--md-surface);color:var(--md-on-surface);
+  cursor:pointer;font:500 13px/18px var(--ha-font-family-body,Roboto,sans-serif);text-align:left;min-width:0}
+.ed-app-theme:hover{background:color-mix(in srgb,var(--md-on-surface) 6%,var(--md-surface))}
+.ed-app-theme[aria-pressed=true]{border-color:var(--md-primary);box-shadow:inset 0 0 0 1px var(--md-primary);background:var(--md-secondary-container);color:var(--md-on-secondary-container)}
+.ed-app-theme:focus-visible{outline:2px solid var(--md-primary);outline-offset:2px}
+.ed-app-mini{display:flex;height:56px;border-radius:8px;overflow:hidden;border:1px solid var(--md-outline-variant)}
+.ed-app-moitie{flex:1;position:relative;background:var(--f)}
+.ed-app-moitie .p{position:absolute;left:12%;top:16%;width:60%;height:58%;box-sizing:border-box;background:var(--r);border:2px solid var(--w);border-radius:2px}
+.ed-app-moitie .l{position:absolute;left:22%;top:38%;width:30%;height:4px;border-radius:2px;background:var(--t)}
+.ed-app-moitie .o{position:absolute;right:9%;bottom:12%;width:12px;height:12px;border-radius:50%;background:var(--a)}
+.ed-app-nom{display:flex;align-items:center;gap:4px;padding:0 2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ed-app-nom ha-icon{--mdc-icon-size:16px;flex:none}
+.ed-app-retouches .ed-pal .ib{flex:none}
+.ed-app-rayon .ed-curseur .ib{flex:none}
+.ed-par-sec[data-sec=app-retouches] .ed-actions{display:flex;justify-content:flex-end}
+.ed-app-css{min-height:140px;resize:vertical}
+.ed-app-css[aria-invalid=true]{border-color:var(--md-error)}
+.ed-par-sec .ed-par-inter{display:flex;align-items:center;gap:2px;margin:4px 0 -6px}
+.ed-app-vars{list-style:none;margin:0;padding:4px;display:flex;flex-direction:column;gap:2px;max-height:340px;overflow:auto;border:1px solid var(--md-outline-variant);border-radius:12px}
+.ed-app-var{display:flex;align-items:center;gap:10px;width:100%;min-height:44px;padding:4px 8px;box-sizing:border-box;border:none;border-radius:8px;background:none;color:var(--md-on-surface);
+  cursor:pointer;text-align:left;font:400 13px/18px var(--ha-font-family-body,Roboto,sans-serif)}
+.ed-app-var:hover{background:color-mix(in srgb,var(--md-on-surface) 8%,transparent)}
+.ed-app-var:focus-visible{outline:2px solid var(--md-primary);outline-offset:-2px}
+.ed-app-pastille{width:20px;height:20px;border-radius:50%;flex:none;box-sizing:border-box;background:var(--c,transparent);border:1px solid var(--md-outline-variant)}
+.ed-app-pastille.ic{--mdc-icon-size:18px;border:none;background:none;color:var(--md-on-surface-variant);display:grid;place-items:center}
+.ed-app-var .n{flex:1;min-width:0;display:flex;flex-direction:column}
+.ed-app-var code{font:400 12px/16px ui-monospace,"Roboto Mono",Consolas,monospace}
+.ed-app-var .n small{color:var(--md-on-surface-variant);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ed-app-var .v{max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--md-on-surface-variant)}
+ha-card.ed-etroit .ed-app-themes{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+ha-card.ed-etroit .ed-app-mini{height:44px}
+ha-card.ed-etroit .ed-app-var .v{max-width:30%}
 /* champs de la modale ⚙ Paramètres */
 .ed-par-sec{display:flex;flex-direction:column;gap:14px}
 .ed-par-sec+.ed-par-sec{border-top:1px solid var(--md-outline-variant);padding-top:14px}
@@ -4152,7 +4211,7 @@ class EditeurPlan {
     }
   }
 
-  // téléphone : à l'ouverture, la vue est cadrée sur le plan (la zone de dessin garde ses 5 m de marge : « Toute la maison »,
+  // téléphone : à l'ouverture, la vue est cadrée sur le plan (la zone de dessin garde sa marge : « Toute la maison »,
   // dézoomer ou « Recadrer » pour y accéder) ; sur grand écran, tout reste visible d'emblée
   _cadrerPlan() {
     const c = this.carte, B = c._box;
@@ -4221,7 +4280,7 @@ class EditeurPlan {
       <span class="ed-sep ed-pc"></span>
       <button class="ed-menu-btn" data-a="grille" title="${tactile() ? _t("Grille") : _t("Grille (Alt : sans aimant)")}" aria-label="${_t("Pas de la grille : {v} cm", { v: this.grille })}" aria-haspopup="menu" aria-expanded="false">
         <ha-icon icon="mdi:grid"></ha-icon><span><span class="lib">${_t("Grille :")} </span>${_t("{v} cm", { v: this.grille })}</span><ha-icon icon="mdi:menu-down"></ha-icon></button>
-      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec 5 m de marge"))}</div>
+      ${ib("recadrer", "mdi:fit-to-screen-outline", _t("Recadrer : tout le plan avec une marge pour dessiner"))}</div>
       <div class="ed-fin"><button class="ib ed-plus" data-a="plus" title="${_t("Plus d'outils")}" aria-label="${_t("Plus d'outils")}" aria-haspopup="menu" aria-expanded="false"><ha-icon icon="mdi:dots-vertical"></ha-icon></button>
       <button class="ed-btn tonal" data-a="ajouter" title="${tactile() ? _t("Ajouter un objet ou un widget") : _t("Ajouter un objet ou un widget (A)")}" aria-label="${_t("Ajouter")}"><ha-icon icon="mdi:plus"></ha-icon><span class="lib">${_t("Ajouter")}</span></button>
       <span class="ed-info"></span>
@@ -5165,6 +5224,9 @@ class EditeurPlan {
       if (!o) l.push((o = { id, titre: S.titre, icone: S.icone || "mdi:cog-outline", sections: [] }));
       o.sections.push({ S, champs });
     }
+    // onglet rendu par son propre morceau (Apparence : classe-apparence.js), placé après l'onglet `apres`
+    const ap = this._ongletApparence?.();
+    if (ap) l.splice(l.findIndex((o) => o.id === ap.apres) + 1 || l.length, 0, { ...ap, sections: [] });
     return l;
   }
   ongletParametres(id) {
@@ -5199,7 +5261,7 @@ class EditeurPlan {
     };
     // un onglet = son titre puis ses sections ; une section porte un sous-titre seulement si l'onglet en regroupe plusieurs (sauf la première, du même nom)
     const panneaux = onglets.map((o) => {
-      const t = _t(o.titre), secs = o.sections.map(({ S, champs: l }, n) => {
+      const t = _t(o.titre), secs = o.html ? o.html() : o.sections.map(({ S, champs: l }, n) => {
         const sous = o.sections.length > 1 && !(n === 0 && _t(S.titre) === t), id = esc(S.id);
         return `<section class="ed-par-sec" data-sec="${id}" aria-labelledby="${sous ? `par-sec-${id}` : `par-pan-t-${esc(o.id)}`}">${sous ? `<h4><span id="par-sec-${id}">${esc(_t(S.titre))}</span>${S.aide ? bulleI(_t(S.aide)) : ""}</h4>` : ""}${champs(l)}</section>`;
       }).join("");
@@ -5212,6 +5274,7 @@ class EditeurPlan {
       <div class="ed-mcorps">${this._navOnglets("par", _t("Sections des paramètres"), onglets.map((o) => [o.id, _t(o.titre), o.icone]), this._ongletPar)}
         <div class="ed-mcontenu">${panneaux}</div></div></div>`);
     this._cablerChamps(V);
+    this._cablerApparence?.(V);
     V.querySelectorAll("[data-pal-coul]").forEach((inp) => { inp.onchange = () => this.commit(() => { (this.d.palette ||= {})[inp.dataset.palCoul] = inp.value; }); });
     const c = V.querySelector(".ed-mcontenu");
     if (c) c.scrollTop = defile;
@@ -5407,6 +5470,223 @@ class EditeurPlan {
     this.commit(() => (f.ecrire ? f.ecrire(this.d, v) : ecrireReglage(this.d, f, v)));
   }
 
+  // ---------- apparence (`theme:` et `css:`) ----------
+  // Tout vient du socle de la carte (MaquetteCard.THEMES : registre, table des variables, validation) : aucune palette ici.
+  // Config interne : d.theme = nom du registre, ou { base, <clé interne de la variable>: valeur } (retouches) ; d.css = texte.
+  // Aperçu en direct : carte.apercuTheme(theme, css) pendant un glisser ou une frappe (rien d'écrit), puis commit au relâchement ;
+  // l'éditeur vit dans le shadow DOM de la carte et lit ses --md-* : il suit l'aperçu lui aussi.
+  // Onglet ajouté par classe-parametres.js (_ongletsParametres → _ongletApparence, rendu → _htmlApparence, câblage → _cablerApparence).
+  _ongletApparence() { return { id: "apparence", titre: _tk("Apparence"), icone: "mdi:palette-outline", apres: "affichage", html: () => this._htmlApparence() }; }
+  get _TH() { return this.carte.constructor.THEMES; }
+  // retouches proposées (nom de la variable publique) ; les autres variables restent réglables par le CSS personnalisé
+  static RETOUCHES_APPARENCE = [["accent", _tk("Accent")], ["surface", _tk("Fond")], ["wall", _tk("Murs")], ["room-fill", _tk("Sol des pièces")]];
+  // nom affiché d'un thème du registre (un thème ajouté plus tard sans nom traduit : son nom avec une majuscule)
+  _nomTheme(n) {
+    const l = { material: "Material", ha: "Home Assistant", ocean: _t("Océan"), slate: _t("Ardoise"), sand: _t("Sable"), forest: _t("Forêt"), night: _t("Nuit") };
+    return l[n] || n.charAt(0).toUpperCase() + n.slice(1);
+  }
+  // thème de la config : { base, retouches: { <nom de variable>: valeur } } (mêmes règles que la carte : valeurs non sûres ignorées)
+  _themeApp(t = this.d.theme) {
+    const TH = this._TH, base = typeof t === "string" ? t : t && typeof t === "object" ? t.base : null, retouches = {};
+    if (t && typeof t === "object" && !Array.isArray(t)) for (const v of TH.variables) { const s = Object.hasOwn(t, v.cle) ? TH.valeur(t[v.cle], v.type) : null; if (s) retouches[v.nom] = s; }
+    return { base: typeof base === "string" && Object.hasOwn(TH.registre, base) ? base : "material", retouches };
+  }
+  // config interne d'un thème : nom seul sans retouche (rien pour material), objet sinon
+  _configTheme(base, retouches) {
+    const l = Object.entries(retouches || {});
+    if (!l.length) return base === "material" ? undefined : base;
+    const cle = Object.fromEntries(this._TH.variables.map((v) => [v.nom, v.cle]));
+    return { base, ...Object.fromEntries(l.map(([n, v]) => [cle[n], v])) };
+  }
+  _ecrireTheme(base, retouches) {
+    this.carte.apercuTheme?.(null);
+    const t = this._configTheme(base, retouches);
+    this.commit(() => { if (t === undefined) delete this.d.theme; else this.d.theme = t; });
+  }
+  // aperçu sans écriture (retouches et / ou CSS du brouillon) ; un CSS refusé n'est jamais montré (celui de la config reste)
+  // un aperçu identique à la config est retiré (sinon il resterait posé sur la carte et masquerait les modifications suivantes)
+  _apercuApparence(retouches, css) {
+    const { base, retouches: r0 } = this._themeApp();
+    const c = css === undefined ? this.d.css : this._TH.verifierCss(css).ok || !css.trim() ? css : this.d.css;
+    const t = this._configTheme(base, retouches ?? r0);
+    if (JSON.stringify(t) === JSON.stringify(this._configTheme(base, r0)) && (c ?? "") === (this.d.css ?? "")) return this.carte.apercuTheme?.(null);
+    this.carte.apercuTheme?.(t ?? "material", c ?? "");
+  }
+  // toute modification (annuler / rétablir compris) revient à la config : un aperçu en cours n'y survit pas
+  _quand_modifie_apparence() { if (this.carte._thApercu) this.carte.apercuTheme?.(null); }
+  // couleur calculée → #rrggbb (champ couleur) ; null si elle ne se lit pas (transparente, var() vide…)
+  _hexCouleur(c) {
+    const s = this._sonde ||= Object.assign(document.createElement("span"), { hidden: true });
+    if (!s.isConnected) this.R.append(s);
+    s.style.color = ""; s.style.color = c || "";
+    if (!s.style.color) return null;
+    const v = getComputedStyle(s).color, n = v.match(/[\d.]+(?:e-?\d+)?%?/g)?.map(Number) || [];
+    if (n.length < 3 || (n.length > 3 && n[3] < 1)) return null;
+    const k = /^color\(srgb/.test(v) ? 255 : /^rgba?\(/.test(v) ? 1 : 0;
+    if (!k) return null;
+    return `#${n.slice(0, 3).map((x) => Math.max(0, Math.min(255, Math.round(x * k))).toString(16).padStart(2, "0")).join("")}`;
+  }
+  // variables publiques avec leur valeur lisible : couleur en #rrggbb si possible, police réelle de la carte
+  _variablesApp() {
+    const l = this.carte.variablesTheme?.() || [];
+    const police = getComputedStyle(this.carte).fontFamily;
+    return l.map((v) => ({ ...v, lisible: v.type === "couleur" ? this._hexCouleur(v.valeur) || v.valeur : v.type === "police" ? police || v.valeur : v.valeur }));
+  }
+
+  // ---------- rendu de l'onglet ----------
+  _htmlApparence() {
+    const TH = this._TH, { base, retouches } = this._themeApp(), vars = this._variablesApp(), parNom = Object.fromEntries(vars.map((v) => [v.nom, v]));
+    this._variablesAppCache = Object.fromEntries(vars.map((v) => [v.nom, v.lisible]));
+    // focus et curseur d'un champ de l'onglet : retrouvés après le rendu (_cablerApparence)
+    const a = this.R.activeElement;
+    this._appGarde = a?.dataset?.app ? { k: a.dataset.app, s: a.selectionStart, e: a.selectionEnd, top: a.scrollTop } : this._appGarde?.force ? this._appGarde : null;
+    // brouillon du CSS (refusé, pas encore écrit) : gardé tant que la config n'a pas changé entre-temps
+    if (this._appCss && this._appCss.base !== (this.d.css ?? "")) this._appCss = null;
+    const css = this._appCss?.texte ?? this.d.css ?? "", refus = css.trim() ? TH.verifierCss(css) : { ok: true };
+    // vignette : deux moitiés claire / sombre (une seule si le thème force un mode), variables lues dans le registre ;
+    // une valeur absente ou qui dépend du thème HA (var(…)) prend une valeur témoin du mode
+    const TEMOIN = { clair: { accent: "#03a9f4", surface: "#ffffff", text: "#1c1b1f", "room-fill": "#eeeeee" }, sombre: { accent: "#03a9f4", surface: "#1c1c1c", text: "#e3e3e3", "room-fill": "#2e2e2e" } };
+    const defaut = Object.fromEntries(TH.variables.map((v) => [v.nom, v.defaut]));
+    const moitie = (n, sombre) => {
+      const r = TH.resoudre(n, sombre), m = TEMOIN[(TH.registre[n].mode || (sombre ? "sombre" : "clair")) === "sombre" ? "sombre" : "clair"];
+      const v = (k) => (r[k] && !/^var\(/.test(r[k]) ? r[k] : m[k] ?? defaut[k]);
+      const st = `--md-primary:${v("accent")};--md-surface:${v("surface")};--md-on-surface:${v("text")};--f:${v("card-background")};--w:${v("wall")};--r:${v("room-fill")};--a:${v("door-closed")};--t:${v("room-text")}`;
+      return `<span class="ed-app-moitie" style="${esc(st)}"><span class="p"></span><span class="l"></span><span class="o"></span></span>`;
+    };
+    const vignettes = TH.noms.map((n) => {
+      const on = n === base, mode = TH.registre[n].mode, nom = this._nomTheme(n);
+      const quoi = mode === "sombre" ? _t("toujours sombre") : mode === "clair" ? _t("toujours clair") : _t("clair et sombre");
+      return `<button type="button" class="ed-app-theme" data-app="theme:${esc(n)}" aria-pressed="${on}" aria-label="${esc(`${nom} (${quoi})`)}">
+        <span class="ed-app-mini" aria-hidden="true">${mode ? moitie(n, mode === "sombre") : moitie(n, false) + moitie(n, true)}</span>
+        <span class="ed-app-nom">${on ? `<ha-icon icon="mdi:check"></ha-icon>` : ""}${esc(nom)}</span></button>`;
+    }).join("");
+    // retouches : couleur (champ couleur + effacer) et rayon (curseur)
+    const lignes = EditeurPlan.RETOUCHES_APPARENCE.map(([n, lib]) => {
+      const r = retouches[n], hex = this._hexCouleur(r ?? parNom[n]?.valeur) || "#808080", l = esc(_t(lib));
+      return `<div class="ed-pal ed-app-ret"><input type="color" data-app="ret:${esc(n)}" value="${esc(hex)}" aria-label="${l}">
+        <span class="n">${l}<small>${r ? esc(r) : `${esc(_t("Thème"))} · ${esc(hex)}`}</small></span>
+        ${r ? `<button type="button" class="ib" data-app="raz:${esc(n)}" title="${esc(_t("Valeur du thème"))}" aria-label="${esc(_t("Valeur du thème"))} : ${l}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</div>`;
+    }).join("");
+    const ray = retouches.radius ?? parNom.radius?.valeur ?? "16px", rpx = Math.max(0, Math.min(32, Math.round(parseFloat(ray) || 0)));
+    const rayon = `<div class="ed-champ ed-par-curseur ed-app-rayon"><label for="app-rayon">${_t("Rayon des coins")}</label><div class="ed-curseur">
+        <input type="range" id="app-rayon" data-app="ret:radius" min="0" max="32" step="1" value="${rpx}" aria-valuetext="${rpx} px"><output>${rpx} px</output>
+        ${retouches.radius ? `<button type="button" class="ib" data-app="raz:radius" title="${esc(_t("Valeur du thème"))}" aria-label="${esc(_t("Valeur du thème"))} : ${esc(_t("Rayon des coins"))}"><ha-icon icon="mdi:close"></ha-icon></button>` : ""}</div></div>`;
+    const nbRet = Object.keys(retouches).length;
+    // variables publiques : liste cliquable (un clic insère « --maquette-x: valeur; » au curseur du CSS personnalisé)
+    const ico = { longueur: "mdi:ruler", police: "mdi:format-font" };
+    const liste = vars.map((v) => `<li><button type="button" class="ed-app-var" data-app="var:${esc(v.nom)}" title="${esc(_t("Insérer « {v} » dans le CSS", { v: `${v.variable}: ${v.lisible};` }))}">
+        ${v.type === "couleur" ? `<span class="ed-app-pastille" data-app-coul="${esc(v.nom)}"></span>` : `<ha-icon class="ed-app-pastille ic" icon="${ico[v.type] || "mdi:code-braces"}"></ha-icon>`}
+        <span class="n"><code>${esc(v.variable)}</code><small>${esc(v.role)}</small></span><code class="v">${esc(v.lisible)}</code></button></li>`).join("");
+    return `<section class="ed-par-sec" data-sec="app-theme"><h4><span id="app-theme-t">${_t("Thème")}</span>${bulleI(_t("Material : le rendu d'origine. Home Assistant : se fond dans le thème du tableau de bord. Chaque vignette montre le thème clair et sombre."))}</h4>
+        <div class="ed-app-themes" role="group" aria-labelledby="app-theme-t">${vignettes}</div></section>
+      <section class="ed-par-sec" data-sec="app-retouches"><h4><span>${_t("Retouches")}</span>${bulleI(_t("Par-dessus le thème choisi, en clair comme en sombre. Les autres couleurs se règlent dans le CSS personnalisé."))}</h4>
+        <div class="ed-palette ed-app-retouches">${lignes}</div>${rayon}
+        <div class="ed-actions"><button type="button" class="ed-btn texte" data-app="raz" ${nbRet ? "" : "disabled"}><ha-icon icon="mdi:restore"></ha-icon>${_t("Réinitialiser")}</button></div></section>
+      <section class="ed-par-sec" data-sec="app-css"><h4><label for="app-css">${_t("CSS personnalisé")}</label>${bulleI(_t("Ajouté en dernier dans la carte. Refusés : @import, url() hors image data:, expression(), javascript:, barres obliques inverses, plus de {n} Kio.", { n: TH.CSS_MAX / 1024 }))}</h4>
+        <textarea id="app-css" class="ed-code ed-app-css" data-app="css" spellcheck="false" placeholder=":host { --maquette-accent: #006a6a; }" aria-describedby="app-css-err"${refus.ok ? "" : ` aria-invalid="true"`}>${esc(css)}</textarea>
+        <div class="ed-erreur" id="app-css-err" role="alert" ${refus.ok ? "hidden" : ""}>${refus.ok ? "" : esc(this._refusCss(refus.raison))}</div>
+        <div class="ed-par-inter"><span>${_t("Variables --maquette-*")}</span>${bulleI(_t("Un clic insère la variable et sa valeur actuelle au curseur. Elles priment sur le thème, aussi depuis un thème Home Assistant ou card-mod."))}</div>
+        <ul class="ed-app-vars">${liste}</ul></section>`;
+  }
+  // raison d'un refus (anglais, donnée par la carte) : traduite pour l'interface
+  _refusCss(raison) {
+    const fr = globalThis.MaquetteI18n?.langue?.() === "fr";
+    const R = [[/^larger than (\d+) KiB/, (m) => `plus de ${m[1]} Kio`], [/^backslash/, () => "barres obliques inverses interdites"], [/^<\/style/, () => "</style interdit"],
+      [/^@import/, () => "@import interdit"], [/^expression/, () => "expression() interdit"], [/^javascript/, () => "javascript: interdit"], [/^-moz-binding/, () => "-moz-binding / behavior interdits"],
+      [/^url\(\)/, () => "url() seulement avec une image data:"], [/^image-set/, () => "image-set() / src() interdits"], [/^not a text/, () => "ce n'est pas du texte"]];
+    let r = raison;
+    if (fr) for (const [re, f] of R) { const m = raison.match(re); if (m) { r = f(m); break; } }
+    return _t("CSS refusé ({raison}) : rien n'est appliqué.", { raison: r });
+  }
+
+  // ---------- événements de l'onglet (après chaque rendu) ----------
+  _cablerApparence(V) {
+    const P = V.querySelector('[data-onglet="apparence"]');
+    if (!P) return;
+    const q = (k) => P.querySelector(`[data-app="${k}"]`);
+    P.querySelectorAll("[data-app-coul]").forEach((s) => { const v = this._variablesAppCache?.[s.dataset.appCoul]; if (v) s.style.setProperty("--c", v); });
+    // retouches : aperçu en direct pendant le choix, écriture au relâchement (une seule étape d'annulation)
+    const avec = (n, v) => { const r = { ...this._themeApp().retouches }; if (v == null) delete r[n]; else r[n] = v; return r; };
+    P.querySelectorAll('input[data-app^="ret:"]').forEach((inp) => {
+      const n = inp.dataset.app.slice(4), val = () => (n === "radius" ? `${+inp.value}px` : inp.value);
+      inp.oninput = () => {
+        if (n === "radius") { const o = inp.parentElement.querySelector("output"); if (o) o.textContent = `${+inp.value} px`; inp.setAttribute("aria-valuetext", `${+inp.value} px`); }
+        this._apercuApparence(avec(n, val()), this._appCss?.texte);
+      };
+      inp.onchange = () => this._ecrireTheme(this._themeApp().base, avec(n, val()));
+    });
+    // CSS personnalisé : contrôlé à la frappe (refus affiché, aperçu des seuls CSS acceptés), écrit quand il est accepté
+    const ta = q("css"), err = P.querySelector("#app-css-err");
+    let controle = () => true;
+    if (ta) {
+      controle = () => {
+        const t = ta.value, v = t.trim() ? this._TH.verifierCss(t) : { ok: true };
+        err.hidden = v.ok; err.textContent = v.ok ? "" : this._refusCss(v.raison);
+        if (v.ok) ta.removeAttribute("aria-invalid"); else ta.setAttribute("aria-invalid", "true");
+        this._appCss = t === (this.d.css ?? "") ? null : { base: this.d.css ?? "", texte: t };
+        return v.ok;
+      };
+      ta.oninput = () => {
+        controle();
+        if (this._rafApp) return;
+        this._rafApp = requestAnimationFrame(() => { this._rafApp = 0; this._apercuApparence(undefined, ta.value); });
+      };
+      ta.onchange = () => this._ecrireCss(ta, controle());
+      // Échap ferme la modale : le CSS en cours est écrit d'abord (pas de changement perdu)
+      ta.addEventListener("keydown", (ev) => { if (ev.key === "Escape" && this._appCss) this._ecrireCss(ta, controle(), false); });
+    }
+    P.onclick = (ev) => {
+      const b = ev.composedPath().find((n) => n instanceof HTMLButtonElement && n.dataset?.app);
+      if (!b || b.disabled) return;
+      const k = b.dataset.app, { base, retouches } = this._themeApp();
+      if (k.startsWith("theme:")) { this._appGarde = { k, force: true }; return this._ecrireTheme(k.slice(6), retouches); }
+      if (k === "raz") { this._appGarde = { k: `theme:${base}`, force: true }; return this._ecrireTheme(base, {}); }
+      if (k.startsWith("raz:")) { this._appGarde = { k: `ret:${k.slice(4)}`, force: true }; return this._ecrireTheme(base, avec(k.slice(4), null)); }
+      if (k.startsWith("var:") && ta) return this._insererVariable(ta, k.slice(4), controle);
+    };
+    // focus et curseur retrouvés (rendu refait à chaque modification)
+    const g = this._appGarde;
+    this._appGarde = null;
+    if (g) {
+      const el = q(g.k);
+      if (el) { el.focus({ preventScroll: true }); if (el === ta && g.s != null) { ta.setSelectionRange(g.s, g.e ?? g.s); ta.scrollTop = g.top || 0; } }
+    }
+  }
+  // écrit le CSS du champ s'il est accepté (vide = clé retirée) ; refusé : rien d'écrit, le brouillon et le message restent
+  _ecrireCss(ta, ok, garder = true) {
+    if (!ok) return;
+    const t = ta.value.trim() ? ta.value : "";
+    this._appCss = null;
+    if (t === (this.d.css ?? "")) return;
+    if (garder && this.R.activeElement === ta) this._appGarde = { k: "css", s: ta.selectionStart, e: ta.selectionEnd, top: ta.scrollTop, force: true };
+    this.carte.apercuTheme?.(null);
+    this.commit(() => { if (t) this.d.css = t; else delete this.d.css; });
+  }
+  // un clic sur une variable : « --maquette-x: valeur; » au curseur s'il est dans un bloc { … } ; sinon dans le dernier bloc
+  // « :host { … } » (créé à la fin s'il n'y en a pas, ou seul si le champ est vide) ; puis écrit
+  _insererVariable(ta, nom, controle) {
+    const v = this._variablesApp().find((x) => x.nom === nom);
+    if (!v) return;
+    const decl = `${v.variable}: ${v.lisible};`, t = ta.value, s = ta.selectionStart ?? t.length, e = ta.selectionEnd ?? s;
+    // profondeur des accolades avant une position (commentaires ignorés)
+    const prof = (x) => [...x.replace(/\/\*[\s\S]*?(?:\*\/|$)/g, "")].reduce((n, c) => n + (c === "{") - (c === "}"), 0);
+    // séparateur avant la déclaration : « ; » si la précédente n'est pas terminée
+    const sep = (avant) => (/[{;]\s*$/.test(avant) || !avant.trim() ? (/\s$/.test(avant) || !avant ? "" : " ") : "; ");
+    let avant, apres, ins;
+    if (!t.trim()) { avant = ""; ins = `:host {\n  ${decl}`; apres = "\n}\n"; }
+    else if (prof(t.slice(0, s)) > 0) { avant = t.slice(0, s); apres = t.slice(e); ins = sep(avant) + decl; }
+    else {
+      const blocs = [...t.matchAll(/:host\s*\{[^{}]*\}/g)], b = blocs[blocs.length - 1];
+      if (b) { const i = b.index + b[0].length - 1; avant = t.slice(0, i).replace(/\s*$/, ""); apres = `\n${t.slice(i)}`; ins = `${/[{;]$/.test(avant) ? "" : ";"}\n  ${decl}`; }
+      else { avant = t.replace(/\s*$/, ""); apres = "\n}\n"; ins = `\n:host {\n  ${decl}`; }
+    }
+    const fin = avant.length + ins.length;
+    ta.value = avant + ins + apres;
+    ta.focus({ preventScroll: true });
+    ta.setSelectionRange(fin, fin);
+    const ok = controle();
+    if (ok) { this._appGarde = { k: "css", s: fin, e: fin, top: ta.scrollTop, force: true }; this._ecrireCss(ta, true, false); }
+  }
   // ---------- ambiance et animations ----------
   // modale ouverte = aperçu de l'ambiance sur le plan derrière le voile (sinon l'ambiance n'est jamais dessinée pendant l'édition)
   // ancre : onglet à montrer à l'ouverture (« lumiere », « alertes »…). Échap, la croix ou un clic sur le voile la ferment.
@@ -11203,9 +11483,10 @@ class EditeurPlan {
     this.carte._construire();
   }
 
-  // zone de dessin : le plan + 5 m de marge tout autour ; elle s'agrandit d'elle-même quand on dessine près du bord
+  // zone de dessin : le plan + une marge tout autour (8 % de sa plus grande cote, entre 80 cm et 5 m : le plan garde presque sa taille
+  // de la vue) ; elle s'agrandit d'elle-même quand on dessine près du bord
   _boite(refaire = false, carte = this.carte) {
-    const b = carte.bornes(), m = 500, voulu = { x0: b.x0 - m, y0: b.y0 - m, x1: b.x0 + b.W + m, y1: b.y0 + b.H + m }, f = carte._boxFige;
+    const b = carte.bornes(), m = Math.round(Math.min(500, Math.max(80, 0.08 * Math.max(b.W, b.H)))), voulu = { x0: b.x0 - m, y0: b.y0 - m, x1: b.x0 + b.W + m, y1: b.y0 + b.H + m }, f = carte._boxFige;
     if (refaire || !f) { carte._boxFige = { x0: voulu.x0, y0: voulu.y0, W: voulu.x1 - voulu.x0, H: voulu.y1 - voulu.y0 }; return true; }
     const x0 = Math.min(f.x0, voulu.x0), y0 = Math.min(f.y0, voulu.y0), x1 = Math.max(f.x0 + f.W, voulu.x1), y1 = Math.max(f.y0 + f.H, voulu.y1);
     if (x0 === f.x0 && y0 === f.y0 && x1 === f.x0 + f.W && y1 === f.y0 + f.H) return false;

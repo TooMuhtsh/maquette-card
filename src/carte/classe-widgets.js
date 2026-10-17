@@ -46,20 +46,38 @@ class MaquetteCard extends HTMLElement { // @assemblage
     const ajout = (cote) => (this._editeur ? `<button class="w-ajout" data-ajouter="${cote}"><ha-icon icon="mdi:plus"></ha-icon>${cote === "fiche" ? _t("Ajouter un widget à la fiche") : this._modeMise === "large" ? _t("Ajouter un widget") : cote === "gauche" ? _t("Ajouter un widget (gauche)") : _t("Ajouter un widget (droite)")}</button>` : "");
     const rendu = (l, cote) => {
       this._sansBascule = cote === "fiche"; // aperçu fidèle : pas d'interrupteur dans une fiche
-      try { return l.map((w, i) => { try { return this._widget(w, cote, i, suf); } catch (e) { return `<div class="w" data-w="${cote}:${i}${suf}"><div class="w-note">${_t("Widget en erreur : {msg}", { msg: esc(e.message) })}</div></div>`; } }).join(""); }
+      try { return l.map((w, i) => { try { return this._widget(w, cote, i, suf); } catch (e) { return `<div class="w" data-w="${cote}:${i}${suf}"><div class="w-note">${_t("Widget en erreur : {msg}", { msg: esc(e.message) })}</div></div>`; } }); }
       finally { this._sansBascule = false; }
     };
     const es = this._editeur?.sel, sel = es?.type === "widget" ? `${es.cote}:${es.i}${es.piece != null ? `:${es.piece}` : porteurDe(es) ? sufFiche(porteurDe(es)) : ""}` : null;
     let change = false;
-    const poser = (el, html) => { if (el._html !== html) { poserHTML(el, html); el._html = html; change = true; } };
+    // colonne posée morceau par morceau (un widget = un élément) : seuls les widgets dont le HTML change sont reconstruits, au lieu de
+    // relire toute la colonne à chaque mise à jour de hass ; même DOM qu'une colonne posée d'un bloc (repli sur celle-ci au moindre doute)
+    const poser = (el, morceaux) => {
+      const parts = morceaux.flat().filter(Boolean), html = parts.join("");
+      if (el._html === html) return;
+      change = true;
+      const avant = el._parts;
+      if (avant?.length === parts.length && el.childNodes.length === parts.length) {
+        const neufs = parts.map((h, i) => (h === avant[i] ? null : fragmentSur(h, el)));
+        if (neufs.every((f) => !f || (f.childNodes.length === 1 && f.firstChild.nodeType === 1))) {
+          const enfants = [...el.childNodes];
+          neufs.forEach((f, i) => f && enfants[i].replaceWith(f));
+          el._html = html; el._parts = parts;
+          return;
+        }
+      }
+      poserHTML(el, html); el._html = html;
+      el._parts = el.childNodes.length === parts.length && [...el.childNodes].every((n) => n.nodeType === 1) ? parts : null;
+    };
     if (pf) {
       const t = this._enteteFiche(pf.genre, this._config[GENRES_FICHE[pf.genre]][pf.i]).titre;
       const note = { meuble: _t("Fiche « {t} » : ce qui s'ouvre au toucher du meuble", { t: esc(t) }), ouverture: _t("Fiche « {t} » : ce qui s'ouvre au toucher de l'ouverture", { t: esc(t) }),
         point: _t("Fiche « {t} » : ce qui s'ouvre au toucher de la pastille", { t: esc(t) }) }[pf.genre];
-      poser(R.querySelector(".col-g .widgets"), "");
-      poser(R.querySelector(".col-d .widgets"), `<div class="w-note w-fiche"><ha-icon icon="mdi:card-text-outline"></ha-icon>${note}</div>${rendu(d, "fiche")}${ajout("fiche")}`);
-    } else if (this._modeMise === "large") { poser(R.querySelector(".col-g .widgets"), rendu(g, "gauche") + ajout("gauche")); poser(R.querySelector(".col-d .widgets"), rendu(d, "droite") + ajout("droite")); }
-    else { poser(R.querySelector(".col-g .widgets"), ""); poser(R.querySelector(".col-d .widgets"), rendu(g, "gauche") + ajout("gauche") + rendu(d, "droite") + ajout("droite")); }
+      poser(R.querySelector(".col-g .widgets"), []);
+      poser(R.querySelector(".col-d .widgets"), [`<div class="w-note w-fiche"><ha-icon icon="mdi:card-text-outline"></ha-icon>${note}</div>`, rendu(d, "fiche"), ajout("fiche")]);
+    } else if (this._modeMise === "large") { poser(R.querySelector(".col-g .widgets"), [rendu(g, "gauche"), ajout("gauche")]); poser(R.querySelector(".col-d .widgets"), [rendu(d, "droite"), ajout("droite")]); }
+    else { poser(R.querySelector(".col-g .widgets"), []); poser(R.querySelector(".col-d .widgets"), [rendu(g, "gauche"), ajout("gauche"), rendu(d, "droite"), ajout("droite")]); }
     if (change) this._ajusterCols();
     R.querySelectorAll(".w.sel").forEach((n) => n.classList.remove("sel"));
     if (sel) R.querySelector(`.w[data-w="${sel}"]`)?.classList.add("sel");

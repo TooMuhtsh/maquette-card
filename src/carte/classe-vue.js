@@ -9,6 +9,7 @@ class MaquetteCard extends HTMLElement { // @assemblage
 
   // cadre du plan : celui de l'étage affiché, ou l'union de tous les étages (la carte ne change ni d'échelle ni de hauteur d'un étage
   // à l'autre ; l'image de fond n'y entre pas) — en vue, calculée une fois par config et par largeur affichée
+  static PX_BULLES = 32; // demi-emprise d'une pastille à l'écran (px, halo compris), réservée autour d'elle dans le cadre du plan
   bornes(sansVitrine = false) {
     const c = this._config, m = c.marge ?? 40;
     let b;
@@ -54,6 +55,15 @@ class MaquetteCard extends HTMLElement { // @assemblage
           const [x, y] = [+t.pos[0], +t.pos[1]];
           x0 = Math.min(x0, x - l / 2 - 8); x1 = Math.max(x1, x + l / 2 + 8); y0 = Math.min(y0, y - h / 2 - 8); y1 = Math.max(y1, y + h / 2 + 8);
         }
+      }
+    }
+    // pastilles (taille en px : environ 2,6 em, plus l'onde d'une pastille active, MaquetteCard.PX_BULLES) : jamais rognées par le bord du plan
+    const pts = (c.points || []).filter((p) => Array.isArray(p?.pos) && Number.isFinite(+p.pos[0]) && Number.isFinite(+p.pos[1]));
+    if (pts.length) {
+      const P = this.shadowRoot?.querySelector(".plan>.zone")?.clientWidth || this.clientWidth || 800;
+      for (let tour = 0; tour < 3; tour++) {
+        const r = (MaquetteCard.PX_BULLES * (x1 - x0)) / P;
+        for (const p of pts) { const x = +p.pos[0], y = +p.pos[1]; x0 = Math.min(x0, x - r); x1 = Math.max(x1, x + r); y0 = Math.min(y0, y - r); y1 = Math.max(y1, y + r); }
       }
     }
     return { x0, y0, W: x1 - x0, H: y1 - y0 };

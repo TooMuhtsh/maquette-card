@@ -43,6 +43,7 @@ valid YAML example and where to find it in the built-in editor.
 - [Interaction](#interaction)
 - [Wall tablet](#wall-tablet)
 - [Animation level](#animation-level)
+- [Themes and custom CSS](#themes-and-custom-css)
 - [Demo](#demo)
 - [Preserved Home Assistant keys](#preserved-home-assistant-keys)
 - [Security](#security)
@@ -115,6 +116,8 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `alerts` | list | | — | [Full-plan alerts](#full-plan-alerts) |
 | `badge_style` | object | | — | [Badge style](#badge-style) |
 | `palette` | object | name → color | — | Named colors, e.g. `{accent: "#e8710a"}`. Name: lowercase letter first, then lowercase letters, digits, `_` or `-` (31 at most); color: `#hex`, `rgb()`, `hsl()`, CSS name or `var(--…)`. Offered in every color picker of the editor (traces and energy flows have no color picker: YAML only); an element whose color is a name follows the palette (a removed name gives it its default color back). Editor: ⚙ Settings › Display › *Named colors* |
+| `theme` | string / object | | `material` | [Themes and custom CSS](#themes-and-custom-css). *New in 0.4.0* |
+| `css` | string | | — | [Custom CSS](#themes-and-custom-css). *New in 0.4.0* |
 | `replay` | bool / object | | — | [Replay](#replay) |
 | `showcase` | bool / object | | — | [Showcase](#showcase) |
 | `interaction` | object | | — | [Interaction](#interaction) |
@@ -554,7 +557,7 @@ halo, animation and card.
 | `active_attribute` | attribute | | — | Use this attribute of the active entity instead of its state |
 | `threshold` | number | | — | Active when the active value is above this number. Without it: active for `on`, `open`, `opening`, `closing`, `playing`, `heating`, `cooling`, `cleaning`, `detected`, `home` |
 | `value` | entity | | — | Numeric value shown in the badge |
-| `attribute` | attribute | | — | Show this attribute of `entity` as the value (wins over `value`)A thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
+| `attribute` | attribute | | — | Show this attribute of `entity` as the value (wins over `value`). A text attribute (a preset, an action) is shown as translated by Home Assistant. A thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
 | `unit` | string | | entity unit | Unit after the value (written as is, e.g. `" °C"`) |
 | `decimals` | number | 0–6 | `0` (`attribute`: 1) | Decimals of `value`, or of a numeric `attribute` |
 | `tap` | enum | `card` `more_info` `none` | `card` with a `card`, else more-info | See [Cards](#cards) |
@@ -799,11 +802,11 @@ badge, and a tap target that opens its card or more-info. Same keys and meaning 
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
 | `entity` | entity | | — | Main entity: state, active look, on / off in its card |
-| `value` | entity | | — | Numeric value shown in a badge on the furniture (hidden only when the piece is smaller than 24 px on screen both ways: a thin electrical panel, radiator or TV unit keeps its badge) |
+| `value` | entity | | — | Numeric value shown in a badge on the furniture (always shown; when the piece is smaller than 24 px on screen both ways, the badge is compacted, text at least 10 px) |
 | `active` | entity | | `entity` | Entity that defines “active” |
 | `active_attribute` | attribute | | — | Attribute of the active entity |
 | `threshold` | number | | — | Active above this value (e.g. `50` W for a charger) |
-| `attribute` | attribute | | — | Show this attribute of `entity` as the valueA thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
+| `attribute` | attribute | | — | Show this attribute of `entity` as the value. A text attribute (a preset, an action) is shown as translated by Home Assistant. A thermostat (`climate.*`) with neither `attribute` nor `value` shows its target temperature (or its low – high range). *New in 0.3.0*. |
 | `unit` | string | | entity unit | Unit of the value |
 | `decimals` | number | 0–6 | `0` | Decimals of the value |
 | `color` | colour | `#rgb`…`#rrggbbaa`, CSS name, `var(--…)` | per type, else theme primary | Accent colour (see the catalogue) |
@@ -1772,7 +1775,7 @@ How the card reacts to touch. Without these keys it behaves as before. Never app
 |---|---|---|---|---|
 | `interaction.room_tap` | enum | `room_view` `more_info` `none` | `room_view` | Tapping a room: room view; more-info of its `tap` entity (else `temperature`); nothing. A room with `zoom: false` keeps its own behaviour |
 | `interaction.lock_view` | bool | | `false` | No panning nor wheel / pinch zoom, zoom buttons hidden; taps still work |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise; in the editor: never hidden, header on a phone unless `map`. *New in 0.2.1*; in the editor on a phone the buttons move to the header too (*New in 0.3.0*). |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise; in the editor: never hidden, header on a phone unless `map`. On the map with a mouse, the buttons (layers, +, −, whole plan) fade out 5 s after the cursor leaves the plan and come back when it returns, with the keyboard or on a tap. They keep fixed places: + and − never move, *whole plan* appears above them. *New in 0.2.1*; in the editor on a phone the buttons move to the header too (*New in 0.3.0*). |
 | `interaction.reset_after` | number (s) | 0–86400 (editor: step 10) | `0` | Back to the whole plan after this many seconds without interaction (room view, zoom, cards closed, paused replay back to live); `0` = never |
 
 ```yaml
@@ -1823,6 +1826,101 @@ effects: light
 ```
 
 Editor: ⚙ Settings › Interaction › *Animations* › *Animation level*, *Effects*.
+
+## Themes and custom CSS
+
+The card's look: a ready-made theme, a few touch-ups, or your own CSS. *New in 0.4.0*.
+
+| Key | Type | Values | Default | Description |
+|---|---|---|---|---|
+| `theme` | string / object | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `material` | A theme name, or an object: `base` (a theme name) plus touch-ups, one per `theme:` key of the table below |
+| `theme.base` | enum | same names | `material` | Theme the touch-ups apply to |
+| `css` | string | | — | Custom CSS, added last inside the card (see the rules below) |
+
+| Theme | Look |
+|---|---|
+| `material` | Material Design 3 tinted with the HA primary color: the look before themes, unchanged |
+| `ha` | Classic Lovelace: background, border, shadow and radius of `ha-card` from your HA theme, no tint |
+| `ocean` `slate` `sand` `forest` | Ready-made palettes, light or dark with Home Assistant |
+| `night` | Always dark |
+
+Touch-up values: a color (same formats as every color), a length (`12`, `12px`, `0.5rem`, `50%`), a font
+(`Inter, sans-serif`). An invalid value or an unknown key is removed with a console warning.
+
+```yaml
+theme:
+  base: ocean
+  accent: "#e8710a"
+  room_fill: "#f4f1ea"
+  radius: 8
+```
+
+### CSS variables
+
+Each variable below can be set from a Home Assistant theme or `css:`. Order: `--maquette-*` variable >
+`theme:` (and its touch-ups) > default.
+
+<!-- maquette-variables:start (generated by tools/doc-themes.mjs from src/carte/themes-variables.js, do not edit) -->
+| Variable | `theme:` key | Role | Type | Default |
+|---|---|---|---|---|
+| `--maquette-accent` | `accent` | Accent color (closed doors, icons, buttons, selection) | color | `var(--primary-color,#03a9f4)` |
+| `--maquette-on-accent` | `on_accent` | Text and icons on the accent color | color | `var(--text-primary-color,#fff)` |
+| `--maquette-surface` | `surface` | Plan and surface background (base of the tints) | color | `var(--ha-card-background,var(--card-background-color,#fff))` |
+| `--maquette-card-background` | `card_background` | Card background (around the plan) | color | `color-mix(in srgb,var(--md-primary) 4%,var(--md-surface))` |
+| `--maquette-surface-variant` | `surface_variant` | Secondary surfaces (menus, panels, fields) | color | `color-mix(in srgb,var(--md-primary) 8%,var(--md-surface))` |
+| `--maquette-text` | `text` | Primary text | color | `var(--primary-text-color,#1c1b1f)` |
+| `--maquette-text-secondary` | `text_secondary` | Secondary text (values, details) | color | `var(--secondary-text-color,#49454f)` |
+| `--maquette-outline` | `outline` | Strong outlines (fences, buttons) | color | `color-mix(in srgb,var(--md-on-surface) 45%,transparent)` |
+| `--maquette-outline-variant` | `outline_variant` | Subtle outlines (chips, dividers) | color | `color-mix(in srgb,var(--md-on-surface) 14%,transparent)` |
+| `--maquette-error` | `error` | Errors and alerts | color | `var(--error-color,#b3261e)` |
+| `--maquette-wall` | `wall` | Walls | color | `var(--md-on-surface)` |
+| `--maquette-room-fill` | `room_fill` | Room floor (without temperature tint) | color | `var(--secondary-background-color)` |
+| `--maquette-room-text` | `room_text` | Room label text | color | `var(--md-on-surface)` |
+| `--maquette-door-closed` | `door_closed` | Closed door or window | color | `var(--md-primary)` |
+| `--maquette-door-open` | `door_open` | Open door or window | color | `var(--md-error)` |
+| `--maquette-shutter` | `shutter` | Shutters | color | `color-mix(in srgb,#8d6e4a 85%,var(--md-on-surface))` |
+| `--maquette-furniture` | `furniture` | Furniture fill | color | `color-mix(in srgb,var(--md-surface) 40%,transparent)` |
+| `--maquette-furniture-stroke` | `furniture_stroke` | Furniture stroke | color | `color-mix(in srgb,var(--md-on-surface) 70%,transparent)` |
+| `--maquette-chip-background` | `chip_background` | Summary chip background | color | `var(--md-surface)` |
+| `--maquette-chip-text` | `chip_text` | Summary chip text | color | `var(--md-on-surface-variant)` |
+| `--maquette-badge-background` | `badge_background` | Device badge background (inactive) | color | `color-mix(in srgb,var(--md-primary) 18%,var(--md-surface))` |
+| `--maquette-badge-text` | `badge_text` | Badge text and icon (inactive) | color | `var(--md-on-surface)` |
+| `--maquette-radius` | `radius` | Card corner radius | length | `var(--ha-card-border-radius,16px)` |
+| `--maquette-font` | `font` | Text font | font | `var(--ha-font-family-body,Roboto,system-ui,sans-serif)` |
+<!-- maquette-variables:end -->
+
+A Home Assistant theme (`themes.yaml`, names without `--`), for every Maquette card of the dashboard:
+
+```yaml
+my_theme:
+  maquette-accent: "#e8710a"
+  maquette-wall: "#37474f"
+  maquette-room-fill: "#fafafa"
+```
+
+For one card, with card-mod (its style lands on the inner `ha-card`, where the card reads them too):
+
+```yaml
+card_mod:
+  style: |
+    ha-card { --maquette-door-open: #d32f2f; --maquette-font: "Inter", sans-serif; }
+```
+
+or without card-mod, with `css:` (same variables):
+
+```yaml
+css: |
+  :host { --maquette-door-open: #d32f2f; --maquette-font: "Inter", sans-serif; }
+```
+
+### Custom CSS rules
+
+`css:` is added inside the card's shadow DOM, after the theme. It is refused **as a whole** (nothing applied, one console
+warning `maquette-card : custom css refused (…)`) if it is larger than 20 KiB or contains `@import`, `url()` other than a
+`data:image` (png, jpeg, gif, webp, avif, svg+xml), `expression()`, `javascript:` / `vbscript:`, `-moz-binding`, `behavior`, `image-set()` / `src()`, `</style` or
+a backslash. Comments are ignored.
+
+Editor: ⚙ Settings › Appearance.
 
 ## Demo
 
@@ -1928,6 +2026,8 @@ are checked (see [Conventions](#conventions)); every piece of HTML the card or t
 that removes scripts, event handlers (`on…`), links other than `#…`, `url()` other than `url(#…)`, and pictures not served
 by Home Assistant. The card makes no request outside Home Assistant.
 
+**Custom CSS** (`css:`, *New in 0.4.0*) is checked before it is applied; see [Custom CSS rules](#custom-css-rules).
+
 ## Key index
 
 Every public key, alphabetically, with the sections that document it.
@@ -1976,6 +2076,7 @@ Every public key, alphabetically, with the sections that document it.
 | `columns` | [Widgets](#widgets), [Widget: periods](#widget-periods) |
 | `confirm` | [Rooms and sub-areas](#rooms-and-sub-areas), [Openings](#openings), [Device badges](#device-badges), [Connected furniture](#connected-furniture), [Cards](#cards), [Widgets](#widgets), [Widget: cover](#widget-cover), [Widget: lock](#widget-lock), [Widget: thermostat](#widget-thermostat), [Security](#security) |
 | `contact` | [Openings](#openings) |
+| `css` | [Card root](#card-root), [Themes and custom CSS](#themes-and-custom-css) |
 | `data` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `day` | [Widget: periods](#widget-periods) |
 | `day_night` | [Day and night](#day-and-night), [Ambience](#ambience) |
@@ -2127,6 +2228,7 @@ Every public key, alphabetically, with the sections that document it.
 | `templates` | [Card root](#card-root), [Templates](#templates) |
 | `text` | [Texts and info boxes](#texts-and-info-boxes) |
 | `texts` | [Card root](#card-root), [Texts and info boxes](#texts-and-info-boxes) |
+| `theme` | [Card root](#card-root), [Themes and custom CSS](#themes-and-custom-css) |
 | `threshold` | [Widgets](#widgets), [Widget: ev](#widget-ev), [Device badges](#device-badges), [Connected furniture](#connected-furniture), [Energy flows](#energy-flows) |
 | `tint` | [Furniture](#furniture) |
 | `title` | [Card root](#card-root), [Widgets](#widgets), [Widget: divider](#widget-divider), [Cards](#cards) |
@@ -2195,6 +2297,7 @@ Every enumerated value, by key.
 | `templates[].kind` | `widget` `furniture` `badge` `opening` |
 | `templates[].category` | `living` `dining` `kitchen` `bedroom` `bathroom` `utility` `shapes` `outdoor` |
 | `texts[].style` | `subtle` |
+| `theme`<br>`theme.base` | `material` `ha` `ocean` `slate` `sand` `forest` `night` |
 
 Not translated, but restricted by the card:
 

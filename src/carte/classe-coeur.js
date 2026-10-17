@@ -41,7 +41,7 @@ class MaquetteCard extends HTMLElement {
 
   // points d'accroche : un morceau (src/carte/classe-*.js) se branche sur un moment de la carte sans modifier ce fichier, en
   // définissant une méthode « _quand_<moment>_<sujet>(…) » ; toutes celles d'un moment sont appelées dans l'ordre de src/assemblage.mjs.
-  // Moments : construit (fin de _construire, plan dessiné)
+  // Moments : construit (fin de _construire, plan dessiné), hass (nouvel objet hass reçu, carte déjà construite : thème HA clair / sombre…)
   static ACCROCHES = new Map();
   _accroches(moment, ...args) {
     const P = MaquetteCard.prototype, pre = `_quand_${moment}_`;
@@ -58,7 +58,8 @@ class MaquetteCard extends HTMLElement {
     const relangue = this._langue();
     // `demo: true` : l'appartement de démonstration et ses états simulés (rien n'est commandé dans la maison)
     if (config.demo && typeof PlanDemo !== "undefined") {
-      config = { ...PlanDemo.config(), ...(typeof config.titre === "string" ? { titre: config.titre } : {}) };
+      // (titre, thème et CSS personnalisé gardés : la démo montre aussi les thèmes)
+      config = { ...PlanDemo.config(), ...Object.fromEntries(["titre", "theme", "css"].filter((k) => config[k] != null).map((k) => [k, config[k]])) };
       const brut = this._sim ? this._hassBrut : this._hass;
       this._sim ||= new PlanDemo.Simulation();
       if (relangue) this._sim.renommer();
@@ -103,6 +104,7 @@ class MaquetteCard extends HTMLElement {
     if (relangue) this._sim?.renommer();
     if (this._sim) { this._hassBrut = hass; hass = this._hassDemo(hass); }
     this._hass = hass;
+    if (this._ok) this._accroches("hass");
     if (!this._ok) this._construire();
     else if (relangue) this._relangue();
     else if (this._rp) return; // replay : le plan montre l'historique, pas le direct
@@ -255,8 +257,8 @@ class MaquetteCard extends HTMLElement {
     this._tailleBadges();
   }
 
-  // badge de valeur masqué quand le meuble fait moins de 24 px à l'écran dans les deux sens (un meuble fin, tableau électrique,
-  // radiateur, garde son badge tant que sa longueur dépasse 24 px ; recalculé au zoom et au redimensionnement)
+  // badge de valeur resserré (classe « petit », police d'au moins 10 px) quand le meuble fait moins de 24 px à l'écran dans les deux
+  // sens (un meuble fin, tableau électrique, radiateur, garde son badge normal tant que sa longueur dépasse 24 px ; recalculé au zoom et au redimensionnement)
   _tailleBadges(v = this.vue()) {
     const R = this.shadowRoot, z = R?.querySelector(".zone"), l = R?.querySelectorAll(".calque>.mb");
     // textes figés sur le plan : ils grossissent et rapetissent avec le zoom comme le dessin (1 = plan entier de la vue)

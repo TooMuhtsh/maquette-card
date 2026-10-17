@@ -36,12 +36,22 @@
   }
   const _tk = (cle) => cle;
 
+  // formateurs de nombres gardés par locale et décimales : toLocaleString en recrée un à chaque appel (coûteux, des centaines par
+  // mise à jour de hass) ; même résultat (Number.prototype.toLocaleString = Intl.NumberFormat(locale, options).format)
+  const formats = new Map();
+  const formatNombre = (d) => {
+    const cle = `${locale}|${d}`;
+    let f = formats.get(cle);
+    if (!f) { f = new Intl.NumberFormat(locale, { maximumFractionDigits: d }); formats.set(cle, f); }
+    return f;
+  };
+
   definir(null);
   return {
     _t, _tk, definir, DICO, manquantes,
     langue: () => langue,
     locale: () => locale,
-    nombre: (v, d = 1) => Number(v).toLocaleString(locale, { maximumFractionDigits: d }),
+    nombre: (v, d = 1) => formatNombre(d).format(Number(v)),
     // espace avant « % » : aucune en anglais (45%), une en français (45 %), comme Home Assistant
     pct: () => (langue === "fr" ? " %" : "%"),
     // unité après un nombre : espace avant, sauf « % » et « ° » en anglais (45%, 12°) ; en français toujours une espace

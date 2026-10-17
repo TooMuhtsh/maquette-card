@@ -96,9 +96,10 @@ class EditeurPlan { // @assemblage
     this.carte._construire();
   }
 
-  // zone de dessin : le plan + 5 m de marge tout autour ; elle s'agrandit d'elle-même quand on dessine près du bord
+  // zone de dessin : le plan + une marge tout autour (8 % de sa plus grande cote, entre 80 cm et 5 m : le plan garde presque sa taille
+  // de la vue) ; elle s'agrandit d'elle-même quand on dessine près du bord
   _boite(refaire = false, carte = this.carte) {
-    const b = carte.bornes(), m = 500, voulu = { x0: b.x0 - m, y0: b.y0 - m, x1: b.x0 + b.W + m, y1: b.y0 + b.H + m }, f = carte._boxFige;
+    const b = carte.bornes(), m = Math.round(Math.min(500, Math.max(80, 0.08 * Math.max(b.W, b.H)))), voulu = { x0: b.x0 - m, y0: b.y0 - m, x1: b.x0 + b.W + m, y1: b.y0 + b.H + m }, f = carte._boxFige;
     if (refaire || !f) { carte._boxFige = { x0: voulu.x0, y0: voulu.y0, W: voulu.x1 - voulu.x0, H: voulu.y1 - voulu.y0 }; return true; }
     const x0 = Math.min(f.x0, voulu.x0), y0 = Math.min(f.y0, voulu.y0), x1 = Math.max(f.x0 + f.W, voulu.x1), y1 = Math.max(f.y0 + f.H, voulu.y1);
     if (x0 === f.x0 && y0 === f.y0 && x1 === f.x0 + f.W && y1 === f.y0 + f.H) return false;

@@ -49,6 +49,7 @@ les défauts, un exemple YAML valide et l'endroit où le trouver dans l'éditeur
 - [Interaction](#interaction)
 - [Tablette murale](#tablette-murale)
 - [Niveau d'animation](#niveau-danimation)
+- [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé)
 - [Démo](#démo)
 - [Clés Home Assistant conservées](#clés-home-assistant-conservées)
 - [Sécurité](#sécurité)
@@ -129,6 +130,8 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `alerts` | liste | | — | [Alertes plein plan](#alertes-plein-plan) |
 | `badge_style` | objet | | — | [Style des pastilles](#style-des-pastilles) |
 | `palette` | objet | nom → couleur | — | Couleurs nommées, ex. `{accent: "#e8710a"}`. Nom : une minuscule d'abord, puis minuscules, chiffres, `_` ou `-` (31 au plus) ; couleur : `#hex`, `rgb()`, `hsl()`, nom CSS ou `var(--…)`. Proposées dans tous les sélecteurs de couleur de l'éditeur (traces et flux d'énergie n'en ont pas : YAML seulement) ; un élément dont la couleur est un nom suit la palette (un nom retiré lui rend sa couleur par défaut). Éditeur : ⚙ Paramètres › Affichage › *Couleurs nommées* |
+| `theme` | texte / objet | | `material` | [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé). *Nouveau en 0.4.0* |
+| `css` | texte | | — | [CSS personnalisé](#thèmes-et-css-personnalisé). *Nouveau en 0.4.0* |
 | `replay` | booléen / objet | | — | [Revoir la journée](#revoir-la-journée) |
 | `showcase` | booléen / objet | | — | [Exemples sous le plan](#exemples-sous-le-plan) |
 | `interaction` | objet | | — | [Interaction](#interaction) |
@@ -596,7 +599,7 @@ valeur, un halo lumineux, une animation et une fiche.
 | `active_attribute` | attribut | | — | Utiliser cet attribut de l'entité active au lieu de son état |
 | `threshold` | nombre | | — | Active quand la valeur active dépasse ce nombre. Sans lui : active pour `on`, `open`, `opening`, `closing`, `playing`, `heating`, `cooling`, `cleaning`, `detected`, `home` |
 | `value` | entité | | — | Valeur numérique affichée dans la pastille |
-| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur (prime sur `value`)Un thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
+| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur (prime sur `value`). Un attribut texte (préréglage, action) est affiché traduit par Home Assistant. Un thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
 | `unit` | texte | | unité de l'entité | Unité après la valeur (écrite telle quelle, par exemple `" °C"`) |
 | `decimals` | nombre | 0–6 | `0` (`attribute` : 1) | Décimales de `value`, ou d'un `attribute` numérique |
 | `tap` | énum | `card` `more_info` `none` | `card` s'il y a une `card`, sinon plus d'infos | Voir [Fiches](#fiches) |
@@ -845,11 +848,11 @@ de valeur, et zone tactile qui ouvre sa fiche ou sa fenêtre plus d'infos. Même
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `entity` | entité | | — | Entité principale : état, aspect actif, allumer / éteindre dans sa fiche |
-| `value` | entité | | — | Valeur numérique affichée dans une pastille sur le meuble (masquée seulement quand la pièce fait moins de 24 px à l'écran dans les deux sens : un tableau électrique, un radiateur ou un meuble TV fin garde sa pastille) |
+| `value` | entité | | — | Valeur numérique affichée dans une pastille sur le meuble (toujours affichée ; quand la pièce fait moins de 24 px à l'écran dans les deux sens, la pastille est resserrée, texte d'au moins 10 px) |
 | `active` | entité | | `entity` | Entité qui définit l'état « actif » |
 | `active_attribute` | attribut | | — | Attribut de l'entité active |
 | `threshold` | nombre | | — | Actif au-dessus de cette valeur (par exemple `50` W pour une borne de recharge) |
-| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeurUn thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
+| `attribute` | attribut | | — | Affiche cet attribut de `entity` comme valeur. Un attribut texte (préréglage, action) est affiché traduit par Home Assistant. Un thermostat (`climate.*`) sans `attribute` ni `value` affiche sa consigne (ou sa plage basse – haute). *Nouveau en 0.3.0*. |
 | `unit` | texte | | unité de l'entité | Unité de la valeur |
 | `decimals` | nombre | 0–6 | `0` | Décimales de la valeur |
 | `color` | couleur | `#rgb`…`#rrggbbaa`, nom CSS, `var(--…)` | selon le type, sinon couleur principale du thème | Couleur d'accent (voir le catalogue) |
@@ -1834,7 +1837,7 @@ La réaction de la carte au toucher. Sans ces clés, elle se comporte comme avan
 |---|---|---|---|---|
 | `interaction.room_tap` | énum | `room_view` `more_info` `none` | `room_view` | Toucher une pièce : vue de la pièce ; plus d'infos de son entité `tap` (sinon `temperature`) ; rien. Une pièce avec `zoom: false` garde son propre comportement |
 | `interaction.lock_view` | booléen | | `false` | Ni déplacement ni zoom à la molette / au pincement, boutons de zoom masqués ; les touchers fonctionnent toujours |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon ; dans l'éditeur : jamais cachés, en-tête sur téléphone sauf `map`. *Nouveau en 0.2.1* ; dans l'éditeur sur téléphone, les boutons passent aussi dans l'en-tête (*Nouveau en 0.3.0*). |
+| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon ; dans l'éditeur : jamais cachés, en-tête sur téléphone sauf `map`. Sur le plan avec une souris, les boutons (calques, +, −, tout le plan) s'estompent 5 s après la sortie du curseur et reviennent dès qu'il revient, au clavier ou au toucher. Leur place est fixe : + et − ne bougent jamais, *tout le plan* s'ajoute au-dessus. *Nouveau en 0.2.1* ; dans l'éditeur sur téléphone, les boutons passent aussi dans l'en-tête (*Nouveau en 0.3.0*). |
 | `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
 
 ```yaml
@@ -1886,6 +1889,101 @@ effects: light
 ```
 
 Éditeur : ⚙ Paramètres › Interaction › *Animations* › *Niveau d'animation*, *Effets*.
+
+## Thèmes et CSS personnalisé
+
+L'apparence de la carte : un thème prêt à l'emploi, quelques retouches, ou votre propre CSS. *Nouveau en 0.4.0*.
+
+| Clé | Type | Valeurs | Défaut | Description |
+|---|---|---|---|---|
+| `theme` | texte / objet | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `material` | Un nom de thème, ou un objet : `base` (un nom de thème) et des retouches, une par clé `theme:` de la table ci-dessous |
+| `theme.base` | énuméré | mêmes noms | `material` | Thème auquel s'appliquent les retouches |
+| `css` | texte | | — | CSS personnalisé, ajouté en dernier dans la carte (voir les règles ci-dessous) |
+
+| Thème | Rendu |
+|---|---|
+| `material` | Material Design 3 teinté par la couleur principale de HA : le rendu d'avant les thèmes, à l'identique |
+| `ha` | Lovelace classique : fond, bordure, ombre et rayon de `ha-card` de votre thème HA, sans teinte |
+| `ocean` `slate` `sand` `forest` | Palettes prêtes à l'emploi (Océan, Ardoise, Sable, Forêt), claires ou sombres avec Home Assistant |
+| `night` | Nuit : toujours sombre |
+
+Valeurs des retouches : une couleur (mêmes formats que toutes les couleurs), une longueur (`12`, `12px`, `0.5rem`, `50%`),
+une police (`Inter, sans-serif`). Une valeur invalide ou une clé inconnue est retirée avec un avertissement dans la console.
+
+```yaml
+theme:
+  base: ocean
+  accent: "#e8710a"
+  room_fill: "#f4f1ea"
+  radius: 8
+```
+
+### Variables CSS
+
+Chaque variable ci-dessous peut être définie dans un thème Home Assistant ou dans `css:`. Priorité :
+variable `--maquette-*` > `theme:` (et ses retouches) > défaut.
+
+<!-- maquette-variables:start (generated by tools/doc-themes.mjs from src/carte/themes-variables.js, do not edit) -->
+| Variable | Clé `theme:` | Rôle | Type | Défaut |
+|---|---|---|---|---|
+| `--maquette-accent` | `accent` | Couleur d'accent (portes fermées, icônes, boutons, sélection) | couleur | `var(--primary-color,#03a9f4)` |
+| `--maquette-on-accent` | `on_accent` | Texte et icônes posés sur l'accent | couleur | `var(--text-primary-color,#fff)` |
+| `--maquette-surface` | `surface` | Fond du plan et des surfaces (base des teintes) | couleur | `var(--ha-card-background,var(--card-background-color,#fff))` |
+| `--maquette-card-background` | `card_background` | Fond de la carte (autour du plan) | couleur | `color-mix(in srgb,var(--md-primary) 4%,var(--md-surface))` |
+| `--maquette-surface-variant` | `surface_variant` | Surfaces secondaires (menus, panneaux, champs) | couleur | `color-mix(in srgb,var(--md-primary) 8%,var(--md-surface))` |
+| `--maquette-text` | `text` | Texte principal | couleur | `var(--primary-text-color,#1c1b1f)` |
+| `--maquette-text-secondary` | `text_secondary` | Texte secondaire (valeurs, détails) | couleur | `var(--secondary-text-color,#49454f)` |
+| `--maquette-outline` | `outline` | Contours marqués (limites, boutons) | couleur | `color-mix(in srgb,var(--md-on-surface) 45%,transparent)` |
+| `--maquette-outline-variant` | `outline_variant` | Contours discrets (puces, séparateurs) | couleur | `color-mix(in srgb,var(--md-on-surface) 14%,transparent)` |
+| `--maquette-error` | `error` | Erreurs et alertes | couleur | `var(--error-color,#b3261e)` |
+| `--maquette-wall` | `wall` | Murs | couleur | `var(--md-on-surface)` |
+| `--maquette-room-fill` | `room_fill` | Sol des pièces (sans teinte de température) | couleur | `var(--secondary-background-color)` |
+| `--maquette-room-text` | `room_text` | Texte des étiquettes de pièce | couleur | `var(--md-on-surface)` |
+| `--maquette-door-closed` | `door_closed` | Porte ou fenêtre fermée | couleur | `var(--md-primary)` |
+| `--maquette-door-open` | `door_open` | Porte ou fenêtre ouverte | couleur | `var(--md-error)` |
+| `--maquette-shutter` | `shutter` | Volets | couleur | `color-mix(in srgb,#8d6e4a 85%,var(--md-on-surface))` |
+| `--maquette-furniture` | `furniture` | Remplissage des meubles | couleur | `color-mix(in srgb,var(--md-surface) 40%,transparent)` |
+| `--maquette-furniture-stroke` | `furniture_stroke` | Trait des meubles | couleur | `color-mix(in srgb,var(--md-on-surface) 70%,transparent)` |
+| `--maquette-chip-background` | `chip_background` | Fond des puces du résumé | couleur | `var(--md-surface)` |
+| `--maquette-chip-text` | `chip_text` | Texte des puces du résumé | couleur | `var(--md-on-surface-variant)` |
+| `--maquette-badge-background` | `badge_background` | Fond des pastilles d'appareil (inactives) | couleur | `color-mix(in srgb,var(--md-primary) 18%,var(--md-surface))` |
+| `--maquette-badge-text` | `badge_text` | Texte et icône des pastilles (inactives) | couleur | `var(--md-on-surface)` |
+| `--maquette-radius` | `radius` | Rayon des coins de la carte | longueur | `var(--ha-card-border-radius,16px)` |
+| `--maquette-font` | `font` | Police des textes | police | `var(--ha-font-family-body,Roboto,system-ui,sans-serif)` |
+<!-- maquette-variables:end -->
+
+Un thème Home Assistant (`themes.yaml`, noms sans `--`), pour toutes les cartes Maquette du tableau de bord :
+
+```yaml
+mon_theme:
+  maquette-accent: "#e8710a"
+  maquette-wall: "#37474f"
+  maquette-room-fill: "#fafafa"
+```
+
+Pour une seule carte, avec card-mod (son style est posé sur le `ha-card` intérieur, où la carte les lit aussi) :
+
+```yaml
+card_mod:
+  style: |
+    ha-card { --maquette-door-open: #d32f2f; --maquette-font: "Inter", sans-serif; }
+```
+
+ou sans card-mod, avec `css:` (mêmes variables) :
+
+```yaml
+css: |
+  :host { --maquette-door-open: #d32f2f; --maquette-font: "Inter", sans-serif; }
+```
+
+### Règles du CSS personnalisé
+
+`css:` est ajouté dans le shadow DOM de la carte, après le thème. Il est refusé **en entier** (rien n'est appliqué, un
+avertissement `maquette-card : custom css refused (…)` dans la console) s'il dépasse 20 Kio ou contient `@import`, `url()`
+autre qu'une `data:image` (png, jpeg, gif, webp, avif, svg+xml), `expression()`, `javascript:` / `vbscript:`, `-moz-binding`, `behavior`, `image-set()` / `src()`,
+`</style` ou une barre oblique inverse. Les commentaires sont ignorés.
+
+Éditeur : ⚙ Paramètres › Apparence.
 
 ## Démo
 
@@ -1996,6 +2094,8 @@ couleurs, icônes et liens sont contrôlés (voir [Conventions](#conventions)) ;
 l'éditeur passe par un filtre qui retire scripts, gestionnaires d'événements (`on…`), liens autres que `#…`, `url()` autres
 que `url(#…)` et images qui ne sont pas servies par Home Assistant. La carte ne fait aucune requête hors de Home Assistant.
 
+**CSS personnalisé** (`css:`, *Nouveau en 0.4.0*) : contrôlé avant d'être appliqué, voir [Règles du CSS personnalisé](#règles-du-css-personnalisé).
+
 ## Index des clés
 
 Chaque clé publique, par ordre alphabétique, avec les sections qui la documentent.
@@ -2044,6 +2144,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `columns` | [Widgets](#widgets), [Widget `periods`](#widget-periods) |
 | `confirm` | [Pièces et sous-zones](#pièces-et-sous-zones), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés), [Fiches](#fiches), [Widgets](#widgets), [Widget `cover`](#widget-cover), [Widget `lock`](#widget-lock), [Widget `thermostat`](#widget-thermostat), [Sécurité](#sécurité) |
 | `contact` | [Ouvertures](#ouvertures) |
+| `css` | [Racine de la carte](#racine-de-la-carte), [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé) |
 | `data` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `day` | [Widget `periods`](#widget-periods) |
 | `day_night` | [Jour et nuit](#jour-et-nuit), [Ambiance](#ambiance) |
@@ -2195,6 +2296,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `templates` | [Racine de la carte](#racine-de-la-carte), [Modèles](#modèles) |
 | `text` | [Textes et zones d'informations](#textes-et-zones-dinformations) |
 | `texts` | [Racine de la carte](#racine-de-la-carte), [Textes et zones d'informations](#textes-et-zones-dinformations) |
+| `theme` | [Racine de la carte](#racine-de-la-carte), [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé) |
 | `threshold` | [Widgets](#widgets), [Widget `ev`](#widget-ev), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés), [Flux d'énergie](#flux-dénergie) |
 | `tint` | [Meubles](#meubles) |
 | `title` | [Racine de la carte](#racine-de-la-carte), [Widgets](#widgets), [Widget `divider`](#widget-divider), [Fiches](#fiches) |
@@ -2264,6 +2366,7 @@ Chaque valeur énumérée, par clé.
 | `templates[].kind` | `widget` `furniture` `badge` `opening` |
 | `templates[].category` | `living` `dining` `kitchen` `bedroom` `bathroom` `utility` `shapes` `outdoor` |
 | `texts[].style` | `subtle` |
+| `theme`<br>`theme.base` | `material` `ha` `ocean` `slate` `sand` `forest` `night` |
 
 Non traduites, mais restreintes par la carte :
 
