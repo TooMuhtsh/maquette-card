@@ -245,7 +245,7 @@ setInterval(() => { appliquer("binary_sensor.mouvement_entree", "on"); setTimeou
 const regler = ({ theme, clair } = {}) => {
   if (theme !== undefined) {
     const { theme: _, ...c } = memo.actuelle;
-    memo.actuelle = theme && theme !== "material" ? { ...c, theme } : c;
+    memo.actuelle = theme && theme !== "ha" ? { ...c, theme } : c;  // « ha » = défaut depuis la 0.4.0 : pas écrit
     carte.setConfig(memo.actuelle);
   }
   if (clair !== undefined) {

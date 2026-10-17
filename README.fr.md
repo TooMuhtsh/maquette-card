@@ -7,136 +7,54 @@
 [![Licence : MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
 **Un plan de maison vivant pour Home Assistant.**
-
-Maquette est une carte Lovelace qui montre votre logement vu de dessus, en direct : les lumières allumées avec leur halo,
-les fenêtres ouvertes en rouge, les volets à leur vraie position, les pièces teintées selon leur température, l'énergie
-qui circule vers les appareils. Le plan se dessine directement dans votre tableau de bord avec l'éditeur intégré :
-pas d'image de plan, pas d'outil externe, pas de YAML.
+Votre logement vu de dessus, en direct, dessiné directement dans votre tableau de bord : pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ![Maquette : l'appartement de démonstration en direct, thème sombre](images/plan-pc-dark.png)
 
-**[Essayer en ligne](https://toomuhtsh.github.io/maquette-card/)** : l'appartement de démo dans votre navigateur, sans rien installer.
-
-## Nouveautés de la 0.4.0
-
-- **Thèmes** : sept thèmes intégrés (`theme:`). `ha`, le nouveau défaut, se fond comme une carte Lovelace
-  classique (`material` garde l'ancien rendu), `ocean`, `slate`, `sand` et `forest` suivent le mode clair ou sombre de Home Assistant, `night`
-  est toujours sombre. Les couleurs se retouchent par-dessus n'importe quel thème.
-- **Variables CSS et CSS personnalisé** : des variables publiques `--maquette-*`, à définir dans un thème Home Assistant,
-  avec card-mod ou dans le `css:` de la carte ; le CSS personnalisé est contrôlé avant d'être appliqué. Tout se règle
-  dans l'éditeur, ⚙ Paramètres › Apparence.
-- **Icônes d'après l'unité** : dans l'éditeur, un capteur sans classe d'appareil prend une icône d'après son unité (W,
-  kWh, °C…) au lieu d'un thermomètre.
-- **Plus légère au repos**, surtout sur téléphone : seuls les widgets qui ont changé sont redessinés.
-- **Boutons du plan** : à la souris, ils s'estompent quand le pointeur quitte le plan, et + / − gardent leur place.
-- **Avis de nouvelle version** : avec HACS, les administrateurs voient quand une version plus récente sort, avec le début
-  des notes de version et un bouton **Mettre à jour** ; ⚙ Paramètres › À propos réunit la version et les liens du projet.
-- Les widgets côte à côte dans une fiche ont la même hauteur, et quelques corrections (pastilles près du bord, petits
-  meubles, préréglages des thermostats).
-
-![Les sept thèmes sur l'appartement de démo, en clair et en sombre](images/themes-pc.png)
-
-Le détail est sur le wiki : [Nouveautés de la 0.4.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-040).
-
-### 0.3 : la vitesse
-
-L'éditeur est devenu un fichier à part chargé à la demande (l'installation manuelle demande **deux fichiers**), un plan
-au repos n'occupe presque plus le processeur, et l'éditeur a gagné une bibliothèque de widgets, le partage et des
-versions enregistrées qui suivent votre compte Home Assistant.
-[Nouveautés de la 0.3.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-030).
-
-### 0.2 : la lumière et les étages
-
-Le gros morceau, c'est la lumière : le soleil et le ciel qui entrent par les fenêtres (volets et météo compris), la lune
-la nuit, et des halos de lampes qui mélangent leurs couleurs. Un plan peut maintenant avoir plusieurs étages, avec des
-escaliers pour passer de l'un à l'autre, des fenêtres de toit et une image de fond à décalquer (j'ai testé les étages
-sur la démo, ma maison est de plain-pied). L'éditeur a perdu son panneau latéral : chaque élément s'ouvre dans sa propre
-fenêtre, avec un aperçu en direct. Une habitude à changer : **Enregistrer** quitte maintenant l'éditeur, **Appliquer**
-(Ctrl+S) enregistre sans quitter. Le détail est sur le wiki :
-[Nouveautés de la 0.2.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-020).
-
-| Lumière du jour | Nuit | L'étage de la démo |
-|---|---|---|
-| ![Lumière du jour dans l'appartement de démo : taches de soleil et lumière du ciel derrière les fenêtres](images/light-day-pc-dark.png) | ![Nuit dans l'appartement de démo : lune et halos de lampes colorés](images/light-night-pc-dark.png) | ![L'étage de la démo, avec le sélecteur d'étage en haut à droite](images/floors-upstairs-pc-light.png) |
-
-## Fonctionnalités
-
-- **Plan en direct** : halos des lumières limités à leur pièce, portes et fenêtres en rouge quand elles sont ouvertes,
-  volets dessinés selon leur position, pièces teintées selon la température, meubles connectés (borne de recharge,
-  frigo, TV…) avec leur puissance.
-- **Étages** : un plan par étage, un petit sélecteur en haut à droite, des escaliers qui mènent à l'étage voisin, des
-  puces de résumé et des alertes qui couvrent toute la maison, des fenêtres de toit, et une image de fond à décalquer
-  avec un calibrage en 2 points.
-- **Éditeur intégré** (administrateurs seulement) : murs, pièces, ouvertures, 45 meubles vus de dessus, calques,
-  groupes, aimantation, annuler / rétablir, vos pièces Home Assistant et leurs appareils en un clic, une fenêtre
-  d'édition avec aperçu en direct pour chaque élément. Enregistrement direct dans la configuration du tableau de bord.
-- **Ateliers** : *Créer une ouverture*, *Créer un meuble* (dessinez vos propres meubles à partir de formes) et *Créer
-  un widget*, avec un aperçu en direct, enregistrés dans *Mes modèles*.
-- **Bibliothèque de widgets et partage** : tous les modèles de widgets dans une fenêtre, des copies liées mises à
-  jour en un clic, et des modèles, widgets ou objets partagés en texte ou en code compact, avec des espaces réservés à
-  la place de vos entités.
-- **65 widgets prêts à l'emploi** (CO₂, fuite, serrure, voiture, tarif, pH de piscine…) en plus des 11 types de
-  widgets, pour les panneaux latéraux et pour la fiche que chaque élément ouvre au toucher. Les entités sont
-  pré-remplies depuis Home Assistant.
-- **Ambiance** : jour et nuit d'après le soleil, vraie météo sur les extérieurs, traces qui s'estompent de ce qui vient
-  de changer, flux d'énergie, personnes à la maison ou absentes dans leur vraie direction, lumière du soleil, du ciel
-  et de la lune par les fenêtres. Facultative et discrète.
-- **Revoir la journée** : tout le plan, panneaux compris, redessiné à n'importe quel moment des 1 à 72 dernières heures.
-- **Nettoyer le plan** : trouve les jours, les bouts de mur, les doublons et les ouvertures à côté de leur mur, et les
-  corrige en une seule action annulable.
-- **Sécurité** : les actions sensibles (déverrouiller, ouvrir un garage, désarmer, lancer un script…) sont toujours
-  confirmées dans un dialogue qui nomme le vrai service ; un plan importé montre ce qu'il peut commander avant d'être
-  appliqué.
-- Vue pièce, puces de résumé, alertes plein plan, mode tablette murale, panneau ⚙ Paramètres, démo intégrée.
-  Material Design 3 ou l'un des sept thèmes, clair et sombre, téléphone et PC, français et anglais.
-
-<p>
-  <img src="images/plan-phone-light.png" width="22%" alt="Téléphone, thème clair">
-  <img src="images/plan-phone-dark.png" width="22%" alt="Téléphone, thème sombre">
-  <img src="images/plan-pc-light.png" width="52%" alt="PC, thème clair">
+<p align="center">
+  <a href="https://toomuhtsh.github.io/maquette-card/"><b>Essayer en ligne</b></a> (l'appartement de démo, sans rien installer)
+  &nbsp;·&nbsp;
+  <a href="#installation"><b>Installer</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR"><b>Wiki</b></a>
 </p>
 
-## Dessinez votre maison dans la carte
+## Ce qu'elle fait
 
-Cliquez sur le bouton d'édition en haut à droite de la carte.
+- Les lumières éclairent leur pièce, portes et fenêtres ouvertes passent en rouge, les volets sont à leur vraie position.
+- Les pièces sont teintées selon la température ; les meubles connectés (borne de recharge, frigo, TV…) affichent leur puissance.
+- Un plan par étage, avec des escaliers vers l'étage voisin et des alertes qui couvrent toute la maison.
+- Un éditeur intégré (administrateurs seulement) : murs, pièces, ouvertures, 45 meubles, vos pièces Home Assistant en un clic.
+- Dans l'éditeur aussi : bibliothèque de widgets et partage, nettoyage du plan, calques et annuler. Et un mode tablette murale.
+- 65 widgets prêts à l'emploi (CO₂, fuite, serrure, voiture, tarif, pH de piscine…) pour les panneaux latéraux et la fiche que chaque élément ouvre au toucher.
+- Une ambiance facultative : jour et nuit d'après le soleil, vraie météo, flux d'énergie, lumière du soleil et de la lune par les fenêtres.
+- Revoir les 1 à 72 dernières heures de tout le plan.
+- Les actions sensibles (déverrouiller, ouvrir un garage, désarmer…) sont toujours confirmées dans un dialogue qui nomme le vrai service.
+- Sept thèmes, clair et sombre, téléphone et PC, français et anglais.
 
-1. **Partez de vos pièces.** Sur un plan vide, *Démarrer avec mes pièces* crée une pièce par pièce de Home Assistant,
-   avec ses appareils prêts à placer. Ou dessinez une pièce, ou importez un plan.
-2. **Dessinez les pièces.** L'outil rectangle (**R**) trace une pièce et ses murs en deux clics, aimantés à la grille.
-   Réglez ensuite la largeur et la hauteur exactes dans la fenêtre d'édition de la pièce. Les murs communs restent communs quand
-   une pièce est redimensionnée.
-3. **Placez portes et fenêtres.** La fenêtre d'édition de la pièce liste les ouvertures de cette pièce pas encore sur le plan :
-   un clic dessus, puis un clic sur le mur. Les capteurs sont reliés depuis la pièce.
-4. **Meublez.** Choisissez un symbole dans *Ajouter › Meubles* ; il s'aimante aux murs. Reliez-le à un appareil et sa
-   fiche se remplit toute seule.
-5. **Enregistrez.** Le plan est stocké dans le tableau de bord comme n'importe quelle carte.
+La liste complète est sur le [wiki](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR).
+
+## Dessinez votre maison
+
+Cliquez sur le bouton d'édition en haut à droite de la carte. Sur un plan vide, *Démarrer avec mes pièces* crée une
+pièce par pièce de Home Assistant, avec ses appareils prêts à placer ; dessinez ensuite les pièces (**R**), posez portes
+et fenêtres sur les murs, meublez et enregistrez. Le plan est stocké dans le tableau de bord comme n'importe quelle carte.
 
 ![Deux pièces dessinées, puis des meubles posés](images/draw-your-home.gif)
 
-| Plan vide | Fenêtre d'édition et son aperçu | Créer un meuble |
-|---|---|---|
-| ![Démarrer avec mes pièces, dessiner une pièce ou importer un plan](images/empty-editor-pc-light.png) | ![Fenêtre d'édition d'une pièce, avec son aperçu en direct](images/editor-room-dialog-pc-dark.png) | ![Atelier des meubles : formes et aperçu](images/create-furniture-pc-light.png) |
+Pas à pas : [Guide de l'éditeur](https://github.com/TooMuhtsh/maquette-card/wiki/Editor-guide-FR).
 
-| 65 widgets prêts à l'emploi | Nettoyer le plan |
-|---|---|
-| ![Ajouter un widget : types de base et widgets prêts par catégorie](images/add-widget-pc-light.png) | ![Défauts entourés, corrections à cocher](images/cleanup-pc-dark.png) |
+## Nouveautés de la 0.4.0
 
-## Captures
+- Sept thèmes intégrés ; `ha`, le nouveau défaut, se fond comme une carte Lovelace classique (`material` garde l'ancien rendu).
+- Des variables CSS publiques `--maquette-*` et un CSS personnalisé contrôlé, dans ⚙ Paramètres › Apparence.
+- Plus légère au repos, surtout sur téléphone, et un avis quand une version plus récente sort (avec HACS).
 
-| Du jour à la nuit | Fiche au toucher | Vue pièce |
-|---|---|---|
-| ![Coucher du soleil, les lumières s'allument](images/day-night.gif) | ![Fiche de la borne de recharge](images/card-ev-pc-light.png) | ![Vue du séjour](images/room-view-pc-dark.png) |
+![Les sept thèmes sur les widgets de la démo, en clair (à gauche) et en sombre (à droite) ; night est toujours sombre](images/themes-pc.png)
 
-| Revoir la journée | Alerte plein plan | Confirmation d'une action sensible |
-|---|---|---|
-| ![Replay avec sa frise](images/replay-pc-dark.png) | ![Alerte fumée](images/alert-pc-dark.png) | ![Un bouton « Lights » qui déverrouille en réalité la porte](images/confirm-dialog-pc-dark.png) |
+Le détail : [Nouveautés de la 0.4.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-040) · [Historique des versions](https://github.com/TooMuhtsh/maquette-card/wiki/Changelog-FR).
 
-| Vérifier avant d'importer |
-|---|
-| ![Services, valeurs retirées et clés ignorées d'un plan importé](images/import-check-pc-light.png) |
-
-Les captures viennent de l'appartement de démonstration intégré, en anglais ; l'interface suit la langue de votre
-profil Home Assistant (français ou anglais).
+Plus de captures sur le [wiki](https://github.com/TooMuhtsh/maquette-card/wiki/Screenshots-FR), ou tout essayer dans la [démo en ligne](https://toomuhtsh.github.io/maquette-card/).
 
 ## Prérequis
 
@@ -146,20 +64,21 @@ profil Home Assistant (français ou anglais).
 
 ## Installation
 
-### HACS (dépôt personnalisé)
-
 [![Ouvrir dans HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=TooMuhtsh&repository=maquette-card&category=plugin)
 
 1. HACS → ⋮ → **Dépôts personnalisés** → ajoutez `https://github.com/TooMuhtsh/maquette-card`, type **Dashboard**.
 2. Téléchargez **Maquette**, puis rechargez le navigateur.
 
-### Manuelle
+<details>
+<summary>Installation manuelle</summary>
 
 1. Téléchargez `maquette-card.js` **et** `maquette-editeur.js` depuis la
    [dernière version](https://github.com/TooMuhtsh/maquette-card/releases/latest).
 2. Copiez les deux dans `/config/www/` (même dossier).
 3. Paramètres → Tableaux de bord → ⋮ → **Ressources** → ajoutez `/local/maquette-card.js` en tant que **module
    JavaScript** (celui-ci seulement : la carte charge l'éditeur d'elle-même quand vous l'ouvrez).
+
+</details>
 
 ## Premiers pas
 

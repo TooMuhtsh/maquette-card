@@ -26,7 +26,7 @@ if (D?.site) {
     history.replaceState(null, "", location.pathname + (s ? `?${s}` : "") + location.hash);
   };
   const stocke = () => { try { return Object.keys(localStorage).some((k) => k.startsWith("maquette")); } catch (e) { return false; } };
-  const themeActuel = () => D.memo.actuelle.theme || "material";
+  const themeActuel = () => D.memo.actuelle.theme || "ha";
 
   const st = document.createElement("style");
   st.textContent = `
@@ -83,7 +83,7 @@ if (D?.site) {
     for (const b of bandeau.querySelectorAll("[data-lang]")) b.setAttribute("aria-pressed", String(b.dataset.lang === document.documentElement.lang));
     const clair = document.documentElement.classList.contains("clair");
     bSombre.setAttribute("aria-pressed", String(!clair)); bClair.setAttribute("aria-pressed", String(clair));
-    sel.value = THEMES.includes(themeActuel()) ? themeActuel() : "material";
+    sel.value = THEMES.includes(themeActuel()) ? themeActuel() : "ha";
     bReset.hidden = !stocke();
   };
   majBoutons();
@@ -96,7 +96,7 @@ if (D?.site) {
     const clair = b.dataset.clair === "1";
     D.regler({ clair }); adresse("clair", clair ? "" : null); majBoutons();
   };
-  sel.onchange = () => { D.regler({ theme: sel.value }); adresse("theme", sel.value === "material" ? null : sel.value); majBoutons(); };
+  sel.onchange = () => { D.regler({ theme: sel.value }); adresse("theme", sel.value === "ha" ? null : sel.value); majBoutons(); };
   // le thème choisi dans l'éditeur (⚙ Paramètres › Apparence) et un plan enregistré mettent à jour la barre
   const carte = D.carte, setConfig = carte.setConfig.bind(carte);
   carte.setConfig = (c) => { const r = setConfig(c); queueMicrotask(majBoutons); return r; };
