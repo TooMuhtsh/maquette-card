@@ -19,12 +19,12 @@ class EditeurPlan { // @assemblage
   _themeApp(t = this.d.theme) {
     const TH = this._TH, base = typeof t === "string" ? t : t && typeof t === "object" ? t.base : null, retouches = {};
     if (t && typeof t === "object" && !Array.isArray(t)) for (const v of TH.variables) { const s = Object.hasOwn(t, v.cle) ? TH.valeur(t[v.cle], v.type) : null; if (s) retouches[v.nom] = s; }
-    return { base: typeof base === "string" && Object.hasOwn(TH.registre, base) ? base : "material", retouches };
+    return { base: typeof base === "string" && Object.hasOwn(TH.registre, base) ? base : TH.defaut, retouches };
   }
-  // config interne d'un thème : nom seul sans retouche (rien pour material), objet sinon
+  // config interne d'un thème : nom seul sans retouche (rien pour le thème par défaut), objet sinon
   _configTheme(base, retouches) {
     const l = Object.entries(retouches || {});
-    if (!l.length) return base === "material" ? undefined : base;
+    if (!l.length) return base === this._TH.defaut ? undefined : base;
     const cle = Object.fromEntries(this._TH.variables.map((v) => [v.nom, v.cle]));
     return { base, ...Object.fromEntries(l.map(([n, v]) => [cle[n], v])) };
   }
@@ -40,7 +40,7 @@ class EditeurPlan { // @assemblage
     const c = css === undefined ? this.d.css : this._TH.verifierCss(css).ok || !css.trim() ? css : this.d.css;
     const t = this._configTheme(base, retouches ?? r0);
     if (JSON.stringify(t) === JSON.stringify(this._configTheme(base, r0)) && (c ?? "") === (this.d.css ?? "")) return this.carte.apercuTheme?.(null);
-    this.carte.apercuTheme?.(t ?? "material", c ?? "");
+    this.carte.apercuTheme?.(t ?? this._TH.defaut, c ?? "");
   }
   // toute modification (annuler / rétablir compris) revient à la config : un aperçu en cours n'y survit pas
   _quand_modifie_apparence() { if (this.carte._thApercu) this.carte.apercuTheme?.(null); }

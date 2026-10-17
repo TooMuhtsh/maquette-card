@@ -1,4 +1,4 @@
-/*! Maquette v0.3.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.4.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -185,6 +185,26 @@ const MaquetteI18n = (() => {
     "Aucun appareil placé dans cette pièce.": "No devices placed in this room.",
     "Ajouter un widget à la fiche": "Add a widget to the card",
     "Ajouter un widget": "Add widget",
+    "Maquette {v} est disponible": "Maquette {v} is available",
+    "Téléchargée : recharge la page pour l'utiliser": "Downloaded: reload the page to use it",
+    "Tu as la {v}": "You have {v}",
+    "Plus tard": "Later",
+    "Nouveau thème par défaut : Home Assistant. La carte prend l'apparence des autres cartes de ton tableau de bord.": "New default theme: Home Assistant. The card now looks like the other cards of your dashboard.",
+    "Sept thèmes, des retouches de couleurs et ton propre CSS : ⚙ Paramètres › Apparence.": "Seven themes, color touch-ups and your own CSS: ⚙ Settings › Appearance.",
+    "Plus léger au repos, surtout sur téléphone.": "Lighter at rest, mostly on phones.",
+    "Les boutons du plan s'estompent à la souris et gardent leur place.": "The plan buttons fade out with a mouse and keep their places.",
+    "Une fenêtre comme celle-ci te préviendra des prochaines versions.": "A window like this one will tell you about the next versions.",
+    "Tu préférais l'ancien rendu ? Choisis « Material » dans Apparence.": "Preferred the previous look? Pick “Material” in Appearance.",
+    "Quoi de neuf dans Maquette {v}": "What's new in Maquette {v}",
+    "Mise à jour depuis la {v}": "Updated from {v}",
+    "Les nouveautés de cette version": "The highlights of this version",
+    "Choisir un thème": "Pick a theme",
+    "Toutes les nouveautés": "All the changes",
+    "… et {n} autres changements": "… and {n} more changes",
+    "Recharger": "Reload",
+    "Installation…": "Installing…",
+    "Voir sur GitHub": "See on GitHub",
+    "Maquette te plaît ? Une étoile sur GitHub l'aide à se faire connaître": "Enjoying Maquette? A star on GitHub helps others find it",
     "Ajouter un widget (gauche)": "Add a widget (left)",
     "Ajouter un widget (droite)": "Add a widget (right)",
     "Fiche « {t} » : ce qui s'ouvre au toucher du meuble": "Card “{t}”: what opens when the furniture is tapped",
@@ -372,9 +392,11 @@ const MaquetteI18n = (() => {
     "Ouvertures ouvertes": "Open windows and doors",
     "{nom} ({etage})": "{nom} ({etage})",
     "Aller à : {etage}": "Go to: {etage}",
+    "Compris": "Got it",
     "Fenêtre de toit": "Roof window",
     "Fenêtre de toit de l'atelier": "Workshop roof window",
     "Store de la fenêtre de toit": "Roof window blind",
+    "Mettre à jour": "Update",
     "Éditeur introuvable : copier maquette-editeur.js à côté de maquette-card.js (même dossier), puis recharger la page.": "Editor not found: copy maquette-editeur.js next to maquette-card.js (same folder), then reload the page.",
     "maquette-editeur.js (v{a}) ne correspond pas à la carte (v{b}) : le remplacer, puis recharger la page.": "maquette-editeur.js (v{a}) does not match the card (v{b}): replace it, then reload the page.",
     "Étiquettes des zones": "Area labels",
@@ -727,7 +749,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.3.1";
+const VERSION = "0.4.0";
 // éditeur : module à part (maquette-editeur.js, à côté de ce fichier), chargé à la première ouverture, une seule fois par page ;
 // même requête que la carte (?hacstag=… de HACS, ?v=… d'un déploiement) pour suivre ses mises à jour, sinon ?v=<version>.
 // Déjà là s'il a été chargé autrement (ressource ajoutée à la main, ancienne version d'un seul fichier) ; échec : on pourra réessayer.
@@ -1430,6 +1452,22 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .cta.plein{background:var(--md-primary);color:var(--md-on-primary)}
 .cta.confirmer{background:var(--md-error);color:#fff}
 .cta.fait{background:#188038;color:#fff}
+/* nouvelle version disponible (classe-version.js) : petite fenêtre MD3 en bas à droite de l'écran, non bloquante */
+.nv{position:fixed;right:24px;bottom:24px;z-index:9;width:min(380px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:20px;
+  background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 4px 16px #0004;display:flex;flex-direction:column;gap:10px;
+  font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);animation:mf-entree .2s var(--md-sys-motion)}
+.nv-tete{display:flex;align-items:flex-start;gap:12px}.nv-tete>ha-icon{color:var(--md-primary);margin-top:2px}
+.nv-t{flex:1;min-width:0;display:flex;flex-direction:column}.nv-t b{font:500 16px/24px var(--ha-font-family-body,Roboto,sans-serif)}
+.nv-t small{color:var(--md-on-surface-variant)}
+.nv-tete .ib{margin:-8px -8px 0 0}
+.nv-notes{margin:0;padding:0 0 0 18px;color:var(--md-on-surface-variant);display:flex;flex-direction:column;gap:2px}.nv-2l{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nv-reste{margin:0;color:var(--md-on-surface-variant);font-size:12px}
+.nv-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cta.texte{background:none;color:var(--md-primary);padding:0 12px}
+.cta[disabled]{opacity:.6;cursor:default}
+.nv-etoile{display:flex;align-items:center;gap:6px;color:var(--md-on-surface-variant);font:400 12px/16px var(--ha-font-family-body,Roboto,sans-serif);background:none;border:none;padding:0;cursor:pointer;text-align:left}
+.nv-etoile ha-icon{--mdc-icon-size:16px;color:#f5b400}.nv-etoile:hover{color:var(--md-primary)}
+@media (max-width:600px){.nv{right:16px;left:16px;bottom:16px;width:auto}}
 /* mini-fiche d'un meuble connecté : fenêtre MD3 sur PC, feuille du bas au téléphone */
 dialog.mf{border:none;padding:0;border-radius:28px;width:min(420px,calc(100vw - 32px));max-height:min(92vh,calc(100vh - 32px));overflow:hidden;
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 8px 12px 6px #0003,0 4px 4px #0004;font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
@@ -3019,7 +3057,7 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
   // réglages globaux (panneau ⚙ Paramètres de l'éditeur) : présence par défaut, étiquettes des pièces, teinte de température, légende
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
-  teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend",
+  teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend", avis_maj: "update_notice",
   // interaction au toucher, tablette murale, niveau d'animation
   interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after",
     boutons_zoom: ["zoom_buttons", nEnum({ auto: "auto", plan: "map", entete: "header", caches: "hidden" })] })],
@@ -3164,15 +3202,18 @@ function valeurTheme(v, type) {
   if (type === "police") return POLICE_SURE.test(t) && /[^\s,'"]/.test(t) ? t : null;
   return COULEUR_SURE.test(t) ? t : null;
 }
+// thème sans `theme:` (ou nom inconnu) : « ha », carte Lovelace classique, depuis la 0.4.0 (choix assumé : le rendu change pour tous ;
+// `theme: material` garde l'ancien rendu, prévenu par la fenêtre « Quoi de neuf »)
+const THEME_DEFAUT = "ha";
 // thème de la config (interne) → { base, retouches: {variable: valeur} } ; une chaîne = un nom du registre
 function themeDe(theme) {
-  if (typeof theme === "string") return { base: Object.hasOwn(THEMES, theme) ? theme : "material", retouches: {} };
+  if (typeof theme === "string") return { base: Object.hasOwn(THEMES, theme) ? theme : THEME_DEFAUT, retouches: {} };
   const o = theme && typeof theme === "object" && !Array.isArray(theme) ? theme : {}, retouches = {};
   for (const [k, x] of Object.entries(o)) {
     const v = Object.hasOwn(VAR_THEME_CLE, k) ? VAR_THEME_CLE[k] : null, s = v && valeurTheme(x, v.type);
     if (s) retouches[v.nom] = s;
   }
-  return { base: typeof o.base === "string" && Object.hasOwn(THEMES, o.base) ? o.base : "material", retouches };
+  return { base: typeof o.base === "string" && Object.hasOwn(THEMES, o.base) ? o.base : THEME_DEFAUT, retouches };
 }
 // variables effectives d'un thème : palette du registre (clair ou sombre) puis retouches ; { variable: valeur }
 function variablesDuTheme(theme, sombre = false) {
@@ -6179,7 +6220,7 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
 
   // registre, table et outils purs (éditeur, doc, tests) : MaquetteCard.THEMES.registre[nom] = { clair, sombre, mode?, css? },
   // .variables = VARIABLES_THEME, .resoudre(theme, sombre) = { variable: valeur }, .css(theme, sombre), .verifierCss(texte), .doc(langue)
-  static THEMES = { registre: THEMES, noms: NOMS_THEMES, variables: VARIABLES_THEME, resoudre: variablesDuTheme, css: cssDuTheme, verifierCss, valeur: valeurTheme,
+  static THEMES = { registre: THEMES, noms: NOMS_THEMES, defaut: THEME_DEFAUT, variables: VARIABLES_THEME, resoudre: variablesDuTheme, css: cssDuTheme, verifierCss, valeur: valeurTheme,
     doc: tableVariablesTheme, cleAnglaise: cleAnglaiseTheme, CSS_MAX: CSS_PERSO_MAX, jetonsCss: CSS_JETONS_THEME };
 
   // moments : plan construit (config neuve ou modifiée), nouvel état de HA (le thème clair / sombre de HA a pu changer)
@@ -6251,6 +6292,167 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
     this._thApercu = theme === null && css === undefined ? null : { theme: theme === undefined ? this._plein?.theme : theme, css: css === undefined ? this._plein?.css : css };
     this._appliquerTheme();
     return variablesDuTheme(this._thApercu ? this._thApercu.theme : this._plein?.theme, this._thSombre);
+  }
+  // Source : l'entité de mise à jour que HACS crée pour la carte (update.*, release_url vers le dépôt), lue dans HA : aucune requête
+  // externe. Notes de version : websocket update/release_notes (fournies par HACS). Montrée aux administrateurs seulement, une fois
+  // par page (plusieurs cartes = une fenêtre), jamais dans l'éditeur ni en aperçu ; « Plus tard » la masque jusqu'à la version
+  // suivante (navigateur). Version installée par HACS mais page pas rechargée : même fenêtre, bouton « Recharger ». Sans HACS
+  // (installation manuelle), rien. `update_notice: false` la coupe.
+  static comparerVersions(a, b) { // « v0.4.1 » vs « 0.4.0 » : > 0 si a est plus récente (X.Y.Z seulement)
+    const n = (v) => String(v || "").replace(/^v/i, "").split(/[.-]/).slice(0, 3).map((x) => parseInt(x, 10) || 0);
+    const [x, y] = [n(a), n(b)];
+    for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] - y[i];
+    return 0;
+  }
+  // notes de version (markdown de la release) → quelques lignes de texte, sans balisage
+  static resumeNotes(md, max = 5) {
+    const l = String(md || "").split("\n").map((s) => s.trim()).filter((s) => /^[-*] /.test(s))
+      .map((s) => s.replace(/^[-*] /, "").replace(/!?\[([^\]]*)\]\([^)]*\)/g, "$1").replace(/[*_`]/g, "").trim()).filter(Boolean);
+    return { lignes: l.slice(0, max).map((s) => (s.length > 140 ? `${s.slice(0, 139)}…` : s)), reste: Math.max(0, l.length - max) };
+  }
+
+  // état de l'entité de mise à jour de HACS pour Maquette (null : pas installée par HACS) ; recherche refaite au plus toutes les minutes (HACS peut démarrer après la page)
+  etatVersion() {
+    const h = this._hass, t = Date.now();
+    if (!h?.states) return null;
+    if (this._nvId === undefined || (this._nvId === null && t - (this._nvCherche || 0) > 60e3)) {
+      this._nvCherche = t;
+      this._nvId = Object.keys(h.states).find((id) => id.startsWith("update.") && String(h.states[id].attributes?.release_url || "").includes("TooMuhtsh/maquette-card")) || null;
+    }
+    return (this._nvId && h.states[this._nvId]) || null;
+  }
+
+  _quand_hass_version() {
+    const h = this._hass;
+    if (!h?.user?.is_admin || this._editeur || this._apercu() || !h.states) return;
+    this._nouveautes();
+    if (this._config?.avis_maj === false || this.shadowRoot?.querySelector(".nv.nouveautes")) return;
+    const s = this.etatVersion();
+    if (!s || s === this._nvEtat) return;
+    this._nvEtat = s;
+    const a = s.attributes || {}, cible = a.latest_version, K = MaquetteCard;
+    if (!cible || K.comparerVersions(cible, VERSION) <= 0) return this._fermerVersion();
+    let ignoree = null;
+    try { ignoree = localStorage.getItem("maquette-version-ignoree"); } catch (e) { /* stockage indisponible */ }
+    const autre = globalThis.__maquetteVersion; // une seule fenêtre par page (carte retirée de la page : la place se libère)
+    if (ignoree === cible || (autre && autre !== this && autre.isConnected)) return;
+    globalThis.__maquetteVersion = this;
+    this._montrerVersion(s);
+  }
+
+  async _montrerVersion(s) {
+    const R = this.shadowRoot, a = s.attributes || {}, cible = String(a.latest_version).replace(/^v/i, ""), K = MaquetteCard;
+    // téléchargée par HACS mais pas encore chargée par la page : il ne reste qu'à recharger
+    const telechargee = s.state !== "on" && K.comparerVersions(a.installed_version, a.latest_version) >= 0;
+    const enCours = !!a.in_progress;
+    let d = R.querySelector(".nv");
+    if (!d) {
+      d = document.createElement("div");
+      d.className = "nv"; d.setAttribute("role", "dialog"); d.setAttribute("aria-labelledby", "nv-titre");
+      R.querySelector("ha-card").append(d);
+      d.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        const b = ev.composedPath().find((n) => n.dataset?.nv)?.dataset.nv;
+        if (b === "plus-tard") {
+          try { localStorage.setItem("maquette-version-ignoree", this._nvEtat?.attributes?.latest_version || ""); } catch (e) { /* stockage indisponible */ }
+          this._fermerVersion();
+        } else if (b === "installer") {
+          this._hass.callService("update", "install", { entity_id: this._nvId }).catch((e) => console.warn("maquette-card : update failed", e));
+          d.querySelector('[data-nv="installer"]')?.setAttribute("disabled", "");
+        } else if (b === "recharger") location.reload();
+        // liens (le HTML posé dans la carte n'a pas de balise <a>) : notes de la version, ou le dépôt pour l'étoile
+        else if (b === "github" || b === "etoile") {
+          const at = this._nvEtat?.attributes || {}, D = MaquetteCard.DEPOT;
+          window.open(b === "etoile" ? D : at.release_url || `${D}/releases`, "_blank", "noopener,noreferrer");
+        }
+      });
+    }
+    // notes de version : une fois par version
+    if (this._nvNotes?.v !== cible) {
+      this._nvNotes = { v: cible, n: K.resumeNotes("") };
+      try {
+        const md = a.release_summary || (await this._hass.callWS({ type: "update/release_notes", entity_id: this._nvId }));
+        this._nvNotes = { v: cible, n: K.resumeNotes(md) };
+      } catch (e) { /* pas de notes : la fenêtre reste utile */ }
+      if (this._nvEtat !== s) return; // un nouvel état est arrivé pendant l'attente : il redessine
+    }
+    const { lignes, reste } = this._nvNotes.n;
+    poserHTML(d, `<div class="nv-tete"><ha-icon icon="mdi:party-popper"></ha-icon><div class="nv-t"><b id="nv-titre">${esc(_t("Maquette {v} est disponible", { v: cible }))}</b>
+        <small>${esc(telechargee ? _t("Téléchargée : recharge la page pour l'utiliser") : _t("Tu as la {v}", { v: VERSION }))}</small></div>
+        <button class="ib" data-nv="plus-tard" title="${esc(_t("Plus tard"))}" aria-label="${esc(_t("Plus tard"))}"><ha-icon icon="mdi:close"></ha-icon></button></div>
+      ${lignes.length ? `<ul class="nv-notes">${lignes.map((l) => `<li><span class="nv-2l">${esc(l)}</span></li>`).join("")}</ul>${reste ? `<p class="nv-reste">${esc(_t("… et {n} autres changements", { n: reste }))}</p>` : ""}` : ""}
+      <div class="nv-actions">${telechargee ? `<button class="cta plein" data-nv="recharger"><ha-icon icon="mdi:refresh"></ha-icon>${esc(_t("Recharger"))}</button>`
+        : `<button class="cta plein" data-nv="installer"${enCours ? " disabled" : ""}><ha-icon icon="mdi:download"></ha-icon>${esc(enCours ? _t("Installation…") : _t("Mettre à jour"))}</button>`}
+        <button class="cta texte" data-nv="github">${esc(_t("Voir sur GitHub"))}</button></div>
+      <button class="nv-etoile" data-nv="etoile"><ha-icon icon="mdi:star-outline"></ha-icon>${esc(_t("Maquette te plaît ? Une étoile sur GitHub l'aide à se faire connaître"))}</button>`);
+  }
+
+  _fermerVersion() {
+    this.shadowRoot?.querySelector(".nv")?.remove();
+    if (globalThis.__maquetteVersion === this) globalThis.__maquetteVersion = null;
+  }
+  // ---------- « Quoi de neuf » : au premier affichage d'une nouvelle version (administrateurs) ----------
+  // Version vue gardée dans le navigateur (maquette-version-vue). Sans trace : plan vide = nouvelle installation (rien à montrer, la
+  // version est notée) ; plan déjà dessiné = mise à jour depuis une version sans cette fenêtre (≤ 0.3.x) → montrée. Une seule fenêtre
+  // par page, comme l'avis de nouvelle version. Démo (hass sans connexion) : seulement avec ?nouveautes (tests).
+  static NOUVEAUTES = {
+    "0.4.0": () => ({
+      lignes: [_t("Nouveau thème par défaut : Home Assistant. La carte prend l'apparence des autres cartes de ton tableau de bord."),
+        _t("Sept thèmes, des retouches de couleurs et ton propre CSS : ⚙ Paramètres › Apparence."),
+        _t("Plus léger au repos, surtout sur téléphone."),
+        _t("Les boutons du plan s'estompent à la souris et gardent leur place."),
+        _t("Une fenêtre comme celle-ci te préviendra des prochaines versions.")],
+      note: _t("Tu préférais l'ancien rendu ? Choisis « Material » dans Apparence."),
+      // boutons vers les nouveautés : { texte, icone, parametres: onglet de ⚙ Paramètres } ou { texte, icone, lien: adresse (dépôt si relative) }
+      boutons: [{ texte: _t("Choisir un thème"), icone: "mdi:palette-outline", parametres: "apparence" }],
+    }),
+  };
+  _nouveautes() {
+    if (this._nqFait || !this._config) return;
+    // démo (hass simulé, sans connexion à HA) : seulement avec ?nouveautes
+    if (!this._hass?.connection && !/[?&]nouveautes\b/.test(location.search)) return;
+    this._nqFait = true;
+    const K = MaquetteCard, cle = "maquette-version-vue", noter = () => { try { localStorage.setItem(cle, VERSION); } catch (e) { /* stockage indisponible */ } };
+    let vue = null;
+    try { vue = localStorage.getItem(cle); } catch (e) { return; }
+    if (!vue && !this._config.pieces?.length) return noter();
+    if (vue && K.comparerVersions(VERSION, vue) <= 0) return;
+    const autre = globalThis.__maquetteVersion;
+    if (!K.NOUVEAUTES[VERSION] || (autre && autre !== this && autre.isConnected)) return noter();
+    this.montrerNouveautes(vue);
+  }
+  // fenêtre « Quoi de neuf » de la version chargée ; aussi à la demande (⚙ Paramètres › À propos) ; false s'il n'y a rien pour cette version
+  montrerNouveautes(vue = null) {
+    const K = MaquetteCard, n = K.NOUVEAUTES[VERSION]?.(), R = this.shadowRoot;
+    if (!n || !R) return false;
+    const noter = () => { try { localStorage.setItem("maquette-version-vue", VERSION); } catch (e) { /* stockage indisponible */ } };
+    R.querySelector(".nv.nouveautes")?.remove();
+    globalThis.__maquetteVersion = this;
+    const d = document.createElement("div");
+    d.className = "nv nouveautes"; d.setAttribute("role", "dialog"); d.setAttribute("aria-labelledby", "nq-titre");
+    poserHTML(d, `<div class="nv-tete"><ha-icon icon="mdi:creation-outline"></ha-icon><div class="nv-t"><b id="nq-titre">${esc(_t("Quoi de neuf dans Maquette {v}", { v: VERSION }))}</b>
+        <small>${esc(vue ? _t("Mise à jour depuis la {v}", { v: vue }) : _t("Les nouveautés de cette version"))}</small></div>
+        <button class="ib" data-nq="ok" title="${esc(_t("Fermer"))}" aria-label="${esc(_t("Fermer"))}"><ha-icon icon="mdi:close"></ha-icon></button></div>
+      <ul class="nv-notes">${n.lignes.map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
+      ${n.note ? `<p class="nv-reste">${esc(n.note)}</p>` : ""}
+      <div class="nv-actions"><button class="cta plein" data-nq="ok">${esc(_t("Compris"))}</button>
+        ${(n.boutons || []).map((x, i) => `<button class="cta" data-nq="b${i}"><ha-icon icon="${esc(x.icone || "mdi:arrow-right")}"></ha-icon>${esc(x.texte)}</button>`).join("")}
+        <button class="cta texte" data-nq="notes">${esc(_t("Toutes les nouveautés"))}</button></div>
+      <button class="nv-etoile" data-nq="etoile"><ha-icon icon="mdi:star-outline"></ha-icon>${esc(_t("Maquette te plaît ? Une étoile sur GitHub l'aide à se faire connaître"))}</button>`);
+    d.addEventListener("click", async (ev) => {
+      ev.stopPropagation();
+      const b = ev.composedPath().find((x) => x.dataset?.nq)?.dataset.nq;
+      if (!b) return;
+      if (b === "notes" || b === "etoile") return window.open(b === "etoile" ? K.DEPOT : `${K.DEPOT}/releases/tag/v${VERSION}`, "_blank", "noopener,noreferrer");
+      const x = /^b\d+$/.test(b) ? n.boutons?.[+b.slice(1)] : null;
+      if (x?.lien) return window.open(/^https?:/.test(x.lien) ? x.lien : `${K.DEPOT}/${x.lien.replace(/^\//, "")}`, "_blank", "noopener,noreferrer");
+      noter(); d.remove();
+      if (globalThis.__maquetteVersion === this) globalThis.__maquetteVersion = null;
+      this._nvEtat = null; // l'avis de nouvelle version peut venir ensuite
+      if (x?.parametres) { if (!this._editeur) await this.ouvrirEditeur(); this._editeur?.panneauParametres(true, x.parametres); }
+    });
+    R.querySelector("ha-card").append(d);
+    return true;
   }
   // fenêtres de toit (calculs purs, voir carte/velux.js) : pour les tests et l'éditeur
   static VELUX = { tache: tacheVelux, ouvert: ouvertVelux, emprise: empriseVelux, pente: penteVelux, hauteur: hauteurVelux };

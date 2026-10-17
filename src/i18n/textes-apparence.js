@@ -25,5 +25,16 @@ const EN = { // @assemblage
     "Un clic insère la variable et sa valeur actuelle au curseur. Elles priment sur le thème, aussi depuis un thème Home Assistant ou card-mod.": "A click inserts the variable and its current value at the cursor. They override the theme, also from a Home Assistant theme or card-mod.",
     "Insérer « {v} » dans le CSS": "Insert “{v}” into the CSS",
     "CSS refusé ({raison}) : rien n'est appliqué.": "CSS refused ({raison}): nothing is applied.",
+    "À propos": "About",
+    "Dépôt GitHub": "GitHub repository",
+    "Documentation (wiki)": "Documentation (wiki)",
+    "Démo en ligne": "Online demo",
+    "Notes de version": "Release notes",
+    "Discussions et idées": "Discussions and ideas",
+    "Installée sans HACS : pas de vérification des mises à jour. Les nouvelles versions sont sur GitHub.": "Installed without HACS: updates are not checked. New versions are on GitHub.",
+    "À jour (vérifié par HACS)": "Up to date (checked by HACS)",
+    "Le plan vivant de ta maison pour Home Assistant": "The living floor plan of your home for Home Assistant",
+    "Prévenir les administrateurs quand une nouvelle version est disponible": "Tell administrators when a new version is available",
+    "Licence MIT · par TooMuhtsh · Maquette ne contacte aucun service en ligne : la vérification des mises à jour passe par HACS, dans Home Assistant.": "MIT license · by TooMuhtsh · Maquette contacts no online service: updates are checked by HACS, inside Home Assistant.",
 }; // @assemblage
 })(); // @assemblage

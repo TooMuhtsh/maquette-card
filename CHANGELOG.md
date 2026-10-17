@@ -2,6 +2,35 @@
 
 ## Unreleased
 
+## 0.4.0 – 2026-10-17
+
+### Changed
+
+- Plan buttons (layers, +, −, *Whole home*) with a mouse: they fade out 5 s after the cursor leaves the plan and come back when it returns, with the keyboard or on a tap (a tap on a faded button only brings it back). + and − keep fixed places; *Whole home* appears above them, in view and in the editor.
+- Badge on small furniture (under 24 px on screen): compacted instead of hidden.
+- Editor: the drawing area margin is 8 % of the plan (between 80 cm and 5 m) instead of 5 m, so the plan keeps almost its view size.
+- Card dialog (element details): widgets shown side by side have the same height, with the title at the top left and the content centered in the remaining space.
+- Lighter card at rest, mostly on phones: only the widgets whose content changed are rebuilt on a Home Assistant update, grouped statistics and history replies redraw the widgets once, number formatters are cached. Nothing changes on screen.
+
+### Fixed
+
+- Thermostat widget and text attributes in badges: preset and action shown translated by Home Assistant, with a built-in translation of common presets (`manual`, `eco`, `comfort`, `away`…) when the integration provides none.
+- Badges near the plan edge are no longer clipped (halo included).
+- Alert banner: the element name is no longer repeated under the alert title when it is the same text.
+- Editor: the *Add widget* button under the last widget no longer overlaps the selection outline of that widget.
+- Editor: a sensor without a device class (template, MQTT…) showed a thermometer next to its name, even for a power in W. Its icon now follows its unit (W → lightning, kWh, °C, lx, ppm, V, A), and an unknown sensor gets Home Assistant's default icon.
+
+### Added
+
+- What's new window: the first time a new version is shown, administrators see its highlights once (with *Pick a theme* and *All the changes*); a new install with an empty plan skips it.
+- New version notice (administrators): when HACS offers a newer Maquette, a small window shows the first lines of the release notes, with *Update* (installs it through HACS, then *Reload*), *See on GitHub*, a star invitation and *Later* (hidden until the next version). Read from the HACS update entity inside Home Assistant: no online request. `update_notice: false` turns it off; nothing without HACS.
+- Editor: ⚙ Settings › About: version, update status and *Update* button (HACS), links to the repository, wiki, online demo, release notes, bug reports and discussions, the star invitation and the new version notice switch.
+- Online demo on GitHub Pages (https://toomuhtsh.github.io/maquette-card/), published with each release: sample-data banner with links (repository, HACS install, wiki), language, light / dark and card theme switches kept in the address to share a link, *Copy YAML config* (the current card config, English keys) and *Reset* for the changes kept in the browser.
+- Themes: `theme: material | ha | ocean | slate | sand | forest | night`. `ha` (the new default) blends in like a classic Lovelace card; `material` keeps the previous look (background, border, shadow and radius of your HA theme); Ocean, Slate, Sand and Forest follow HA light and dark mode, Night is always dark. An object `{base: ocean, accent: "#e8710a", radius: 8, …}` touches up any theme.
+- Public CSS variables `--maquette-*` (accent, surface, text, wall, room-fill, doors, shutters, furniture, chips, radius, font…), stronger than the theme: set them from a Home Assistant theme (`themes.yaml`), card-mod or the card's `css:`. The full list is in the reference, generated from the code.
+- Custom CSS: `css:` is added last inside the card and in the editor preview. Refused as a whole, with a console warning, above 20 KiB or with `@import`, `url()` other than a `data:image`, `expression()`, `javascript:`, `</style` or backslash escapes.
+- Editor: ⚙ Settings › Appearance: theme picker with light and dark previews, touch-ups with *Reset*, custom CSS field and a clickable list of every `--maquette-*` variable with its current value.
+
 ## 0.3.1 – 2026-10-14
 
 ### Fixed

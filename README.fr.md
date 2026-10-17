@@ -19,8 +19,8 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ## Nouveautés de la 0.4.0
 
-- **Thèmes** : sept thèmes intégrés (`theme:`). `material` reste le rendu par défaut, `ha` se fond comme une carte
-  Lovelace classique, `ocean`, `slate`, `sand` et `forest` suivent le mode clair ou sombre de Home Assistant, `night`
+- **Thèmes** : sept thèmes intégrés (`theme:`). `ha`, le nouveau défaut, se fond comme une carte Lovelace
+  classique (`material` garde l'ancien rendu), `ocean`, `slate`, `sand` et `forest` suivent le mode clair ou sombre de Home Assistant, `night`
   est toujours sombre. Les couleurs se retouchent par-dessus n'importe quel thème.
 - **Variables CSS et CSS personnalisé** : des variables publiques `--maquette-*`, à définir dans un thème Home Assistant,
   avec card-mod ou dans le `css:` de la carte ; le CSS personnalisé est contrôlé avant d'être appliqué. Tout se règle
@@ -29,6 +29,8 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
   kWh, °C…) au lieu d'un thermomètre.
 - **Plus légère au repos**, surtout sur téléphone : seuls les widgets qui ont changé sont redessinés.
 - **Boutons du plan** : à la souris, ils s'estompent quand le pointeur quitte le plan, et + / − gardent leur place.
+- **Avis de nouvelle version** : avec HACS, les administrateurs voient quand une version plus récente sort, avec le début
+  des notes de version et un bouton **Mettre à jour** ; ⚙ Paramètres › À propos réunit la version et les liens du projet.
 - Les widgets côte à côte dans une fiche ont la même hauteur, et quelques corrections (pastilles près du bord, petits
   meubles, préréglages des thermostats).
 

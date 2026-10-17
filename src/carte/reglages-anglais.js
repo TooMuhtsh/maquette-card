@@ -162,7 +162,7 @@ const N_RACINE = nObj({ type: "type", id: "id", titre: "title", resume: ["summar
   replay: ["replay", nObj({ heures: "hours", vitesse: "speed" })], vitrine: ["showcase", nObj({ pos: "pos", largeur: "width" })], demo: "demo", langue: "language",
   // réglages globaux (panneau ⚙ Paramètres de l'éditeur) : présence par défaut, étiquettes des pièces, teinte de température, légende
   presence: "presence", etiquettes_pieces: ["room_labels", nObj({ nom: "name", temperature: "temperature", humidite: "humidity" })],
-  teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend",
+  teinte_temperature: ["temperature_tint", nObj({ min: "min", max: "max" })], legende: "legend", avis_maj: "update_notice",
   // interaction au toucher, tablette murale, niveau d'animation
   interaction: ["interaction", nObj({ clic_piece: ["room_tap", nEnum({ vue: "room_view", infos: "more_info", aucun: "none" })], vue_figee: "lock_view", retour_apres: "reset_after",
     boutons_zoom: ["zoom_buttons", nEnum({ auto: "auto", plan: "map", entete: "header", caches: "hidden" })] })],

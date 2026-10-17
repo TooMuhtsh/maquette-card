@@ -18,8 +18,8 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
 
 ## New in 0.4.0
 
-- **Themes**: seven built-in themes (`theme:`). `material` stays the default look, `ha` blends in like a classic
-  Lovelace card, `ocean`, `slate`, `sand` and `forest` follow Home Assistant's light and dark mode, `night` is always
+- **Themes**: seven built-in themes (`theme:`). `ha`, the new default, blends in like a classic Lovelace card
+  (`material` keeps the previous look), `ocean`, `slate`, `sand` and `forest` follow Home Assistant's light and dark mode, `night` is always
   dark. Colors can be touched up on top of any theme.
 - **CSS variables and custom CSS**: public `--maquette-*` variables, settable from a Home Assistant theme, card-mod or
   the card's `css:`; custom CSS is checked before it applies. All of it in the editor under ⚙ Settings › Appearance.
@@ -27,6 +27,8 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
   instead of a thermometer.
 - **Lighter at rest**, mostly on phones: only the widgets that changed are redrawn.
 - **Plan buttons** fade out with a mouse once the pointer leaves the plan, and + / − keep fixed places.
+- **New version notice**: with HACS, administrators see when a newer Maquette is out, with the start of the release notes
+  and an **Update** button; ⚙ Settings › About gathers the version and the project links.
 - Widgets side by side in a card share the same height, plus a few fixes (badges near the edge, small furniture,
   thermostat presets).
 

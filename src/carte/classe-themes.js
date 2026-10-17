@@ -2,7 +2,7 @@
 class MaquetteCard extends HTMLElement { // @assemblage
   // registre, table et outils purs (éditeur, doc, tests) : MaquetteCard.THEMES.registre[nom] = { clair, sombre, mode?, css? },
   // .variables = VARIABLES_THEME, .resoudre(theme, sombre) = { variable: valeur }, .css(theme, sombre), .verifierCss(texte), .doc(langue)
-  static THEMES = { registre: THEMES, noms: NOMS_THEMES, variables: VARIABLES_THEME, resoudre: variablesDuTheme, css: cssDuTheme, verifierCss, valeur: valeurTheme,
+  static THEMES = { registre: THEMES, noms: NOMS_THEMES, defaut: THEME_DEFAUT, variables: VARIABLES_THEME, resoudre: variablesDuTheme, css: cssDuTheme, verifierCss, valeur: valeurTheme,
     doc: tableVariablesTheme, cleAnglaise: cleAnglaiseTheme, CSS_MAX: CSS_PERSO_MAX, jetonsCss: CSS_JETONS_THEME };
 
   // moments : plan construit (config neuve ou modifiée), nouvel état de HA (le thème clair / sombre de HA a pu changer)

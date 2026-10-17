@@ -194,6 +194,22 @@ ha-card:not(.plein) .corps.colonne .vue>.col{flex:none;overflow:visible}
 .cta.plein{background:var(--md-primary);color:var(--md-on-primary)}
 .cta.confirmer{background:var(--md-error);color:#fff}
 .cta.fait{background:#188038;color:#fff}
+/* nouvelle version disponible (classe-version.js) : petite fenêtre MD3 en bas à droite de l'écran, non bloquante */
+.nv{position:fixed;right:24px;bottom:24px;z-index:9;width:min(380px,calc(100vw - 32px));box-sizing:border-box;padding:16px;border-radius:20px;
+  background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 4px 16px #0004;display:flex;flex-direction:column;gap:10px;
+  font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif);animation:mf-entree .2s var(--md-sys-motion)}
+.nv-tete{display:flex;align-items:flex-start;gap:12px}.nv-tete>ha-icon{color:var(--md-primary);margin-top:2px}
+.nv-t{flex:1;min-width:0;display:flex;flex-direction:column}.nv-t b{font:500 16px/24px var(--ha-font-family-body,Roboto,sans-serif)}
+.nv-t small{color:var(--md-on-surface-variant)}
+.nv-tete .ib{margin:-8px -8px 0 0}
+.nv-notes{margin:0;padding:0 0 0 18px;color:var(--md-on-surface-variant);display:flex;flex-direction:column;gap:2px}.nv-2l{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.nv-reste{margin:0;color:var(--md-on-surface-variant);font-size:12px}
+.nv-actions{display:flex;flex-wrap:wrap;gap:8px}
+.cta.texte{background:none;color:var(--md-primary);padding:0 12px}
+.cta[disabled]{opacity:.6;cursor:default}
+.nv-etoile{display:flex;align-items:center;gap:6px;color:var(--md-on-surface-variant);font:400 12px/16px var(--ha-font-family-body,Roboto,sans-serif);background:none;border:none;padding:0;cursor:pointer;text-align:left}
+.nv-etoile ha-icon{--mdc-icon-size:16px;color:#f5b400}.nv-etoile:hover{color:var(--md-primary)}
+@media (max-width:600px){.nv{right:16px;left:16px;bottom:16px;width:auto}}
 /* mini-fiche d'un meuble connecté : fenêtre MD3 sur PC, feuille du bas au téléphone */
 dialog.mf{border:none;padding:0;border-radius:28px;width:min(420px,calc(100vw - 32px));max-height:min(92vh,calc(100vh - 32px));overflow:hidden;
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 8px 12px 6px #0003,0 4px 4px #0004;font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}

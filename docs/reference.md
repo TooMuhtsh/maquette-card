@@ -116,7 +116,7 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `alerts` | list | | — | [Full-plan alerts](#full-plan-alerts) |
 | `badge_style` | object | | — | [Badge style](#badge-style) |
 | `palette` | object | name → color | — | Named colors, e.g. `{accent: "#e8710a"}`. Name: lowercase letter first, then lowercase letters, digits, `_` or `-` (31 at most); color: `#hex`, `rgb()`, `hsl()`, CSS name or `var(--…)`. Offered in every color picker of the editor (traces and energy flows have no color picker: YAML only); an element whose color is a name follows the palette (a removed name gives it its default color back). Editor: ⚙ Settings › Display › *Named colors* |
-| `theme` | string / object | | `material` | [Themes and custom CSS](#themes-and-custom-css). *New in 0.4.0* |
+| `theme` | string / object | | `ha` | [Themes and custom CSS](#themes-and-custom-css). *New in 0.4.0* |
 | `css` | string | | — | [Custom CSS](#themes-and-custom-css). *New in 0.4.0* |
 | `replay` | bool / object | | — | [Replay](#replay) |
 | `showcase` | bool / object | | — | [Showcase](#showcase) |
@@ -125,7 +125,7 @@ The card itself: its type, identity, title, and the lists of every element of th
 | `animation_level` | enum | `full` `reduced` `none` | `full` | [Animation level](#animation-level) |
 | `effects` | enum | `auto` `full` `light` | `auto` | [Animation level](#animation-level) (effects). *New in 0.3.0* |
 | `demo` | bool | | — | [Demo](#demo) |
-| `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend` | | | | [Global settings](#global-settings) |
+| `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend`, `update_notice` | | | | [Global settings](#global-settings) |
 | `view_layout`, `layout_options`, `grid_options`, `visibility`, `card_mod` | | | | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
 
 ```yaml
@@ -165,6 +165,7 @@ Card-wide options about how the card works rather than what it draws.
 | `temperature_tint.min` | number (°C) | editor: −30–60, step 0.5 | `17` | Blue at and below this temperature |
 | `temperature_tint.max` | number (°C) | editor: −30–60, step 0.5 | `28` | Red at and above. If `min` ≥ `max`, both fall back to the defaults |
 | `legend` | bool | | `true` | `false` hides the legend under the plan |
+| `update_notice` | bool | | `true` | `false`: no window when a new version is available (administrators, HACS installs only). Editor: ⚙ Settings › About. *New in 0.4.0* |
 
 ```yaml
 language: en
@@ -182,6 +183,17 @@ temperature_tint:
   max: 26
 legend: false
 ```
+
+### New version notice
+
+*New in 0.4.0.* With HACS, Home Assistant has an update entity for Maquette. When it offers a newer version, administrators see a small window at the bottom right: the first lines of the release notes, **Update** (HACS installs it, then **Reload**), **See on GitHub**, a star invitation and a close button (*Later*: hidden until the next version, in this browser). One window per page, never in the editor. Everything is read from Home Assistant: the card makes no online request. Without HACS (manual install), nothing is shown; ⚙ *Settings › About* gives the version and the links.
+
+```yaml
+update_notice: false   # no new version window
+```
+
+**What's new.** The first time a new version is shown, administrators also get its highlights once (*Got it*, *Pick a theme*, *All the changes*); a new install with an empty plan skips it, and ⚙ *Settings › About › What's new in X.Y.Z* shows it again.
+
 
 Editor: ⚙ Settings. Every field, its key and its range:
 
@@ -1833,13 +1845,13 @@ The card's look: a ready-made theme, a few touch-ups, or your own CSS. *New in 0
 
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
-| `theme` | string / object | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `material` | A theme name, or an object: `base` (a theme name) plus touch-ups, one per `theme:` key of the table below |
-| `theme.base` | enum | same names | `material` | Theme the touch-ups apply to |
+| `theme` | string / object | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `ha` | A theme name, or an object: `base` (a theme name) plus touch-ups, one per `theme:` key of the table below |
+| `theme.base` | enum | same names | `ha` | Theme the touch-ups apply to |
 | `css` | string | | — | Custom CSS, added last inside the card (see the rules below) |
 
 | Theme | Look |
 |---|---|
-| `material` | Material Design 3 tinted with the HA primary color: the look before themes, unchanged |
+| `material` | Material Design 3 tinted with the HA primary color: the look before 0.4.0 (the default until 0.3.x) |
 | `ha` | Classic Lovelace: background, border, shadow and radius of `ha-card` from your HA theme, no tint |
 | `ocean` `slate` `sand` `forest` | Ready-made palettes, light or dark with Home Assistant |
 | `night` | Always dark |

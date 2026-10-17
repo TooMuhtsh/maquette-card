@@ -67,7 +67,8 @@ class EditeurPlan { // @assemblage
     const P = plan.getBoundingClientRect(), Z = (this.multi.size <= 1 && ["widget", "puce"].includes(s.type) ? this.R.querySelector("ha-card") : zone).getBoundingClientRect();
     const vis = { g: Math.max(Z.left, 0), h: Math.max(Z.top, 0), d: Math.min(Z.right, innerWidth), b: Math.min(Z.bottom, innerHeight) };
     const bw = b.offsetWidth, bh = b.offsetHeight, ec = 12, bord = 4;
-    const bx = (x) => Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord)), by = (y) => Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
+    // trop large pour la partie visible (téléphone étroit) : centrée, elle déborde autant des deux côtés
+    const bx = (x) => (vis.d - vis.g - 2 * bord < bw ? (vis.g + vis.d - bw) / 2 : Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord))), by = (y) => Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
     const tient = ([x, y]) => x >= vis.g + bord - 0.5 && x + bw <= vis.d - bord + 0.5 && y >= vis.h + bord - 0.5 && y + bh <= vis.b - bord + 0.5;
     const couvre = ([x, y], r) => x < r.d && x + bw > r.g && y < r.b && y + bh > r.h;
     // hors de la sélection, dans la partie visible : au-dessus, dessous, à droite, à gauche (centrée sur la partie visible de la sélection)

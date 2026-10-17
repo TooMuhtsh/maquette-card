@@ -217,6 +217,10 @@ try {
 // palette claire / sombre de la carte selon la page ; ?theme=<nom> : thème de la carte (material, ha, ocean, slate, sand, forest, night)
 const SITE = document.documentElement.hasAttribute("data-site") || params.has("site");
 if (params.get("theme")) config = { ...config, theme: params.get("theme") };
+// ?maj : une mise à jour de la carte proposée par HACS (fenêtre « nouvelle version », tests)
+if (params.has("maj")) etats["update.maquette_update"] = { entity_id: "update.maquette_update", state: "on", last_changed: new Date().toISOString(),
+  attributes: { friendly_name: "Maquette update", installed_version: "v0.4.0", latest_version: "v9.9.0", in_progress: false,
+    release_url: "https://github.com/TooMuhtsh/maquette-card/releases/tag/v9.9.0" } };
 const memo = { actuelle: config };
 const carte = document.querySelector("maquette-card");
 let hass;

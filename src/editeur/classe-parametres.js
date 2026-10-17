@@ -38,9 +38,11 @@ class EditeurPlan { // @assemblage
       if (!o) l.push((o = { id, titre: S.titre, icone: S.icone || "mdi:cog-outline", sections: [] }));
       o.sections.push({ S, champs });
     }
-    // onglet rendu par son propre morceau (Apparence : classe-apparence.js), placé après l'onglet `apres`
-    const ap = this._ongletApparence?.();
-    if (ap) l.splice(l.findIndex((o) => o.id === ap.apres) + 1 || l.length, 0, { ...ap, sections: [] });
+    // onglets rendus par leur propre morceau (Apparence : classe-apparence.js ; À propos : classe-a-propos.js), placés après l'onglet `apres`
+    // (sans `apres` : en dernier)
+    for (const ap of [this._ongletApparence?.(), this._ongletAPropos?.()]) {
+      if (ap) l.splice(ap.apres ? l.findIndex((o) => o.id === ap.apres) + 1 || l.length : l.length, 0, { ...ap, sections: [] });
+    }
     return l;
   }
   ongletParametres(id) {
@@ -89,6 +91,7 @@ class EditeurPlan { // @assemblage
         <div class="ed-mcontenu">${panneaux}</div></div></div>`);
     this._cablerChamps(V);
     this._cablerApparence?.(V);
+    this._cablerAPropos?.(V);
     V.querySelectorAll("[data-pal-coul]").forEach((inp) => { inp.onchange = () => this.commit(() => { (this.d.palette ||= {})[inp.dataset.palCoul] = inp.value; }); });
     const c = V.querySelector(".ed-mcontenu");
     if (c) c.scrollTop = defile;

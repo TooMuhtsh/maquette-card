@@ -58,15 +58,18 @@ function valeurTheme(v, type) {
   if (type === "police") return POLICE_SURE.test(t) && /[^\s,'"]/.test(t) ? t : null;
   return COULEUR_SURE.test(t) ? t : null;
 }
+// thème sans `theme:` (ou nom inconnu) : « ha », carte Lovelace classique, depuis la 0.4.0 (choix assumé : le rendu change pour tous ;
+// `theme: material` garde l'ancien rendu, prévenu par la fenêtre « Quoi de neuf »)
+const THEME_DEFAUT = "ha";
 // thème de la config (interne) → { base, retouches: {variable: valeur} } ; une chaîne = un nom du registre
 function themeDe(theme) {
-  if (typeof theme === "string") return { base: Object.hasOwn(THEMES, theme) ? theme : "material", retouches: {} };
+  if (typeof theme === "string") return { base: Object.hasOwn(THEMES, theme) ? theme : THEME_DEFAUT, retouches: {} };
   const o = theme && typeof theme === "object" && !Array.isArray(theme) ? theme : {}, retouches = {};
   for (const [k, x] of Object.entries(o)) {
     const v = Object.hasOwn(VAR_THEME_CLE, k) ? VAR_THEME_CLE[k] : null, s = v && valeurTheme(x, v.type);
     if (s) retouches[v.nom] = s;
   }
-  return { base: typeof o.base === "string" && Object.hasOwn(THEMES, o.base) ? o.base : "material", retouches };
+  return { base: typeof o.base === "string" && Object.hasOwn(THEMES, o.base) ? o.base : THEME_DEFAUT, retouches };
 }
 // variables effectives d'un thème : palette du registre (clair ou sombre) puis retouches ; { variable: valeur }
 function variablesDuTheme(theme, sombre = false) {

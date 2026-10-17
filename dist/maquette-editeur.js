@@ -1,4 +1,4 @@
-/*! Maquette v0.3.1 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.4.0 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
 (() => {
 const demarrer = () => {
 if (globalThis.MaquetteEditeur) return;
@@ -324,6 +324,7 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Pièce « {nom} »": "Room “{nom}”",
     "Rechercher (co2, fuite, serrure…)": "Search (co2, leak, lock…)",
     "« {nom} » ajouté : champs en orange à compléter.": "“{nom}” added: fill in the orange fields.",
+    "Quoi de neuf dans la {v}": "What's new in {v}",
     "Confirmer chaque appui sur « {nom} » ?": "Confirm every tap on “{nom}”?",
     "Oui présélectionné : il ressemble à un accès (porte, portail, garage…).": "Yes preselected: it looks like an access (door, gate, garage…).",
     "Non présélectionné.": "No preselected.",
@@ -1148,6 +1149,17 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Un clic insère la variable et sa valeur actuelle au curseur. Elles priment sur le thème, aussi depuis un thème Home Assistant ou card-mod.": "A click inserts the variable and its current value at the cursor. They override the theme, also from a Home Assistant theme or card-mod.",
     "Insérer « {v} » dans le CSS": "Insert “{v}” into the CSS",
     "CSS refusé ({raison}) : rien n'est appliqué.": "CSS refused ({raison}): nothing is applied.",
+    "À propos": "About",
+    "Dépôt GitHub": "GitHub repository",
+    "Documentation (wiki)": "Documentation (wiki)",
+    "Démo en ligne": "Online demo",
+    "Notes de version": "Release notes",
+    "Discussions et idées": "Discussions and ideas",
+    "Installée sans HACS : pas de vérification des mises à jour. Les nouvelles versions sont sur GitHub.": "Installed without HACS: updates are not checked. New versions are on GitHub.",
+    "À jour (vérifié par HACS)": "Up to date (checked by HACS)",
+    "Le plan vivant de ta maison pour Home Assistant": "The living floor plan of your home for Home Assistant",
+    "Prévenir les administrateurs quand une nouvelle version est disponible": "Tell administrators when a new version is available",
+    "Licence MIT · par TooMuhtsh · Maquette ne contacte aucun service en ligne : la vérification des mises à jour passe par HACS, dans Home Assistant.": "MIT license · by TooMuhtsh · Maquette contacts no online service: updates are checked by HACS, inside Home Assistant.",
     "Outils": "Tools",
     "Exporter / importer": "Export / import",
     "Pas de la grille : {v} cm": "Grid step: {v} cm",
@@ -1235,7 +1247,6 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Aucune image": "No image",
     "Chemin de l'image": "Image path",
     "Chemin refusé : une image du même site seulement (/local/… ou image envoyée), en PNG, JPEG, WebP, AVIF ou SVG.": "Path refused: an image from the same site only (/local/… or an uploaded image), as PNG, JPEG, WebP, AVIF or SVG.",
-    "Compris": "Got it",
     "Confidentialité : ce qui est dans /local et /api/image/serve est lisible sans connexion si Home Assistant est exposé sur Internet. N'y mets pas un plan que tu ne veux pas rendre public.": "Privacy: files in /local and /api/image/serve can be read without signing in if Home Assistant is exposed to the Internet. Don't put a plan there that you wouldn't make public.",
     "Envoi de l'image…": "Uploading the image…",
     "Envoi impossible : Home Assistant ne répond pas.": "Upload failed: Home Assistant is not responding.",
@@ -1345,7 +1356,6 @@ Object.assign(globalThis.MaquetteI18n.DICO.en, {
     "Les entités « à choisir à chaque placement » de chaque copie sont gardées.": "Each copy keeps its “ask each time” entities.",
     "Les entités du modèle remplacent aussi celles des copies.": "The template's entities replace the copies' ones too.",
     "Les copies d'autres plans ne changent pas.": "Copies in other plans do not change.",
-    "Mettre à jour": "Update",
     "{n} copie mise à jour.|{n} copies mises à jour.": "{n} copy updated.|{n} copies updated.",
     "Copie du modèle « {nom} »": "Copy of the “{nom}” template",
     "Modèle introuvable (supprimé ou d'un autre plan)": "Template not found (deleted or from another plan)",
@@ -3894,6 +3904,19 @@ ha-card.ed-etroit .ed-pt-ou select{flex:1 1 100%}
 ha-card.ed-etroit .ed-app-themes{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
 ha-card.ed-etroit .ed-app-mini{height:44px}
 ha-card.ed-etroit .ed-app-var .v{max-width:30%}
+/* ⚙ Paramètres › À propos (classe-a-propos.js) */
+.ed-apropos{display:flex;flex-direction:column;gap:14px}
+.ed-ap-tete{display:flex;align-items:center;gap:14px}.ed-ap-tete>ha-icon{--mdc-icon-size:40px;color:var(--md-primary)}
+.ed-ap-tete div{display:flex;flex-direction:column}.ed-ap-tete b{font:500 20px/28px var(--ha-font-family-body,Roboto,sans-serif)}
+.ed-ap-tete small{color:var(--md-on-surface-variant)}
+.ed-ap-etat{margin:0;display:flex;align-items:center;gap:8px;color:var(--md-on-surface-variant)}
+.ed-ap-etat.nouveau{color:var(--md-primary);font-weight:500}.ed-ap-etat.ok ha-icon{color:#188038}
+.ed-ap-avis{display:flex;align-items:flex-start;gap:10px;cursor:pointer}.ed-ap-avis input{margin-top:3px}
+.ed-ap-liens{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:4px}
+.ed-ap-liens .ed-btn{justify-content:flex-start}
+.ed-ap-etoile{display:flex;align-items:center;gap:8px;border:1px solid var(--md-outline-variant);border-radius:12px;background:none;color:var(--md-on-surface);
+  padding:10px 14px;cursor:pointer;font:inherit;text-align:left}.ed-ap-etoile ha-icon{color:#f5b400}.ed-ap-etoile:hover{border-color:var(--md-primary)}
+.ed-ap-note{margin:0;color:var(--md-on-surface-variant);font-size:12px}
 /* champs de la modale ⚙ Paramètres */
 .ed-par-sec{display:flex;flex-direction:column;gap:14px}
 .ed-par-sec+.ed-par-sec{border-top:1px solid var(--md-outline-variant);padding-top:14px}
@@ -5226,9 +5249,11 @@ class EditeurPlan {
       if (!o) l.push((o = { id, titre: S.titre, icone: S.icone || "mdi:cog-outline", sections: [] }));
       o.sections.push({ S, champs });
     }
-    // onglet rendu par son propre morceau (Apparence : classe-apparence.js), placé après l'onglet `apres`
-    const ap = this._ongletApparence?.();
-    if (ap) l.splice(l.findIndex((o) => o.id === ap.apres) + 1 || l.length, 0, { ...ap, sections: [] });
+    // onglets rendus par leur propre morceau (Apparence : classe-apparence.js ; À propos : classe-a-propos.js), placés après l'onglet `apres`
+    // (sans `apres` : en dernier)
+    for (const ap of [this._ongletApparence?.(), this._ongletAPropos?.()]) {
+      if (ap) l.splice(ap.apres ? l.findIndex((o) => o.id === ap.apres) + 1 || l.length : l.length, 0, { ...ap, sections: [] });
+    }
     return l;
   }
   ongletParametres(id) {
@@ -5277,6 +5302,7 @@ class EditeurPlan {
         <div class="ed-mcontenu">${panneaux}</div></div></div>`);
     this._cablerChamps(V);
     this._cablerApparence?.(V);
+    this._cablerAPropos?.(V);
     V.querySelectorAll("[data-pal-coul]").forEach((inp) => { inp.onchange = () => this.commit(() => { (this.d.palette ||= {})[inp.dataset.palCoul] = inp.value; }); });
     const c = V.querySelector(".ed-mcontenu");
     if (c) c.scrollTop = defile;
@@ -5491,12 +5517,12 @@ class EditeurPlan {
   _themeApp(t = this.d.theme) {
     const TH = this._TH, base = typeof t === "string" ? t : t && typeof t === "object" ? t.base : null, retouches = {};
     if (t && typeof t === "object" && !Array.isArray(t)) for (const v of TH.variables) { const s = Object.hasOwn(t, v.cle) ? TH.valeur(t[v.cle], v.type) : null; if (s) retouches[v.nom] = s; }
-    return { base: typeof base === "string" && Object.hasOwn(TH.registre, base) ? base : "material", retouches };
+    return { base: typeof base === "string" && Object.hasOwn(TH.registre, base) ? base : TH.defaut, retouches };
   }
-  // config interne d'un thème : nom seul sans retouche (rien pour material), objet sinon
+  // config interne d'un thème : nom seul sans retouche (rien pour le thème par défaut), objet sinon
   _configTheme(base, retouches) {
     const l = Object.entries(retouches || {});
-    if (!l.length) return base === "material" ? undefined : base;
+    if (!l.length) return base === this._TH.defaut ? undefined : base;
     const cle = Object.fromEntries(this._TH.variables.map((v) => [v.nom, v.cle]));
     return { base, ...Object.fromEntries(l.map(([n, v]) => [cle[n], v])) };
   }
@@ -5512,7 +5538,7 @@ class EditeurPlan {
     const c = css === undefined ? this.d.css : this._TH.verifierCss(css).ok || !css.trim() ? css : this.d.css;
     const t = this._configTheme(base, retouches ?? r0);
     if (JSON.stringify(t) === JSON.stringify(this._configTheme(base, r0)) && (c ?? "") === (this.d.css ?? "")) return this.carte.apercuTheme?.(null);
-    this.carte.apercuTheme?.(t ?? "material", c ?? "");
+    this.carte.apercuTheme?.(t ?? this._TH.defaut, c ?? "");
   }
   // toute modification (annuler / rétablir compris) revient à la config : un aperçu en cours n'y survit pas
   _quand_modifie_apparence() { if (this.carte._thApercu) this.carte.apercuTheme?.(null); }
@@ -5688,6 +5714,59 @@ class EditeurPlan {
     ta.setSelectionRange(fin, fin);
     const ok = controle();
     if (ok) { this._appGarde = { k: "css", s: fin, e: fin, top: ta.scrollTop, force: true }; this._ecrireCss(ta, true, false); }
+  }
+  // Onglet ajouté par classe-parametres.js (_ongletsParametres → _ongletAPropos, câblage → _cablerAPropos), en dernier.
+  // Mise à jour : entité update.* de HACS lue par la carte (carte.etatVersion(), classe-version.js) ; aucune requête externe,
+  // d'où pas de compteur d'étoiles. `update_notice` (interne avis_maj) : false coupe la fenêtre « nouvelle version ».
+  _ongletAPropos() { return { id: "apropos", titre: _tk("À propos"), icone: "mdi:information-outline", apres: null, html: () => this._htmlAPropos() }; }
+  static LIENS_APROPOS = [["depot", "mdi:github", _tk("Dépôt GitHub"), ""], ["wiki", "mdi:book-open-variant", _tk("Documentation (wiki)"), "/wiki"],
+    ["demo", "mdi:play-circle-outline", _tk("Démo en ligne"), "@https://toomuhtsh.github.io/maquette-card/"], ["notes", "mdi:text-box-outline", _tk("Notes de version"), "/releases"],
+    ["bug", "mdi:bug-outline", _tk("Signaler un problème"), "/issues/new/choose"], ["discussions", "mdi:forum-outline", _tk("Discussions et idées"), "/discussions"]];
+  _lienAPropos(cle) {
+    const D = customElements.get("maquette-card").DEPOT, l = EditeurPlan.LIENS_APROPOS.find((x) => x[0] === cle)?.[3] ?? "";
+    return l.startsWith("@") ? l.slice(1) : D + l;
+  }
+  _htmlAPropos() {
+    const K = customElements.get("maquette-card"), v = K.VERSION, s = this.carte.etatVersion?.(), a = s?.attributes || {};
+    const cible = String(a.latest_version || "").replace(/^v/i, ""), plusRecente = s && K.comparerVersions(a.latest_version, v) > 0;
+    let etat;
+    if (!s) etat = `<p class="ed-ap-etat">${esc(_t("Installée sans HACS : pas de vérification des mises à jour. Les nouvelles versions sont sur GitHub."))}</p>`;
+    else if (plusRecente && s.state === "on") etat = `<p class="ed-ap-etat nouveau"><ha-icon icon="mdi:party-popper"></ha-icon>${esc(_t("Maquette {v} est disponible", { v: cible }))}</p>
+        <div class="ed-liste"><button type="button" class="ed-btn plein" data-ap="installer"${a.in_progress ? " disabled" : ""}><ha-icon icon="mdi:download"></ha-icon><span>${esc(a.in_progress ? _t("Installation…") : _t("Mettre à jour"))}</span></button></div>`;
+    else if (plusRecente) etat = `<p class="ed-ap-etat nouveau"><ha-icon icon="mdi:refresh"></ha-icon>${esc(_t("Téléchargée : recharge la page pour l'utiliser"))}</p>
+        <div class="ed-liste"><button type="button" class="ed-btn plein" data-ap="recharger"><ha-icon icon="mdi:refresh"></ha-icon><span>${esc(_t("Recharger"))}</span></button></div>`;
+    else etat = `<p class="ed-ap-etat ok"><ha-icon icon="mdi:check-circle-outline"></ha-icon>${esc(_t("À jour (vérifié par HACS)"))}</p>`;
+    const avis = this.d.avis_maj !== false;
+    return `<section class="ed-par-sec ed-apropos" data-sec="apropos" aria-labelledby="par-pan-t-apropos">
+      <div class="ed-ap-tete"><ha-icon icon="mdi:floor-plan"></ha-icon><div><b>Maquette ${esc(v)}</b>
+        <small>${esc(_t("Le plan vivant de ta maison pour Home Assistant"))}</small></div></div>
+      ${etat}
+      ${K.NOUVEAUTES?.[v] ? `<div class="ed-liste"><button type="button" class="ed-btn tonal" data-ap="nouveautes"><ha-icon icon="mdi:creation-outline"></ha-icon><span>${esc(_t("Quoi de neuf dans la {v}", { v }))}</span></button></div>` : ""}
+      <label class="ed-ap-avis"><input type="checkbox" data-ap-avis="1"${avis ? " checked" : ""}><span>${esc(_t("Prévenir les administrateurs quand une nouvelle version est disponible"))}</span></label>
+      <div class="ed-ap-liens">${EditeurPlan.LIENS_APROPOS.map(([c, ic, t]) => `<button type="button" class="ed-btn texte" data-ap-lien="${c}"><ha-icon icon="${ic}"></ha-icon><span>${esc(_t(t))}</span></button>`).join("")}</div>
+      <button type="button" class="ed-ap-etoile" data-ap-lien="depot"><ha-icon icon="mdi:star-outline"></ha-icon><span>${esc(_t("Maquette te plaît ? Une étoile sur GitHub l'aide à se faire connaître"))}</span></button>
+      <p class="ed-ap-note">${esc(_t("Licence MIT · par TooMuhtsh · Maquette ne contacte aucun service en ligne : la vérification des mises à jour passe par HACS, dans Home Assistant."))}</p>
+    </section>`;
+  }
+  _cablerAPropos(V) {
+    const sec = V.querySelector(".ed-apropos");
+    if (!sec) return;
+    sec.onclick = (ev) => {
+      const b = ev.target.closest?.("[data-ap],[data-ap-lien]");
+      if (!b) return;
+      if (b.dataset.apLien) return window.open(this._lienAPropos(b.dataset.apLien), "_blank", "noopener,noreferrer");
+      if (b.dataset.ap === "recharger") return location.reload();
+      // « Quoi de neuf » à la demande : la modale se ferme pour laisser voir la fenêtre (en bas à droite)
+      if (b.dataset.ap === "nouveautes") { this.panneauParametres(false); return this.carte.montrerNouveautes?.(); }
+      if (b.dataset.ap === "installer") {
+        const s = this.carte.etatVersion?.();
+        if (!s) return;
+        b.disabled = true;
+        this.hass.callService("update", "install", { entity_id: s.entity_id }).catch((e) => console.warn("maquette-card : update failed", e));
+      }
+    };
+    const c = sec.querySelector("[data-ap-avis]");
+    if (c) c.onchange = () => this.commit(() => { if (c.checked) delete this.d.avis_maj; else this.d.avis_maj = false; });
   }
   // ---------- ambiance et animations ----------
   // modale ouverte = aperçu de l'ambiance sur le plan derrière le voile (sinon l'ambiance n'est jamais dessinée pendant l'édition)
@@ -7016,7 +7095,8 @@ class EditeurPlan {
     const P = plan.getBoundingClientRect(), Z = (this.multi.size <= 1 && ["widget", "puce"].includes(s.type) ? this.R.querySelector("ha-card") : zone).getBoundingClientRect();
     const vis = { g: Math.max(Z.left, 0), h: Math.max(Z.top, 0), d: Math.min(Z.right, innerWidth), b: Math.min(Z.bottom, innerHeight) };
     const bw = b.offsetWidth, bh = b.offsetHeight, ec = 12, bord = 4;
-    const bx = (x) => Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord)), by = (y) => Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
+    // trop large pour la partie visible (téléphone étroit) : centrée, elle déborde autant des deux côtés
+    const bx = (x) => (vis.d - vis.g - 2 * bord < bw ? (vis.g + vis.d - bw) / 2 : Math.min(Math.max(x, vis.g + bord), Math.max(vis.g + bord, vis.d - bw - bord))), by = (y) => Math.min(Math.max(y, vis.h + bord), Math.max(vis.h + bord, vis.b - bh - bord));
     const tient = ([x, y]) => x >= vis.g + bord - 0.5 && x + bw <= vis.d - bord + 0.5 && y >= vis.h + bord - 0.5 && y + bh <= vis.b - bord + 0.5;
     const couvre = ([x, y], r) => x < r.d && x + bw > r.g && y < r.b && y + bh > r.h;
     // hors de la sélection, dans la partie visible : au-dessus, dessous, à droite, à gauche (centrée sur la partie visible de la sélection)
@@ -11754,7 +11834,7 @@ class EditeurPlan {
   }
 }
 
-EditeurPlan.VERSION = "0.3.1";
+EditeurPlan.VERSION = "0.4.0";
 globalThis.MaquetteEditeur = EditeurPlan;
 };
 if (customElements.get("maquette-card")) demarrer(); else customElements.whenDefined("maquette-card").then(demarrer);

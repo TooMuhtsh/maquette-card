@@ -130,7 +130,7 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `alerts` | liste | | — | [Alertes plein plan](#alertes-plein-plan) |
 | `badge_style` | objet | | — | [Style des pastilles](#style-des-pastilles) |
 | `palette` | objet | nom → couleur | — | Couleurs nommées, ex. `{accent: "#e8710a"}`. Nom : une minuscule d'abord, puis minuscules, chiffres, `_` ou `-` (31 au plus) ; couleur : `#hex`, `rgb()`, `hsl()`, nom CSS ou `var(--…)`. Proposées dans tous les sélecteurs de couleur de l'éditeur (traces et flux d'énergie n'en ont pas : YAML seulement) ; un élément dont la couleur est un nom suit la palette (un nom retiré lui rend sa couleur par défaut). Éditeur : ⚙ Paramètres › Affichage › *Couleurs nommées* |
-| `theme` | texte / objet | | `material` | [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé). *Nouveau en 0.4.0* |
+| `theme` | texte / objet | | `ha` | [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé). *Nouveau en 0.4.0* |
 | `css` | texte | | — | [CSS personnalisé](#thèmes-et-css-personnalisé). *Nouveau en 0.4.0* |
 | `replay` | booléen / objet | | — | [Revoir la journée](#revoir-la-journée) |
 | `showcase` | booléen / objet | | — | [Exemples sous le plan](#exemples-sous-le-plan) |
@@ -139,7 +139,7 @@ La carte elle-même : son type, son identité, son titre, et les listes de tous 
 | `animation_level` | énum | `full` `reduced` `none` | `full` | [Niveau d'animation](#niveau-danimation) |
 | `effects` | énum | `auto` `full` `light` | `auto` | [Niveau d'animation](#niveau-danimation) (effets). *Nouveau en 0.3.0* |
 | `demo` | booléen | | — | [Démo](#démo) |
-| `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend` | | | | [Réglages généraux](#réglages-généraux) |
+| `language`, `full_page`, `margin`, `editor`, `show_furniture`, `presence`, `room_labels`, `temperature_tint`, `legend`, `update_notice` | | | | [Réglages généraux](#réglages-généraux) |
 | `view_layout`, `layout_options`, `grid_options`, `visibility`, `card_mod` | | | | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
 
 ```yaml
@@ -180,6 +180,7 @@ Options valables pour toute la carte, qui portent sur son fonctionnement plutôt
 | `temperature_tint.min` | nombre (°C) | éditeur : −30–60, pas de 0,5 | `17` | Bleu à cette température et en dessous |
 | `temperature_tint.max` | nombre (°C) | éditeur : −30–60, pas de 0,5 | `28` | Rouge à cette température et au-dessus. Si `min` ≥ `max`, les deux reprennent leurs défauts |
 | `legend` | booléen | | `true` | `false` masque la légende sous le plan |
+| `update_notice` | booléen | | `true` | `false` : pas de fenêtre quand une nouvelle version est disponible (administrateurs, installations HACS seulement). Éditeur : ⚙ Paramètres › À propos. *Nouveau en 0.4.0* |
 
 ```yaml
 language: en
@@ -197,6 +198,17 @@ temperature_tint:
   max: 26
 legend: false
 ```
+
+### Avis de nouvelle version
+
+*Nouveau en 0.4.0.* Avec HACS, Home Assistant a une entité de mise à jour pour Maquette. Quand elle propose une version plus récente, les administrateurs voient une petite fenêtre en bas à droite : les premières lignes des notes de version, **Mettre à jour** (HACS l'installe, puis **Recharger**), **Voir sur GitHub**, une invitation à mettre une étoile et une croix (*Plus tard* : masquée jusqu'à la version suivante, dans ce navigateur). Une fenêtre par page, jamais dans l'éditeur. Tout est lu dans Home Assistant : la carte ne fait aucune requête en ligne. Sans HACS (installation manuelle), rien n'est affiché ; ⚙ *Paramètres › À propos* donne la version et les liens.
+
+```yaml
+update_notice: false   # pas de fenêtre de nouvelle version
+```
+
+**Quoi de neuf.** Au premier affichage d'une nouvelle version, les administrateurs voient aussi ses nouveautés, une fois (*Compris*, *Choisir un thème*, *Toutes les nouveautés*) ; une nouvelle installation au plan vide ne la voit pas, et ⚙ *Paramètres › À propos › Quoi de neuf dans la X.Y.Z* la rouvre.
+
 
 Éditeur : ⚙ Paramètres. Chaque champ, sa clé et ses bornes :
 
@@ -1896,13 +1908,13 @@ L'apparence de la carte : un thème prêt à l'emploi, quelques retouches, ou vo
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
-| `theme` | texte / objet | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `material` | Un nom de thème, ou un objet : `base` (un nom de thème) et des retouches, une par clé `theme:` de la table ci-dessous |
-| `theme.base` | énuméré | mêmes noms | `material` | Thème auquel s'appliquent les retouches |
+| `theme` | texte / objet | `material` `ha` `ocean` `slate` `sand` `forest` `night` | `ha` | Un nom de thème, ou un objet : `base` (un nom de thème) et des retouches, une par clé `theme:` de la table ci-dessous |
+| `theme.base` | énuméré | mêmes noms | `ha` | Thème auquel s'appliquent les retouches |
 | `css` | texte | | — | CSS personnalisé, ajouté en dernier dans la carte (voir les règles ci-dessous) |
 
 | Thème | Rendu |
 |---|---|
-| `material` | Material Design 3 teinté par la couleur principale de HA : le rendu d'avant les thèmes, à l'identique |
+| `material` | Material Design 3 teinté par la couleur principale de HA : le rendu d'avant la 0.4.0 (le défaut jusqu'à la 0.3.x) |
 | `ha` | Lovelace classique : fond, bordure, ombre et rayon de `ha-card` de votre thème HA, sans teinte |
 | `ocean` `slate` `sand` `forest` | Palettes prêtes à l'emploi (Océan, Ardoise, Sable, Forêt), claires ou sombres avec Home Assistant |
 | `night` | Nuit : toujours sombre |

@@ -33,4 +33,17 @@ void ` // @assemblage
 ha-card.ed-etroit .ed-app-themes{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
 ha-card.ed-etroit .ed-app-mini{height:44px}
 ha-card.ed-etroit .ed-app-var .v{max-width:30%}
+/* ⚙ Paramètres › À propos (classe-a-propos.js) */
+.ed-apropos{display:flex;flex-direction:column;gap:14px}
+.ed-ap-tete{display:flex;align-items:center;gap:14px}.ed-ap-tete>ha-icon{--mdc-icon-size:40px;color:var(--md-primary)}
+.ed-ap-tete div{display:flex;flex-direction:column}.ed-ap-tete b{font:500 20px/28px var(--ha-font-family-body,Roboto,sans-serif)}
+.ed-ap-tete small{color:var(--md-on-surface-variant)}
+.ed-ap-etat{margin:0;display:flex;align-items:center;gap:8px;color:var(--md-on-surface-variant)}
+.ed-ap-etat.nouveau{color:var(--md-primary);font-weight:500}.ed-ap-etat.ok ha-icon{color:#188038}
+.ed-ap-avis{display:flex;align-items:flex-start;gap:10px;cursor:pointer}.ed-ap-avis input{margin-top:3px}
+.ed-ap-liens{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:4px}
+.ed-ap-liens .ed-btn{justify-content:flex-start}
+.ed-ap-etoile{display:flex;align-items:center;gap:8px;border:1px solid var(--md-outline-variant);border-radius:12px;background:none;color:var(--md-on-surface);
+  padding:10px 14px;cursor:pointer;font:inherit;text-align:left}.ed-ap-etoile ha-icon{color:#f5b400}.ed-ap-etoile:hover{border-color:var(--md-primary)}
+.ed-ap-note{margin:0;color:var(--md-on-surface-variant);font-size:12px}
 ` // @assemblage

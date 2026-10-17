@@ -65,10 +65,12 @@ export function creerHass({ etats, areas, devices, entities, lies, config, appli
         else if (service === "open_cover") appliquer(e, "open", { current_position: 100 });
         else if (service === "close_cover") appliquer(e, "closed", { current_position: 0 });
         else if (service === "stop_cover") appliquer(e, s.state === "closed" ? "closed" : "open");
+        else if (d === "update" && service === "install") appliquer(e, "off", { installed_version: s.attributes.latest_version, in_progress: false });
         else if (d === "lock" && ["lock", "unlock", "open"].includes(service)) appliquer(e, { lock: "locked", unlock: "unlocked", open: "open" }[service]);
       }
     },
     async callWS(m) {
+      if (m.type === "update/release_notes") return "Maquette 9.9.0 brings sample notes.\n\n### Added\n\n- **Floors** in 3D, with stairs\n- Room [scenes](https://example.org) from the plan\n- `pool:` widget\n\n### Changed\n\n- Faster editor\n- Lighter phone view\n- Bigger badges\n\n### Fixed\n\n- A fix";
       if (m.type === "recorder/statistic_during_period") {
         const base = { day: 9.4, week: 41.7, month: 168.2, year: 2143 }[m.calendar.period];
         return { change: m.statistic_id.includes("cout") ? base * 0.21 : base * 1000 };
