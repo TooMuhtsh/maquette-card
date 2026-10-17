@@ -213,6 +213,10 @@ try {
   if (c && "pieces" in c && !("rooms" in c)) { c = customElements.get("maquette-card").versAnglais(c); localStorage.setItem("maquette-demo", JSON.stringify(c)); }
   if (c && !params.has("neuf") && c.id === config.id) config = c;
 } catch (e) { /* stockage indisponible */ }
+// démo publiée (GitHub Pages : <html data-site>, posé par tools/site-demo.sh ; ou ?site en local) : bandeau et réglages (site.js),
+// palette claire / sombre de la carte selon la page ; ?theme=<nom> : thème de la carte (material, ha, ocean, slate, sand, forest, night)
+const SITE = document.documentElement.hasAttribute("data-site") || params.has("site");
+if (params.get("theme")) config = { ...config, theme: params.get("theme") };
 const memo = { actuelle: config };
 const carte = document.querySelector("maquette-card");
 let hass;
@@ -224,6 +228,7 @@ const appliquer = (e, state, attrs = {}) => {
 hass = creerHass({ etats, areas, devices, entities, lies, config: memo, appliquer });
 // coordonnées de la maison (personnes dehors : direction et distance ; direction de la lune) ; ?sans_coord : aucune (lune dans l'axe des fenêtres)
 hass.config = params.has("sans_coord") ? {} : { latitude: 45.76, longitude: 4.84 };
+if (SITE) hass.themes = { darkMode: !params.has("clair") };
 carte.setConfig(config);
 carte.hass = hass;
 // un peu de vie : la puissance varie, un mouvement passe de temps en temps
@@ -232,4 +237,17 @@ setInterval(() => {
   appliquer("sensor.puissance_apparente", String(1900 + Math.round(Math.random() * 1100)));
 }, 3000);
 setInterval(() => { appliquer("binary_sensor.mouvement_entree", "on"); setTimeout(() => appliquer("binary_sensor.mouvement_entree", "off"), 4000); }, 20000);
-window.demo = { carte, appliquer };
+// réglages de la démo publiée : thème de la carte, clair / sombre (sans recharger)
+const regler = ({ theme, clair } = {}) => {
+  if (theme !== undefined) {
+    const { theme: _, ...c } = memo.actuelle;
+    memo.actuelle = theme && theme !== "material" ? { ...c, theme } : c;
+    carte.setConfig(memo.actuelle);
+  }
+  if (clair !== undefined) {
+    document.documentElement.classList.toggle("clair", !!clair);
+    hass = { ...hass, themes: { ...hass.themes, darkMode: !clair } };
+    carte.hass = hass;
+  }
+};
+window.demo = { carte, appliquer, memo, site: SITE, regler };

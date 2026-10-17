@@ -30,6 +30,8 @@ class MaquetteCard extends HTMLElement {
   static contactsDe = contactsDe;
   static etatCombine = etatCombine;
   static versAnglais = versAnglais;
+  // module de l'éditeur (chargé une fois, à côté de la carte) : la démo en ligne y prend versYaml pour « Copier la config YAML »
+  static chargerEditeur = chargerEditeur;
   static SCHEMA_ANGLAIS = N_RACINE;
   // étages : config repliée ↔ dépliée sur un étage, toute la maison par étage, identifiants, étage du chargement
   static ETAGES = { deplier, replier, parEtage, ids: idsEtages, etageInitial, CLES_ETAGE };

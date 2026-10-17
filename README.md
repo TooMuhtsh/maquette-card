@@ -14,16 +14,30 @@ You draw the plan right in your dashboard with the built-in editor: no floor-pla
 
 ![Maquette: the demo apartment, live, dark theme](images/plan-pc-dark.png)
 
-## New in 0.3.0
+**[Try it online](https://toomuhtsh.github.io/maquette-card/)**: the demo apartment in your browser, nothing to install.
 
-This one is mostly about speed. The editor now lives in its own file and only loads when you open it: the card is about
-a third of its former size, and an idle plan barely uses the CPU any more, even under rain or snow on a phone. A new
-`effects` setting draws a lighter plan on phones and tablets. On the editor side: a widget library with linked copies,
-sharing templates, widgets and objects as text (your entities replaced by placeholders), a list of the entities that no
-longer exist, saved versions that follow your Home Assistant account instead of one browser, and a toolbar on two
-rows with the panel commands named. Over a background image, room floors are now see-through and keep their
-temperature colours. A manual install now
-needs **two files** (see below). The details are on the wiki:
+## New in 0.4.0
+
+- **Themes**: seven built-in themes (`theme:`). `material` stays the default look, `ha` blends in like a classic
+  Lovelace card, `ocean`, `slate`, `sand` and `forest` follow Home Assistant's light and dark mode, `night` is always
+  dark. Colors can be touched up on top of any theme.
+- **CSS variables and custom CSS**: public `--maquette-*` variables, settable from a Home Assistant theme, card-mod or
+  the card's `css:`; custom CSS is checked before it applies. All of it in the editor under ⚙ Settings › Appearance.
+- **Icons from the unit**: in the editor, a sensor without a device class gets an icon from its unit (W, kWh, °C…)
+  instead of a thermometer.
+- **Lighter at rest**, mostly on phones: only the widgets that changed are redrawn.
+- **Plan buttons** fade out with a mouse once the pointer leaves the plan, and + / − keep fixed places.
+- Widgets side by side in a card share the same height, plus a few fixes (badges near the edge, small furniture,
+  thermostat presets).
+
+![The seven themes on the demo apartment, light and dark](images/themes-pc.png)
+
+Details on the wiki: [What's new in 0.4.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-040).
+
+### 0.3: speed
+
+The editor became a separate file loaded on demand (a manual install needs **two files**), an idle plan barely uses the
+CPU, and the editor gained a widget library, sharing and saved versions that follow your Home Assistant account.
 [What's new in 0.3.0](https://github.com/TooMuhtsh/maquette-card/wiki#whats-new-in-030).
 
 ### 0.2: light and floors
@@ -63,7 +77,7 @@ The editor lost its side panel: each element opens in its own dialog, with a liv
 - **Security**: sensitive actions (unlock, open a garage, disarm, run a script…) are always confirmed in a dialog that
   names the real service; an imported plan shows what it can control before it is applied.
 - Room view, summary chips, full-plan alerts, wall tablet mode, ⚙ Settings panel, built-in demo.
-  Material Design 3, light and dark, phone and desktop, English and French.
+  Material Design 3 or one of seven themes, light and dark, phone and desktop, English and French.
 
 <p>
   <img src="images/plan-phone-light.png" width="22%" alt="Phone, light theme">

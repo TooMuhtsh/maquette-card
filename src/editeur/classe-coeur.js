@@ -2,6 +2,8 @@
 export class EditeurPlan {
   // réglages de la modale ⚙ Paramètres (lecture seule : pour les tests et l'intégration)
   static SECTIONS_PARAMETRES = SECTIONS_PARAMETRES;
+  // export YAML lisible (le même que « Exporter / importer ») : utilisé aussi par la démo en ligne
+  static versYaml = versYaml;
   // lecture / écriture d'un réglage, par son chemin ou par son champ (sans historique) ; reglerParametre(chemin, v) écrit avec annulation (Ctrl+Z)
   static PARAMETRES = { sections: SECTIONS_PARAMETRES, lire: (d, c) => lireReglage(d, champDe(c)),
     ecrire: (d, c, v) => { const f = champDe(c); if (f.si && !f.si(d)) return; if (f.ecrire) f.ecrire(d, v); else ecrireReglage(d, f, v); } };

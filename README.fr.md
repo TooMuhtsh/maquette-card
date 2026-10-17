@@ -15,17 +15,32 @@ pas d'image de plan, pas d'outil externe, pas de YAML.
 
 ![Maquette : l'appartement de démonstration en direct, thème sombre](images/plan-pc-dark.png)
 
-## Nouveautés de la 0.3.0
+**[Essayer en ligne](https://toomuhtsh.github.io/maquette-card/)** : l'appartement de démo dans votre navigateur, sans rien installer.
 
-Cette version est surtout une affaire de vitesse. L'éditeur vit maintenant dans son propre fichier et ne se charge qu'à
-l'ouverture : la carte fait environ un tiers de sa taille d'avant, et un plan au repos n'occupe presque plus le
-processeur, même sous la pluie ou la neige sur un téléphone. Un nouveau réglage `effects` dessine un plan plus léger sur
-téléphone et tablette. Côté éditeur : une bibliothèque de widgets avec copies liées, le partage de modèles, widgets et
-objets sous forme de texte (vos entités remplacées par des espaces réservés), la liste des entités qui n'existent plus,
-des versions enregistrées qui suivent votre compte Home Assistant au lieu d'un seul navigateur, et une barre
-d'outils sur deux lignes avec les commandes de panneaux nommées. Sur une image de fond, le sol des pièces est
-maintenant translucide et garde la couleur des températures. L'installation
-manuelle demande maintenant **deux fichiers** (voir plus bas). Le détail est sur le wiki :
+## Nouveautés de la 0.4.0
+
+- **Thèmes** : sept thèmes intégrés (`theme:`). `material` reste le rendu par défaut, `ha` se fond comme une carte
+  Lovelace classique, `ocean`, `slate`, `sand` et `forest` suivent le mode clair ou sombre de Home Assistant, `night`
+  est toujours sombre. Les couleurs se retouchent par-dessus n'importe quel thème.
+- **Variables CSS et CSS personnalisé** : des variables publiques `--maquette-*`, à définir dans un thème Home Assistant,
+  avec card-mod ou dans le `css:` de la carte ; le CSS personnalisé est contrôlé avant d'être appliqué. Tout se règle
+  dans l'éditeur, ⚙ Paramètres › Apparence.
+- **Icônes d'après l'unité** : dans l'éditeur, un capteur sans classe d'appareil prend une icône d'après son unité (W,
+  kWh, °C…) au lieu d'un thermomètre.
+- **Plus légère au repos**, surtout sur téléphone : seuls les widgets qui ont changé sont redessinés.
+- **Boutons du plan** : à la souris, ils s'estompent quand le pointeur quitte le plan, et + / − gardent leur place.
+- Les widgets côte à côte dans une fiche ont la même hauteur, et quelques corrections (pastilles près du bord, petits
+  meubles, préréglages des thermostats).
+
+![Les sept thèmes sur l'appartement de démo, en clair et en sombre](images/themes-pc.png)
+
+Le détail est sur le wiki : [Nouveautés de la 0.4.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-040).
+
+### 0.3 : la vitesse
+
+L'éditeur est devenu un fichier à part chargé à la demande (l'installation manuelle demande **deux fichiers**), un plan
+au repos n'occupe presque plus le processeur, et l'éditeur a gagné une bibliothèque de widgets, le partage et des
+versions enregistrées qui suivent votre compte Home Assistant.
 [Nouveautés de la 0.3.0](https://github.com/TooMuhtsh/maquette-card/wiki/Home-FR#nouveautés-de-la-030).
 
 ### 0.2 : la lumière et les étages
@@ -71,7 +86,7 @@ fenêtre, avec un aperçu en direct. Une habitude à changer : **Enregistrer** q
   confirmées dans un dialogue qui nomme le vrai service ; un plan importé montre ce qu'il peut commander avant d'être
   appliqué.
 - Vue pièce, puces de résumé, alertes plein plan, mode tablette murale, panneau ⚙ Paramètres, démo intégrée.
-  Material Design 3, clair et sombre, téléphone et PC, français et anglais.
+  Material Design 3 ou l'un des sept thèmes, clair et sombre, téléphone et PC, français et anglais.
 
 <p>
   <img src="images/plan-phone-light.png" width="22%" alt="Téléphone, thème clair">

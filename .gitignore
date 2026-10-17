@@ -5,3 +5,4 @@ demo/*.local.*
 static/
 release/
 ha-fin_*.png
+site/
