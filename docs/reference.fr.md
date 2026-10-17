@@ -201,7 +201,7 @@ legend: false
 
 ### Avis de nouvelle version
 
-*Nouveau en 0.4.0.* Avec HACS, Home Assistant a une entité de mise à jour pour Maquette. Quand elle propose une version plus récente, les administrateurs voient une petite fenêtre en bas à droite : les premières lignes des notes de version, **Mettre à jour** (HACS l'installe, puis **Recharger**), **Voir sur GitHub**, une invitation à mettre une étoile et une croix (*Plus tard* : masquée jusqu'à la version suivante, dans ce navigateur). Une fenêtre par page, jamais dans l'éditeur. Tout est lu dans Home Assistant : la carte ne fait aucune requête en ligne. Sans HACS (installation manuelle), rien n'est affiché ; ⚙ *Paramètres › À propos* donne la version et les liens.
+*Nouveau en 0.4.0.* Avec HACS, quand l'entité de mise à jour de Maquette dans Home Assistant propose une version plus récente, les administrateurs voient une petite fenêtre en bas à droite : le début des notes de version, **Mettre à jour** (HACS l'installe, puis **Recharger**), **Voir sur GitHub** et *Plus tard* (masquée jusqu'à la version suivante, dans ce navigateur). Jamais dans l'éditeur ; tout est lu dans Home Assistant, la carte ne fait aucune requête en ligne. Sans HACS, rien n'est affiché ; ⚙ *Paramètres › À propos* donne la version et les liens.
 
 ```yaml
 update_notice: false   # pas de fenêtre de nouvelle version
@@ -456,32 +456,9 @@ walls:
 ```
 
 Éditeur : barre d'outils *Mur (M)* ; sélectionner un mur pour *En limite* (le transformer en clôture) et *Couper en
-deux*. Masquer ou verrouiller tous les murs dans *Calques*.
-
-### Nettoyer le plan
-
-*Nettoyer le plan* (baguette magique de la barre, *Plus* au téléphone) compare murs et ouvertures au contour des
-pièces, qui fait foi. Le dialogue montre le plan, défauts cerclés (un clic zoome dessus), *Avant* / *Après*, et les
-corrections à cocher avec leur nombre :
-
-| Correction | Par défaut | Effet |
-|---|---|---|
-| Aimanter murs et ouvertures aux pièces | oui | trous et décalages jusqu'à 12 cm, bouts qui dépassent d'un angle |
-| Couper les murs sous les ouvertures | oui | style courant, pas compté comme défaut |
-| Retirer les bouts de mur qui dépassent | oui | moins de 35 cm dans une pièce |
-| Fusionner les murs alignés et les doublons | oui | murs coupés à chaque angle, en double, ou épais en 2 traits (≤ 25 cm, sans arête de pièce entre eux) |
-| Ajouter les murs manquants | non | côté extérieur, d'après le contour, pièce par pièce ; génère aussi les murs d'une pièce intérieure qui n'en a aucun. Jamais sur une pièce `outside: true` |
-| Fermer les passages entre pièces | non | arêtes communes sans mur, pièce par pièce |
-| Aimanter les sommets presque confondus | non | sommets à moins de 6 cm : avec l'arrondi, seule correction qui change la forme des pièces |
-| Arrondir à 5 cm | non | sommets, murs, ouvertures ; proposé seulement si au moins 30 % des cotes sont hors de la grille (plan relevé sur une image) |
-| Poser le côté dehors des fenêtres | non | fenêtre ou porte vitrée sans `outside` (pièce intérieure d'un seul côté) : sans lui, pas de lumière du jour ; `outside` posé vers l'extérieur. Une verrière entre deux pièces n'est pas concernée |
-| Retirer les volets reliés à rien | non | `shutter` vers une entité qui n'existe pas, ou `shutter_only` sans `shutter` : le lien est retiré |
-| Retirer le côté dehors des fenêtres intérieures | non | fenêtre ou porte vitrée entre deux pièces intérieures qui a aussi un `outside` : la carte la compte une fois, en fenêtre extérieure (`outside` fait foi : une terrasse dessinée en pièce reste dehors) ; `outside` est retiré, elle devient une verrière. Une terrasse : la marquer `outside` plutôt |
-
-*Appliquer* = une seule action annulable (Ctrl+Z ou *Annuler* dans la notification) ; relancé juste après, il ne
-trouve plus rien. Avant, une copie de `rooms`, `walls` et `openings` est gardée dans ce navigateur (les 3 dernières) :
-*Plans d'avant nettoyage* les montre, en restaure une (annulable) ou la copie en YAML pour un autre appareil. Aucune
-nouvelle clé de configuration.
+deux*. Masquer ou verrouiller tous les murs dans *Calques*. *Nettoyer le plan* corrige trous, décalages, bouts qui
+dépassent, doublons et murs sous les ouvertures, et signale les fenêtres sans `outside` et les volets reliés à rien,
+avec un aperçu (voir [configuration](configuration.md#clean-up-the-plan), en anglais).
 
 ## Limites et clôtures
 
@@ -509,7 +486,7 @@ Fenêtres, portes et portails dessinés sur un segment de mur, avec leur contact
 | `type` | énum | `window` `door` `gate` | obligatoire | Genre d'ouverture (dessin, icônes) |
 | `seg` | `[x1, y1, x2, y2]` | | obligatoire | Segment sur le mur. Une ouverture sans `seg` valide est ignorée |
 | `name` | texte | | — | Nom (listes, en-tête de la fiche, puce des ouvertures) |
-| `contact` | entité / liste | jusqu'à 8 entités | — | Capteur d'ouverture : rouge quand il vaut `on` / `open`. Une liste pour une ouverture à plusieurs capteurs (vantail gauche et droit…) : ouverte dès que l'un l'est, fermée si l'un répond et aucun n'est ouvert, indisponible seulement si tous le sont ; comptée une fois, une ligne par capteur dans sa fiche |
+| `contact` | entité / liste | jusqu'à 8 entités | — | Capteur d'ouverture : rouge quand il vaut `on` / `open`. Une liste pour plusieurs capteurs sur une ouverture (deux vantaux…) : ouverte dès que l'un l'est, indisponible seulement si tous le sont ; comptée une fois |
 | `shutter` | entité | | — | Volet (`cover`) : dessiné côté extérieur, plus sombre quand il est fermé, animé pendant qu'il bouge |
 | `entity` | entité | | — | Ouverture motorisée (portail, porte de garage), utilisée en l'absence de `contact` |
 | `outside` | `[dx, dy]` | `[-1, 0]` `[1, 0]` `[0, -1]` `[0, 1]` | `[0, 0]` | Direction de l'extérieur (gauche, droite, haut, bas) : le volet est dessiné de ce côté |
@@ -517,10 +494,10 @@ Fenêtres, portes et portails dessinés sur un segment de mur, avec leur contact
 | `bay` | texte | | — | Nom de baie : les vantaux qui ont la même `bay` forment une seule baie (une fiche, une ligne, comptée une fois ; une seule tache de soleil pour la lumière de l'ambiance) |
 | `sill` | nombre (cm) | 0–300 | auto | Lumière de l'ambiance : hauteur du bas du vitrage (`0` = jusqu'au sol). Auto = 90, ou 0 pour une baie d'au moins 180 cm de large (vantaux contigus cumulés) |
 | `height` | nombre (cm) | 10–500 | `215` | Lumière de l'ambiance : hauteur du haut du vitrage (porte `glazed: top` : 200) |
-| `glazed` | énum / booléen | `full` `top` (`true` = `full`) | — | Porte seulement : une porte vitrée laisse entrer la lumière du jour comme une fenêtre (lumière du ciel, tache de soleil, lueur rediffusée ; son `shutter` compte). `full` = vitrée sur toute la hauteur (0 à 215 cm, tache au pied de la porte), `top` = petite vitre en haut (150 à 200 cm : tache plus loin, plus petite, lumière du ciel plus faible). `sill` et `height` affinent toujours |
-| `overhang` | nombre (cm) | 0–500 | — | Lumière de l'ambiance : profondeur d'une avancée de toit au-dessus de la fenêtre ou de la porte. Elle coupe le soleil haut (été) et laisse passer le soleil bas (hiver) : la tache est raccourcie ou supprimée selon la hauteur du soleil |
+| `glazed` | énum / booléen | `full` `top` (`true` = `full`) | — | Porte seulement : laisse entrer la lumière du jour comme une fenêtre. `full` = vitrée sur toute la hauteur (0 à 215 cm), `top` = petite vitre en haut (150 à 200 cm). `sill` et `height` s'appliquent toujours |
+| `overhang` | nombre (cm) | 0–500 | — | Lumière de l'ambiance : profondeur d'une avancée de toit au-dessus du vitrage ; elle raccourcit ou supprime la tache de soleil quand le soleil est haut |
 | `overhang_height` | nombre (cm) | 0–300 | `0` | Hauteur de l'avancée au-dessus du haut du vitrage |
-| `slats` | énum | `tilt` `vented` | — | Lumière de l'ambiance, avec un `shutter` : `tilt` = lames orientables, la partie baissée laisse passer la lumière selon le `current_tilt_position` du volet (100 = ouvertes) ; `vented` = lames ajourées, un volet fermé laisse passer des filets de lumière. Sans cette clé, volet de base (rendu inchangé) |
+| `slats` | énum | `tilt` `vented` | — | Lumière de l'ambiance, avec un `shutter` : `tilt` = la partie baissée laisse passer la lumière selon `current_tilt_position` (100 = ouvertes) ; `vented` = un volet fermé laisse passer des filets de lumière. Absent = volet simple |
 | `leaves` | nombre | `1` `2` | `1` | Nombre de battants dessinés (avec `swing`) |
 | `swing` | énum | `left` `right` `sliding` | — | Dessine les battants : côté des gonds vu de l'intérieur, face à `outside`, ou deux panneaux coulissants. Absent = rien n'est dessiné |
 | `outward` | booléen | | `false` | Les battants s'ouvrent vers l'extérieur (`left` / `right`) |
@@ -816,7 +793,7 @@ la rotation (±15°, ±90°), *Miroir*, *Chaises*, *Modèle*.
 
 `type: custom` dessine sa forme `shape` : des formes dans l'ordre (la dernière au-dessus), coordonnées en % de `size`
 depuis le coin haut gauche, pour que le meuble puisse changer de taille. Les valeurs invalides sont bornées ou retirées,
-jamais écrites telles quelles dans le dessin. `color` (`#rrggbb`, un nom de couleur ou `var(--…)`, le reste est retiré)
+jamais écrites telles quelles dans le dessin. `color` (toute couleur des [Conventions](#conventions), ou un nom de la palette)
 teinte le meuble ; connecté, son accent et son aspect « actif » s'appliquent toujours.
 
 | Clé de forme | Type | Valeurs | Défaut | Description |
@@ -993,7 +970,7 @@ ci-dessous sont communes, et chaque type ajoute les siennes (une même clé a to
 | `icon` | icône | | selon le type | Icône de l'en-tête |
 | `color` | couleur | | — | Couleur d'accent (`gauge` : couleur de l'arc) |
 | `rows` | liste | | — | Lignes supplémentaires sous `tile`, `gauge`, `tariff`, `ev`, `cover`, `lock` et `thermostat`, voir ci-dessous |
-| `template` | texte | un `id` de modèle | — | Copie d'un [modèle](#modèles) de la bibliothèque de widgets, écrite par l'éditeur : *Mettre à jour depuis le modèle* et *Mettre à jour les N copies* la rafraîchissent, *Détacher* retire la clé |
+| `template` | texte | un `id` de modèle | — | Copie d'un [modèle](#modèles) de la bibliothèque de widgets, écrite par l'éditeur : *Mettre à jour* et *Mettre à jour les N copies* la rafraîchissent, *Détacher* retire la clé |
 | `confirm` | booléen | | `false` (`cover`, `lock` : voir leur section) | `true` : chaque service du widget demande confirmation, même sûr : interrupteurs et boutons *Activer* de ses lignes, consigne du thermostat, boutons de cover et de serrure. `false` ne retire jamais la confirmation d'un service sensible |
 
 **Lignes** (`rows[]`, ainsi que `entities[]` du widget [entities](#widget-entities)) : un id d'entité, ou un objet :
@@ -1671,21 +1648,21 @@ ambience:
 
 ### Lumière
 
-La lumière du dehors et des lampes, active par défaut dès que `ambience` est présent. SVG statique (sans animation ni
-filtre), redessiné seulement quand le soleil (au degré près), un volet, la phase de la lune ou une lampe change.
+La lumière du dehors et des lampes, active par défaut dès que `ambience` est présent. SVG statique (sans animation ; bords
+flous sauf avec `effects: light`), redessiné seulement quand le soleil (au degré près), un volet, la phase de la lune ou une lampe change.
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
 | `light` | booléen / objet | | `true` | `false` = désactivée ; un objet = les réglages ci-dessous |
-| `light.sun` | booléen / nombre | `0` à `2` | `true` | Lumière du jour par les ouvertures `window` et les portes vitrées (`glazed`), coupée par la pièce. De jour, chaque fenêtre non fermée laisse entrer la lumière du ciel : un faisceau qui s'évase dans la pièce, plus lumineux contre la vitre et fondu en profondeur, d'un blanc légèrement chaud fondu en écran (il éclaircit le sol, jamais un voile gris), et un léger éclaircissement de toute la pièce, selon le nombre et la taille de ses fenêtres ouvertes (fondu au crépuscule civil, un peu plus forte côté soleil, un peu plus forte par temps couvert). Les fenêtres qui voient le soleil ont en plus une tache au sol à bords doux (direction d'après l'azimut de `sun.sun` + `north`, longueur d'après la hauteur, raccourcie par le `shutter` lié) et une lueur chaude rediffusée autour. Les vantaux voisins (même `bay`, même `group`, ou alignés et contigus) forment une baie, avec une seule tache. Avec une entité météo `meteo`, le soleil direct suit son `cloud_coverage` (10 % ou moins = plein soleil, 90 % ou plus = aucun), sinon sa condition (couvert = aucun) ; la pluie, le brouillard ou la neige le suppriment. Les effets météo (nuages, brume, pluie) restent dehors : jamais peints sur les pièces intérieures. `false` coupe toute la lumière du jour (lueur du ciel comprise) ; un nombre règle seulement la tache directe (`1` = défaut, `0` = pas de tache, `2` = deux fois plus lumineuse) |
+| `light.sun` | booléen / nombre | `0` à `2` | `true` | Lumière du jour par les ouvertures `window` et les portes vitrées, coupée par la pièce. De jour, chaque fenêtre non fermée laisse entrer la lumière du ciel : un faisceau fondu en profondeur, et un léger éclaircissement de toute la pièce. Les fenêtres qui voient le soleil ont en plus une tache au sol à bords doux (direction d'après `sun.sun` + `north`, longueur d'après la hauteur, raccourcie par le `shutter`) avec une lueur chaude rediffusée ; les vantaux voisins (même `bay`, même `group`, ou alignés et contigus) donnent une seule tache. Avec une entité `ambience.weather`, le soleil direct suit son `cloud_coverage` (≤ 10 % = plein soleil, ≥ 90 % = aucun), sinon sa condition ; la pluie, le brouillard ou la neige le suppriment. Les effets météo ne couvrent jamais les pièces intérieures. `false` = plus aucune lumière du jour (lueur du ciel comprise) ; un nombre règle seulement la tache (`0` = aucune, `2` = deux fois plus lumineuse) |
 | `light.sky` | booléen / nombre | `0` à `2` | `true` | Intensité de la lueur du ciel (`1` = défaut, `0` = aucune) |
 | `light.bounce` | booléen / nombre | `0` à `2` | `true` | Intensité de la lueur rediffusée autour des taches, soleil et lune (`1` = défaut, `0` = aucune) |
 | `light.sky_diffusion` | nombre | `0` à `1` | `0.6` | Diffusion de la lumière du ciel (et de la lueur du ciel nocturne) : `0` = faisceau net, `1` = flou large qui grandit avec la profondeur (presque net contre la vitre, de plus en plus large dans la pièce, sans bord visible). Éditeur : curseur *Diffusion*, de 0 à 100 % |
 | `light.sky_kelvin` | `auto` / nombre | `1800` à `10000` | `auto` | Teinte de la lumière du ciel en température de couleur (corps noir) ; `auto` = blanc légèrement chaud |
 | `light.sun_kelvin` | `auto` / nombre | `1800` à `10000` | `auto` | Teinte de la tache de soleil (la lueur rediffusée un peu plus chaude) ; `auto` = celle d'origine, dorée près du coucher |
-| `light.moon` | booléen / entité | `true`, `false` ou un `sensor.*` | `true` | La nuit, une lumière froide par les mêmes fenêtres. La direction de la lune est calculée par la carte d'après la latitude / longitude de Home Assistant et l'heure : une tache faible et froide derrière les fenêtres qui la voient, seulement la lueur du ciel nocturne par les autres (et lune couchée). Phase d'après un capteur (intégration Moon, `sensor.moon_phase` pris s'il existe), sinon calculée ; plus forte vers la pleine lune. Sans coordonnées, une lueur dans l'axe de chaque fenêtre |
-| `light.doors` | énum | `open` `closed` | `open` | La lumière du jour d'une pièce éclairée passe aussi dans la pièce voisine par une porte intérieure ouverte (son `contact` à on / open) ou une verrière (une `window`, ou une porte `glazed`, entre deux pièces intérieures, sans `outside` : avec, elle compte en fenêtre extérieure seulement) : une lumière plus faible sur toute la voisine et une lueur près de l'ouverture, un seul saut (pas de propagation plus loin), lampes non comprises. `closed` = une porte intérieure sans capteur compte comme fermée |
-| `light.lamps` | booléen | | `true` | Les halos des pastilles `light.*` avec `halo` prennent la couleur de la lampe (`rgb_color`, sinon `hs_color`, sinon `color_temp_kelvin`) et sa luminosité, se mélangent (écran) quand ils se recouvrent et restent dans la pièce de la lampe (`room`, sinon celle où elle est posée) |
+| `light.moon` | booléen / entité | `true`, `false` ou un `sensor.*` | `true` | La nuit, une lumière froide par les mêmes fenêtres : une tache faible derrière les fenêtres qui voient la lune (position calculée d'après la latitude / longitude de HA), seulement la lueur du ciel nocturne par les autres. Phase d'après le capteur donné, sinon `sensor.moon_phase` s'il existe, sinon calculée ; plus forte vers la pleine lune. Sans coordonnées, une lueur dans l'axe de chaque fenêtre |
+| `light.doors` | énum | `open` `closed` | `open` | La lumière du jour passe aussi dans la pièce voisine, un seul saut (lampes non comprises), par une porte intérieure ouverte ou une verrière (`window` ou porte `glazed` entre deux pièces intérieures, sans `outside`). `closed` = une porte intérieure sans capteur compte comme fermée |
+| `light.lamps` | booléen | | `true` | Les halos des pastilles `light.*` avec `halo` prennent la couleur et la luminosité de la lampe, se mélangent quand ils se recouvrent et restent dans la pièce de la lampe (`room`, sinon celle où elle est posée) |
 
 ```yaml
 ambience:
@@ -1849,7 +1826,7 @@ La réaction de la carte au toucher. Sans ces clés, elle se comporte comme avan
 |---|---|---|---|---|
 | `interaction.room_tap` | énum | `room_view` `more_info` `none` | `room_view` | Toucher une pièce : vue de la pièce ; plus d'infos de son entité `tap` (sinon `temperature`) ; rien. Une pièce avec `zoom: false` garde son propre comportement |
 | `interaction.lock_view` | booléen | | `false` | Ni déplacement ni zoom à la molette / au pincement, boutons de zoom masqués ; les touchers fonctionnent toujours |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon ; dans l'éditeur : jamais cachés, en-tête sur téléphone sauf `map`. Sur le plan avec une souris, les boutons (calques, +, −, tout le plan) s'estompent 5 s après la sortie du curseur et reviennent dès qu'il revient, au clavier ou au toucher. Leur place est fixe : + et − ne bougent jamais, *tout le plan* s'ajoute au-dessus. *Nouveau en 0.2.1* ; dans l'éditeur sur téléphone, les boutons passent aussi dans l'en-tête (*Nouveau en 0.3.0*). |
+| `interaction.zoom_buttons` | énum | `auto` `map` `header` `hidden` | `auto` | Boutons de zoom sur le plan, dans l'en-tête (hors du plan) ou cachés (pincement et toucher des pièces toujours actifs) ; `auto` = en-tête sur téléphone, plan sinon. Dans l'éditeur : jamais cachés, en-tête sur téléphone sauf `map`. À la souris, les boutons sur le plan s'estompent 5 s après la sortie du curseur. *Nouveau en 0.2.1* |
 | `interaction.reset_after` | nombre (s) | 0–86400 (éditeur : pas de 10) | `0` | Retour au plan entier après ce nombre de secondes sans interaction (vue de la pièce, zoom, fiches fermées, relecture en pause ramenée au direct) ; `0` = jamais |
 
 ```yaml
@@ -2003,7 +1980,7 @@ Un appartement de démonstration intégré, aux états simulés ; rien n'est jam
 
 | Clé | Type | Valeurs | Défaut | Description |
 |---|---|---|---|---|
-| `demo` | booléen | | `false` | `true` remplace le plan par la démo ; seuls `title` et `language` de la configuration sont conservés |
+| `demo` | booléen | | `false` | `true` remplace le plan par la démo ; seuls `title`, `language`, `theme` et `css` de la configuration sont conservés |
 
 ```yaml
 type: custom:maquette-card
@@ -2093,13 +2070,10 @@ dashboard, toujours ignorés à l'affichage) ou *Annuler*. Le choix vaut pour le
 élément modifié ou supprimé dans l'éditeur est enregistré tel que dessiné.
 
 **Versions enregistrées** (*Nouveau en 0.3.0*). Les 5 dernières versions enregistrées du plan et les 3 derniers plans d'avant un *Nettoyer le plan*
-sont rangés dans les données utilisateur de Home Assistant (`frontend/set_user_data`, clé `maquette-versions:<id>`, aucune
-intégration côté serveur), et plus seulement dans le navigateur : elles suivent votre compte sur chaque appareil, et
-chaque utilisateur a son propre historique (*Versions de ce compte* dans l'éditeur). Rien n'est envoyé ailleurs que vers
-votre Home Assistant. La copie du navigateur reste en secours (Home Assistant ancien, erreur) ; les versions déjà gardées
-dans un navigateur sont fusionnées dans votre compte à la première ouverture de l'éditeur, sans doublon. Dans Home
-Assistant, la liste est compressée et limitée à 1 Mo par carte ; au-delà, les plus anciennes partent d'abord, jamais la
-dernière version.
+sont rangés dans les données utilisateur de Home Assistant (`frontend/set_user_data`, clé `maquette-versions:<id>`) : elles
+suivent votre compte sur chaque appareil, un historique par utilisateur (*Versions de ce compte*). Une copie dans le
+navigateur reste en secours. La liste est compressée et limitée à 1 Mo par carte ; au-delà, les plus anciennes partent
+d'abord, jamais la dernière version.
 
 **Ce qui n'est jamais dessiné comme du code.** Les textes, noms et états HA sont échappés ; nombres, valeurs énumérées,
 couleurs, icônes et liens sont contrôlés (voir [Conventions](#conventions)) ; tout le HTML construit par la carte ou
@@ -2110,7 +2084,8 @@ que `url(#…)` et images qui ne sont pas servies par Home Assistant. La carte n
 
 ## Index des clés
 
-Chaque clé publique, par ordre alphabétique, avec les sections qui la documentent.
+Chaque clé publique, par ordre alphabétique, avec les sections qui la documentent. Les clés de retouche de `theme:`
+(`accent`, `room_fill`…) sont dans [Variables CSS](#variables-css).
 
 | Clé | Section(s) |
 |---|---|
@@ -2130,9 +2105,9 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `animation_level` | [Racine de la carte](#racine-de-la-carte), [Niveau d'animation](#niveau-danimation) |
 | `animations` | [Racine de la carte](#racine-de-la-carte), [Animations](#animations) |
 | `area` | [Pièces et sous-zones](#pièces-et-sous-zones) |
+| `ask` | [Modèles](#modèles) |
 | `at_home` | [Personnes](#personnes) |
 | `attribute` | [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
-| `ask` | [Modèles](#modèles) |
 | `auto_actions` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `automations` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `avatar` | [Personnes](#personnes) |
@@ -2142,9 +2117,11 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `badge` | [Animations](#animations) |
 | `badge_style` | [Racine de la carte](#racine-de-la-carte), [Style des pastilles](#style-des-pastilles) |
 | `badges` | [Racine de la carte](#racine-de-la-carte), [Pastilles d'appareils](#pastilles-dappareils), [Flux d'énergie](#flux-dénergie) |
+| `base` | [Thèmes et CSS personnalisé](#thèmes-et-css-personnalisé) |
 | `battery` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
 | `bay` | [Ouvertures](#ouvertures) |
 | `below` | [Puces de résumé](#puces-de-résumé), [Alertes plein plan](#alertes-plein-plan) |
+| `bounce` | [Lumière](#lumière) |
 | `burn_in` | [Tablette murale](#tablette-murale) |
 | `card` | [Fiches](#fiches), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `card_mod` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
@@ -2166,10 +2143,11 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `description` | [Modèles](#modèles) |
 | `direction` | [Météo](#météo) |
 | `domain` | [Modèles](#modèles) |
+| `doors` | [Lumière](#lumière) |
 | `drawing_order` | [Calques](#calques) |
 | `duration` | [Widgets](#widgets), [Widget `climate`](#widget-climate), [Animations](#animations), [Traces](#traces) |
-| `effects` | [Racine de la carte](#racine-de-la-carte), [Niveau d'animation](#niveau-danimation) |
 | `editor` | [Réglages généraux](#réglages-généraux) |
+| `effects` | [Racine de la carte](#racine-de-la-carte), [Niveau d'animation](#niveau-danimation) |
 | `enabled` | [Alertes plein plan](#alertes-plein-plan) |
 | `energy` | [Flux d'énergie](#flux-dénergie), [Ambiance](#ambiance) |
 | `entities` | [Widgets](#widgets), [Widget `entities`](#widget-entities), [Personnes](#personnes), [Alertes plein plan](#alertes-plein-plan) |
@@ -2182,6 +2160,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `full_page` | [Réglages généraux](#réglages-généraux) |
 | `furniture` | [Racine de la carte](#racine-de-la-carte), [Meubles](#meubles), [Animations](#animations) |
 | `glazed` | [Ouvertures](#ouvertures) |
+| `green` | [Widget `gauge`](#widget-gauge) |
 | `grid_options` | [Clés Home Assistant conservées](#clés-home-assistant-conservées) |
 | `group` | [Pièces et sous-zones](#pièces-et-sous-zones), [Groupes](#groupes), [Ouvertures](#ouvertures), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles) |
 | `groups` | [Racine de la carte](#racine-de-la-carte), [Groupes](#groupes) |
@@ -2220,7 +2199,6 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `light` | [Animations](#animations), [Lumière](#lumière) |
 | `light_color` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `lock_view` | [Interaction](#interaction) |
-| `zoom_buttons` | [Interaction](#interaction) |
 | `locked` | [Calques](#calques), [Conventions](#conventions) (sur un élément) |
 | `margin` | [Réglages généraux](#réglages-généraux) |
 | `marker` | [Jour et nuit](#jour-et-nuit) |
@@ -2258,20 +2236,22 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `protected` | [Ouvertures](#ouvertures), [Fiches](#fiches), [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `radius` | [Meubles personnalisés](#meubles-personnalisés) |
 | `range` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
+| `red` | [Widget `gauge`](#widget-gauge) |
 | `replay` | [Racine de la carte](#racine-de-la-carte), [Revoir la journée](#revoir-la-journée) |
 | `reset_after` | [Interaction](#interaction) |
 | `right` | [Pièces et sous-zones](#pièces-et-sous-zones), [Panneaux](#panneaux) |
 | `roof_tilt` | [Fenêtre de toit](#fenêtre-de-toit) |
 | `room` | [Pastilles d'appareils](#pastilles-dappareils) |
 | `room_labels` | [Réglages généraux](#réglages-généraux) |
+| `room_opacity` | [Image de fond](#image-de-fond) |
 | `room_tap` | [Interaction](#interaction) |
 | `rooms` | [Racine de la carte](#racine-de-la-carte), [Pièces et sous-zones](#pièces-et-sous-zones), [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `rotation` | [Meubles](#meubles), [Image de fond](#image-de-fond) |
 | `rows` | [Widgets](#widgets) |
 | `seg` | [Ouvertures](#ouvertures) |
 | `session_cost` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
-| `severity` | [Widgets](#widgets), [Widget `gauge`](#widget-gauge) |
 | `session_kwh` | [Widgets](#widgets), [Widget `ev`](#widget-ev) |
+| `severity` | [Widgets](#widgets), [Widget `gauge`](#widget-gauge) |
 | `shape` | [Animations](#animations), [Meubles](#meubles) |
 | `short` | [Étages](#étages-et-image-de-fond) |
 | `show` | [Puces de résumé](#puces-de-résumé), [Image de fond](#image-de-fond) |
@@ -2281,9 +2261,12 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `shutter_animation` | [Animations](#animations), [Ouvertures](#ouvertures) |
 | `shutter_only` | [Ouvertures](#ouvertures) |
 | `sill` | [Ouvertures](#ouvertures) |
-| `slats` | [Ouvertures](#ouvertures) |
 | `sill_height` | [Fenêtre de toit](#fenêtre-de-toit) |
 | `size` | [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles](#meubles), [Style des pastilles](#style-des-pastilles) |
+| `sky` | [Lumière](#lumière) |
+| `sky_diffusion` | [Lumière](#lumière) |
+| `sky_kelvin` | [Lumière](#lumière) |
+| `slats` | [Ouvertures](#ouvertures) |
 | `source` | [Widget `periods`](#widget-periods), [Flux d'énergie](#flux-dénergie) |
 | `spacing` | [Widgets](#widgets), [Widget `divider`](#widget-divider) |
 | `speed` | [Revoir la journée](#revoir-la-journée) |
@@ -2295,6 +2278,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `sub_area` | [Pièces et sous-zones](#pièces-et-sous-zones) |
 | `summary` | [Racine de la carte](#racine-de-la-carte), [Puces de résumé](#puces-de-résumé), [Tablette murale](#tablette-murale) |
 | `sun` | [Jour et nuit](#jour-et-nuit), [Lumière](#lumière) |
+| `sun_kelvin` | [Lumière](#lumière) |
 | `swing` | [Ouvertures](#ouvertures) |
 | `t_max` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
 | `t_min` | [Widgets](#widgets), [Widget `climate`](#widget-climate) |
@@ -2316,6 +2300,7 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `type` | [Racine de la carte](#racine-de-la-carte), [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Ouvertures](#ouvertures), [Animations](#animations), [Meubles](#meubles), [Modèles](#modèles), [Alertes plein plan](#alertes-plein-plan) |
 | `unavailable` | [Style des pastilles](#style-des-pastilles) |
 | `unit` | [Puces de résumé](#puces-de-résumé), [Widgets](#widgets), [Widget `gauge`](#widget-gauge), [Widget `tile`](#widget-tile), [Widget `periods`](#widget-periods), [Pastilles d'appareils](#pastilles-dappareils), [Textes et zones d'informations](#textes-et-zones-dinformations), [Meubles connectés](#meubles-connectés) |
+| `update_notice` | [Réglages généraux](#réglages-généraux) |
 | `value` | [Pastilles d'appareils](#pastilles-dappareils), [Meubles connectés](#meubles-connectés) |
 | `values` | [Style des pastilles](#style-des-pastilles) |
 | `view_button` | [Calques](#calques) |
@@ -2331,7 +2316,9 @@ Chaque clé publique, par ordre alphabétique, avec les sections qui la document
 | `x` | [Meubles personnalisés](#meubles-personnalisés) |
 | `y` | [Meubles personnalisés](#meubles-personnalisés) |
 | `year` | [Widget `periods`](#widget-periods) |
+| `yellow` | [Widget `gauge`](#widget-gauge) |
 | `zoom` | [Pièces et sous-zones](#pièces-et-sous-zones) |
+| `zoom_buttons` | [Interaction](#interaction) |
 | `zoom_only` | [Pastilles d'appareils](#pastilles-dappareils), [Style des pastilles](#style-des-pastilles) |
 
 ## Valeurs énumérées
@@ -2350,6 +2337,7 @@ Chaque valeur énumérée, par clé.
 | `alerts[].type` | `openings` |
 | `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `pergola` `shed` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
+| `ambience.light.doors` | `open` `closed` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
 | `ambience.people.away`<br>`ambience.people.persons.<person>.away` | `direction` `zone` `hidden` |
@@ -2368,8 +2356,11 @@ Chaque valeur énumérée, par clé.
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |
 | `furniture[].shape[].style`<br>`templates[].item.shape[].style` | `filled` `outline` `dashed` |
 | `interaction.room_tap` | `room_view` `more_info` `none` |
-| `layers.drawing_order[]`<br>`layers.hidden[]`<br>`layers.locked[]`<br>`layers.overlay_order[]` | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` `room_labels` `area_labels` `badges` `texts` |
+| `interaction.zoom_buttons` | `auto` `map` `header` `hidden` |
+| `layers.drawing_order[]`<br>`layers.hidden[]`<br>`layers.locked[]`<br>`layers.overlay_order[]` | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` `room_labels` `area_labels` `badges` `texts` ; aussi `background` dans `hidden` et `locked` |
 | `openings[].type` | `window` `door` `gate` |
+| `openings[].glazed` | `full` `top` |
+| `openings[].slats` | `tilt` `vented` |
 | `openings[].swing`<br>`templates[].item.swing` | `left` `right` `sliding` |
 | `rooms[].actions[].target` | `room` |
 | `show_furniture` | `desktop` |

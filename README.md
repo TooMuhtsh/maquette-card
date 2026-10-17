@@ -24,7 +24,7 @@ Your home seen from above, live, drawn right in your dashboard: no floor-plan im
 - Lights glow in their room, open doors and windows turn red, shutters sit at their real position.
 - Rooms are tinted by temperature; connected furniture (EV charger, fridge, TV…) shows its power.
 - One plan per floor, with stairs to the next one and alerts that cover the whole house.
-- A built-in editor (admins only): walls, rooms, openings, 45 furniture symbols, your Home Assistant areas in one click.
+- A built-in editor (admins only): walls, rooms, openings, 48 furniture items and shapes, your Home Assistant areas in one click.
 - In the editor too: a widget library and sharing, plan clean-up, layers and undo. And a wall tablet mode.
 - 65 ready-made widgets (CO₂, leak, lock, EV, tariff, pool pH…) for the side panels and the card each element opens on tap.
 - Optional ambience: day and night from the sun, real weather, energy flows, sun and moon light through the windows.

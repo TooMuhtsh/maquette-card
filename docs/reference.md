@@ -186,7 +186,7 @@ legend: false
 
 ### New version notice
 
-*New in 0.4.0.* With HACS, Home Assistant has an update entity for Maquette. When it offers a newer version, administrators see a small window at the bottom right: the first lines of the release notes, **Update** (HACS installs it, then **Reload**), **See on GitHub**, a star invitation and a close button (*Later*: hidden until the next version, in this browser). One window per page, never in the editor. Everything is read from Home Assistant: the card makes no online request. Without HACS (manual install), nothing is shown; ⚙ *Settings › About* gives the version and the links.
+*New in 0.4.0.* With HACS, when Home Assistant's update entity for Maquette offers a newer version, administrators see a small window at the bottom right: the start of the release notes, **Update** (HACS installs it, then **Reload**), **See on GitHub** and *Later* (hidden until the next version, in this browser). Never in the editor; everything is read from Home Assistant, the card makes no online request. Without HACS, nothing is shown; ⚙ *Settings › About* gives the version and the links.
 
 ```yaml
 update_notice: false   # no new version window
@@ -468,7 +468,7 @@ Windows, doors and gates drawn on a wall segment, with their contact, shutter or
 | `type` | enum | `window` `door` `gate` | required | Kind of opening (drawing, icons) |
 | `seg` | `[x1, y1, x2, y2]` | | required | Segment on the wall. An opening without a valid `seg` is ignored |
 | `name` | string | | — | Name (lists, card header, open-openings chip) |
-| `contact` | entity / list | up to 8 entities | — | Contact sensor: red when `on` / `open`. A list for one opening with several sensors (left and right leaf…): open as soon as one is, closed when one answers and none is open, unavailable only when all are; counted once, one line per sensor in its card |
+| `contact` | entity / list | up to 8 entities | — | Contact sensor: red when `on` / `open`. A list for several sensors on one opening (two leaves…): open as soon as one is, unavailable only when all are; counted once |
 | `shutter` | entity | | — | Shutter (`cover`): drawn on the outside, darker when closed, animated while moving |
 | `entity` | entity | | — | Motorised opening (gate, garage door), used when there is no `contact` |
 | `outside` | `[dx, dy]` | `[-1, 0]` `[1, 0]` `[0, -1]` `[0, 1]` | `[0, 0]` | Outside direction (left, right, up, down): the shutter is drawn on that side |
@@ -476,10 +476,10 @@ Windows, doors and gates drawn on a wall segment, with their contact, shutter or
 | `bay` | string | | — | Bay name: leaves with the same `bay` form one bay (one card, one line, counted once; one sun patch for the ambience light) |
 | `sill` | number (cm) | 0–300 | auto | Ambience light: height of the bottom of the glazing (`0` = down to the floor). Auto = 90, or 0 for a bay at least 180 cm wide (adjoining leaves added up) |
 | `height` | number (cm) | 10–500 | `215` | Ambience light: height of the top of the glazing (glazed door with `glazed: top`: 200) |
-| `glazed` | enum / bool | `full` `top` (`true` = `full`) | — | Door only: a glazed door lets daylight in like a window (sky light, sun patch, bounced glow; its `shutter` counts). `full` = glazed full height (0 to 215 cm, patch at the foot of the door), `top` = small pane at the top (150 to 200 cm: patch further in, smaller, weaker sky light). `sill` and `height` still refine it |
-| `overhang` | number (cm) | 0–500 | — | Ambience light: depth of a roof overhang above the window or door. It blocks the high sun (summer) and lets the low sun in (winter): the patch is shortened or removed depending on the elevation |
+| `glazed` | enum / bool | `full` `top` (`true` = `full`) | — | Door only: lets daylight in like a window. `full` = glazed full height (0 to 215 cm), `top` = small pane at the top (150 to 200 cm). `sill` and `height` still apply |
+| `overhang` | number (cm) | 0–500 | — | Ambience light: depth of a roof overhang above the glazing; it shortens or removes the sun patch when the sun is high |
 | `overhang_height` | number (cm) | 0–300 | `0` | Height of the overhang above the top of the glazing |
-| `slats` | enum | `tilt` `vented` | — | Ambience light, with a `shutter`: `tilt` = tilting slats, the lowered part lets light through according to the cover's `current_tilt_position` (100 = open); `vented` = a closed shutter still lets thin streaks of light through. Without it, a basic shutter (unchanged rendering) |
+| `slats` | enum | `tilt` `vented` | — | Ambience light, with a `shutter`: `tilt` = the lowered part lets light through according to `current_tilt_position` (100 = open); `vented` = a closed shutter still lets thin streaks through. Absent = plain shutter |
 | `leaves` | number | `1` `2` | `1` | Number of leaves drawn (with `swing`) |
 | `swing` | enum | `left` `right` `sliding` | — | Draws the leaves: hinge side seen from inside facing `outside`, or two sliding panels. Absent = nothing drawn |
 | `outward` | bool | | `false` | Leaves open outward (`left` / `right`) |
@@ -772,8 +772,8 @@ Editor: *Add › Furniture* (one tab, with *Create furniture*, the sub-areas and
 ### Custom furniture
 
 `type: custom` draws its `shape`: shapes in order (the last on top), coordinates in % of `size` from the top left corner,
-so the piece can be resized. Invalid values are bounded or dropped, never drawn as text. `color` (`#rrggbb`, a colour
-name or `var(--…)`, anything else is dropped) tints the piece; connected, its accent and active look still apply.
+so the piece can be resized. Invalid values are bounded or dropped. `color` (any colour of the
+[Conventions](#conventions), or a palette name) tints the piece; connected, its accent and active look still apply.
 
 | Shape key | Type | Values | Default | Description |
 |---|---|---|---|---|
@@ -944,7 +944,7 @@ type adds its own (one key always means the same thing).
 | `icon` | icon | | per type | Header icon |
 | `color` | colour | | — | Accent colour (`gauge`: arc colour) |
 | `rows` | list | | — | Extra lines under `tile`, `gauge`, `tariff`, `ev`, `cover`, `lock` and `thermostat`, see below |
-| `template` | text | a template `id` | — | Copy of a [template](#templates) of the widget library, written by the editor: *Update from the template* and *Update the N copies* refresh it, *Detach* removes the key |
+| `template` | text | a template `id` | — | Copy of a [template](#templates) of the widget library, written by the editor: *Update* and *Update the N copies* refresh it, *Detach* removes the key |
 | `confirm` | bool | | `false` (`cover`, `lock`: see their section) | `true`: every service of the widget asks for confirmation, even a safe one: switches and *Activate* buttons of its rows, thermostat set point, cover and lock buttons. `false` never skips the confirmation of a sensitive service |
 
 **Rows** (`rows[]`, also `entities[]` of the [entities](#widget-entities) widget): an entity id, or an object:
@@ -1609,21 +1609,21 @@ animations* › *People* (drag the avatars on the plan to set `home` as `[x, y]`
 
 ### Light
 
-Light from outside and from the lamps, on by default as soon as `ambience` is present. Static SVG (no animation, no filter),
-redrawn only when the sun (to the degree), a shutter, the moon phase or a lamp changes.
+Light from outside and from the lamps, on by default as soon as `ambience` is present. Static SVG (no animation; blurred
+edges except with `effects: light`), redrawn only when the sun (to the degree), a shutter, the moon phase or a lamp changes.
 
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
 | `light` | boolean / object | | `true` | `false` = off; an object = the settings below |
-| `light.sun` | boolean / number | `0` to `2` | `true` | Daylight through the `window` openings and glazed doors (`glazed`), clipped to the room. Every window that is not closed lets in sky light by day: a beam that widens into the room, brightest against the glass and fading with depth, in a slightly warm white blended in screen mode (it brightens the floor, never a grey veil), plus a faint light over the whole room, scaled to the number and size of its open windows (fades in during civil twilight, a little stronger on the sunny side, a little stronger when overcast). Windows facing the sun also get a soft-edged patch on the floor (direction from `sun.sun` azimuth + `north`, length from the elevation, shortened by the linked `shutter`) and a warm glow bounced around it. Adjoining leaves (same `bay`, same `group`, or in line and touching) form one bay with a single patch. With a `meteo` weather entity, the direct sun follows its `cloud_coverage` (10 % or less = full sun, 90 % or more = none), else its condition (overcast = none); rain, fog or snow remove it. Weather effects (clouds, fog, rain) stay outside: never painted over indoor rooms. `false` turns all daylight off (sky glow included); a number scales the direct patch only (`1` = default, `0` = no patch, `2` = twice as bright) |
+| `light.sun` | boolean / number | `0` to `2` | `true` | Daylight through `window` openings and glazed doors, clipped to the room. By day, every window that is not closed lets in sky light: a beam fading with depth, plus a faint light over the whole room. Windows facing the sun also get a soft-edged sun patch (direction from `sun.sun` + `north`, length from the elevation, shortened by the `shutter`) with a warm bounced glow; adjoining leaves (same `bay`, same `group`, or in line and touching) give one patch. With an `ambience.weather` entity, the direct sun follows its `cloud_coverage` (≤ 10 % = full sun, ≥ 90 % = none), else its condition; rain, fog or snow remove it. Weather effects never cover indoor rooms. `false` = no daylight at all (sky glow included); a number scales the patch only (`0` = none, `2` = twice as bright) |
 | `light.sky` | boolean / number | `0` to `2` | `true` | Strength of the sky glow (`1` = default, `0` = none) |
 | `light.bounce` | boolean / number | `0` to `2` | `true` | Strength of the glow bounced around the patches, sun and moon (`1` = default, `0` = none) |
 | `light.sky_diffusion` | number | `0` to `1` | `0.6` | Diffusion of the sky light (and of the night-sky glow): `0` = a sharp beam, `1` = a wide blur that grows with the depth (nearly sharp against the glass, wider and wider into the room, no visible edge). Editor: *Diffusion* slider, 0 to 100 % |
 | `light.sky_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sky light color as a color temperature (black body); `auto` = the default slightly warm white |
 | `light.sun_kelvin` | `auto` / number | `1800` to `10000` | `auto` | Sun patch color (the bounced glow is a little warmer); `auto` = the default, golden near sunset |
-| `light.moon` | boolean / entity | `true`, `false` or a `sensor.*` | `true` | At night, a cool light through the same windows. The moon's direction is computed by the card from the Home Assistant latitude / longitude and the time: a faint cool patch behind the windows that see it, only the night-sky glow through the others (and when the moon is down). Phase from a moon phase sensor (Moon integration, `sensor.moon_phase` used if present), else computed; stronger near full moon. Without coordinates, a glow straight through each window |
-| `light.doors` | enum | `open` `closed` | `open` | Daylight of a lit room also reaches the next room through an inside door that is open (its `contact` on / open) or an interior glass wall (a `window`, or a `glazed` door, between two indoor rooms, without `outside`: with it, it counts as an outside window only): a fainter light over the whole next room and a glow near the opening, one step only (not passed on further), lamps not included. `closed` = an inside door without a sensor counts as closed |
-| `light.lamps` | boolean | | `true` | Halos of `light.*` badges with `halo` take the lamp color (`rgb_color`, else `hs_color`, else `color_temp_kelvin`) and brightness, blend (screen) where they overlap, and stay inside the lamp's room (`room`, else the room it is in) |
+| `light.moon` | boolean / entity | `true`, `false` or a `sensor.*` | `true` | At night, a cool light through the same windows: a faint patch behind the windows that see the moon (position computed from the HA latitude / longitude), only the night-sky glow through the others. Phase from the given sensor, else `sensor.moon_phase` if present, else computed; stronger near full moon. Without coordinates, a glow straight through each window |
+| `light.doors` | enum | `open` `closed` | `open` | Daylight also reaches the next room, one step only (lamps not included), through an open inside door or an interior glass wall (`window` or `glazed` door between two indoor rooms, without `outside`). `closed` = an inside door without a sensor counts as closed |
+| `light.lamps` | boolean | | `true` | Halos of `light.*` badges with `halo` take the lamp's colour and brightness, blend where they overlap and stay inside the lamp's room (`room`, else the room it is in) |
 
 ```yaml
 ambience:
@@ -1787,7 +1787,7 @@ How the card reacts to touch. Without these keys it behaves as before. Never app
 |---|---|---|---|---|
 | `interaction.room_tap` | enum | `room_view` `more_info` `none` | `room_view` | Tapping a room: room view; more-info of its `tap` entity (else `temperature`); nothing. A room with `zoom: false` keeps its own behaviour |
 | `interaction.lock_view` | bool | | `false` | No panning nor wheel / pinch zoom, zoom buttons hidden; taps still work |
-| `interaction.zoom_buttons` | `auto` / `map` / `header` / `hidden` | | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise; in the editor: never hidden, header on a phone unless `map`. On the map with a mouse, the buttons (layers, +, −, whole plan) fade out 5 s after the cursor leaves the plan and come back when it returns, with the keyboard or on a tap. They keep fixed places: + and − never move, *whole plan* appears above them. *New in 0.2.1*; in the editor on a phone the buttons move to the header too (*New in 0.3.0*). |
+| `interaction.zoom_buttons` | enum | `auto` `map` `header` `hidden` | `auto` | Zoom buttons on the map, in the header (off the map) or hidden (pinch and room taps still work); `auto` = header on a phone, map otherwise. In the editor: never hidden, header on a phone unless `map`. With a mouse, buttons on the map fade out 5 s after the cursor leaves the plan. *New in 0.2.1* |
 | `interaction.reset_after` | number (s) | 0–86400 (editor: step 10) | `0` | Back to the whole plan after this many seconds without interaction (room view, zoom, cards closed, paused replay back to live); `0` = never |
 
 ```yaml
@@ -1940,7 +1940,7 @@ A built-in demo apartment with simulated states; nothing is ever sent to the hou
 
 | Key | Type | Values | Default | Description |
 |---|---|---|---|---|
-| `demo` | bool | | `false` | `true` replaces the plan with the demo; only `title` and `language` of the config are kept |
+| `demo` | bool | | `false` | `true` replaces the plan with the demo; only `title`, `language`, `theme` and `css` of the config are kept |
 
 ```yaml
 type: custom:maquette-card
@@ -2026,12 +2026,9 @@ an unknown key…), the editor lists them (what, where, why) and asks: **Remove 
 for the rest of the editing session. An item you changed or deleted in the editor is saved as drawn.
 
 **Saved versions** (*New in 0.3.0*). The last 5 saved versions of the plan and the last 3 plans from before a *Clean up the plan*
-are stored in your Home Assistant user data (`frontend/set_user_data`, key `maquette-versions:<id>`, no server-side
-integration), not only in the browser: they follow your account on every device, and each user has their own history
-(*Versions of this account* in the editor). Nothing is sent anywhere but your Home Assistant. The browser copy stays as
-a fallback (older Home Assistant, error); versions already kept in a browser are merged into your account the first time
-the editor opens, without duplicates. In Home Assistant the list is compressed and limited to 1 MB per card; beyond
-that the oldest entries go first, never the latest version.
+are stored in your Home Assistant user data (`frontend/set_user_data`, key `maquette-versions:<id>`): they follow your account on
+every device, one history per user (*Versions of this account*). A browser copy stays as a fallback. The list is
+compressed and limited to 1 MB per card; beyond that the oldest entries go first, never the latest version.
 
 **What is never drawn as code.** Texts, names and HA states are escaped; numbers, enumerated values, colours, icons and links
 are checked (see [Conventions](#conventions)); every piece of HTML the card or the editor builds goes through a filter
@@ -2042,7 +2039,8 @@ by Home Assistant. The card makes no request outside Home Assistant.
 
 ## Key index
 
-Every public key, alphabetically, with the sections that document it.
+Every public key, alphabetically, with the sections that document it. The `theme:` touch-up keys (`accent`, `room_fill`…)
+are listed under [CSS variables](#css-variables).
 
 | Key | Section(s) |
 |---|---|
@@ -2062,9 +2060,9 @@ Every public key, alphabetically, with the sections that document it.
 | `animation_level` | [Card root](#card-root), [Animation level](#animation-level) |
 | `animations` | [Card root](#card-root), [Animations](#animations) |
 | `area` | [Rooms and sub-areas](#rooms-and-sub-areas) |
+| `ask` | [Templates](#templates) |
 | `at_home` | [People](#people) |
 | `attribute` | [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Connected furniture](#connected-furniture) |
-| `ask` | [Templates](#templates) |
 | `auto_actions` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `automations` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `avatar` | [People](#people) |
@@ -2074,9 +2072,11 @@ Every public key, alphabetically, with the sections that document it.
 | `badge` | [Animations](#animations) |
 | `badge_style` | [Card root](#card-root), [Badge style](#badge-style) |
 | `badges` | [Card root](#card-root), [Device badges](#device-badges), [Energy flows](#energy-flows) |
+| `base` | [Themes and custom CSS](#themes-and-custom-css) |
 | `battery` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
 | `bay` | [Openings](#openings) |
 | `below` | [Summary chips](#summary-chips), [Full-plan alerts](#full-plan-alerts) |
+| `bounce` | [Light](#light) |
 | `burn_in` | [Wall tablet](#wall-tablet) |
 | `card` | [Cards](#cards), [Openings](#openings), [Device badges](#device-badges), [Connected furniture](#connected-furniture) |
 | `card_mod` | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
@@ -2098,10 +2098,11 @@ Every public key, alphabetically, with the sections that document it.
 | `description` | [Templates](#templates) |
 | `direction` | [Weather](#weather) |
 | `domain` | [Templates](#templates) |
+| `doors` | [Light](#light) |
 | `drawing_order` | [Layers](#layers) |
 | `duration` | [Widgets](#widgets), [Widget: climate](#widget-climate), [Animations](#animations), [Traces](#traces) |
-| `effects` | [Card root](#card-root), [Animation level](#animation-level) |
 | `editor` | [Global settings](#global-settings) |
+| `effects` | [Card root](#card-root), [Animation level](#animation-level) |
 | `enabled` | [Full-plan alerts](#full-plan-alerts) |
 | `energy` | [Energy flows](#energy-flows), [Ambience](#ambience) |
 | `entities` | [Widgets](#widgets), [Widget: entities](#widget-entities), [People](#people), [Full-plan alerts](#full-plan-alerts) |
@@ -2114,6 +2115,7 @@ Every public key, alphabetically, with the sections that document it.
 | `full_page` | [Global settings](#global-settings) |
 | `furniture` | [Card root](#card-root), [Furniture](#furniture), [Animations](#animations) |
 | `glazed` | [Openings](#openings) |
+| `green` | [Widget: gauge](#widget-gauge) |
 | `grid_options` | [Preserved Home Assistant keys](#preserved-home-assistant-keys) |
 | `group` | [Rooms and sub-areas](#rooms-and-sub-areas), [Groups](#groups), [Openings](#openings), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture) |
 | `groups` | [Card root](#card-root), [Groups](#groups) |
@@ -2152,7 +2154,6 @@ Every public key, alphabetically, with the sections that document it.
 | `light` | [Animations](#animations), [Light](#light) |
 | `light_color` | [Device badges](#device-badges) |
 | `lock_view` | [Interaction](#interaction) |
-| `zoom_buttons` | [Interaction](#interaction) |
 | `locked` | [Layers](#layers), [Conventions](#conventions) (on an element) |
 | `margin` | [Global settings](#global-settings) |
 | `marker` | [Day and night](#day-and-night) |
@@ -2190,20 +2191,22 @@ Every public key, alphabetically, with the sections that document it.
 | `protected` | [Openings](#openings), [Cards](#cards), [Device badges](#device-badges), [Connected furniture](#connected-furniture) |
 | `radius` | [Custom furniture](#custom-furniture) |
 | `range` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
+| `red` | [Widget: gauge](#widget-gauge) |
 | `replay` | [Card root](#card-root), [Replay](#replay) |
 | `reset_after` | [Interaction](#interaction) |
 | `right` | [Rooms and sub-areas](#rooms-and-sub-areas), [Panels](#panels) |
 | `roof_tilt` | [Roof window](#roof-window) |
 | `room` | [Device badges](#device-badges) |
 | `room_labels` | [Global settings](#global-settings) |
+| `room_opacity` | [Background image](#background-image) |
 | `room_tap` | [Interaction](#interaction) |
 | `rooms` | [Card root](#card-root), [Rooms and sub-areas](#rooms-and-sub-areas), [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `rotation` | [Furniture](#furniture), [Background image](#background-image) |
 | `rows` | [Widgets](#widgets) |
 | `seg` | [Openings](#openings) |
 | `session_cost` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
-| `severity` | [Widgets](#widgets), [Widget: gauge](#widget-gauge) |
 | `session_kwh` | [Widgets](#widgets), [Widget: ev](#widget-ev) |
+| `severity` | [Widgets](#widgets), [Widget: gauge](#widget-gauge) |
 | `shape` | [Animations](#animations), [Furniture](#furniture) |
 | `short` | [Floors](#floors-and-background-image) |
 | `show` | [Summary chips](#summary-chips), [Background image](#background-image) |
@@ -2213,9 +2216,12 @@ Every public key, alphabetically, with the sections that document it.
 | `shutter_animation` | [Animations](#animations), [Openings](#openings) |
 | `shutter_only` | [Openings](#openings) |
 | `sill` | [Openings](#openings) |
-| `slats` | [Openings](#openings) |
 | `sill_height` | [Roof window](#roof-window) |
 | `size` | [Texts and info boxes](#texts-and-info-boxes), [Furniture](#furniture), [Badge style](#badge-style) |
+| `sky` | [Light](#light) |
+| `sky_diffusion` | [Light](#light) |
+| `sky_kelvin` | [Light](#light) |
+| `slats` | [Openings](#openings) |
 | `source` | [Widget: periods](#widget-periods), [Energy flows](#energy-flows) |
 | `spacing` | [Widgets](#widgets), [Widget: divider](#widget-divider) |
 | `speed` | [Replay](#replay) |
@@ -2227,6 +2233,7 @@ Every public key, alphabetically, with the sections that document it.
 | `sub_area` | [Rooms and sub-areas](#rooms-and-sub-areas) |
 | `summary` | [Card root](#card-root), [Summary chips](#summary-chips), [Wall tablet](#wall-tablet) |
 | `sun` | [Day and night](#day-and-night), [Light](#light) |
+| `sun_kelvin` | [Light](#light) |
 | `swing` | [Openings](#openings) |
 | `t_max` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
 | `t_min` | [Widgets](#widgets), [Widget: climate](#widget-climate) |
@@ -2248,6 +2255,7 @@ Every public key, alphabetically, with the sections that document it.
 | `type` | [Card root](#card-root), [Summary chips](#summary-chips), [Widgets](#widgets), [Openings](#openings), [Animations](#animations), [Furniture](#furniture), [Templates](#templates), [Full-plan alerts](#full-plan-alerts) |
 | `unavailable` | [Badge style](#badge-style) |
 | `unit` | [Summary chips](#summary-chips), [Widgets](#widgets), [Widget: gauge](#widget-gauge), [Widget: tile](#widget-tile), [Widget: periods](#widget-periods), [Device badges](#device-badges), [Texts and info boxes](#texts-and-info-boxes), [Connected furniture](#connected-furniture) |
+| `update_notice` | [Global settings](#global-settings) |
 | `value` | [Device badges](#device-badges), [Connected furniture](#connected-furniture) |
 | `values` | [Badge style](#badge-style) |
 | `view_button` | [Layers](#layers) |
@@ -2263,7 +2271,9 @@ Every public key, alphabetically, with the sections that document it.
 | `x` | [Custom furniture](#custom-furniture) |
 | `y` | [Custom furniture](#custom-furniture) |
 | `year` | [Widget: periods](#widget-periods) |
+| `yellow` | [Widget: gauge](#widget-gauge) |
 | `zoom` | [Rooms and sub-areas](#rooms-and-sub-areas) |
+| `zoom_buttons` | [Interaction](#interaction) |
 | `zoom_only` | [Device badges](#device-badges), [Badge style](#badge-style) |
 
 ## Enumerated values
@@ -2281,6 +2291,7 @@ Every enumerated value, by key.
 | `alerts[].type` | `openings` |
 | `ambience.energy.source`<br>`furniture[].type`<br>`templates[].type` | `sofa` `corner_sofa` `armchair` `coffee_table` `tv_unit` `shelf` `rug` `plant` `fireplace` `square_table` `rect_table` `round_table` `chair` `counter` `sink` `hob` `fridge` `washing_machine` `dishwasher` `single_bed` `double_bed` `crib` `nightstand` `wardrobe` `dresser` `desk` `shower` `bathtub` `washbasin` `toilet` `boiler` `water_heater` `radiator` `electrical_panel` `router` `ev_charger` `heat_pump` `car` `bike` `tree` `pool` `pergola` `shed` `area` `rect` `circle` `stairs` `skylight` `custom` |
 | `ambience.intensity` | `subtle` `normal` `strong` |
+| `ambience.light.doors` | `open` `closed` |
 | `ambience.people.at_home`<br>`ambience.people.persons.<person>.at_home` | `grouped` `hidden` |
 | `ambience.people.avatar`<br>`ambience.people.persons.<person>.avatar` | `picture` `initials` |
 | `ambience.people.away`<br>`ambience.people.persons.<person>.away` | `direction` `zone` `hidden` |
@@ -2299,8 +2310,11 @@ Every enumerated value, by key.
 | `furniture[].shape[].kind`<br>`templates[].item.shape[].kind` | `rect` `rounded_rect` `ellipse` `line` `polygon` |
 | `furniture[].shape[].style`<br>`templates[].item.shape[].style` | `filled` `outline` `dashed` |
 | `interaction.room_tap` | `room_view` `more_info` `none` |
-| `layers.drawing_order[]`<br>`layers.hidden[]`<br>`layers.locked[]`<br>`layers.overlay_order[]` | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` `room_labels` `area_labels` `badges` `texts` |
+| `interaction.zoom_buttons` | `auto` `map` `header` `hidden` |
+| `layers.drawing_order[]`<br>`layers.hidden[]`<br>`layers.locked[]`<br>`layers.overlay_order[]` | `rooms` `sub_areas` `halos` `furniture` `fences` `walls` `openings` `room_labels` `area_labels` `badges` `texts`; also `background` in `hidden` and `locked` |
 | `openings[].type` | `window` `door` `gate` |
+| `openings[].glazed` | `full` `top` |
+| `openings[].slats` | `tilt` `vented` |
 | `openings[].swing`<br>`templates[].item.swing` | `left` `right` `sliding` |
 | `rooms[].actions[].target` | `room` |
 | `show_furniture` | `desktop` |

@@ -24,7 +24,7 @@ Votre logement vu de dessus, en direct, dessiné directement dans votre tableau 
 - Les lumières éclairent leur pièce, portes et fenêtres ouvertes passent en rouge, les volets sont à leur vraie position.
 - Les pièces sont teintées selon la température ; les meubles connectés (borne de recharge, frigo, TV…) affichent leur puissance.
 - Un plan par étage, avec des escaliers vers l'étage voisin et des alertes qui couvrent toute la maison.
-- Un éditeur intégré (administrateurs seulement) : murs, pièces, ouvertures, 45 meubles, vos pièces Home Assistant en un clic.
+- Un éditeur intégré (administrateurs seulement) : murs, pièces, ouvertures, 48 meubles et formes, vos pièces Home Assistant en un clic.
 - Dans l'éditeur aussi : bibliothèque de widgets et partage, nettoyage du plan, calques et annuler. Et un mode tablette murale.
 - 65 widgets prêts à l'emploi (CO₂, fuite, serrure, voiture, tarif, pH de piscine…) pour les panneaux latéraux et la fiche que chaque élément ouvre au toucher.
 - Une ambiance facultative : jour et nuit d'après le soleil, vraie météo, flux d'énergie, lumière du soleil et de la lune par les fenêtres.
