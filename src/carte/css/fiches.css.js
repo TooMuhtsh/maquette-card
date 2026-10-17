@@ -216,8 +216,11 @@ dialog.mf[open]{animation:mf-entree .2s var(--md-sys-motion)}
 .mf-protege ha-icon{--mdc-icon-size:18px;color:var(--md-primary)}
 .mf-protege span{flex:1}
 .mf-protege .cta{padding:0 16px 0 12px;height:32px}
-.mf-w{overflow:auto;padding:4px 16px 8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));align-items:start;gap:12px;min-height:0}
+.mf-w{overflow:auto;padding:4px 16px 8px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));align-items:stretch;gap:12px;min-height:0}
 .mf-w>.w-sep,.mf-w>.w-note{grid-column:1/-1}
+/* widgets d'une même rangée à la même hauteur : titre en haut à gauche, contenu centré dans la place restante */
+.mf-w>.w>.w-tete+*{margin-top:auto}
+.mf-w>.w>.w-tete~:last-child{margin-bottom:auto}
 .mf-w:empty{display:none}
 .mf-w{padding-bottom:20px}
 @media (max-width:600px){dialog.mf,dialog.mf.l2,dialog.mf.l3{width:100%;max-width:100%;margin:auto 0 0;border-radius:28px 28px 0 0;max-height:85vh}
