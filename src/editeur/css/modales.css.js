@@ -56,7 +56,9 @@ ha-card.ed-etroit .ed-outils button{flex:1 1 0;min-width:0;padding:0}
 ha-card.ed-etroit .ed-menu-btn .lib{display:none}
 /* modale ⚙ Paramètres : onglets à gauche, contenu défilant ; plein écran et onglets en haut sur téléphone */
 .ed-mvoile{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:rgb(0 0 0 / .35)}
-.ed-modale{width:min(880px,calc(100vw - 48px));height:min(640px,90vh);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;border-radius:28px;
+/* modale ouverte : la carte ne la coupe pas si elle devient son bloc conteneur (thème avec backdrop-filter sur ha-card : voir _suivreVoiles) */
+ha-card:has(>.ed-mvoile:not([hidden]),>.ed-voile:not(.ed-calib)){overflow:visible}
+.ed-modale{width:min(880px,calc(100vw - 48px));height:min(640px,90vh);max-height:calc(100% - 16px);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;border-radius:28px;
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 8px 12px 6px #0003,0 4px 4px #0004;font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
 .ed-modale>header{display:flex;align-items:flex-start;gap:12px;padding:20px 16px 12px 24px;flex:none}
 .ed-modale>header>ha-icon{--mdc-icon-size:24px;color:var(--md-on-surface-variant);margin-top:4px}
@@ -80,7 +82,7 @@ ha-card.ed-etroit .ed-menu-btn .lib{display:none}
 .ed-mcontenu .ed-liste{margin:0 -8px}
 .ed-mcontenu .ed-liste button{width:100%}
 ha-card.ed-etroit .ed-mvoile{place-items:stretch}
-ha-card.ed-etroit .ed-modale{width:100vw;height:100vh;height:100dvh;border-radius:0}
+ha-card.ed-etroit .ed-modale{width:100vw;height:100vh;height:100dvh;max-height:100%;border-radius:0}
 ha-card.ed-etroit .ed-modale>header{padding:12px 8px 4px 16px}
 ha-card.ed-etroit .ed-modale>header>ha-icon{display:none}
 ha-card.ed-etroit .ed-modale h2{font-size:22px;line-height:28px}

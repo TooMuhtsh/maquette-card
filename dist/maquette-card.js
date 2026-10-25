@@ -1,4 +1,4 @@
-/*! Maquette v0.4.0 | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.4.1 | MIT | https://github.com/TooMuhtsh/maquette-card */
 /* Maquette : textes de l'interface en anglais et en français (une seule source de vérité, partagée par la carte, l'éditeur et la démo).
  * Les clés sont les phrases françaises : en français, _t rend la clé telle quelle (seules les exceptions sont dans FR) ;
  * en anglais, une clé absente du dictionnaire retombe sur le français (et la build échoue : voir build.mjs).
@@ -749,7 +749,7 @@ const PlanDemo = (() => {
  *          meubles, panneaux{gauche, droite}, calques… ; depuisAnglais / versAnglais (schéma N_RACINE) traduisent à l'entrée et à la sortie.
  */
 const { _t, _tk } = globalThis.MaquetteI18n, _loc = () => globalThis.MaquetteI18n.locale();
-const VERSION = "0.4.0";
+const VERSION = "0.4.1";
 // éditeur : module à part (maquette-editeur.js, à côté de ce fichier), chargé à la première ouverture, une seule fois par page ;
 // même requête que la carte (?hacstag=… de HACS, ?v=… d'un déploiement) pour suivre ses mises à jour, sinon ?v=<version>.
 // Déjà là s'il a été chargé autrement (ressource ajoutée à la main, ancienne version d'un seul fichier) ; échec : on pourra réessayer.
@@ -2105,19 +2105,22 @@ const ouvertureInterieure = (pieces, o) => { const c = cotesOuverture(pieces, o)
 // lumière entre pièces : ouverture intérieure = une pièce de chaque côté (voir cotesOuverture).
 // pieces = [[poly, k]], trans[i] = part qui passe par l'ouverture i, F = Map(k → lumière de fond de la pièce éclairée par le jour).
 // Un seul saut : seules les pièces de F éclairent leurs voisines. fond = lumière de fond de la voisine (plus faible, selon la taille
-// du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine
-function lumiereVoisins(pieces, ouvertures, trans, F) {
-  const res = [];
+// du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine.
+// esp (facultatif, voir espacesOuverts) : la voisine est tout son espace ouvert (surface cumulée, `espace` = ses pièces), comme pour la
+// lumière d'une baie ; sans esp, la seule pièce derrière l'ouverture. Une ouverture entre deux pièces d'un même espace ne compte pas
+function lumiereVoisins(pieces, ouvertures, trans, F, esp = null) {
+  const res = [], polyDe = (k) => pieces.find((x) => x[1] === k)?.[0];
   (ouvertures || []).forEach((o, i) => {
     const t = trans[i];
     const c = t > 0 ? cotesOuverture(pieces, o) : null;
-    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2) return;
+    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2 || esp?.[c.p1]?.includes(c.p2)) return;
     const { p1, p2, L, m, nx, ny } = c;
     const [bas, haut] = o.type === "porte" ? [0, 210] : vitrageBornes(o, L);
     for (const [de, vers, sg] of [[p1, p2, -1], [p2, p1, 1]]) {
-      const Fd = F.get(de) || 0, poly = pieces.find((x) => x[1] === vers)[0];
+      const Fd = F.get(de) || 0, espace = (esp?.[vers] || [vers]).filter((k) => polyDe(k));
       if (Fd < 0.004) continue;
-      res.push({ de, vers, i, fond: Fd * t * 0.6 * lumiereFond([L * Math.max(0, haut - bas)], aireDe(poly)), lueur: Fd * t, mil: m, n: [nx * sg, ny * sg], L });
+      const aire = espace.reduce((s, k) => s + aireDe(polyDe(k)), 0);
+      res.push({ de, vers, espace, i, fond: Fd * t * 0.6 * lumiereFond([L * Math.max(0, haut - bas)], aire), lueur: Fd * t, mil: m, n: [nx * sg, ny * sg], L });
     }
   });
   return res;
@@ -6766,9 +6769,10 @@ padding:8px 0;border-radius:4px;background:var(--md-surface-container);color:var
       for (const j of esp[e]) F.set(j, v);
     }
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
-    // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
-    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
-      fh += this._fondPiece(V.vers, V.fond, cCiel, "lum-voisin");
+    // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine (tout son espace ouvert : une petite pièce dessinée
+    // derrière la porte ne s'allume pas seule, en triangle plein), et lueur près de l'ouverture
+    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F, esp)) {
+      for (const j of V.espace) fh += this._fondPiece(j, V.fond, cCiel, "lum-voisin");
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
     }

@@ -237,7 +237,44 @@ class EditeurPlan { // @assemblage
     const V = document.createElement("div");
     V.className = `ed-mvoile ${classe}`;
     this.R.querySelector("ha-card").append(V);
+    this._suivreVoiles();
     return V;
+  }
+  // voiles plein écran (modales, dialogues : position fixed, inset 0) toujours calés sur l'écran. Un ancêtre avec transform, filter,
+  // backdrop-filter ou contain (thème HA en verre dépoli sur les cartes, décalage d'une vue…) devient leur bloc conteneur : sans
+  // correction, le voile prend la taille de la carte et la modale déborde sous le bas de l'écran (tablette : la fin des Paramètres
+  // inaccessible). Le voile mesure son décalage et le compense ; recalé au redimensionnement et au défilement (ha-card : overflow
+  // visible tant qu'une modale est ouverte, modales.css.js)
+  _suivreVoiles() {
+    if (this._caleVoiles) return;
+    let rf = 0;
+    this._caleVoiles = () => {
+      if (rf) return;
+      rf = requestAnimationFrame(() => {
+        rf = 0;
+        if (!this.R) return;
+        for (const V of this.R.querySelectorAll("ha-card>.ed-mvoile:not([hidden]),ha-card>.ed-voile:not(.ed-calib)")) {
+          if (getComputedStyle(V).position !== "fixed") continue;
+          V.style.removeProperty("inset"); ["left", "top", "width", "height"].forEach((k) => V.style.removeProperty(k));
+          const r = V.getBoundingClientRect(), W = innerWidth, H = innerHeight;
+          if (Math.abs(r.left) < 1 && Math.abs(r.top) < 1 && Math.abs(r.width - W) < 2 && Math.abs(r.height - H) < 2) continue;
+          Object.assign(V.style, { inset: "auto", left: `${-r.left}px`, top: `${-r.top}px`, width: `${W}px`, height: `${H}px` });
+        }
+      });
+    };
+    const card = this.R.querySelector("ha-card");
+    this._obsVoiles = new MutationObserver(this._caleVoiles);
+    if (card) this._obsVoiles.observe(card, { childList: true });
+    window.addEventListener("resize", this._caleVoiles);
+    window.addEventListener("scroll", this._caleVoiles, true);
+    this._caleVoiles();
+  }
+  _arreterVoiles() {
+    if (!this._caleVoiles) return;
+    this._obsVoiles?.disconnect(); this._obsVoiles = null;
+    window.removeEventListener("resize", this._caleVoiles);
+    window.removeEventListener("scroll", this._caleVoiles, true);
+    this._caleVoiles = null;
   }
   // onglets d'une modale (verticaux, en ligne sur écran étroit) : [id, titre traduit, icône] ; ids « <pre>-tab-<id> », data-onglet-<pre>
   _navOnglets(pre, lib, onglets, actif) {

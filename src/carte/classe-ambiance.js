@@ -312,9 +312,10 @@ class MaquetteCard extends HTMLElement { // @assemblage
       for (const j of esp[e]) F.set(j, v);
     }
     for (const [k, v] of F) fh += this._fondPiece(k, v, cCiel);
-    // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine, et lueur près de l'ouverture
-    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F)) {
-      fh += this._fondPiece(V.vers, V.fond, cCiel, "lum-voisin");
+    // lumière entre pièces (un seul saut) : fond plus faible dans toute la voisine (tout son espace ouvert : une petite pièce dessinée
+    // derrière la porte ne s'allume pas seule, en triangle plein), et lueur près de l'ouverture
+    for (const V of lumiereVoisins(polys, c.ouvertures, passe, F, esp)) {
+      for (const j of V.espace) fh += this._fondPiece(j, V.fond, cCiel, "lum-voisin");
       const [a, b, d, ff] = c.ouvertures[V.i].seg;
       lueur("lum-voisin-l", V.vers, [V.mil[0] + V.n[0] * V.L * 0.3, V.mil[1] + V.n[1] * V.L * 0.3], [(d - a) / V.L, (ff - b) / V.L], Math.max(70, V.L * 0.9), Math.max(60, V.L * 0.8), cCiel, op1(V.lueur * 1.2));
     }

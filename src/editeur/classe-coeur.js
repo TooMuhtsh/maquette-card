@@ -38,6 +38,7 @@ export class EditeurPlan {
     window.addEventListener("keyup", this._relache, true);
     this._avantFermeture = (e) => { if (this.modifie) { e.preventDefault(); e.returnValue = ""; } };
     window.addEventListener("beforeunload", this._avantFermeture);
+    this._suivreVoiles(); // voiles plein écran calés sur l'écran (classe-parametres.js)
     if (reprise) {
       this.grille = PAS_GRILLE.includes(+reprise.grille) ? +reprise.grille : 5;
       const s = reprise.sel, simple = (v) => typeof v === "number" ? Number.isFinite(v) : typeof v === "string" && /^[\w:.-]{0,80}$/.test(v);

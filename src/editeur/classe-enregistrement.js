@@ -339,6 +339,7 @@ class EditeurPlan { // @assemblage
     window.removeEventListener("pointerdown", this._pointeBtn, true);
     window.removeEventListener("keyup", this._relache, true);
     window.removeEventListener("beforeunload", this._avantFermeture);
+    this._arreterVoiles();
     window.removeEventListener("pointermove", this._suivre, true);
     window.removeEventListener("pointerdown", this._suivre, true);
     this.zone.removeEventListener("pointerleave", this._sortie);

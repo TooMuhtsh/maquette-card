@@ -208,19 +208,22 @@ const ouvertureInterieure = (pieces, o) => { const c = cotesOuverture(pieces, o)
 // lumière entre pièces : ouverture intérieure = une pièce de chaque côté (voir cotesOuverture).
 // pieces = [[poly, k]], trans[i] = part qui passe par l'ouverture i, F = Map(k → lumière de fond de la pièce éclairée par le jour).
 // Un seul saut : seules les pièces de F éclairent leurs voisines. fond = lumière de fond de la voisine (plus faible, selon la taille
-// du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine
-function lumiereVoisins(pieces, ouvertures, trans, F) {
-  const res = [];
+// du passage rapportée à sa surface), lueur = intensité près de l'ouverture ; n = direction vers la voisine.
+// esp (facultatif, voir espacesOuverts) : la voisine est tout son espace ouvert (surface cumulée, `espace` = ses pièces), comme pour la
+// lumière d'une baie ; sans esp, la seule pièce derrière l'ouverture. Une ouverture entre deux pièces d'un même espace ne compte pas
+function lumiereVoisins(pieces, ouvertures, trans, F, esp = null) {
+  const res = [], polyDe = (k) => pieces.find((x) => x[1] === k)?.[0];
   (ouvertures || []).forEach((o, i) => {
     const t = trans[i];
     const c = t > 0 ? cotesOuverture(pieces, o) : null;
-    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2) return;
+    if (!c || c.p1 < 0 || c.p2 < 0 || c.p1 === c.p2 || esp?.[c.p1]?.includes(c.p2)) return;
     const { p1, p2, L, m, nx, ny } = c;
     const [bas, haut] = o.type === "porte" ? [0, 210] : vitrageBornes(o, L);
     for (const [de, vers, sg] of [[p1, p2, -1], [p2, p1, 1]]) {
-      const Fd = F.get(de) || 0, poly = pieces.find((x) => x[1] === vers)[0];
+      const Fd = F.get(de) || 0, espace = (esp?.[vers] || [vers]).filter((k) => polyDe(k));
       if (Fd < 0.004) continue;
-      res.push({ de, vers, i, fond: Fd * t * 0.6 * lumiereFond([L * Math.max(0, haut - bas)], aireDe(poly)), lueur: Fd * t, mil: m, n: [nx * sg, ny * sg], L });
+      const aire = espace.reduce((s, k) => s + aireDe(polyDe(k)), 0);
+      res.push({ de, vers, espace, i, fond: Fd * t * 0.6 * lumiereFond([L * Math.max(0, haut - bas)], aire), lueur: Fd * t, mil: m, n: [nx * sg, ny * sg], L });
     }
   });
   return res;
