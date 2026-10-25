@@ -1,4 +1,4 @@
-/*! Maquette v0.4.0 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
+/*! Maquette v0.4.1 (editor) | MIT | https://github.com/TooMuhtsh/maquette-card */
 (() => {
 const demarrer = () => {
 if (globalThis.MaquetteEditeur) return;
@@ -3973,7 +3973,9 @@ ha-card.ed-etroit .ed-outils button{flex:1 1 0;min-width:0;padding:0}
 ha-card.ed-etroit .ed-menu-btn .lib{display:none}
 /* modale ⚙ Paramètres : onglets à gauche, contenu défilant ; plein écran et onglets en haut sur téléphone */
 .ed-mvoile{position:fixed;inset:0;z-index:9;display:grid;place-items:center;background:rgb(0 0 0 / .35)}
-.ed-modale{width:min(880px,calc(100vw - 48px));height:min(640px,90vh);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;border-radius:28px;
+/* modale ouverte : la carte ne la coupe pas si elle devient son bloc conteneur (thème avec backdrop-filter sur ha-card : voir _suivreVoiles) */
+ha-card:has(>.ed-mvoile:not([hidden]),>.ed-voile:not(.ed-calib)){overflow:visible}
+.ed-modale{width:min(880px,calc(100vw - 48px));height:min(640px,90vh);max-height:calc(100% - 16px);display:flex;flex-direction:column;box-sizing:border-box;overflow:hidden;border-radius:28px;
   background:var(--md-surface-container-high);color:var(--md-on-surface);box-shadow:0 8px 12px 6px #0003,0 4px 4px #0004;font:400 14px/20px var(--ha-font-family-body,Roboto,sans-serif)}
 .ed-modale>header{display:flex;align-items:flex-start;gap:12px;padding:20px 16px 12px 24px;flex:none}
 .ed-modale>header>ha-icon{--mdc-icon-size:24px;color:var(--md-on-surface-variant);margin-top:4px}
@@ -3997,7 +3999,7 @@ ha-card.ed-etroit .ed-menu-btn .lib{display:none}
 .ed-mcontenu .ed-liste{margin:0 -8px}
 .ed-mcontenu .ed-liste button{width:100%}
 ha-card.ed-etroit .ed-mvoile{place-items:stretch}
-ha-card.ed-etroit .ed-modale{width:100vw;height:100vh;height:100dvh;border-radius:0}
+ha-card.ed-etroit .ed-modale{width:100vw;height:100vh;height:100dvh;max-height:100%;border-radius:0}
 ha-card.ed-etroit .ed-modale>header{padding:12px 8px 4px 16px}
 ha-card.ed-etroit .ed-modale>header>ha-icon{display:none}
 ha-card.ed-etroit .ed-modale h2{font-size:22px;line-height:28px}
@@ -4222,6 +4224,7 @@ class EditeurPlan {
     window.addEventListener("keyup", this._relache, true);
     this._avantFermeture = (e) => { if (this.modifie) { e.preventDefault(); e.returnValue = ""; } };
     window.addEventListener("beforeunload", this._avantFermeture);
+    this._suivreVoiles(); // voiles plein écran calés sur l'écran (classe-parametres.js)
     if (reprise) {
       this.grille = PAS_GRILLE.includes(+reprise.grille) ? +reprise.grille : 5;
       const s = reprise.sel, simple = (v) => typeof v === "number" ? Number.isFinite(v) : typeof v === "string" && /^[\w:.-]{0,80}$/.test(v);
@@ -5448,7 +5451,44 @@ class EditeurPlan {
     const V = document.createElement("div");
     V.className = `ed-mvoile ${classe}`;
     this.R.querySelector("ha-card").append(V);
+    this._suivreVoiles();
     return V;
+  }
+  // voiles plein écran (modales, dialogues : position fixed, inset 0) toujours calés sur l'écran. Un ancêtre avec transform, filter,
+  // backdrop-filter ou contain (thème HA en verre dépoli sur les cartes, décalage d'une vue…) devient leur bloc conteneur : sans
+  // correction, le voile prend la taille de la carte et la modale déborde sous le bas de l'écran (tablette : la fin des Paramètres
+  // inaccessible). Le voile mesure son décalage et le compense ; recalé au redimensionnement et au défilement (ha-card : overflow
+  // visible tant qu'une modale est ouverte, modales.css.js)
+  _suivreVoiles() {
+    if (this._caleVoiles) return;
+    let rf = 0;
+    this._caleVoiles = () => {
+      if (rf) return;
+      rf = requestAnimationFrame(() => {
+        rf = 0;
+        if (!this.R) return;
+        for (const V of this.R.querySelectorAll("ha-card>.ed-mvoile:not([hidden]),ha-card>.ed-voile:not(.ed-calib)")) {
+          if (getComputedStyle(V).position !== "fixed") continue;
+          V.style.removeProperty("inset"); ["left", "top", "width", "height"].forEach((k) => V.style.removeProperty(k));
+          const r = V.getBoundingClientRect(), W = innerWidth, H = innerHeight;
+          if (Math.abs(r.left) < 1 && Math.abs(r.top) < 1 && Math.abs(r.width - W) < 2 && Math.abs(r.height - H) < 2) continue;
+          Object.assign(V.style, { inset: "auto", left: `${-r.left}px`, top: `${-r.top}px`, width: `${W}px`, height: `${H}px` });
+        }
+      });
+    };
+    const card = this.R.querySelector("ha-card");
+    this._obsVoiles = new MutationObserver(this._caleVoiles);
+    if (card) this._obsVoiles.observe(card, { childList: true });
+    window.addEventListener("resize", this._caleVoiles);
+    window.addEventListener("scroll", this._caleVoiles, true);
+    this._caleVoiles();
+  }
+  _arreterVoiles() {
+    if (!this._caleVoiles) return;
+    this._obsVoiles?.disconnect(); this._obsVoiles = null;
+    window.removeEventListener("resize", this._caleVoiles);
+    window.removeEventListener("scroll", this._caleVoiles, true);
+    this._caleVoiles = null;
   }
   // onglets d'une modale (verticaux, en ligne sur écran étroit) : [id, titre traduit, icône] ; ids « <pre>-tab-<id> », data-onglet-<pre>
   _navOnglets(pre, lib, onglets, actif) {
@@ -11808,6 +11848,7 @@ class EditeurPlan {
     window.removeEventListener("pointerdown", this._pointeBtn, true);
     window.removeEventListener("keyup", this._relache, true);
     window.removeEventListener("beforeunload", this._avantFermeture);
+    this._arreterVoiles();
     window.removeEventListener("pointermove", this._suivre, true);
     window.removeEventListener("pointerdown", this._suivre, true);
     this.zone.removeEventListener("pointerleave", this._sortie);
@@ -11834,7 +11875,7 @@ class EditeurPlan {
   }
 }
 
-EditeurPlan.VERSION = "0.4.0";
+EditeurPlan.VERSION = "0.4.1";
 globalThis.MaquetteEditeur = EditeurPlan;
 };
 if (customElements.get("maquette-card")) demarrer(); else customElements.whenDefined("maquette-card").then(demarrer);

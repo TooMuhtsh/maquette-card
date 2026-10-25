@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.4.1 - 2026-10-25
+
+### Fixed
+
+- Editor on a tablet: the end of ⚙ Settings could not be reached. When an element above the card has a `transform`, `filter`, `backdrop-filter` or `contain` (a frosted glass Home Assistant theme on cards, for example), the editor windows (Settings, Ambience, element editing, Layers, dialogs) followed the card instead of the screen and went past its bottom edge. They now stay on the screen, also after a resize or a scroll ([#2](https://github.com/TooMuhtsh/maquette-card/issues/2)).
+- Ambience light: daylight going through an open door no longer lights up only the small room drawn right behind it (a bright triangle under the door). It spreads over the whole open space of the next room, with an intensity based on the area of that space, like the light from a window ([#2](https://github.com/TooMuhtsh/maquette-card/issues/2)).
+
 ## 0.4.0 – 2026-10-17
 
 ### Changed
